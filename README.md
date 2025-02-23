@@ -1,17 +1,17 @@
-# ProTanki Server TypeScript
+# 🚀 ProTanki Server TypeScript
 
-## Overview
+## 🌟 Overview
 ProTanki Server TypeScript is a server-side application written in TypeScript for the ProTanki game. This project aims to provide a robust and scalable server infrastructure to support the multiplayer functionalities of the ProTanki game.
 
 > **Current Phase: Login Page**
 
-## Features
+## ✨ Features
 - **TypeScript**: Written entirely in TypeScript for type safety and modern JavaScript features.
 - **Scalable**: Designed to handle multiple concurrent connections efficiently.
 - **Modular**: Organized code structure for easy maintenance and extension.
 - **Real-time Communication**: Utilizes WebSockets for real-time communication between the server and clients.
 
-## Installation
+## 🛠️ Installation
 To get started with the ProTanki Server TypeScript, follow these steps:
 
 1. **Clone the repository**:
@@ -38,8 +38,8 @@ To get started with the ProTanki Server TypeScript, follow these steps:
     npm start
     ```
 
-## Usage
+## 🚀 Usage
 Once the server is running, it will listen for incoming connections from ProTanki game clients. Ensure that the game clients are configured to connect to the server's IP address and port.
 
-## Contributing
+## 🤝 Contributing
 Contributions are welcome! If you have any ideas, suggestions, or improvements, feel free to open an issue or submit a pull request.
