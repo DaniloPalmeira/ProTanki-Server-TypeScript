@@ -9,16 +9,19 @@ export class ProTankiServer {
   private clientManager: ClientManager;
   private port: number;
   private maxClients: number;
-  private needInviteCode: boolean = false;
+  private needInviteCode: boolean;
+  private socialNetworks: Array<string[]>;
 
   constructor({
-    port = 5555,
-    maxClients = 100,
-    needInviteCode = false,
+    port,
+    maxClients,
+    needInviteCode,
+    socialNetworks,
   }: IServerOptions) {
     this.port = port;
     this.maxClients = maxClients;
     this.needInviteCode = needInviteCode;
+    this.socialNetworks = socialNetworks;
     this.server = net.createServer(this.handleConnection.bind(this));
     this.clientManager = new ClientManager();
     this.maxClients = maxClients;
@@ -61,6 +64,10 @@ export class ProTankiServer {
 
   getNeedInviteCode(): boolean {
     return this.needInviteCode;
+  }
+
+  getSocialNetworks(): Array<string[]> {
+    return this.socialNetworks;
   }
 
   broadcastToLobby(packet: IPacket): void {

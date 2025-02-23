@@ -7,5 +7,10 @@ const server = new ProTankiServer({
   port: PORT,
   maxClients: MAX_CLIENTS,
   needInviteCode: false,
+  socialNetworks: [
+    ["https://google.com", "google"],
+    ["https://facebook.com", "facebook"],
+    ["https://vk.com", "vkontakte"],
+  ],
 });
 server.start();

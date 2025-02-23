@@ -37,13 +37,7 @@ export default class Language implements ILanguage {
     client.language = this.lang;
     client.sendPacket(new Ping());
     console.log(`Setting language to: ${this.lang}`);
-    client.sendPacket(
-      new SocialNetwork([
-        ["https://google.com", "google"],
-        ["https://facebook.com", "facebook"],
-        ["https://vk.com", "vkontakte"],
-      ])
-    );
+    client.sendPacket(new SocialNetwork(server.getSocialNetworks()));
     client.sendPacket(new CaptchaLocation([]));
     client.sendPacket(
       new LoadDependencies(
