@@ -1,0 +1,21 @@
+{
+  "name": "protankiserver",
+  "version": "1.0.0",
+  "description": "ProTankiServer make with TypeScript",
+  "main": "dist/server.js",
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/server.js",
+    "watch": "tsc -w"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "typescript": "^4.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/danilopalmeira/ProTanki-TypeScript.git"
+  },
+  "author": "Danilo Palmeira",
+  "license": "MIT"
+}
