@@ -1,4 +1,4 @@
-export interface ILoginForm {
+export interface IRegistrationForm {
   bgResource: number;
   enableRequiredEmail: boolean;
   maxPasswordLength: number;

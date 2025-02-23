@@ -6,11 +6,12 @@ dotenv.config();
 
 const PORT = process.env.PORT ? parseInt(process.env.PORT) : 1337;
 const MAX_CLIENTS = process.env.MAX_CLIENTS ? parseInt(process.env.MAX_CLIENTS) : 10;
+const NEED_INVITE_CODE = process.env.NEED_INVITE_CODE === 'true';
 
 const server = new ProTankiServer({
   port: PORT,
   maxClients: MAX_CLIENTS,
-  needInviteCode: false,
+  needInviteCode: NEED_INVITE_CODE,
   socialNetworks: [
     ["https://google.com", "google"],
     ["https://facebook.com", "facebook"],

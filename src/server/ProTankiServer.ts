@@ -3,7 +3,7 @@ import { ClientManager } from "./ClientManager";
 import { ProTankiClient } from "./ProTankiClient";
 import { IPacket } from "../packets/interfaces/IPacket";
 import { IServerOptions } from "../types/IServerOptions";
-import { ILoginForm } from "../types/ILoginForm";
+import { IRegistrationForm } from "../types/IRegistrationForm";
 
 export class ProTankiServer {
   private server: net.Server;
@@ -12,7 +12,7 @@ export class ProTankiServer {
   private maxClients: number;
   private needInviteCode: boolean;
   private socialNetworks: Array<string[]>;
-  private loginForm: ILoginForm;
+  private loginForm: IRegistrationForm;
 
   constructor({
     port,
@@ -74,7 +74,7 @@ export class ProTankiServer {
     return this.socialNetworks;
   }
 
-  getLoginForm(): ILoginForm {
+  getLoginForm(): IRegistrationForm {
     return this.loginForm;
   }
 
