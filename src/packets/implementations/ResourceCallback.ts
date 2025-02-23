@@ -25,7 +25,15 @@ export default class ResourceCallback implements IResourceCallback {
   run(server: ProTankiServer, client: ProTankiClient): void {
     if (this.callbackId === 3) {
       client.sendPacket(new InviteEnabled(server.getNeedInviteCode()));
-      client.sendPacket(new Registration(122842, false, 64, 3));
+      const loginForm = server.getLoginForm();
+      client.sendPacket(
+        new Registration(
+          loginForm.bgResource,
+          loginForm.enableRequiredEmail,
+          loginForm.maxPasswordLength,
+          loginForm.minPasswordLength
+        )
+      );
       client.sendPacket(new HideLoader());
     }
   }

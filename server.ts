@@ -12,5 +12,11 @@ const server = new ProTankiServer({
     ["https://facebook.com", "facebook"],
     ["https://vk.com", "vkontakte"],
   ],
+  loginForm: {
+    bgResource: 122842,
+    enableRequiredEmail: false,
+    maxPasswordLength: 64,
+    minPasswordLength: 3,
+  },
 });
 server.start();
