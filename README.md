@@ -36,3 +36,6 @@ To get started with the ProTanki Server TypeScript, follow these steps:
 ## Usage
 Once the server is running, it will listen for incoming connections from ProTanki game clients. Ensure that the game clients are configured to connect to the server's IP address and port.
 
+## Contributing
+Contributions are welcome! If you have any ideas, suggestions, or improvements, feel free to open an issue or submit a pull request.
+
