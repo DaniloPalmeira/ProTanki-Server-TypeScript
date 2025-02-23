@@ -8,7 +8,9 @@
     "start": "node dist/server.js",
     "watch": "tsc -w"
   },
-  "dependencies": {},
+  "dependencies": {
+    "dotenv": "^16.4.7"
+  },
   "devDependencies": {
     "typescript": "^4.0.0"
   },

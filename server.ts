@@ -1,7 +1,11 @@
 import { ProTankiServer } from "./src/server/ProTankiServer";
 
-const PORT = 1337;
-const MAX_CLIENTS = 100;
+import dotenv from "dotenv";
+
+dotenv.config();
+
+const PORT = process.env.PORT ? parseInt(process.env.PORT) : 1337;
+const MAX_CLIENTS = process.env.MAX_CLIENTS ? parseInt(process.env.MAX_CLIENTS) : 10;
 
 const server = new ProTankiServer({
   port: PORT,
