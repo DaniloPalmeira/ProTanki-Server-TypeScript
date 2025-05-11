@@ -7,6 +7,7 @@ import { IRegistrationForm } from "../types/IRegistrationForm";
 import { IInviteResponse } from "../types/IInviteResponse";
 import { InviteService } from "../services/InviteService";
 import { DEFAULT_MAX_CLIENTS, DEFAULT_PORT } from "../config/constants";
+import logger from "../utils/Logger";
 
 export class ProTankiServer {
   private server: net.Server;
@@ -42,19 +43,18 @@ export class ProTankiServer {
 
   public start(): void {
     this.server.listen(this.port, () => {
-      console.log(`ProTanki Server started on port ${this.port}`);
-      console.log(`Max clients allowed: ${this.maxClients}`);
+      logger.info(`ProTanki Server started`, { port: this.port, maxClients: this.maxClients });
     });
 
     this.server.on("error", (err) => {
-      console.error("Server error:", err);
+      logger.error("Server error", { error: err });
     });
   }
 
   public async stop(): Promise<void> {
     return new Promise((resolve) => {
       this.server.close(() => {
-        console.log("ProTanki Server stopped");
+        logger.info("ProTanki Server stopped");
         resolve();
       });
       this.clientManager.getClients().forEach((client) => client.closeConnection());
@@ -71,13 +71,13 @@ export class ProTankiServer {
 
   private handleConnection(socket: net.Socket): void {
     if (this.clientManager.getClientCount() >= this.maxClients) {
-      console.log(`Connection rejected: server at max capacity (${this.maxClients})`);
+      logger.warn(`Connection rejected: server at max capacity`, { maxClients: this.maxClients, client: socket.remoteAddress });
       socket.write("Server is full. Try again later.\n");
       socket.end();
       return;
     }
 
-    console.log(`New client connected: ${socket.remoteAddress || "unknown"}`);
+    logger.info(`New client connected`, { client: socket.remoteAddress || "unknown" });
     new ProTankiClient({ socket, server: this });
   }
 
@@ -97,7 +97,7 @@ export class ProTankiServer {
     try {
       return await InviteService.validateInviteCode(code);
     } catch (error) {
-      console.error(`Error validating invite code ${code}:`, error);
+      logger.error(`Error validating invite code ${code}`, { error });
       return { isValid: false };
     }
   }

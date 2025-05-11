@@ -6,6 +6,8 @@ import CaptchaLocation from "./CaptchaLocation";
 import LoadDependencies from "./LoadDependencies";
 import Ping from "./Ping";
 import SocialNetwork from "./SocialNetwork";
+import { ResourceManager } from "../../utils/ResourceManager";
+import logger from "../../utils/Logger";
 
 export default class Language extends BasePacket implements ILanguage {
   lang: string;
@@ -27,46 +29,39 @@ export default class Language extends BasePacket implements ILanguage {
   run(server: ProTankiServer, client: ProTankiClient): void {
     client.language = this.lang;
     client.sendPacket(new Ping());
-    console.log(`Setting language to: ${this.lang}`);
+    logger.info(`Setting language to: ${this.lang}`, {
+      client: client.getRemoteAddress(),
+    });
     client.sendPacket(new SocialNetwork(server.getSocialNetworks()));
     client.sendPacket(new CaptchaLocation([]));
-    client.sendPacket(
-      new LoadDependencies(
-        {
-          resources: [
-            {
-              idhigh: "0",
-              idlow: 1395300,
-              versionhigh: "0",
-              versionlow: 3,
-              lazy: false,
-              fileNames: ["en.jpg", "pt_br.jpg", "ru.jpg", "ua.jpg"],
-              alpha: false,
-              type: 13,
-            },
-          ],
-        },
-        2
-      )
-    );
-    client.sendPacket(
-      new LoadDependencies(
-        {
-          resources: [
-            {
-              idhigh: "0",
-              idlow: 122842,
-              versionhigh: "0",
-              versionlow: 1,
-              lazy: false,
-              alpha: false,
-              type: 10,
-            },
-          ],
-        },
-        3
-      )
-    );
+
+    const languageImages = ResourceManager.getResourceById("language_images");
+    if (languageImages) {
+      client.sendPacket(
+        new LoadDependencies(
+          {
+            resources: [languageImages],
+          },
+          2
+        )
+      );
+    } else {
+      logger.warn("Language images resource not found");
+    }
+
+    const loginBackground = ResourceManager.getResourceById("login_background");
+    if (loginBackground) {
+      client.sendPacket(
+        new LoadDependencies(
+          {
+            resources: [loginBackground],
+          },
+          3
+        )
+      );
+    } else {
+      logger.warn("Login background resource not found");
+    }
   }
 
   toString(): string {

@@ -1,6 +1,7 @@
 import Invite from "../models/Invite";
 import { IInviteResponse } from "../types/IInviteResponse";
 import { INVITE_CODE_CHARACTERS, INVITE_CODE_LENGTH } from "../config/constants";
+import logger from "../utils/Logger";
 
 export class InviteService {
   private static readonly MAX_CODE_GENERATION_ATTEMPTS = 10;
@@ -42,7 +43,7 @@ export class InviteService {
       await invite.save();
       return { isValid: true, nickname };
     } catch (error) {
-      console.error(`Error linking invite code ${code} to nickname ${nickname}:`, error);
+      logger.error(`Error linking invite code ${code} to nickname ${nickname}`, { error });
       return { isValid: false };
     }
   }
@@ -55,7 +56,7 @@ export class InviteService {
         nickname: invite?.player || null,
       };
     } catch (error) {
-      console.error(`Error validating invite code ${code}:`, error);
+      logger.error(`Error validating invite code ${code}`, { error });
       return { isValid: false };
     }
   }

@@ -6,6 +6,7 @@ import { IClientOptions } from "../types/IClientOptions";
 import { PacketFactory } from "../packets/PacketFactory";
 import { IPacket } from "../packets/interfaces/IPacket";
 import Protection from "../packets/implementations/Protection";
+import logger from "../utils/Logger";
 
 export class ProTankiClient {
   private static readonly HEADER_SIZE = 8;
@@ -26,26 +27,26 @@ export class ProTankiClient {
     this.sendPacket(new Protection(this.encryptionService.obtainKeys()), false);
   }
 
-  /**
-   * Gets the current state of the client.
-   * @returns The client's state.
-   */
   public getState(): ClientState {
     return this.state;
+  }
+
+  public getRemoteAddress(): string {
+    return this.socket.remoteAddress || "unknown";
   }
 
   private setupSocket(): void {
     this.socket.on("data", this.handleData.bind(this));
     this.socket.on("close", this.handleClose.bind(this));
     this.socket.on("error", (err) => {
-      console.error(`Socket error for client ${this.socket.remoteAddress}:`, err);
+      logger.error(`Socket error for client ${this.getRemoteAddress()}`, { error: err });
       this.handleClose();
     });
   }
 
   private handleData(data: Buffer): void {
     if (!data || data.length === 0) {
-      console.warn("Received empty data");
+      logger.warn("Received empty data", { client: this.getRemoteAddress() });
       return;
     }
 
@@ -58,7 +59,7 @@ export class ProTankiClient {
       }
 
       if (packetSize < ProTankiClient.HEADER_SIZE) {
-        console.warn(`Invalid packet size: ${packetSize}`);
+        logger.warn(`Invalid packet size: ${packetSize}`, { client: this.getRemoteAddress() });
         this.closeConnection();
         return;
       }
@@ -66,7 +67,7 @@ export class ProTankiClient {
       const packetId = this.rawDataReceived.readInt32BE(4);
       const packetData = this.rawDataReceived.slice(ProTankiClient.HEADER_SIZE, packetSize);
 
-      console.log(`Received packet of size: ${packetSize}, with ID: ${packetId}`);
+      logger.info(`Received packet`, { size: packetSize, id: packetId, client: this.getRemoteAddress() });
       this.processPacket(packetId, packetData);
 
       this.rawDataReceived = this.rawDataReceived.slice(packetSize);
@@ -74,27 +75,27 @@ export class ProTankiClient {
   }
 
   private processPacket(packetID: number, packetData: Buffer): void {
-    console.log(`Processing packet with ID: ${packetID}`);
+    logger.info(`Processing packet`, { id: packetID, client: this.getRemoteAddress() });
     const decryptedPacket = this.encryptionService.decrypt(packetData);
     const packetClass = PacketFactory(packetID);
 
     if (!packetClass) {
-      console.warn(`No packet handler found for ID: ${packetID}`);
+      logger.warn(`No packet handler found for ID: ${packetID}`, { client: this.getRemoteAddress() });
       return;
     }
 
     try {
       packetClass.read(decryptedPacket);
-      console.log(`Packet processed: ${packetClass.toString()}`);
+      logger.info(`Packet processed: ${packetClass.toString()}`, { client: this.getRemoteAddress() });
       packetClass.run(this.server, this);
     } catch (error) {
-      console.error(`Error processing packet ID ${packetID}:`, error);
+      logger.error(`Error processing packet ID ${packetID}`, { error, client: this.getRemoteAddress() });
       this.closeConnection();
     }
   }
 
   private handleClose(): void {
-    console.log(`Connection closed: ${this.socket.remoteAddress || "unknown"}`);
+    logger.info(`Connection closed`, { client: this.getRemoteAddress() });
     this.server.removeClient(this);
     this.socket.destroy();
   }
@@ -111,10 +112,10 @@ export class ProTankiClient {
       const finalBuffer = encrypt ? this.encryptionService.encrypt(rawBuffer) : rawBuffer;
       const packetBuffer = this.buildPacketBuffer(packetId, finalBuffer);
 
-      console.log(`Sending packet (ID: ${packetId}, Size: ${packetBuffer.length}, Encrypted: ${encrypt})`);
+      logger.info(`Sending packet`, { id: packetId, size: packetBuffer.length, encrypted: encrypt, client: this.getRemoteAddress() });
       this.socket.write(packetBuffer);
     } catch (error) {
-      console.error(`Error sending packet to ${this.socket.remoteAddress}:`, error);
+      logger.error(`Error sending packet to ${this.getRemoteAddress()}`, { error });
     }
   }
 
