@@ -1,17 +1,36 @@
 {
-  // Use IntelliSense to learn about possible attributes.
-  // Hover to view descriptions of existing attributes.
-  // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
   "version": "0.2.0",
   "configurations": [
     {
       "type": "node",
       "request": "launch",
-      "name": "Launch TS",
-      "skipFiles": ["<node_internals>/**"],
+      "name": "Debug TS",
+      "program": "${workspaceFolder}/server.ts",
+      "runtimeExecutable": "ts-node-dev",
+      "runtimeArgs": ["--respawn", "--transpile-only"],
+      "skipFiles": ["<node_internals>/**", "**/node_modules/**"],
+      "outFiles": ["${workspaceFolder}/src/**/*.ts"],
+      "console": "integratedTerminal",
+      "sourceMaps": true
+    },
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Debug Compiled JS",
       "program": "${workspaceFolder}/dist/server.js",
       "preLaunchTask": "tsc: build - tsconfig.json",
-      "outFiles": ["${workspaceFolder}/dist/**/*.js"]
+      "skipFiles": ["<node_internals>/**", "**/node_modules/**"],
+      "outFiles": ["${workspaceFolder}/dist/**/*.js"],
+      "console": "integratedTerminal"
+    },
+    {
+      "type": "node",
+      "request": "attach",
+      "name": "Attach to ts-node-dev",
+      "port": 9229,
+      "skipFiles": ["<node_internals>/**", "**/node_modules/**"],
+      "outFiles": ["${workspaceFolder}/src/**/*.ts"],
+      "sourceMaps": true
     }
   ]
 }

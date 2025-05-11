@@ -1,70 +1,61 @@
-import Invite from "../models/Invite"; // Ajuste o caminho
+import Invite from "../models/Invite";
 import { IInviteResponse } from "../types/IInviteResponse";
+import { INVITE_CODE_CHARACTERS, INVITE_CODE_LENGTH } from "../config/constants";
 
 export class InviteService {
-  // Gera um código de 5 caracteres (0-9, a-f)
+  private static readonly MAX_CODE_GENERATION_ATTEMPTS = 10;
+
   private static generateInviteCode(): string {
-    const characters = "0123456789abcdef";
     let code = "";
-    for (let i = 0; i < 5; i++) {
-      code += characters.charAt(Math.floor(Math.random() * characters.length));
+    for (let i = 0; i < INVITE_CODE_LENGTH; i++) {
+      const randomIndex = Math.floor(Math.random() * INVITE_CODE_CHARACTERS.length);
+      code += INVITE_CODE_CHARACTERS.charAt(randomIndex);
     }
     return code;
   }
 
-  // Cria um novo código de convite
-  static async createInviteCode(): Promise<string> {
-    let code: string;
-    let existingInvite: Invite | null;
+  public static async createInviteCode(): Promise<string> {
+    let attempts = 0;
+    while (attempts < this.MAX_CODE_GENERATION_ATTEMPTS) {
+      const code = this.generateInviteCode();
+      const existingInvite = await Invite.findOne({ where: { code } });
 
-    // Garante que o código é único
-    do {
-      code = this.generateInviteCode();
-      existingInvite = await Invite.findOne({ where: { code } });
-    } while (existingInvite);
-
-    // Cria o convite sem player associado inicialmente
-    await Invite.create({ code, player: null });
-
-    return code;
+      if (!existingInvite) {
+        await Invite.create({ code, player: null });
+        return code;
+      }
+      attempts++;
+    }
+    throw new Error("Failed to generate unique invite code after maximum attempts");
   }
 
-  // Vincula um código de convite a um nickname
-  static async linkInviteCodeToNickname(
-    code: string,
-    nickname: string
-  ): Promise<IInviteResponse> {
-    const invite = await Invite.findOne({ where: { code } });
-
-    if (!invite) {
+  public static async linkInviteCodeToNickname(code: string, nickname: string): Promise<IInviteResponse> {
+    try {
+      const invite = await Invite.findOne({ where: { code } });
+      if (!invite) {
+        return { isValid: false };
+      }
+      if (invite.player) {
+        return { isValid: false };
+      }
+      invite.player = nickname;
+      await invite.save();
+      return { isValid: true, nickname };
+    } catch (error) {
+      console.error(`Error linking invite code ${code} to nickname ${nickname}:`, error);
       return { isValid: false };
     }
-
-    // Verifica se o código já está vinculado
-    if (invite.player) {
-      return {
-        isValid: false,
-      };
-    }
-
-    // Atualiza o campo player
-    invite.player = nickname;
-    await invite.save();
-
-    return {
-      isValid: true,
-      nickname,
-    };
   }
 
-  static async validateInviteCode(code: string): Promise<IInviteResponse> {
+  public static async validateInviteCode(code: string): Promise<IInviteResponse> {
     try {
       const invite = await Invite.findOne({ where: { code } });
       return {
         isValid: !!invite,
-        nickname: invite ? invite.player : null,
+        nickname: invite?.player || null,
       };
     } catch (error) {
+      console.error(`Error validating invite code ${code}:`, error);
       return { isValid: false };
     }
   }

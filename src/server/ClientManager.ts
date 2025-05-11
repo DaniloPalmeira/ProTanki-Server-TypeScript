@@ -22,7 +22,7 @@ export class ClientManager {
 
   sendToLobbyClients(packet: IPacket): void {
     this.clients.forEach((client) => {
-      if (client.state === "lobby") {
+      if (client.getState() === "lobby") {
         client.sendPacket(packet);
       }
     });

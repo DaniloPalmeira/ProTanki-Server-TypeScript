@@ -1,19 +1,23 @@
 import { ProTankiClient } from "../../server/ProTankiClient";
 import { ProTankiServer } from "../../server/ProTankiServer";
-import { ILoadDependencies } from "../interfaces/ILoadDependencies";
+import { ILoadDependencies, IDependency } from "../interfaces/ILoadDependencies";
 
 export default class LoadDependencies implements ILoadDependencies {
-  dependencies: object;
+  dependencies: { resources: IDependency[] };
   callbackId: number;
 
-  constructor(dependencies: object, callbackId: number) {
+  constructor(dependencies: { resources: IDependency[] }, callbackId: number) {
     this.dependencies = dependencies;
     this.callbackId = callbackId;
   }
 
+  /**
+   * Reads the dependencies and callback ID from the buffer.
+   * @param buffer - The buffer to read from.
+   */
   read(buffer: Buffer): void {
     const isEmpty = buffer.readInt8(0) === 1;
-    this.dependencies = {};
+    this.dependencies = { resources: [] };
     if (!isEmpty) {
       const length = buffer.readInt32BE(1);
       this.dependencies = JSON.parse(buffer.toString("utf8", 5, 5 + length));
@@ -21,8 +25,12 @@ export default class LoadDependencies implements ILoadDependencies {
     }
   }
 
+  /**
+   * Writes the dependencies and callback ID to a buffer.
+   * @returns The encoded buffer.
+   */
   write(): Buffer {
-    const isEmpty = Object.keys(this.dependencies).length === 0;
+    const isEmpty = this.dependencies.resources.length === 0;
     const objString = JSON.stringify(this.dependencies);
     const packet = Buffer.alloc(isEmpty ? 1 : 1 + 4 + objString.length + 4);
     packet.writeInt8(isEmpty ? 1 : 0, 0);
@@ -37,7 +45,7 @@ export default class LoadDependencies implements ILoadDependencies {
   run(server: ProTankiServer, client: ProTankiClient): void {}
 
   toString(): string {
-    return `LoadDependencies: ${this.dependencies} ${this.callbackId}`;
+    return `LoadDependencies: ${JSON.stringify(this.dependencies)} ${this.callbackId}`;
   }
 
   getId(): number {

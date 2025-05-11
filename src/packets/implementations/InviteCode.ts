@@ -1,35 +1,26 @@
 import { ProTankiClient } from "../../server/ProTankiClient";
 import { ProTankiServer } from "../../server/ProTankiServer";
 import { IInviteCode } from "../interfaces/IInviteCode";
+import { BasePacket } from "./BasePacket";
 import InviteCodeInvalid from "./InviteCodeInvalid";
 import InviteCodeLogin from "./InviteCodeLogin";
 import InviteCodeRegister from "./InviteCodeRegister";
 
-export default class InviteCode implements IInviteCode {
+export default class InviteCode extends BasePacket implements IInviteCode {
   inviteCode: string;
 
-  constructor(inviteCode: string) {
+  constructor(inviteCode: string = "") {
+    super();
     this.inviteCode = inviteCode;
   }
 
   read(buffer: Buffer): void {
-    const isEmpty = buffer.readInt8(0) === 1;
-    this.inviteCode = "";
-    if (!isEmpty) {
-      const length = buffer.readInt32BE(1);
-      this.inviteCode = buffer.toString("utf8", 5, 5 + length);
-    }
+    const { value } = this.readString(buffer, 0);
+    this.inviteCode = value;
   }
 
   write(): Buffer {
-    const isEmpty = this.inviteCode.length === 0;
-    const packet = Buffer.alloc(isEmpty ? 1 : 1 + 4 + this.inviteCode.length);
-    packet.writeInt8(isEmpty ? 1 : 0, 0);
-    if (!isEmpty) {
-      packet.writeInt32BE(this.inviteCode.length, 1);
-      packet.write(this.inviteCode, 5);
-    }
-    return packet;
+    return this.writeString(this.inviteCode);
   }
 
   async run(server: ProTankiServer, client: ProTankiClient): Promise<void> {

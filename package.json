@@ -1,26 +1,24 @@
 {
   "name": "protankiserver",
   "version": "1.0.0",
-  "description": "ProTanki Server built with TypeScript",
+  "description": "TypeScript-based server for ProTanki game",
   "main": "dist/server.js",
   "scripts": {
     "build": "tsc",
     "start": "node dist/server.js",
-    "watch": "tsc -w",
-    "dev": "ts-node server.ts"
+    "dev": "ts-node-dev --respawn --transpile-only --inspect server.ts"
   },
   "dependencies": {
     "@types/node": "^22.14.1",
     "dotenv": "^16.4.7",
     "pg": "^8.15.6",
     "pg-hstore": "^2.3.4",
-    "reflect-metadata": "^0.2.2",
     "sequelize": "^6.37.7",
-    "typeorm": "^0.3.22"
+    "sqlite3": "^5.1.7"
   },
   "devDependencies": {
-    "ts-node": "^10.9.2",
-    "typescript": "^4.0.0"
+    "ts-node-dev": "^2.0.0",
+    "typescript": "^5.6.3"
   },
   "repository": {
     "type": "git",

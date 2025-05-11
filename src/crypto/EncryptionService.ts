@@ -1,75 +1,72 @@
 import { IEncryptionKeys } from "../types/IEncryptionKeys";
+import { ENCRYPTION_CONSTANTS } from "../config/constants";
 
 export class EncryptionService {
-  encryptionKeys: IEncryptionKeys = {
-    decrypt_position: 0,
-    encrypt_position: 0,
-    encryptionLenght: 8,
-    decrypt_keys: Array(8).fill(0),
-    encrypt_keys: Array(8).fill(0),
-    keyList: [],
-  };
+  private encryptionKeys: IEncryptionKeys;
 
   constructor() {
-    this.generateKeys();
-    this.setCrypsKeys();
+    this.encryptionKeys = {
+      decrypt_position: 0,
+      encrypt_position: 0,
+      encryptionLenght: ENCRYPTION_CONSTANTS.KEY_LENGTH,
+      decrypt_keys: new Array(ENCRYPTION_CONSTANTS.KEY_LENGTH).fill(0),
+      encrypt_keys: new Array(ENCRYPTION_CONSTANTS.KEY_LENGTH).fill(0),
+      keyList: [],
+    };
+    this.initializeKeys();
+  }
+
+  private initializeKeys(): void {
+    this.encryptionKeys.keyList = this.generateKeys();
+    this.setCryptoKeys();
   }
 
   private generateKeys(): number[] {
     const keys: number[] = [];
     for (let i = 0; i < 4; i++) {
-      const key = Math.floor(Math.random() * -120) - 1;
-      keys.push(key);
+      keys.push(Math.floor(Math.random() * -120) - 1);
     }
-    this.encryptionKeys.keyList = keys;
     return keys;
   }
 
-  private setCrypsKeys(): void {
-    let base = 0;
-    for (const key of this.encryptionKeys.keyList) {
-      base ^= key;
-    }
-    for (let i = 0; i < this.encryptionKeys.encryptionLenght; i++) {
-      const encryptionKey = base ^ (i << 3);
-      const decryptionKey = encryptionKey ^ 87;
+  /**
+   * Sets the encryption and decryption keys based on the key list.
+   */
+  private setCryptoKeys(): void {
+    const base = this.encryptionKeys.keyList.reduce((acc, key) => acc ^ key, 0);
 
-      this.encryptionKeys.encrypt_keys[i] = encryptionKey;
-      this.encryptionKeys.decrypt_keys[i] = decryptionKey;
+    for (let i = 0; i < ENCRYPTION_CONSTANTS.KEY_LENGTH; i++) {
+      const key = base ^ (i << 3);
+      this.encryptionKeys.encrypt_keys[i] = key;
+      this.encryptionKeys.decrypt_keys[i] = key ^ ENCRYPTION_CONSTANTS.DECRYPT_XOR_VALUE;
     }
   }
 
-  obtainKeys(): Array<number> {
-    return this.encryptionKeys.keyList;
+  public obtainKeys(): number[] {
+    return [...this.encryptionKeys.keyList];
   }
 
-  decrypt(packet: Buffer): Buffer {
+  public decrypt(packet: Buffer): Buffer {
     const decryptedPacket = Buffer.from(packet);
 
     for (let i = 0; i < decryptedPacket.length; i++) {
       const byteToDecrypt = decryptedPacket[i];
-      this.encryptionKeys.decrypt_keys[this.encryptionKeys.decrypt_position] ^=
-        byteToDecrypt;
-      decryptedPacket[i] =
-        this.encryptionKeys.decrypt_keys[this.encryptionKeys.decrypt_position];
-      this.encryptionKeys.decrypt_position ^=
-        this.encryptionKeys.decrypt_keys[this.encryptionKeys.decrypt_position] &
-        7;
+      const pos = this.encryptionKeys.decrypt_position;
+      this.encryptionKeys.decrypt_keys[pos] ^= byteToDecrypt;
+      decryptedPacket[i] = this.encryptionKeys.decrypt_keys[pos];
+      this.encryptionKeys.decrypt_position ^= this.encryptionKeys.decrypt_keys[pos] & ENCRYPTION_CONSTANTS.POSITION_MASK;
     }
     return decryptedPacket;
   }
 
-  encrypt(packet: Buffer): Buffer {
+  public encrypt(packet: Buffer): Buffer {
     const encryptedPacket = Buffer.from(packet);
 
     for (let i = 0; i < encryptedPacket.length; i++) {
       const byteToEncrypt = encryptedPacket[i];
-      encryptedPacket[i] =
-        byteToEncrypt ^
-        this.encryptionKeys.encrypt_keys[this.encryptionKeys.encrypt_position];
-      this.encryptionKeys.encrypt_keys[this.encryptionKeys.encrypt_position] =
-        byteToEncrypt;
-      this.encryptionKeys.encrypt_position ^= byteToEncrypt & 7;
+      encryptedPacket[i] = byteToEncrypt ^ this.encryptionKeys.encrypt_keys[this.encryptionKeys.encrypt_position];
+      this.encryptionKeys.encrypt_keys[this.encryptionKeys.encrypt_position] = byteToEncrypt;
+      this.encryptionKeys.encrypt_position ^= byteToEncrypt & ENCRYPTION_CONSTANTS.POSITION_MASK;
     }
     return encryptedPacket;
   }

@@ -1,16 +1,15 @@
 import { ProTankiClient } from "../../server/ProTankiClient";
 import { ProTankiServer } from "../../server/ProTankiServer";
 import { IEmpty } from "../interfaces/IEmpty";
+import { BasePacket } from "./BasePacket";
 
-export default class InviteCodeInvalid implements IEmpty {
-  constructor() {}
-
-  read(buffer: Buffer): void {}
+export default class InviteCodeInvalid extends BasePacket implements IEmpty {
+  read(buffer: Buffer): void {
+    this.readEmpty(buffer);
+  }
 
   write(): Buffer {
-    const packet = Buffer.alloc(0);
-
-    return packet;
+    return this.writeEmpty();
   }
 
   run(server: ProTankiServer, client: ProTankiClient): void {}

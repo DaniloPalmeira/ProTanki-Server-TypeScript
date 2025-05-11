@@ -1,36 +1,27 @@
 import { ProTankiClient } from "../../server/ProTankiClient";
 import { ProTankiServer } from "../../server/ProTankiServer";
 import { ILanguage } from "../interfaces/ILanguage";
+import { BasePacket } from "./BasePacket";
 import CaptchaLocation from "./CaptchaLocation";
 import LoadDependencies from "./LoadDependencies";
 import Ping from "./Ping";
 import SocialNetwork from "./SocialNetwork";
 
-export default class Language implements ILanguage {
+export default class Language extends BasePacket implements ILanguage {
   lang: string;
 
-  constructor(lang: string) {
+  constructor(lang: string = "") {
+    super();
     this.lang = lang;
   }
 
   read(buffer: Buffer): void {
-    const isEmpty = buffer.readInt8(0) === 1;
-    this.lang = "";
-    if (!isEmpty) {
-      const length = buffer.readInt32BE(1);
-      this.lang = buffer.toString("utf8", 5, 5 + length);
-    }
+    const { value } = this.readString(buffer, 0);
+    this.lang = value;
   }
 
   write(): Buffer {
-    const isEmpty = this.lang.length === 0;
-    const packet = Buffer.alloc(isEmpty ? 1 : 5 + this.lang.length);
-    packet.writeInt8(isEmpty ? 1 : 0, 0);
-    if (!isEmpty) {
-      packet.writeInt32BE(this.lang.length, 1);
-      packet.write(this.lang, 5);
-    }
-    return packet;
+    return this.writeString(this.lang);
   }
 
   run(server: ProTankiServer, client: ProTankiClient): void {

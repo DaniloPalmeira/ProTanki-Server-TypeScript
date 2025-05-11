@@ -5,7 +5,8 @@ import { IPacket } from "../packets/interfaces/IPacket";
 import { IServerOptions } from "../types/IServerOptions";
 import { IRegistrationForm } from "../types/IRegistrationForm";
 import { IInviteResponse } from "../types/IInviteResponse";
-import { InviteService } from "../services/InviteService"; // Ajuste o caminho
+import { InviteService } from "../services/InviteService";
+import { DEFAULT_MAX_CLIENTS, DEFAULT_PORT } from "../config/constants";
 
 export class ProTankiServer {
   private server: net.Server;
@@ -16,23 +17,30 @@ export class ProTankiServer {
   private socialNetworks: Array<string[]>;
   private loginForm: IRegistrationForm;
 
-  constructor({
-    port,
-    maxClients,
-    needInviteCode,
-    socialNetworks,
-    loginForm,
-  }: IServerOptions) {
-    this.port = port;
-    this.maxClients = maxClients;
-    this.needInviteCode = needInviteCode;
-    this.socialNetworks = socialNetworks;
-    this.loginForm = loginForm;
+  constructor(options: IServerOptions) {
+    this.validateOptions(options);
+    this.port = options.port;
+    this.maxClients = options.maxClients;
+    this.needInviteCode = options.needInviteCode;
+    this.socialNetworks = options.socialNetworks;
+    this.loginForm = options.loginForm;
     this.server = net.createServer(this.handleConnection.bind(this));
     this.clientManager = new ClientManager();
   }
 
-  start(): void {
+  private validateOptions(options: IServerOptions): void {
+    if (!options.port || options.port <= 0) {
+      options.port = DEFAULT_PORT;
+    }
+    if (!options.maxClients || options.maxClients <= 0) {
+      options.maxClients = DEFAULT_MAX_CLIENTS;
+    }
+    if (!options.loginForm || !options.socialNetworks) {
+      throw new Error("Missing required server options: loginForm or socialNetworks");
+    }
+  }
+
+  public start(): void {
     this.server.listen(this.port, () => {
       console.log(`ProTanki Server started on port ${this.port}`);
       console.log(`Max clients allowed: ${this.maxClients}`);
@@ -43,48 +51,58 @@ export class ProTankiServer {
     });
   }
 
-  addClient(client: ProTankiClient): void {
+  public async stop(): Promise<void> {
+    return new Promise((resolve) => {
+      this.server.close(() => {
+        console.log("ProTanki Server stopped");
+        resolve();
+      });
+      this.clientManager.getClients().forEach((client) => client.closeConnection());
+    });
+  }
+
+  public addClient(client: ProTankiClient): void {
     this.clientManager.addClient(client);
   }
 
-  removeClient(client: ProTankiClient): void {
+  public removeClient(client: ProTankiClient): void {
     this.clientManager.removeClient(client);
   }
 
   private handleConnection(socket: net.Socket): void {
     if (this.clientManager.getClientCount() >= this.maxClients) {
-      console.log(
-        `Connection rejected: server at max capacity (${this.maxClients})`
-      );
+      console.log(`Connection rejected: server at max capacity (${this.maxClients})`);
       socket.write("Server is full. Try again later.\n");
       socket.end();
       return;
     }
 
-    console.log("New client connected:", socket.remoteAddress);
-
-    const client = new ProTankiClient({ socket, server: this });
-    this.clientManager.addClient(client);
+    console.log(`New client connected: ${socket.remoteAddress || "unknown"}`);
+    new ProTankiClient({ socket, server: this });
   }
 
-  getNeedInviteCode(): boolean {
+  public getNeedInviteCode(): boolean {
     return this.needInviteCode;
   }
 
-  getSocialNetworks(): Array<string[]> {
+  public getSocialNetworks(): Array<string[]> {
     return this.socialNetworks;
   }
 
-  getLoginForm(): IRegistrationForm {
+  public getLoginForm(): IRegistrationForm {
     return this.loginForm;
   }
 
-  async validateInviteCode(code: string): Promise<IInviteResponse> {
-    const result = await InviteService.validateInviteCode(code);
-    return result;
+  public async validateInviteCode(code: string): Promise<IInviteResponse> {
+    try {
+      return await InviteService.validateInviteCode(code);
+    } catch (error) {
+      console.error(`Error validating invite code ${code}:`, error);
+      return { isValid: false };
+    }
   }
 
-  broadcastToLobby(packet: IPacket): void {
+  public broadcastToLobby(packet: IPacket): void {
     this.clientManager.sendToLobbyClients(packet);
   }
 }
