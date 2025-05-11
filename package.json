@@ -6,7 +6,7 @@
   "scripts": {
     "build": "tsc",
     "start": "node dist/server.js",
-    "dev": "ts-node-dev --respawn --transpile-only --inspect server.ts"
+    "dev": "ts-node-dev --respawn --transpile-only server.ts"
   },
   "dependencies": {
     "@types/node": "^22.14.1",
