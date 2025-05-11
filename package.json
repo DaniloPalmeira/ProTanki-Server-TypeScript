@@ -6,12 +6,20 @@
   "scripts": {
     "build": "tsc",
     "start": "node dist/server.js",
-    "watch": "tsc -w"
+    "watch": "tsc -w",
+    "dev": "ts-node server.ts"
   },
   "dependencies": {
-    "dotenv": "^16.4.7"
+    "@types/node": "^22.14.1",
+    "dotenv": "^16.4.7",
+    "pg": "^8.15.6",
+    "pg-hstore": "^2.3.4",
+    "reflect-metadata": "^0.2.2",
+    "sequelize": "^6.37.7",
+    "typeorm": "^0.3.22"
   },
   "devDependencies": {
+    "ts-node": "^10.9.2",
     "typescript": "^4.0.0"
   },
   "repository": {

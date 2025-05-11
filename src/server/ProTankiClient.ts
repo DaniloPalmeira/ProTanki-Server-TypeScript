@@ -13,13 +13,12 @@ export class ProTankiClient {
   state: ClientState;
   encryptionService: EncryptionService;
   rawDataReceived: Buffer = Buffer.alloc(0);
-  inviteCodeTyped: string = "";
   language: string = "";
 
   constructor({ socket, server }: IClientOptions) {
     this.socket = socket;
     this.server = server;
-    this.state = "lobby";
+    this.state = "auth";
     this.server.addClient(this);
     this.encryptionService = new EncryptionService();
     this.socket.on("data", this.handleData.bind(this));

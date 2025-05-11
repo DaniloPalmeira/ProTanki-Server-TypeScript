@@ -7,6 +7,13 @@ export default class CaptchaLocation implements ICaptchaLocation {
 
   constructor(captchaLocations: Array<number>) {
     this.captchaLocations = captchaLocations;
+
+    // 0 = LOGIN_FORM
+    // 1 = REGISTER_FORM
+    // 2 = CLIENT_STARTUP
+    // 3 = RESTORE_PASSWORD_FORM
+    // 4 = EMAIL_CHANGE_HASH
+    // 5 = ACCOUNT_SETTINGS_FORM
   }
 
   read(buffer: Buffer): void {

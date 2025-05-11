@@ -1,8 +1,8 @@
 import { ProTankiClient } from "../../server/ProTankiClient";
 import { ProTankiServer } from "../../server/ProTankiServer";
-import { IPing } from "../interfaces/IPing";
+import { IEmpty } from "../interfaces/IEmpty";
 
-export default class Ping implements IPing {
+export default class Ping implements IEmpty {
   constructor() {}
 
   read(buffer: Buffer): void {}

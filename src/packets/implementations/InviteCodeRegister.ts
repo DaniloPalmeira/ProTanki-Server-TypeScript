@@ -2,7 +2,7 @@ import { ProTankiClient } from "../../server/ProTankiClient";
 import { ProTankiServer } from "../../server/ProTankiServer";
 import { IEmpty } from "../interfaces/IEmpty";
 
-export default class HideLoader implements IEmpty {
+export default class InviteCodeRegister implements IEmpty {
   constructor() {}
 
   read(buffer: Buffer): void {}
@@ -16,10 +16,10 @@ export default class HideLoader implements IEmpty {
   run(server: ProTankiServer, client: ProTankiClient): void {}
 
   toString(): string {
-    return `HideLoader()`;
+    return `InviteCodeRegister()`;
   }
 
   getId(): number {
-    return -1282173466;
+    return 184934482;
   }
 }

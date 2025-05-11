@@ -4,6 +4,8 @@ import { ProTankiClient } from "./ProTankiClient";
 import { IPacket } from "../packets/interfaces/IPacket";
 import { IServerOptions } from "../types/IServerOptions";
 import { IRegistrationForm } from "../types/IRegistrationForm";
+import { IInviteResponse } from "../types/IInviteResponse";
+import { InviteService } from "../services/InviteService"; // Ajuste o caminho
 
 export class ProTankiServer {
   private server: net.Server;
@@ -28,7 +30,6 @@ export class ProTankiServer {
     this.loginForm = loginForm;
     this.server = net.createServer(this.handleConnection.bind(this));
     this.clientManager = new ClientManager();
-    this.maxClients = maxClients;
   }
 
   start(): void {
@@ -76,6 +77,11 @@ export class ProTankiServer {
 
   getLoginForm(): IRegistrationForm {
     return this.loginForm;
+  }
+
+  async validateInviteCode(code: string): Promise<IInviteResponse> {
+    const result = await InviteService.validateInviteCode(code);
+    return result;
   }
 
   broadcastToLobby(packet: IPacket): void {
