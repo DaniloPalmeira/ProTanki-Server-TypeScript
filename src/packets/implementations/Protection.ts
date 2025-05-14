@@ -1,11 +1,13 @@
 import { ProTankiClient } from "../../server/ProTankiClient";
 import { ProTankiServer } from "../../server/ProTankiServer";
 import { IProtection } from "../interfaces/IProtection";
+import { BasePacket } from "./BasePacket";
 
-export default class Protection implements IProtection {
+export default class Protection extends BasePacket implements IProtection {
   keys: Array<number>;
 
   constructor(keys: Array<number>) {
+    super();
     this.keys = keys;
   }
 
@@ -26,8 +28,6 @@ export default class Protection implements IProtection {
 
     return packet;
   }
-
-  run(server: ProTankiServer, client: ProTankiClient): void {}
 
   toString(): string {
     return `Protection: ${this.keys}`;

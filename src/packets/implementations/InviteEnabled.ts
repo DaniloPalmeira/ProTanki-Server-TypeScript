@@ -1,11 +1,16 @@
 import { ProTankiClient } from "../../server/ProTankiClient";
 import { ProTankiServer } from "../../server/ProTankiServer";
 import { IInviteEnabled } from "../interfaces/IInviteEnabled";
+import { BasePacket } from "./BasePacket";
 
-export default class InviteEnabled implements IInviteEnabled {
+export default class InviteEnabled
+  extends BasePacket
+  implements IInviteEnabled
+{
   requireInviteCode: boolean;
 
   constructor(requireInviteCode: boolean = false) {
+    super();
     this.requireInviteCode = requireInviteCode;
   }
 
@@ -19,8 +24,6 @@ export default class InviteEnabled implements IInviteEnabled {
 
     return packet;
   }
-
-  run(server: ProTankiServer, client: ProTankiClient): void {}
 
   toString(): string {
     return `InviteEnabled(requireInviteCode: ${this.requireInviteCode})`;

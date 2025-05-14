@@ -1,10 +1,9 @@
 import { ProTankiClient } from "../../server/ProTankiClient";
 import { ProTankiServer } from "../../server/ProTankiServer";
 import { IEmpty } from "../interfaces/IEmpty";
+import { BasePacket } from "./BasePacket";
 
-export default class NicknameAvailable implements IEmpty {
-  constructor() {}
-
+export default class NicknameAvailable extends BasePacket implements IEmpty {
   read(buffer: Buffer): void {}
 
   write(): Buffer {
@@ -12,8 +11,6 @@ export default class NicknameAvailable implements IEmpty {
 
     return packet;
   }
-
-  run(server: ProTankiServer, client: ProTankiClient): void {}
 
   toString(): string {
     return `NicknameAvailable()`;

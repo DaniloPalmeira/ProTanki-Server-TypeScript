@@ -1,9 +1,12 @@
 import { ProTankiClient } from "../../server/ProTankiClient";
 import { ProTankiServer } from "../../server/ProTankiServer";
 import { IEmpty } from "../interfaces/IEmpty";
+import { BasePacket } from "./BasePacket";
 
-export default class HideLoader implements IEmpty {
-  constructor() {}
+export default class HideLoader extends BasePacket implements IEmpty {
+  constructor() {
+    super();
+  }
 
   read(buffer: Buffer): void {}
 
@@ -12,8 +15,6 @@ export default class HideLoader implements IEmpty {
 
     return packet;
   }
-
-  run(server: ProTankiServer, client: ProTankiClient): void {}
 
   toString(): string {
     return `HideLoader()`;

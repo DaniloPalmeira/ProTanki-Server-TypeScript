@@ -1,12 +1,20 @@
 import { ProTankiClient } from "../../server/ProTankiClient";
 import { ProTankiServer } from "../../server/ProTankiServer";
-import { ILoadDependencies, IDependency } from "../interfaces/ILoadDependencies";
+import {
+  ILoadDependencies,
+  IDependency,
+} from "../interfaces/ILoadDependencies";
+import { BasePacket } from "./BasePacket";
 
-export default class LoadDependencies implements ILoadDependencies {
+export default class LoadDependencies
+  extends BasePacket
+  implements ILoadDependencies
+{
   dependencies: { resources: IDependency[] };
   callbackId: number;
 
   constructor(dependencies: { resources: IDependency[] }, callbackId: number) {
+    super();
     this.dependencies = dependencies;
     this.callbackId = callbackId;
   }
@@ -42,10 +50,10 @@ export default class LoadDependencies implements ILoadDependencies {
     return packet;
   }
 
-  run(server: ProTankiServer, client: ProTankiClient): void {}
-
   toString(): string {
-    return `LoadDependencies: ${JSON.stringify(this.dependencies)} ${this.callbackId}`;
+    return `LoadDependencies: ${JSON.stringify(this.dependencies)} ${
+      this.callbackId
+    }`;
   }
 
   getId(): number {

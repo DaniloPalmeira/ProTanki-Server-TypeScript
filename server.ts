@@ -48,8 +48,8 @@ async function bootstrap() {
     logger.info("Banco de dados sincronizado");
 
     // Inserir dados de teste
-    logger.info("Seeding test data");
-    await seedTestData();
+    // logger.info("Seeding test data");
+    // await seedTestData();
 
     const server = new ProTankiServer({
       port: PORT,

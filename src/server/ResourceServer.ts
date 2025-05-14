@@ -15,7 +15,7 @@ export class ResourceServer {
     this.app = express();
     this.app.use(cors());
     this.port = process.env.RESOURCE_PORT ? parseInt(process.env.RESOURCE_PORT) : 9999;
-    this.resourceDir = path.join(__dirname, "../../resource");
+    this.resourceDir = path.join(__dirname, "../../.resource");
     this.setupRoutes();
   }
 

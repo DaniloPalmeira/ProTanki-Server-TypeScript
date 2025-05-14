@@ -1,11 +1,16 @@
 import { ProTankiClient } from "../../server/ProTankiClient";
 import { ProTankiServer } from "../../server/ProTankiServer";
 import { IInviteCodeLogin } from "../interfaces/IInviteCodeLogin";
+import { BasePacket } from "./BasePacket";
 
-export default class InviteCodeLogin implements IInviteCodeLogin {
+export default class InviteCodeLogin
+  extends BasePacket
+  implements IInviteCodeLogin
+{
   nickname?: string;
 
   constructor(nickname?: string) {
+    super();
     this.nickname = nickname;
   }
 
@@ -29,8 +34,6 @@ export default class InviteCodeLogin implements IInviteCodeLogin {
     }
     return packet;
   }
-
-  run(server: ProTankiServer, client: ProTankiClient): void {}
 
   toString(): string {
     return `InviteCodeLogin(nickname=${this.nickname ?? "undefined"})`;

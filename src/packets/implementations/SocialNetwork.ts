@@ -1,11 +1,16 @@
 import { ProTankiClient } from "../../server/ProTankiClient";
 import { ProTankiServer } from "../../server/ProTankiServer";
 import { ISocialNetwork } from "../interfaces/ISocialNetwork";
+import { BasePacket } from "./BasePacket";
 
-export default class SocialNetwork implements ISocialNetwork {
+export default class SocialNetwork
+  extends BasePacket
+  implements ISocialNetwork
+{
   socialNetworkParams: Array<Array<String>>;
 
   constructor(socialNetworkParams: Array<Array<String>>) {
+    super();
     this.socialNetworkParams = socialNetworkParams;
   }
 
@@ -52,8 +57,6 @@ export default class SocialNetwork implements ISocialNetwork {
     });
     return packet;
   }
-
-  run(server: ProTankiServer, client: ProTankiClient): void {}
 
   toString(): string {
     return `SocialNetwork(socialNetworkParams: ${this.socialNetworkParams})`;

@@ -1,14 +1,20 @@
+import { CALLBACK } from "../../config/constants";
 import { ProTankiClient } from "../../server/ProTankiClient";
 import { ProTankiServer } from "../../server/ProTankiServer";
 import { IResourceCallback } from "../interfaces/IResourceCallback";
+import { BasePacket } from "./BasePacket";
 import HideLoader from "./HideLoader";
 import InviteEnabled from "./InviteEnabled";
 import Registration from "./Registration";
 
-export default class ResourceCallback implements IResourceCallback {
+export default class ResourceCallback
+  extends BasePacket
+  implements IResourceCallback
+{
   callbackId: number;
 
   constructor(callbackId: number) {
+    super();
     this.callbackId = callbackId;
   }
 
@@ -23,7 +29,7 @@ export default class ResourceCallback implements IResourceCallback {
   }
 
   run(server: ProTankiServer, client: ProTankiClient): void {
-    if (this.callbackId === 3) {
+    if (this.callbackId === CALLBACK.LOGIN_FORM) {
       client.sendPacket(new InviteEnabled(server.getNeedInviteCode()));
       const loginForm = server.getLoginForm();
       client.sendPacket(

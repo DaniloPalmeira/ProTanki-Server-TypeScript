@@ -5,7 +5,7 @@ export interface IPacket {
   [x: string]: any;
   read(buffer: Buffer): void;
   write(): Buffer;
-  run(server: ProTankiServer, client: ProTankiClient): void;
+  run?(server: ProTankiServer, client: ProTankiClient): void;
   toString(): string;
   getId(): number;
 }

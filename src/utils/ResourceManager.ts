@@ -12,7 +12,7 @@ interface ResourceConfig {
 
 export class ResourceManager {
   private static resources: Map<ResourceId, IDependency> = new Map();
-  private static resourceDir = path.join(__dirname, "../../resource");
+  private static resourceDir = path.join(__dirname, "../../.resource");
   private static pathsFile = path.join(__dirname, "../config/resources.json");
 
   private static languageImageFiles = [
@@ -106,11 +106,11 @@ export class ResourceManager {
     return dependency;
   }
 
-  public static getResourceById(id: ResourceId): IDependency | null {
+  public static getResourceById(id: ResourceId): IDependency {
     const resource = this.resources.get(id);
     if (!resource) {
       logger.error(`Resource with ID ${id} not found`);
-      return null;
+      throw new Error(`Resource with ID ${id} not found`);
     }
     return resource;
   }

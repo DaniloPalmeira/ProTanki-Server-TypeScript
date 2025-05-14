@@ -9,3 +9,7 @@ export const INVITE_CODE_CHARACTERS = "0123456789abcdef";
 
 export const DEFAULT_PORT = 1337;
 export const DEFAULT_MAX_CLIENTS = 10;
+
+export const CALLBACK = {
+  LOGIN_FORM: 3,
+};

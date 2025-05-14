@@ -6,8 +6,9 @@ export abstract class BasePacket implements IPacket {
   abstract getId(): number;
   abstract read(buffer: Buffer): void;
   abstract write(): Buffer;
-  abstract run(server: ProTankiServer, client: ProTankiClient): void | Promise<void>;
   abstract toString(): string;
+
+  run(server: ProTankiServer, client: ProTankiClient): void | Promise<void> {}
 
   /**
    * Reads a string from the buffer at the specified offset.
@@ -16,7 +17,10 @@ export abstract class BasePacket implements IPacket {
    * @returns An object containing the read string and the new offset.
    * @throws {Error} If the buffer is invalid or the string length is negative.
    */
-  protected readString(buffer: Buffer, offset: number): { value: string; newOffset: number } {
+  protected readString(
+    buffer: Buffer,
+    offset: number
+  ): { value: string; newOffset: number } {
     this.validateBuffer(buffer, offset, 1);
     const isEmpty = buffer.readInt8(offset) === 1;
     if (isEmpty) {
@@ -56,9 +60,15 @@ export abstract class BasePacket implements IPacket {
    * @param requiredLength - The required length of data.
    * @throws {Error} If the buffer is too short.
    */
-  protected validateBuffer(buffer: Buffer, offset: number, requiredLength: number): void {
+  protected validateBuffer(
+    buffer: Buffer,
+    offset: number,
+    requiredLength: number
+  ): void {
     if (offset + requiredLength > buffer.length) {
-      throw new Error(`Buffer too short: required ${requiredLength} bytes from offset ${offset}`);
+      throw new Error(
+        `Buffer too short: required ${requiredLength} bytes from offset ${offset}`
+      );
     }
   }
 

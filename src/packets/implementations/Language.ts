@@ -8,6 +8,7 @@ import Ping from "./Ping";
 import SocialNetwork from "./SocialNetwork";
 import { ResourceManager } from "../../utils/ResourceManager";
 import logger from "../../utils/Logger";
+import { CALLBACK } from "../../config/constants";
 
 export default class Language extends BasePacket implements ILanguage {
   lang: string;
@@ -34,34 +35,17 @@ export default class Language extends BasePacket implements ILanguage {
     });
     client.sendPacket(new SocialNetwork(server.getSocialNetworks()));
     client.sendPacket(new CaptchaLocation([]));
-
-    const languageImages = ResourceManager.getResourceById("language_images");
-    if (languageImages) {
-      client.sendPacket(
-        new LoadDependencies(
-          {
-            resources: [languageImages],
-          },
-          2
-        )
-      );
-    } else {
-      logger.warn("Language images resource not found");
-    }
-
-    const loginBackground = ResourceManager.getResourceById("login_background");
-    if (loginBackground) {
-      client.sendPacket(
-        new LoadDependencies(
-          {
-            resources: [loginBackground],
-          },
-          3
-        )
-      );
-    } else {
-      logger.warn("Login background resource not found");
-    }
+    client.sendPacket(
+      new LoadDependencies(
+        {
+          resources: [
+            ResourceManager.getResourceById("language_images"),
+            ResourceManager.getResourceById("login_background"),
+          ],
+        },
+        CALLBACK.LOGIN_FORM
+      )
+    );
   }
 
   toString(): string {

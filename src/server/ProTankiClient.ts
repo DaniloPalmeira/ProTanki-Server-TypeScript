@@ -39,7 +39,9 @@ export class ProTankiClient {
     this.socket.on("data", this.handleData.bind(this));
     this.socket.on("close", this.handleClose.bind(this));
     this.socket.on("error", (err) => {
-      logger.error(`Socket error for client ${this.getRemoteAddress()}`, { error: err });
+      logger.error(`Socket error for client ${this.getRemoteAddress()}`, {
+        error: err,
+      });
       this.handleClose();
     });
   }
@@ -59,15 +61,24 @@ export class ProTankiClient {
       }
 
       if (packetSize < ProTankiClient.HEADER_SIZE) {
-        logger.warn(`Invalid packet size: ${packetSize}`, { client: this.getRemoteAddress() });
+        logger.warn(`Invalid packet size: ${packetSize}`, {
+          client: this.getRemoteAddress(),
+        });
         this.closeConnection();
         return;
       }
 
       const packetId = this.rawDataReceived.readInt32BE(4);
-      const packetData = this.rawDataReceived.slice(ProTankiClient.HEADER_SIZE, packetSize);
+      const packetData = this.rawDataReceived.slice(
+        ProTankiClient.HEADER_SIZE,
+        packetSize
+      );
 
-      logger.info(`Received packet`, { size: packetSize, id: packetId, client: this.getRemoteAddress() });
+      logger.info(`Received packet`, {
+        size: packetSize,
+        id: packetId,
+        client: this.getRemoteAddress(),
+      });
       this.processPacket(packetId, packetData);
 
       this.rawDataReceived = this.rawDataReceived.slice(packetSize);
@@ -75,21 +86,33 @@ export class ProTankiClient {
   }
 
   private processPacket(packetID: number, packetData: Buffer): void {
-    logger.info(`Processing packet`, { id: packetID, client: this.getRemoteAddress() });
+    logger.info(`Processing packet`, {
+      id: packetID,
+      client: this.getRemoteAddress(),
+    });
     const decryptedPacket = this.encryptionService.decrypt(packetData);
     const packetClass = PacketFactory(packetID);
 
     if (!packetClass) {
-      logger.warn(`No packet handler found for ID: ${packetID}`, { client: this.getRemoteAddress() });
+      logger.warn(`No packet handler found for ID: ${packetID}`, {
+        client: this.getRemoteAddress(),
+      });
       return;
     }
 
     try {
       packetClass.read(decryptedPacket);
-      logger.info(`Packet processed: ${packetClass.toString()}`, { client: this.getRemoteAddress() });
-      packetClass.run(this.server, this);
+      logger.info(`Packet processed: ${packetClass.toString()}`, {
+        client: this.getRemoteAddress(),
+      });
+      if (packetClass.run) {
+        packetClass.run(this.server, this);
+      }
     } catch (error) {
-      logger.error(`Error processing packet ID ${packetID}`, { error, client: this.getRemoteAddress() });
+      logger.error(`Error processing packet ID ${packetID}`, {
+        error,
+        client: this.getRemoteAddress(),
+      });
       this.closeConnection();
     }
   }
@@ -109,13 +132,22 @@ export class ProTankiClient {
     try {
       const rawBuffer = packet.write();
       const packetId = packet.getId();
-      const finalBuffer = encrypt ? this.encryptionService.encrypt(rawBuffer) : rawBuffer;
+      const finalBuffer = encrypt
+        ? this.encryptionService.encrypt(rawBuffer)
+        : rawBuffer;
       const packetBuffer = this.buildPacketBuffer(packetId, finalBuffer);
 
-      logger.info(`Sending packet`, { id: packetId, size: packetBuffer.length, encrypted: encrypt, client: this.getRemoteAddress() });
+      logger.info(`Sending packet`, {
+        id: packetId,
+        size: packetBuffer.length,
+        encrypted: encrypt,
+        client: this.getRemoteAddress(),
+      });
       this.socket.write(packetBuffer);
     } catch (error) {
-      logger.error(`Error sending packet to ${this.getRemoteAddress()}`, { error });
+      logger.error(`Error sending packet to ${this.getRemoteAddress()}`, {
+        error,
+      });
     }
   }
 

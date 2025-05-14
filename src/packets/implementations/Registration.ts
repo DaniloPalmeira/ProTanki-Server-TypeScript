@@ -1,8 +1,9 @@
 import { ProTankiClient } from "../../server/ProTankiClient";
 import { ProTankiServer } from "../../server/ProTankiServer";
 import { IRegistration } from "../interfaces/IRegistration";
+import { BasePacket } from "./BasePacket";
 
-export default class Registration implements IRegistration {
+export default class Registration extends BasePacket implements IRegistration {
   bgResource: number;
   enableRequiredEmail: boolean;
   maxPasswordLength: number;
@@ -14,6 +15,7 @@ export default class Registration implements IRegistration {
     maxPasswordLength: number = 0,
     minPasswordLengt: number = 0
   ) {
+    super();
     this.bgResource = bgResource;
     this.enableRequiredEmail = enableRequiredEmail;
     this.maxPasswordLength = maxPasswordLength;
@@ -36,8 +38,6 @@ export default class Registration implements IRegistration {
 
     return packet;
   }
-
-  run(server: ProTankiServer, client: ProTankiClient): void {}
 
   toString(): string {
     return `Registration(bgResource: ${this.bgResource}, enableRequiredEmail: ${this.enableRequiredEmail}, maxPasswordLength: ${this.maxPasswordLength}, minPasswordLengt: ${this.minPasswordLengt})`;

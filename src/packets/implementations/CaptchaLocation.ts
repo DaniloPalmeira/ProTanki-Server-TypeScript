@@ -1,11 +1,16 @@
 import { ProTankiClient } from "../../server/ProTankiClient";
 import { ProTankiServer } from "../../server/ProTankiServer";
 import { ICaptchaLocation } from "../interfaces/ICaptchaLocation";
+import { BasePacket } from "./BasePacket";
 
-export default class CaptchaLocation implements ICaptchaLocation {
+export default class CaptchaLocation
+  extends BasePacket
+  implements ICaptchaLocation
+{
   captchaLocations: Array<number>;
 
   constructor(captchaLocations: Array<number>) {
+    super();
     this.captchaLocations = captchaLocations;
 
     // 0 = LOGIN_FORM
@@ -33,8 +38,6 @@ export default class CaptchaLocation implements ICaptchaLocation {
     }
     return packet;
   }
-
-  run(server: ProTankiServer, client: ProTankiClient): void {}
 
   toString(): string {
     return `CaptchaLocation(captchaLocations: ${this.captchaLocations})`;

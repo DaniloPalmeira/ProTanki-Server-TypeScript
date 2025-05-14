@@ -2,9 +2,9 @@ import { ProTankiClient } from "../../server/ProTankiClient";
 import { ProTankiServer } from "../../server/ProTankiServer";
 import { IEmpty } from "../interfaces/IEmpty";
 import { BasePacket } from "./BasePacket";
+import Ping from "./Ping";
 
-export default class InviteCodeRegister extends BasePacket implements IEmpty {
-
+export default class Pong extends BasePacket implements IEmpty {
   read(buffer: Buffer): void {}
 
   write(): Buffer {
@@ -13,11 +13,17 @@ export default class InviteCodeRegister extends BasePacket implements IEmpty {
     return packet;
   }
 
+  run(server: ProTankiServer, client: ProTankiClient): void {
+    setTimeout(() => {
+      client.sendPacket(new Ping());
+    }, 10000);
+  }
+
   toString(): string {
-    return `InviteCodeRegister()`;
+    return `Pong()`;
   }
 
   getId(): number {
-    return 184934482;
+    return 1484572481;
   }
 }

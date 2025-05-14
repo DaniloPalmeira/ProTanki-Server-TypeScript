@@ -12,8 +12,6 @@ export default class InviteCodeInvalid extends BasePacket implements IEmpty {
     return this.writeEmpty();
   }
 
-  run(server: ProTankiServer, client: ProTankiClient): void {}
-
   toString(): string {
     return `InviteCodeInvalid()`;
   }

@@ -4,7 +4,10 @@ import { ICheckNicknameAvailable } from "../interfaces/ICheckNicknameAvailable";
 import { BasePacket } from "./BasePacket";
 import NicknameAvailable from "./NicknameAvailable";
 
-export default class CheckNicknameAvailable extends BasePacket implements ICheckNicknameAvailable {
+export default class CheckNicknameAvailable
+  extends BasePacket
+  implements ICheckNicknameAvailable
+{
   nickname: string;
 
   constructor(nickname: string = "") {
@@ -21,7 +24,7 @@ export default class CheckNicknameAvailable extends BasePacket implements ICheck
     return this.writeString(this.nickname);
   }
 
-  async run(server: ProTankiServer, client: ProTankiClient): Promise<void> {
+  run(server: ProTankiServer, client: ProTankiClient): void {
     if (this.nickname.toLowerCase() === "available") {
       client.sendPacket(new NicknameAvailable());
     }
