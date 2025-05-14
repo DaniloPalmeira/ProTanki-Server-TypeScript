@@ -16,6 +16,7 @@ export class ProTankiClient {
   private encryptionService: EncryptionService;
   private rawDataReceived: Buffer = Buffer.alloc(0);
   public language: string = "";
+  public captchaSolution: string = "";
 
   constructor({ socket, server }: IClientOptions) {
     this.socket = socket;
@@ -96,6 +97,7 @@ export class ProTankiClient {
     if (!packetClass) {
       logger.warn(`No packet handler found for ID: ${packetID}`, {
         client: this.getRemoteAddress(),
+        packetHex: decryptedPacket.toString("hex"),
       });
       return;
     }
