@@ -95,7 +95,7 @@ Follow these steps to set up the ProTanki Server locally:
 
 ## ⚙️ Configuration
 The server uses a dynamic configuration system stored in the database:
-- **Initial Config**: Defined in `config/initial-config.json`. Example:
+- **Initial Config**: Defined in `initial-config.json`. Example:
   ```json
   {
     "needInviteCode": "false",

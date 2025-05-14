@@ -5,7 +5,7 @@
   "main": "dist/server.js",
   "scripts": {
     "update": "ts-node scripts/generateResourceTypes.ts",
-    "build": "tsc && cpx \"src/config/**/*.json\" dist/src/config && cpx \"config/**/*.json\" dist/config",
+    "build": "tsc && cpx \"src/config/**/*.json\" dist/src/config && cpx initial-config.json dist/",
     "start": "node dist/server.js",
     "dev": "ts-node-dev --respawn --transpile-only server.ts"
   },

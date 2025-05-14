@@ -111,7 +111,7 @@ function bootstrap() {
         logger.info("Banco de dados sincronizado");
 
         // Carregar configurações padrão
-        const configPath = path.join(__dirname, "config/initial-config.json");
+        const configPath = path.join(__dirname, "initial-config.json");
         const defaultConfigs = JSON.parse(fs.readFileSync(configPath, "utf8"));
         ConfigService.initializeDefaultConfigs(defaultConfigs, (configErr) => {
           if (configErr) {
