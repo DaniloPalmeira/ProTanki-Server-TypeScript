@@ -85,11 +85,11 @@ Follow these steps to set up the ProTanki Server locally:
     ```sh
     npm start
     ```
-    The server will listen on the configured port (default: `1337`) for game client connections and on port `8080` for WebSocket-based admin panel communication.
+    The server will listen on the configured port (default: `1337`) for game client connections and on port `9998` for WebSocket-based admin panel communication.
 
 ## 🚀 Usage
 - **Game Clients**: Configure ProTanki game clients to connect to the server's IP address and port (e.g., `ws://localhost:1337`). The server handles login, registration, and CAPTCHA verification.
-- **Admin Panel**: Access the admin panel via WebSocket at `ws://localhost:8080` to update server configurations (e.g., `needInviteCode`, `maxClients`) in real-time. The server provides feedback on configuration updates.
+- **Admin Panel**: Access the admin panel via WebSocket at `ws://localhost:9998` to update server configurations (e.g., `needInviteCode`, `maxClients`) in real-time. The server provides feedback on configuration updates.
 - **Resource Server**: Static game resources (e.g., images) are served from the `.resource` directory on the configured `RESOURCE_PORT` (default: `9999`).
 - **Logs**: Check the `logs` directory for detailed server activity logs, rotated daily.
 
