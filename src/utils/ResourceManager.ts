@@ -132,13 +132,13 @@ export class ResourceManager {
     const part4 = parseInt(parts[3], 8);
     const versionOct = parseInt(parts[4], 8);
 
-    const idHigh = (part2 << 16) | (part3 << 8) | part4;
+    const idLow = (part2 << 16) | (part3 << 8) | part4;
 
     return {
-      idLow: part1,
-      idHigh: idHigh,
-      versionLow: 0,
-      versionHigh: versionOct,
+      idHigh: part1,
+      idLow: idLow,
+      versionHigh: 0,
+      versionLow: versionOct,
     };
   }
 
