@@ -1,0 +1,16 @@
+{
+  "name": "protanki-admin",
+  "version": "1.0.0",
+  "main": "dist/main.js",
+  "scripts": {
+    "build": "tsc && copyfiles index.html dist",
+    "start": "npm run build && electron ."
+  },
+  "dependencies": {
+    "electron": "^26.2.4"
+  },
+  "devDependencies": {
+    "typescript": "^5.2.2",
+    "copyfiles": "^2.4.1"
+  }
+}

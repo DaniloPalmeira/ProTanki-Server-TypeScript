@@ -5,8 +5,13 @@ import sequelize from "./src/database";
 import { DEFAULT_MAX_CLIENTS, DEFAULT_PORT } from "./src/config/constants";
 import { InviteService } from "./src/services/InviteService";
 import { UserService } from "./src/services/UserService";
+import { ConfigService } from "./src/services/ConfigService";
 import { ResourceManager } from "./src/utils/ResourceManager";
 import logger from "./src/utils/Logger";
+import { WebSocketManager } from "./src/server/WebSocketManager";
+import http from "http";
+import fs from "fs";
+import path from "path";
 
 // Carrega as variáveis de ambiente primeiro
 dotenv.config();
@@ -15,10 +20,6 @@ dotenv.config();
 logger.info("Starting server initialization");
 
 const PORT = process.env.PORT ? parseInt(process.env.PORT) : DEFAULT_PORT;
-const MAX_CLIENTS = process.env.MAX_CLIENTS
-  ? parseInt(process.env.MAX_CLIENTS)
-  : DEFAULT_MAX_CLIENTS;
-const NEED_INVITE_CODE = process.env.NEED_INVITE_CODE === "true";
 
 function seedTestData(callback: (error?: Error) => void) {
   let codesGenerated = 0;
@@ -109,66 +110,108 @@ function bootstrap() {
 
         logger.info("Banco de dados sincronizado");
 
-        logger.info("Seeding test data");
-        seedTestData((seedErr) => {
-          if (seedErr) {
-            return shutdownWithError(seedErr);
+        // Carregar configurações padrão
+        const configPath = path.join(__dirname, "config/initial-config.json");
+        const defaultConfigs = JSON.parse(fs.readFileSync(configPath, "utf8"));
+        ConfigService.initializeDefaultConfigs(defaultConfigs, (configErr) => {
+          if (configErr) {
+            logger.error("Erro ao inicializar configurações padrão", { error: configErr });
+            return shutdownWithError(configErr);
           }
 
-          const server = new ProTankiServer({
-            port: PORT,
-            maxClients: MAX_CLIENTS,
-            needInviteCode: NEED_INVITE_CODE,
-            socialNetworks: [
-              ["https://google.com", "google"],
-              ["https://facebook.com", "facebook"],
-              ["https://vk.com", "vkontakte"],
-            ],
-            loginForm: {
-              bgResource: 122842,
-              enableRequiredEmail: false,
-              maxPasswordLength: 64,
-              minPasswordLength: 3,
-            },
-          });
+          // Obter todas as configurações do banco de dados
+          ConfigService.getAllConfigs((configsErr, configs) => {
+            if (configsErr) {
+              logger.error("Erro ao obter configurações", { error: configsErr });
+              return shutdownWithError(configsErr);
+            }
 
-          // Iniciar o servidor de recursos
-          const resourceServer = new ResourceServer();
+            const NEED_INVITE_CODE = configs!.needInviteCode === "true";
+            const MAX_CLIENTS = configs!.maxClients
+              ? parseInt(configs!.maxClients)
+              : DEFAULT_MAX_CLIENTS;
 
-          logger.info("Starting ProTanki and Resource servers");
-          server.start();
-          resourceServer.start();
-
-          // Graceful shutdown
-          process.on("SIGTERM", () => {
-            logger.info("Received SIGTERM. Initiating graceful shutdown...");
-            server.stop((serverErr) => {
-              if (serverErr) {
-                logger.error("Error stopping ProTanki server", { error: serverErr });
-              } else {
-                logger.info("ProTanki server stopped");
+            logger.info("Seeding test data");
+            seedTestData((seedErr) => {
+              if (seedErr) {
+                return shutdownWithError(seedErr);
               }
 
-              resourceServer.stop((resourceErr) => {
-                if (resourceErr) {
-                  logger.error("Error stopping Resource server", { error: resourceErr });
-                } else {
-                  logger.info("Resource server stopped");
-                }
+              const server = new ProTankiServer({
+                port: PORT,
+                maxClients: MAX_CLIENTS,
+                needInviteCode: NEED_INVITE_CODE,
+                socialNetworks: [
+                  ["https://google.com", "google"],
+                  ["https://facebook.com", "facebook"],
+                  ["https://vk.com", "vkontakte"],
+                ],
+                loginForm: {
+                  bgResource: 122842,
+                  enableRequiredEmail: false,
+                  maxPasswordLength: 64,
+                  minPasswordLength: 3,
+                },
+              });
 
-                closeSequelize((dbErr) => {
-                  if (dbErr) {
-                    logger.error("Error closing database connection", { error: dbErr });
+              // Iniciar o servidor de recursos
+              const resourceServer = new ResourceServer();
+
+              // Criar servidor HTTP para WebSocket
+              const httpServer = http.createServer((req, res) => {
+                res.writeHead(200, { "Content-Type": "text/plain" });
+                res.end("WebSocket server for admin panel");
+              });
+
+              // Iniciar WebSocketManager
+              const webSocketManager = new WebSocketManager(httpServer, server, configs!);
+
+              // Iniciar servidores
+              logger.info("Starting ProTanki, Resource, and WebSocket servers");
+              server.start();
+              resourceServer.start();
+              webSocketManager.start();
+
+              // Graceful shutdown
+              process.on("SIGTERM", () => {
+                logger.info("Received SIGTERM. Initiating graceful shutdown...");
+                server.stop((serverErr) => {
+                  if (serverErr) {
+                    logger.error("Error stopping ProTanki server", { error: serverErr });
                   } else {
-                    logger.info("Database connection closed");
+                    logger.info("ProTanki server stopped");
                   }
 
-                  logger.info("Flushing logs before shutdown");
-                  logger.on("finish", () => {
-                    logger.info("Logger flushed and closed");
-                    process.exit(serverErr || resourceErr || dbErr ? 1 : 0);
+                  resourceServer.stop((resourceErr) => {
+                    if (resourceErr) {
+                      logger.error("Error stopping Resource server", { error: resourceErr });
+                    } else {
+                      logger.info("Resource server stopped");
+                    }
+
+                    webSocketManager.stop((wsErr) => {
+                      if (wsErr) {
+                        logger.error("Error stopping WebSocket server", { error: wsErr });
+                      } else {
+                        logger.info("WebSocket server stopped");
+                      }
+
+                      closeSequelize((dbErr) => {
+                        if (dbErr) {
+                          logger.error("Error closing database connection", { error: dbErr });
+                        } else {
+                          logger.info("Database connection closed");
+                        }
+
+                        logger.info("Flushing logs before shutdown");
+                        logger.on("finish", () => {
+                          logger.info("Logger flushed and closed");
+                          process.exit(serverErr || resourceErr || wsErr || dbErr ? 1 : 0);
+                        });
+                        logger.end();
+                      });
+                    });
                   });
-                  logger.end();
                 });
               });
             });

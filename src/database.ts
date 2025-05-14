@@ -1,5 +1,6 @@
 import { Sequelize, Dialect } from "sequelize";
 import dotenv from "dotenv";
+import logger from "./utils/Logger";
 
 dotenv.config();
 

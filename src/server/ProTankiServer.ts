@@ -33,17 +33,22 @@ export class ProTankiServer {
     if (!options.port || options.port <= 0) {
       options.port = DEFAULT_PORT;
     }
-    if (!options.maxClients || options.maxClients <= 0) {
+    if (!options.maxClients || options.maxClients < 0) {
       options.maxClients = DEFAULT_MAX_CLIENTS;
     }
     if (!options.loginForm || !options.socialNetworks) {
-      throw new Error("Missing required server options: loginForm or socialNetworks");
+      throw new Error(
+        "Missing required server options: loginForm or socialNetworks"
+      );
     }
   }
 
   public start(): void {
     this.server.listen(this.port, () => {
-      logger.info(`ProTanki Server started`, { port: this.port, maxClients: this.maxClients });
+      logger.info(`ProTanki Server started`, {
+        port: this.port,
+        maxClients: this.maxClients,
+      });
     });
 
     this.server.on("error", (err) => {
@@ -57,7 +62,9 @@ export class ProTankiServer {
         logger.error("Error stopping ProTanki Server", { error: err });
         return callback(err);
       }
-      this.clientManager.getClients().forEach((client) => client.closeConnection());
+      this.clientManager
+        .getClients()
+        .forEach((client) => client.closeConnection());
       logger.info("ProTanki Server stopped");
       callback();
     });
@@ -73,20 +80,39 @@ export class ProTankiServer {
 
   private handleConnection(socket: net.Socket): void {
     if (this.clientManager.getClientCount() >= this.maxClients) {
-      logger.warn(`Connection rejected: server at max capacity`, { maxClients: this.maxClients, client: socket.remoteAddress });
+      logger.warn(`Connection rejected: server at max capacity`, {
+        maxClients: this.maxClients,
+        client: socket.remoteAddress,
+      });
       socket.write("Server is full. Try again later.\n");
       socket.end();
       return;
     }
 
-    logger
-
-.info(`New client connected`, { client: socket.remoteAddress || "unknown" });
+    logger.info(`New client connected`, {
+      client: socket.remoteAddress || "unknown",
+    });
     new ProTankiClient({ socket, server: this });
   }
 
   public getNeedInviteCode(): boolean {
     return this.needInviteCode;
+  }
+
+  public updateNeedInviteCode(value: boolean): void {
+    this.needInviteCode = value;
+    logger.info("Updated needInviteCode", {
+      needInviteCode: this.needInviteCode,
+    });
+  }
+
+  public updateMaxClients(value: number): void {
+    if (value < 0) {
+      logger.warn("Attempt to set maxClients to invalid value", { value });
+      return;
+    }
+    this.maxClients = value;
+    logger.info("Updated maxClients", { maxClients: this.maxClients });
   }
 
   public getSocialNetworks(): Array<string[]> {
@@ -97,7 +123,10 @@ export class ProTankiServer {
     return this.loginForm;
   }
 
-  public validateInviteCode(code: string, callback: (response: IInviteResponse) => void): void {
+  public validateInviteCode(
+    code: string,
+    callback: (response: IInviteResponse) => void
+  ): void {
     InviteService.validateInviteCode(code, (error, response) => {
       if (error) {
         logger.error(`Error validating invite code ${code}`, { error });
