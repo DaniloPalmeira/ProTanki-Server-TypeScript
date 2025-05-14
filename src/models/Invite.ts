@@ -2,7 +2,8 @@ import { DataTypes, Model, Sequelize } from "sequelize";
 import sequelize from "../database";
 import { INVITE_CODE_LENGTH } from "../config/constants";
 
-interface InviteAttributes {
+// Interface para os atributos do modelo Invite
+export interface InviteAttributes {
   id?: number;
   code: string;
   player: string | null;

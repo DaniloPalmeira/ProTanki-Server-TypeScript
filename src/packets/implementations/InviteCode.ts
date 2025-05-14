@@ -24,7 +24,7 @@ export default class InviteCode extends BasePacket implements IInviteCode {
   }
 
   run(server: ProTankiServer, client: ProTankiClient): void {
-    server.validateInviteCode(this.inviteCode).then((result) => {
+    server.validateInviteCode(this.inviteCode, (result) => {
       if (!result.isValid) {
         client.sendPacket(new InviteCodeInvalid());
         return;

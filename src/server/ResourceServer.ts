@@ -10,11 +10,14 @@ export class ResourceServer {
   private app: express.Application;
   private port: number;
   private resourceDir: string;
+  private server: any; // Armazena a instância do servidor Express
 
   constructor() {
     this.app = express();
     this.app.use(cors());
-    this.port = process.env.RESOURCE_PORT ? parseInt(process.env.RESOURCE_PORT) : 9999;
+    this.port = process.env.RESOURCE_PORT
+      ? parseInt(process.env.RESOURCE_PORT)
+      : 9999;
     this.resourceDir = path.join(__dirname, "../../.resource");
     this.setupRoutes();
   }
@@ -41,21 +44,30 @@ export class ResourceServer {
    * Starts the Express server.
    */
   public start(): void {
-    this.app.listen(this.port, () => {
-      logger.info(`Resource Server started`, { port: this.port, resourceDir: this.resourceDir });
+    this.server = this.app.listen(this.port, () => {
+      logger.info(`Resource Server started`, {
+        port: this.port,
+        resourceDir: this.resourceDir,
+      });
     });
   }
 
   /**
    * Stops the Express server gracefully.
-   * @returns A promise that resolves when the server is stopped.
+   * @param callback - Callback to be called when the server is stopped.
    */
-  public async stop(): Promise<void> {
-    return new Promise((resolve) => {
-      this.app.listen().close(() => {
-        logger.info("Resource Server stopped");
-        resolve();
-      });
+  public stop(callback: (error?: Error) => void): void {
+    if (!this.server) {
+      logger.info("Resource Server not running");
+      return callback();
+    }
+    this.server.close((err?: Error) => {
+      if (err) {
+        logger.error("Error stopping Resource Server", { error: err });
+        return callback(err);
+      }
+      logger.info("Resource Server stopped");
+      callback();
     });
   }
 }

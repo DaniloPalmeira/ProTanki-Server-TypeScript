@@ -51,13 +51,15 @@ export class ProTankiServer {
     });
   }
 
-  public async stop(): Promise<void> {
-    return new Promise((resolve) => {
-      this.server.close(() => {
-        logger.info("ProTanki Server stopped");
-        resolve();
-      });
+  public stop(callback: (error?: Error) => void): void {
+    this.server.close((err) => {
+      if (err) {
+        logger.error("Error stopping ProTanki Server", { error: err });
+        return callback(err);
+      }
       this.clientManager.getClients().forEach((client) => client.closeConnection());
+      logger.info("ProTanki Server stopped");
+      callback();
     });
   }
 
@@ -77,7 +79,9 @@ export class ProTankiServer {
       return;
     }
 
-    logger.info(`New client connected`, { client: socket.remoteAddress || "unknown" });
+    logger
+
+.info(`New client connected`, { client: socket.remoteAddress || "unknown" });
     new ProTankiClient({ socket, server: this });
   }
 
@@ -93,13 +97,14 @@ export class ProTankiServer {
     return this.loginForm;
   }
 
-  public async validateInviteCode(code: string): Promise<IInviteResponse> {
-    try {
-      return await InviteService.validateInviteCode(code);
-    } catch (error) {
-      logger.error(`Error validating invite code ${code}`, { error });
-      return { isValid: false };
-    }
+  public validateInviteCode(code: string, callback: (response: IInviteResponse) => void): void {
+    InviteService.validateInviteCode(code, (error, response) => {
+      if (error) {
+        logger.error(`Error validating invite code ${code}`, { error });
+        return callback({ isValid: false });
+      }
+      callback(response!);
+    });
   }
 
   public broadcastToLobby(packet: IPacket): void {
