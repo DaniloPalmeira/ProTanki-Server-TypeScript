@@ -30,7 +30,8 @@ export default class CheckNicknameAvailable
       return Buffer.from([1]);
     }
     const stringBuffer = Buffer.from(this.nickname, "utf8");
-    const buffer = Buffer.alloc(5 + stringBuffer.length);
+    const packetSize = 5 + stringBuffer.length;
+    const buffer = Buffer.alloc(packetSize);
     buffer.writeInt8(0, 0);
     buffer.writeInt32BE(stringBuffer.length, 1);
     stringBuffer.copy(buffer, 5);

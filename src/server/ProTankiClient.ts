@@ -181,9 +181,9 @@ export class ProTankiClient {
   }
 
   private buildPacketBuffer(packetId: number, data: Buffer): Buffer {
-    const packetLength = data.length + ProTankiClient.HEADER_SIZE;
-    const packetBuffer = Buffer.alloc(packetLength);
-    packetBuffer.writeInt32BE(packetLength, 0);
+    const packetSize = data.length + ProTankiClient.HEADER_SIZE;
+    const packetBuffer = Buffer.alloc(packetSize);
+    packetBuffer.writeInt32BE(packetSize, 0);
     packetBuffer.writeInt32BE(packetId, 4);
     data.copy(packetBuffer, ProTankiClient.HEADER_SIZE);
     return packetBuffer;

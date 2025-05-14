@@ -31,7 +31,8 @@ export default class CaptchaLocation
 
   write(): Buffer {
     const ItemsCount = this.captchaLocations.length;
-    const packet = Buffer.alloc(4 + ItemsCount * 4);
+    const packetSize = 4 + ItemsCount * 4;
+    const packet = Buffer.alloc(packetSize);
     packet.writeInt32BE(ItemsCount, 0);
     for (let i = 0; i < ItemsCount; i++) {
       packet.writeInt32BE(this.captchaLocations[i], 4 + i * 4);

@@ -34,7 +34,8 @@ export default class RecoveryAccountVerifyCode
       return Buffer.from([1]);
     }
     const stringBuffer = Buffer.from(this.code, "utf8");
-    const buffer = Buffer.alloc(5 + stringBuffer.length);
+    const packetSize = 5 + stringBuffer.length;
+    const buffer = Buffer.alloc(packetSize);
     buffer.writeInt32BE(stringBuffer.length, 1);
     stringBuffer.copy(buffer, 5);
     return buffer;
