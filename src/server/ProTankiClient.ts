@@ -8,6 +8,12 @@ import { IPacket } from "../packets/interfaces/IPacket";
 import Protection from "../packets/implementations/Protection";
 import logger from "../utils/Logger";
 
+// Interface para pacotes na fila
+interface PacketQueueItem {
+  packetId: number;
+  packetData: Buffer;
+}
+
 export class ProTankiClient {
   private static readonly HEADER_SIZE = 8;
   private socket: net.Socket;
@@ -17,6 +23,8 @@ export class ProTankiClient {
   private rawDataReceived: Buffer = Buffer.alloc(0);
   public language: string = "";
   public captchaSolution: string = "";
+  private packetQueue: PacketQueueItem[] = [];
+  private isProcessingQueue: boolean = false;
 
   constructor({ socket, server }: IClientOptions) {
     this.socket = socket;
@@ -75,48 +83,65 @@ export class ProTankiClient {
         packetSize
       );
 
-      logger.info(`Received packet`, {
-        size: packetSize,
+      // Adiciona o pacote à fila
+      this.packetQueue.push({ packetId, packetData });
+      logger.debug(`Packet queued`, {
         id: packetId,
+        size: packetSize,
         client: this.getRemoteAddress(),
       });
-      this.processPacket(packetId, packetData);
 
       this.rawDataReceived = this.rawDataReceived.slice(packetSize);
     }
+
+    // Processa a fila de pacotes
+    this.processPacketQueue();
   }
 
-  private processPacket(packetID: number, packetData: Buffer): void {
-    logger.info(`Processing packet`, {
-      id: packetID,
-      client: this.getRemoteAddress(),
-    });
-    const decryptedPacket = this.encryptionService.decrypt(packetData);
-    const packetClass = PacketFactory(packetID);
-
-    if (!packetClass) {
-      logger.warn(`No packet handler found for ID: ${packetID}`, {
-        client: this.getRemoteAddress(),
-        packetHex: decryptedPacket.toString("hex"),
-      });
+  private processPacketQueue(): void {
+    if (this.isProcessingQueue || this.packetQueue.length === 0) {
       return;
     }
 
-    try {
-      packetClass.read(decryptedPacket);
-      logger.info(`Packet processed: ${packetClass.toString()}`, {
+    this.isProcessingQueue = true;
+
+    while (this.packetQueue.length > 0) {
+      const { packetId, packetData } = this.packetQueue.shift()!;
+      logger.info(`Processing packet`, {
+        id: packetId,
         client: this.getRemoteAddress(),
       });
-      if (packetClass.run) {
-        packetClass.run(this.server, this);
+
+      const decryptedPacket = this.encryptionService.decrypt(packetData);
+      const packetClass = PacketFactory(packetId);
+
+      if (!packetClass) {
+        logger.warn(`No packet handler found for ID: ${packetId}`, {
+          client: this.getRemoteAddress(),
+          packetHex: decryptedPacket.toString("hex"),
+        });
+        continue;
       }
-    } catch (error) {
-      logger.error(`Error processing packet ID ${packetID}`, {
-        error,
-        client: this.getRemoteAddress(),
-      });
-      this.closeConnection();
+
+      try {
+        packetClass.read(decryptedPacket);
+        logger.info(`Packet processed: ${packetClass.toString()}`, {
+          client: this.getRemoteAddress(),
+        });
+        if (packetClass.run) {
+          packetClass.run(this.server, this);
+        }
+      } catch (error) {
+        logger.error(`Error processing packet ID ${packetId}`, {
+          error,
+          client: this.getRemoteAddress(),
+        });
+        this.closeConnection();
+        break;
+      }
     }
+
+    this.isProcessingQueue = false;
   }
 
   private handleClose(): void {
@@ -139,7 +164,7 @@ export class ProTankiClient {
         : rawBuffer;
       const packetBuffer = this.buildPacketBuffer(packetId, finalBuffer);
 
-      logger.info(`Sending packet`, {
+      logger.debug(`Sending packet`, {
         id: packetId,
         size: packetBuffer.length,
         encrypted: encrypt,

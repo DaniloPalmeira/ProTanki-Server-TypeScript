@@ -10,12 +10,21 @@ dotenv.config();
  */
 function initializeDatabase(): Sequelize {
   const dialect = (process.env.DB_DIALECT || "sqlite") as Dialect;
+  const isProduction = process.env.NODE_ENV === "production";
 
   if (dialect === "postgres") {
-    const requiredEnvVars = ["DB_HOST", "DB_PORT", "DB_USER", "DB_PASSWORD", "DB_NAME"];
+    const requiredEnvVars = [
+      "DB_HOST",
+      "DB_PORT",
+      "DB_USER",
+      "DB_PASSWORD",
+      "DB_NAME",
+    ];
     for (const envVar of requiredEnvVars) {
       if (!process.env[envVar]) {
-        throw new Error(`Missing required environment variable for PostgreSQL: ${envVar}`);
+        throw new Error(
+          `Missing required environment variable for PostgreSQL: ${envVar}`
+        );
       }
     }
 
@@ -26,13 +35,25 @@ function initializeDatabase(): Sequelize {
       username: process.env.DB_USER,
       password: process.env.DB_PASSWORD,
       database: process.env.DB_NAME,
-      logging: false,
+      logging: isProduction ? false : console.log,
+      pool: {
+        max: 10,
+        min: 2,
+        acquire: 3000,
+        idle: 10000,
+      },
     });
   } else if (dialect === "sqlite") {
     return new Sequelize({
       dialect: "sqlite",
-      storage: process.env.DB_STORAGE || "database.sqlite", // Arquivo local para SQLite
-      logging: false,
+      storage: process.env.DB_STORAGE || "database.sqlite",
+      logging: isProduction ? false : false,
+      pool: {
+        max: 5,
+        min: 1,
+        acquire: 3000,
+        idle: 10000,
+      },
     });
   } else {
     throw new Error(`Unsupported database dialect: ${dialect}`);

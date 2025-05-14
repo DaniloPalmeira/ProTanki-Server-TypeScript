@@ -7,6 +7,7 @@ import path from "path";
 dotenv.config();
 
 const ENABLE_CONSOLE_LOGGING = process.env.ENABLE_CONSOLE_LOGGING !== "false";
+const LOG_LEVEL = process.env.LOG_LEVEL || "info"; // Novo: nível de log configurável
 const LOGS_DIR = path.join(__dirname, "../../logs");
 
 // Estado para rastrear se o logger está fechado
@@ -58,7 +59,7 @@ const transports: winston.transport[] = [
     datePattern: "YYYY-MM-DD",
     maxFiles: "14d",
     format: fileFormat,
-    level: "debug",
+    level: LOG_LEVEL, // Usa nível configurável
     handleExceptions: true,
     handleRejections: true,
   }),
@@ -79,7 +80,7 @@ if (ENABLE_CONSOLE_LOGGING) {
   transports.push(
     new winston.transports.Console({
       format: consoleFormat,
-      level: "debug",
+      level: LOG_LEVEL, // Usa nível configurável
       handleExceptions: true,
       handleRejections: true,
     })
@@ -88,7 +89,7 @@ if (ENABLE_CONSOLE_LOGGING) {
 
 // Criação do logger
 const logger = winston.createLogger({
-  level: "debug", // Garante que todos os níveis de log sejam capturados
+  level: LOG_LEVEL, // Usa nível configurável
   format: fileFormat,
   transports,
   // Configuração explícita para capturar erros não tratados
@@ -131,6 +132,7 @@ transports.forEach((transport, index) => {
 // Log de inicialização
 logger.info("Logger initialized", {
   consoleLogging: ENABLE_CONSOLE_LOGGING,
+  logLevel: LOG_LEVEL,
   transports: transports.length,
 });
 
