@@ -1,6 +1,6 @@
 const needInviteCodeCheckbox = document.getElementById("needInviteCode") as HTMLInputElement;
 const maxClientsInput = document.getElementById("maxClients") as HTMLInputElement;
-const ws = new WebSocket("ws://localhost:8080");
+const ws = new WebSocket("ws://localhost:9998");
 
 ws.onopen = () => {
   console.log("Connected to WebSocket server");

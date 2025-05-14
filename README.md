@@ -44,6 +44,7 @@ Follow these steps to set up the ProTanki Server locally:
     # Server settings
     PORT=1337
     RESOURCE_PORT=9999
+    WEBSOCKET_PORT=9998
 
     # Database settings (PostgreSQL)
     DB_DIALECT=postgres
