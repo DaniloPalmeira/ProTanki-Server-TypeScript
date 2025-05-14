@@ -26,7 +26,7 @@ export default class InviteEnabled
   }
 
   toString(): string {
-    return `InviteEnabled(requireInviteCode: ${this.requireInviteCode})`;
+    return `InviteEnabled(requireInviteCode=${this.requireInviteCode})`;
   }
 
   getId(): number {

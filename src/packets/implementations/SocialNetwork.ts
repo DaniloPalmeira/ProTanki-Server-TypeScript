@@ -59,7 +59,7 @@ export default class SocialNetwork
   }
 
   toString(): string {
-    return `SocialNetwork(socialNetworkParams: ${this.socialNetworkParams})`;
+    return `SocialNetwork(socialNetworkParams=${this.socialNetworkParams})`;
   }
 
   getId(): number {

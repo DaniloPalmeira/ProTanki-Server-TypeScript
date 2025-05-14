@@ -40,7 +40,7 @@ export default class CaptchaLocation
   }
 
   toString(): string {
-    return `CaptchaLocation(captchaLocations: ${this.captchaLocations})`;
+    return `CaptchaLocation(captchaLocations=${this.captchaLocations})`;
   }
 
   getId(): number {

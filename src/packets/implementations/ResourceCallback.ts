@@ -45,7 +45,7 @@ export default class ResourceCallback
   }
 
   toString(): string {
-    return `ResourceCallback(callbackId: ${this.callbackId})`;
+    return `ResourceCallback(callbackId=${this.callbackId})`;
   }
 
   getId(): number {

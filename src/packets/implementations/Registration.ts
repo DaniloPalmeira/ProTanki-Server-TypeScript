@@ -40,7 +40,7 @@ export default class Registration extends BasePacket implements IRegistration {
   }
 
   toString(): string {
-    return `Registration(bgResource: ${this.bgResource}, enableRequiredEmail: ${this.enableRequiredEmail}, maxPasswordLength: ${this.maxPasswordLength}, minPasswordLengt: ${this.minPasswordLengt})`;
+    return `Registration(bgResource=${this.bgResource}, enableRequiredEmail=${this.enableRequiredEmail}, maxPasswordLength=${this.maxPasswordLength}, minPasswordLengt=${this.minPasswordLengt})`;
   }
 
   getId(): number {

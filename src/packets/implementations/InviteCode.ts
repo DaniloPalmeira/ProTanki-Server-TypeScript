@@ -15,12 +15,29 @@ export default class InviteCode extends BasePacket implements IInviteCode {
   }
 
   read(buffer: Buffer): void {
-    const { value } = this.readString(buffer, 0);
-    this.inviteCode = value;
+    let position = 0;
+
+    const isEmpty = buffer.readInt8(position) === 1;
+    position += 1;
+    if (isEmpty) {
+      this.inviteCode = "";
+      return;
+    }
+    const length = buffer.readInt32BE(position);
+    position += 4;
+    this.inviteCode = buffer.toString("utf8", position, position + length);
   }
 
   write(): Buffer {
-    return this.writeString(this.inviteCode);
+    if (this.inviteCode.length == 0) {
+      return Buffer.from([1]);
+    }
+    const stringBuffer = Buffer.from(this.inviteCode, "utf8");
+    const buffer = Buffer.alloc(5 + stringBuffer.length);
+    buffer.writeInt8(0, 0);
+    buffer.writeInt32BE(stringBuffer.length, 1);
+    stringBuffer.copy(buffer, 5);
+    return buffer;
   }
 
   run(server: ProTankiServer, client: ProTankiClient): void {
@@ -40,7 +57,7 @@ export default class InviteCode extends BasePacket implements IInviteCode {
   }
 
   toString(): string {
-    return `InviteCode(inviteCode: ${this.inviteCode})`;
+    return `InviteCode(inviteCode=${this.inviteCode})`;
   }
 
   getId(): number {

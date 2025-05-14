@@ -4,6 +4,7 @@ import dotenv from "dotenv";
 import sequelize from "./src/database";
 import { DEFAULT_MAX_CLIENTS, DEFAULT_PORT } from "./src/config/constants";
 import { InviteService } from "./src/services/InviteService";
+import { UserService } from "./src/services/UserService";
 import { ResourceManager } from "./src/utils/ResourceManager";
 import logger from "./src/utils/Logger";
 
@@ -28,7 +29,35 @@ function seedTestData(callback: (error?: Error) => void) {
       logger.info("Códigos de convite de teste gerados", {
         codes: testInviteCodes,
       });
-      return callback();
+
+      // Criar usuários de teste
+      let usersCreated = 0;
+      const testUsers = [
+        { username: "player1", password: "password123", email: "player1@example.com" },
+        { username: "player2", password: "password123", email: "player2@example.com" },
+      ];
+
+      function createUser() {
+        if (usersCreated >= testUsers.length) {
+          logger.info("Usuários de teste criados", {
+            users: testUsers.map((u) => u.username),
+          });
+          return callback();
+        }
+
+        const userData = testUsers[usersCreated];
+        UserService.createUser(userData, (error, user) => {
+          if (error) {
+            logger.error(`Erro ao criar usuário de teste ${userData.username}`, { error });
+            return callback(error);
+          }
+          usersCreated++;
+          createUser();
+        });
+      }
+
+      createUser();
+      return;
     }
 
     InviteService.createInviteCode((error, code) => {
@@ -47,27 +76,15 @@ function seedTestData(callback: (error?: Error) => void) {
 
 // Funções utilitárias para converter promessas em callbacks
 function authenticateSequelize(callback: (error: Error | null) => void) {
-  sequelize
-    .authenticate()
-    .then(() => callback(null))
-    .catch((error: Error) => callback(error));
+  sequelize.authenticate().then(() => callback(null)).catch((error: Error) => callback(error));
 }
 
-function syncSequelize(
-  options: { force: boolean },
-  callback: (error: Error | null) => void
-) {
-  sequelize
-    .sync(options)
-    .then(() => callback(null))
-    .catch((error: Error) => callback(error));
+function syncSequelize(options: { force: boolean }, callback: (error: Error | null) => void) {
+  sequelize.sync(options).then(() => callback(null)).catch((error: Error) => callback(error));
 }
 
 function closeSequelize(callback: (error: Error | null) => void) {
-  sequelize
-    .close()
-    .then(() => callback(null))
-    .catch((error: Error) => callback(error));
+  sequelize.close().then(() => callback(null)).catch((error: Error) => callback(error));
 }
 
 function bootstrap() {
@@ -86,86 +103,77 @@ function bootstrap() {
       logger.info("Conexão com PostgreSQL estabelecida");
       syncSequelize({ force: true }, (syncErr) => {
         if (syncErr) {
-          logger.error("Erro ao sincronizar banco de dados", {
-            error: syncErr,
-          });
+          logger.error("Erro ao sincronizar banco de dados", { error: syncErr });
           return shutdownWithError(syncErr);
         }
 
         logger.info("Banco de dados sincronizado");
 
-        // Inserir dados de teste (descomente se necessário)
-        // logger.info("Seeding test data");
-        // seedTestData((seedErr) => {
-        //   if (seedErr) {
-        //     return shutdownWithError(seedErr);
-        //   }
+        logger.info("Seeding test data");
+        seedTestData((seedErr) => {
+          if (seedErr) {
+            return shutdownWithError(seedErr);
+          }
 
-        const server = new ProTankiServer({
-          port: PORT,
-          maxClients: MAX_CLIENTS,
-          needInviteCode: NEED_INVITE_CODE,
-          socialNetworks: [
-            ["https://google.com", "google"],
-            ["https://facebook.com", "facebook"],
-            ["https://vk.com", "vkontakte"],
-          ],
-          loginForm: {
-            bgResource: 122842,
-            enableRequiredEmail: false,
-            maxPasswordLength: 64,
-            minPasswordLength: 3,
-          },
-        });
+          const server = new ProTankiServer({
+            port: PORT,
+            maxClients: MAX_CLIENTS,
+            needInviteCode: NEED_INVITE_CODE,
+            socialNetworks: [
+              ["https://google.com", "google"],
+              ["https://facebook.com", "facebook"],
+              ["https://vk.com", "vkontakte"],
+            ],
+            loginForm: {
+              bgResource: 122842,
+              enableRequiredEmail: false,
+              maxPasswordLength: 64,
+              minPasswordLength: 3,
+            },
+          });
 
-        // Iniciar o servidor de recursos
-        const resourceServer = new ResourceServer();
+          // Iniciar o servidor de recursos
+          const resourceServer = new ResourceServer();
 
-        logger.info("Starting ProTanki and Resource servers");
-        server.start();
-        resourceServer.start();
+          logger.info("Starting ProTanki and Resource servers");
+          server.start();
+          resourceServer.start();
 
-        // Graceful shutdown
-        process.on("SIGTERM", () => {
-          logger.info("Received SIGTERM. Initiating graceful shutdown...");
-          server.stop((serverErr) => {
-            if (serverErr) {
-              logger.error("Error stopping ProTanki server", {
-                error: serverErr,
-              });
-            } else {
-              logger.info("ProTanki server stopped");
-            }
-
-            resourceServer.stop((resourceErr) => {
-              if (resourceErr) {
-                logger.error("Error stopping Resource server", {
-                  error: resourceErr,
-                });
+          // Graceful shutdown
+          process.on("SIGTERM", () => {
+            logger.info("Received SIGTERM. Initiating graceful shutdown...");
+            server.stop((serverErr) => {
+              if (serverErr) {
+                logger.error("Error stopping ProTanki server", { error: serverErr });
               } else {
-                logger.info("Resource server stopped");
+                logger.info("ProTanki server stopped");
               }
 
-              closeSequelize((dbErr) => {
-                if (dbErr) {
-                  logger.error("Error closing database connection", {
-                    error: dbErr,
-                  });
+              resourceServer.stop((resourceErr) => {
+                if (resourceErr) {
+                  logger.error("Error stopping Resource server", { error: resourceErr });
                 } else {
-                  logger.info("Database connection closed");
+                  logger.info("Resource server stopped");
                 }
 
-                logger.info("Flushing logs before shutdown");
-                logger.on("finish", () => {
-                  logger.info("Logger flushed and closed");
-                  process.exit(serverErr || resourceErr || dbErr ? 1 : 0);
+                closeSequelize((dbErr) => {
+                  if (dbErr) {
+                    logger.error("Error closing database connection", { error: dbErr });
+                  } else {
+                    logger.info("Database connection closed");
+                  }
+
+                  logger.info("Flushing logs before shutdown");
+                  logger.on("finish", () => {
+                    logger.info("Logger flushed and closed");
+                    process.exit(serverErr || resourceErr || dbErr ? 1 : 0);
+                  });
+                  logger.end();
                 });
-                logger.end();
               });
             });
           });
         });
-        // });
       });
     });
   } catch (error: unknown) {
@@ -174,10 +182,9 @@ function bootstrap() {
 }
 
 function shutdownWithError(error: unknown) {
-  const errorDetails =
-    error instanceof Error
-      ? { message: error.message, stack: error.stack }
-      : { message: String(error), stack: undefined };
+  const errorDetails = error instanceof Error
+    ? { message: error.message, stack: error.stack }
+    : { message: String(error), stack: undefined };
   logger.error("Erro ao iniciar o servidor", errorDetails);
   logger.info("Flushing logs due to startup error");
   logger.on("finish", () => {

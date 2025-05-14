@@ -1,13 +1,14 @@
 import { ProTankiClient } from "../../server/ProTankiClient";
 import { ProTankiServer } from "../../server/ProTankiServer";
-import { IRequestCaptcha } from "../interfaces/IRequestCaptcha";
 import { BasePacket } from "./BasePacket";
+import CaptchaIsValid from "./CaptchaIsValid";
+import CaptchaIsInvalid from "./CaptchaIsInvalid";
 import generateCaptcha from "../../utils/GenerateCaptcha";
-import Captcha from "./Captcha";
+import { ICaptchaVerify } from "../interfaces/ICaptchaVerify";
 
-export default class RequestCaptcha
+export default class CaptchaVerify
   extends BasePacket
-  implements IRequestCaptcha
+  implements ICaptchaVerify
 {
   view: number;
   solution: string;
@@ -49,15 +50,18 @@ export default class RequestCaptcha
   }
 
   run(server: ProTankiServer, client: ProTankiClient): void {
-    console.log(
-      `Captcha valida: ${
-        client.captchaSolution === this.solution.toLowerCase()
-      } ${client.captchaSolution} ${this.solution}`
-    );
+    if (client.captchaSolution === this.solution.toLowerCase()) {
+      client.sendPacket(new CaptchaIsValid(this.view));
+      return;
+    }
+
+    const captcha = generateCaptcha();
+    client.captchaSolution = captcha.text;
+    client.sendPacket(new CaptchaIsInvalid(this.view, captcha.image));
   }
 
   toString(): string {
-    return `RequestCaptcha: ${this.view}`;
+    return `CaptchaVerify(view=${this.view},solution=${this.solution})`;
   }
 
   getId(): number {

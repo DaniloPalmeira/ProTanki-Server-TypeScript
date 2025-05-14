@@ -23,6 +23,7 @@ export class ProTankiClient {
   private rawDataReceived: Buffer = Buffer.alloc(0);
   public language: string = "";
   public captchaSolution: string = "";
+  public recoveryCode: string = "";
   private packetQueue: PacketQueueItem[] = [];
   private isProcessingQueue: boolean = false;
 
@@ -165,6 +166,7 @@ export class ProTankiClient {
       const packetBuffer = this.buildPacketBuffer(packetId, finalBuffer);
 
       logger.debug(`Sending packet`, {
+        string: packet.toString(),
         id: packetId,
         size: packetBuffer.length,
         encrypted: encrypt,

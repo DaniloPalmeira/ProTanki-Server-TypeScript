@@ -51,9 +51,9 @@ export default class LoadDependencies
   }
 
   toString(): string {
-    return `LoadDependencies: ${JSON.stringify(this.dependencies)} ${
+    return `LoadDependencies(callbackid=${
       this.callbackId
-    }`;
+    }, dependencies=${JSON.stringify(this.dependencies)})`;
   }
 
   getId(): number {

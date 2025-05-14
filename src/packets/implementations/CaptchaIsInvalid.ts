@@ -3,7 +3,7 @@ import { ProTankiServer } from "../../server/ProTankiServer";
 import { ICaptcha } from "../interfaces/ICaptcha";
 import { BasePacket } from "./BasePacket";
 
-export default class Captcha extends BasePacket implements ICaptcha {
+export default class CaptchaIsInvalid extends BasePacket implements ICaptcha {
   view: number;
   image: Buffer;
 
@@ -41,6 +41,6 @@ export default class Captcha extends BasePacket implements ICaptcha {
   }
 
   getId(): number {
-    return -1670408519;
+    return -373510957;
   }
 }

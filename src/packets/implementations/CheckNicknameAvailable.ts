@@ -16,12 +16,30 @@ export default class CheckNicknameAvailable
   }
 
   read(buffer: Buffer): void {
-    const { value } = this.readString(buffer, 0);
-    this.nickname = value;
+    let position = 0;
+
+    const isEmpty = buffer.readInt8(position) === 1;
+    position += 1;
+    if (isEmpty) {
+      this.nickname = "";
+      return;
+    }
+    const length = buffer.readInt32BE(position);
+    position += 4;
+    this.nickname = buffer.toString("utf8", position, position + length);
   }
 
   write(): Buffer {
-    return this.writeString(this.nickname);
+    if (this.nickname.length == 0) {
+      return Buffer.from([1]);
+    }
+    const stringBuffer = Buffer.from(this.nickname, "utf8");
+    const buffer = Buffer.alloc(5 + stringBuffer.length);
+    buffer.writeInt8(0, 0);
+    buffer.writeInt32BE(stringBuffer.length, 1);
+    stringBuffer.copy(buffer, 5);
+
+    return buffer;
   }
 
   run(server: ProTankiServer, client: ProTankiClient): void {
@@ -31,7 +49,7 @@ export default class CheckNicknameAvailable
   }
 
   toString(): string {
-    return `CheckNicknameAvailable(nickname: ${this.nickname})`;
+    return `CheckNicknameAvailable(nickname=${this.nickname})`;
   }
 
   getId(): number {

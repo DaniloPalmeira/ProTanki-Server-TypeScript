@@ -93,38 +93,6 @@ export class InviteService {
     tryCreateCode();
   }
 
-  public static linkInviteCodeToNickname(
-    code: string,
-    nickname: string,
-    callback: (error: Error | null, response?: IInviteResponse) => void
-  ): void {
-    InviteService.findInvite({ where: { code } }, (error, invite) => {
-      if (error) {
-        logger.error(`Error finding invite code ${code}`, { error });
-        return callback(error);
-      }
-
-      if (!invite) {
-        return callback(null, { isValid: false });
-      }
-      if (invite.player) {
-        return callback(null, { isValid: false });
-      }
-
-      invite.player = nickname;
-      InviteService.saveInvite(invite, (saveError) => {
-        if (saveError) {
-          logger.error(
-            `Error saving invite code ${code} with nickname ${nickname}`,
-            { error: saveError }
-          );
-          return callback(saveError);
-        }
-        callback(null, { isValid: true, nickname });
-      });
-    });
-  }
-
   public static validateInviteCode(
     code: string,
     callback: (error: Error | null, response?: IInviteResponse) => void

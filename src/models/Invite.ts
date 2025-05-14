@@ -7,6 +7,7 @@ export interface InviteAttributes {
   id?: number;
   code: string;
   player: string | null;
+  userId?: number | null;
 }
 
 /**
@@ -16,6 +17,7 @@ class Invite extends Model<InviteAttributes> implements InviteAttributes {
   public id!: number;
   public code!: string;
   public player!: string | null;
+  public userId!: number | null;
 }
 
 Invite.init(
@@ -36,6 +38,14 @@ Invite.init(
     player: {
       type: DataTypes.STRING,
       allowNull: true,
+    },
+    userId: {
+      type: DataTypes.INTEGER,
+      allowNull: true,
+      references: {
+        model: "Users",
+        key: "id",
+      },
     },
   },
   {

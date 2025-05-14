@@ -34,7 +34,7 @@ export default class RequestCaptcha
   }
 
   toString(): string {
-    return `RequestCaptcha: ${this.view}`;
+    return `RequestCaptcha(view=${this.view})`;
   }
 
   getId(): number {

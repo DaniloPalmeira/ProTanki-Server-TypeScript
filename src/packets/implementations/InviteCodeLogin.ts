@@ -36,7 +36,7 @@ export default class InviteCodeLogin
   }
 
   toString(): string {
-    return `InviteCodeLogin(nickname=${this.nickname ?? "undefined"})`;
+    return `InviteCodeLogin(nickname=${this.nickname})`;
   }
 
   getId(): number {

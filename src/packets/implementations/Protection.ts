@@ -30,7 +30,7 @@ export default class Protection extends BasePacket implements IProtection {
   }
 
   toString(): string {
-    return `Protection: ${this.keys}`;
+    return `Protection(keys=${this.keys})`;
   }
 
   getId(): number {
