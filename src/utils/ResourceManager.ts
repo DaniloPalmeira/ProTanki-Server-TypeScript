@@ -142,18 +142,30 @@ export class ResourceManager {
     };
   }
 
-  public static getResourcePath(
-    idLow: number,
-    idHigh: number,
-    versionLow: number,
-    versionHigh: number
-  ): string {
-    const versionOct = versionHigh.toString(8);
-    const part1 = idLow.toString(8);
-    const part2 = (idHigh >>> 16).toString(8);
-    const part3 = ((idHigh >>> 8) & 0xff).toString(8);
-    const part4 = (idHigh & 0xff).toString(8);
+  public static getResourcePath({
+    idHigh,
+    idLow,
+    versionHigh,
+    versionLow,
+  }: {
+    idHigh: number;
+    idLow: number;
+    versionHigh: number;
+    versionLow: number;
+  }): string {
+    // Extrair part2, part3 e part4 de idLow
+    const part2 = (idLow >> 16) & 0xff; // Desloca 16 bits e mascara para obter 8 bits
+    const part3 = (idLow >> 8) & 0xff; // Desloca 8 bits e mascara para obter 8 bits
+    const part4 = idLow & 0xff; // Mascara para obter os últimos 8 bits
 
-    return `/${part1}/${part2}/${part3}/${part4}/${versionOct}/`;
+    // Converter todas as partes para strings octais (sem zeros à esquerda desnecessários)
+    const part1Str = idHigh.toString(8); // part1 é idHigh
+    const part2Str = part2.toString(8);
+    const part3Str = part3.toString(8);
+    const part4Str = part4.toString(8);
+    const versionStr = versionLow.toString(8); // versionLow é a última parte
+
+    // Montar o caminho com barras
+    return `/${part1Str}/${part2Str}/${part3Str}/${part4Str}/${versionStr}/`;
   }
 }
