@@ -24,8 +24,8 @@ export default class RecoveryAccountSendCode
       this.email = "";
       return;
     }
-    const length = buffer.readInt32BE(5);
-    this.email = buffer.toString("utf8", 9, 9 + length);
+    const length = buffer.readInt32BE(1);
+    this.email = buffer.toString("utf8", 5, 5 + length);
   }
 
   write(): Buffer {
