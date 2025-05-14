@@ -1,6 +1,5 @@
 import { ProTankiClient } from "../../server/ProTankiClient";
 import { ProTankiServer } from "../../server/ProTankiServer";
-import { generateCaptcha } from "../../utils/Captcha";
 import { ICaptcha } from "../interfaces/ICaptcha";
 import { BasePacket } from "./BasePacket";
 

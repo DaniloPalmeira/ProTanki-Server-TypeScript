@@ -1,8 +1,8 @@
 import { ProTankiClient } from "../../server/ProTankiClient";
 import { ProTankiServer } from "../../server/ProTankiServer";
-import { generateCaptcha } from "../../utils/Captcha";
 import { IRequestCaptcha } from "../interfaces/IRequestCaptcha";
 import { BasePacket } from "./BasePacket";
+import generateCaptcha from "../../utils/GenerateCaptcha";
 import Captcha from "./Captcha";
 
 export default class RequestCaptcha

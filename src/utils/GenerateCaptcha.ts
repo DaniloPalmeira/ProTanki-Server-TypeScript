@@ -18,7 +18,7 @@ interface CaptchaResult {
 }
 
 // Função para gerar a imagem de CAPTCHA
-export function generateCaptcha(): CaptchaResult {
+function generateCaptcha(): CaptchaResult {
   const width: number = 280;
   const height: number = 54;
   const canvas = createCanvas(width, height);
@@ -70,3 +70,5 @@ export function generateCaptcha(): CaptchaResult {
     text: captchaText.toLowerCase(),
   };
 }
+
+export default generateCaptcha;
