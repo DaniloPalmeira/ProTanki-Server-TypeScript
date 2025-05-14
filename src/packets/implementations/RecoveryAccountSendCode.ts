@@ -19,17 +19,13 @@ export default class RecoveryAccountSendCode
   }
 
   read(buffer: Buffer): void {
-    let position = 0;
-
-    const isEmpty = buffer.readInt8(position) === 1;
-    position += 1;
+    const isEmpty = buffer.readInt8(0) === 1;
     if (isEmpty) {
       this.email = "";
       return;
     }
-    const length = buffer.readInt32BE(position);
-    position += 4;
-    this.email = buffer.toString("utf8", position, position + length);
+    const length = buffer.readInt32BE(5);
+    this.email = buffer.toString("utf8", 9, 9 + length);
   }
 
   write(): Buffer {

@@ -15,17 +15,13 @@ export default class CaptchaIsValid
   }
 
   read(buffer: Buffer): void {
-    let position = 0;
-    this.view = buffer.readInt32BE(position);
-    position += 4;
+    this.view = buffer.readInt32BE(0);
   }
 
   write(): Buffer {
     const packetSize = 4;
     const packet = Buffer.alloc(packetSize);
-    let position = 0;
-    packet.writeInt32BE(this.view, position);
-    position += 4;
+    packet.writeInt32BE(this.view, 0);
     return packet;
   }
 

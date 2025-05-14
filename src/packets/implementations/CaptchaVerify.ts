@@ -20,15 +20,11 @@ export default class CaptchaVerify
   }
 
   read(buffer: Buffer): void {
-    let position = 0;
-    this.view = buffer.readInt32BE(position);
-    position += 4;
-    const isEmpty = buffer.readInt8(position);
-    position += 1;
+    this.view = buffer.readInt32BE(0);
+    const isEmpty = buffer.readInt8(4);
     if (!isEmpty) {
-      const len = buffer.readInt32BE(position);
-      position += 4;
-      this.solution = buffer.toString("utf8", position, position + len);
+      const len = buffer.readInt32BE(5);
+      this.solution = buffer.toString("utf8", 9, 9 + len);
     }
   }
 
@@ -36,15 +32,11 @@ export default class CaptchaVerify
     const packetSize =
       4 + 1 + (this.solution.length > 0 ? 4 + this.solution.length : 0);
     const packet = Buffer.alloc(packetSize);
-    let position = 0;
-    packet.writeInt32BE(this.view, position);
-    position += 4;
-    packet.writeInt8(this.solution.length > 0 ? 0 : 1, position);
-    position += 1;
+    packet.writeInt32BE(this.view, 0);
+    packet.writeInt8(this.solution.length > 0 ? 0 : 1, 4);
     if (this.solution.length > 0) {
-      packet.writeInt32BE(this.solution.length, position);
-      position += 4;
-      Buffer.from(this.solution, "utf8").copy(packet, position);
+      packet.writeInt32BE(this.solution.length, 5);
+      Buffer.from(this.solution, "utf8").copy(packet, 9);
     }
     return packet;
   }

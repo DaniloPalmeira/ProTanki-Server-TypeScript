@@ -16,17 +16,13 @@ export default class CheckNicknameAvailable
   }
 
   read(buffer: Buffer): void {
-    let position = 0;
-
-    const isEmpty = buffer.readInt8(position) === 1;
-    position += 1;
+    const isEmpty = buffer.readInt8(0) === 1;
     if (isEmpty) {
       this.nickname = "";
       return;
     }
-    const length = buffer.readInt32BE(position);
-    position += 4;
-    this.nickname = buffer.toString("utf8", position, position + length);
+    const length = buffer.readInt32BE(1);
+    this.nickname = buffer.toString("utf8", 5, 5 + length);
   }
 
   write(): Buffer {
