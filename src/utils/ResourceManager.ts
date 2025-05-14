@@ -49,35 +49,38 @@ export class ResourceManager {
   }
 
   private static createDependency(config: ResourceConfig): IDependency {
-    const resourcePath = path.join(
-      this.resourceDir,
-      config.path.replace(/^\/|\/$/g, "")
-    );
+    const normalizedPath = config.path.replace(/^\/|\/$/g, "");
+    let resourcePath = path.join(this.resourceDir, normalizedPath);
+
+    logger.debug(`Checking resource path: ${resourcePath} for ${config.id}`);
 
     if (!fs.existsSync(resourcePath)) {
-      throw new Error(`Path not found for resource ${config.id}`);
+      // Fallback: Try alternate resource directory
+      const fallbackDir = path.join(this.resourceDir, "../../.resource/");
+      const fallbackPath = path.join(fallbackDir, normalizedPath);
+      logger.debug(
+        `Fallback: Checking resource path: ${fallbackPath} for ${config.id}`
+      );
+
+      if (!fs.existsSync(fallbackPath)) {
+        throw new Error(
+          `Path not found for resource ${config.id} at ${resourcePath} or fallback ${fallbackPath}`
+        );
+      }
+
+      this.resourceDir = fallbackDir;
+      resourcePath = fallbackPath;
+
+      logger.info(
+        `Using fallback resource directory: ${this.resourceDir} for ${config.id}`
+      );
     }
 
     const files = fs.readdirSync(resourcePath);
     const isLazy = files.includes("lazy.jpg");
     const isAlpha = files.includes("alpha.jpg");
 
-    let resourceType: number | undefined;
-    if (config.type !== undefined) {
-      resourceType = config.type;
-    } else {
-      const isLanguageResource = this.languageImageFiles.some((file) =>
-        files.includes(file)
-      );
-      if (isLanguageResource) {
-        resourceType = 13;
-      } else {
-        const matchingFile = files.find((file) => this.fileNameToType[file]);
-        resourceType = matchingFile
-          ? this.fileNameToType[matchingFile]
-          : undefined;
-      }
-    }
+    const resourceType = this.resolveResourceType(config, files);
 
     if (resourceType === undefined) {
       throw new Error(`Unknown resource type for ${config.id}`);
@@ -104,6 +107,21 @@ export class ResourceManager {
     }
 
     return dependency;
+  }
+
+  private static resolveResourceType(
+    config: ResourceConfig,
+    files: string[]
+  ): number | undefined {
+    if (config.type !== undefined) return config.type;
+
+    const hasLanguageFile = this.languageImageFiles.some((file) =>
+      files.includes(file)
+    );
+    if (hasLanguageFile) return 13;
+
+    const matchedFile = files.find((file) => this.fileNameToType[file]);
+    return matchedFile ? this.fileNameToType[matchedFile] : undefined;
   }
 
   public static getResourceById(id: ResourceId): IDependency {

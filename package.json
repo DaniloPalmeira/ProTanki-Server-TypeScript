@@ -5,11 +5,16 @@
   "main": "dist/server.js",
   "scripts": {
     "update": "ts-node scripts/generateResourceTypes.ts",
-    "build": "tsc",
+    "build": "tsc && cpx \"src/config/**/*.json\" dist/src/config && cpx \"config/**/*.json\" dist/config",
     "start": "node dist/server.js",
     "dev": "ts-node-dev --respawn --transpile-only server.ts"
   },
   "devDependencies": {
+    "@types/bcrypt": "^5.0.2",
+    "@types/cors": "^2.8.18",
+    "@types/express": "^5.0.1",
+    "@types/ws": "^8.18.1",
+    "cpx": "^1.5.0",
     "ts-node-dev": "^2.0.0"
   },
   "repository": {
