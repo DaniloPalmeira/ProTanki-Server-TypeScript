@@ -65,13 +65,24 @@ async function bootstrap() {
     const NEED_INVITE_CODE = configs.needInviteCode === "true";
     const MAX_CLIENTS = configs.maxClients ? parseInt(configs.maxClients) : DEFAULT_MAX_CLIENTS;
 
-    let socialNetworks: string[][] = [];
+    const socialLinksJson = configs.socialAuthLinks || "{}";
+    let socialLinksObj: { [key: string]: string } = {};
     try {
-        const linksObject = JSON.parse(configs.socialAuthLinks || "{}");
-        socialNetworks = Object.entries(linksObject).map(([name, link]) => [String(link), name]);
+        socialLinksObj = JSON.parse(socialLinksJson);
     } catch (error) {
         logger.error("Failed to parse socialAuthLinks from config", { error });
     }
+
+    const allowedKeys = ["google", "facebook", "vkontakte"];
+    const socialNetworks = Object.entries(socialLinksObj)
+        .map(([key, url]) => {
+            if (allowedKeys.includes(key) && typeof url === 'string' && url.trim() !== '') {
+                return [url, key];
+            }
+            return null;
+        })
+        .filter((item): item is [string, string] => item !== null);
+
 
     logger.info("Seeding test data");
     await seedTestData();
