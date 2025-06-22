@@ -3,17 +3,12 @@ import { ProTankiClient } from "../../server/ProTankiClient";
 import { ProTankiServer } from "../../server/ProTankiServer";
 import { IResourceCallback } from "../interfaces/IResourceCallback";
 import { BasePacket } from "./BasePacket";
-import HideLoader from "./HideLoader";
-import InviteEnabled from "./InviteEnabled";
-import Registration from "./Registration";
+import { LoginWorkflow } from "../../workflows/LoginWorkflow";
 
-export default class ResourceCallback
-  extends BasePacket
-  implements IResourceCallback
-{
+export default class ResourceCallback extends BasePacket implements IResourceCallback {
   callbackId: number;
 
-  constructor(callbackId: number) {
+  constructor(callbackId: number = 0) {
     super();
     this.callbackId = callbackId;
   }
@@ -30,17 +25,7 @@ export default class ResourceCallback
 
   run(server: ProTankiServer, client: ProTankiClient): void {
     if (this.callbackId === CALLBACK.LOGIN_FORM) {
-      client.sendPacket(new InviteEnabled(server.getNeedInviteCode()));
-      const loginForm = server.getLoginForm();
-      client.sendPacket(
-        new Registration(
-          loginForm.bgResource,
-          loginForm.enableRequiredEmail,
-          loginForm.maxPasswordLength,
-          loginForm.minPasswordLength
-        )
-      );
-      client.sendPacket(new HideLoader());
+      LoginWorkflow.initializeLoginForm(client, server);
     }
   }
 
