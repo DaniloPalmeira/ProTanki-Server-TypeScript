@@ -8,13 +8,26 @@ import Registration from "../packets/implementations/Registration";
 import SocialNetwork from "../packets/implementations/SocialNetwork";
 import { ProTankiClient } from "../server/ProTankiClient";
 import { ProTankiServer } from "../server/ProTankiServer";
+import { ConfigService } from "../services/ConfigService";
+import logger from "../utils/Logger";
 import { ResourceManager } from "../utils/ResourceManager";
 
 export class LoginWorkflow {
-  public static sendLoginScreenData(client: ProTankiClient, server: ProTankiServer): void {
+  public static async sendLoginScreenData(client: ProTankiClient, server: ProTankiServer): Promise<void> {
     client.sendPacket(new Ping());
     client.sendPacket(new SocialNetwork(server.getSocialNetworks()));
-    client.sendPacket(new CaptchaLocation([]));
+
+    let captchaLocations: number[] = [];
+    try {
+      const locationsValue = await ConfigService.getConfig("captchaLocations");
+      if (locationsValue) {
+        captchaLocations = JSON.parse(locationsValue);
+      }
+    } catch (error) {
+      logger.error("Failed to parse captchaLocations from config", { error });
+    }
+
+    client.sendPacket(new CaptchaLocation(captchaLocations));
 
     const dependencies = {
       resources: [ResourceManager.getResourceById("language_images"), ResourceManager.getResourceById("login_background")],

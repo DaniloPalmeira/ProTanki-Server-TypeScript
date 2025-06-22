@@ -1,4 +1,5 @@
 {
   "needInviteCode": "false",
-  "maxClients": "10"
+  "maxClients": "10",
+  "captchaLocations": "[]"
 }

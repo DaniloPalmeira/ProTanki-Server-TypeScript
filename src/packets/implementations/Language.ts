@@ -35,13 +35,13 @@ export default class Language extends BasePacket implements ILanguage {
     return buffer;
   }
 
-  run(server: ProTankiServer, client: ProTankiClient): void {
+  async run(server: ProTankiServer, client: ProTankiClient): Promise<void> {
     client.language = this.lang;
     logger.info(`Setting language to: ${this.lang}`, {
       client: client.getRemoteAddress(),
     });
 
-    LoginWorkflow.sendLoginScreenData(client, server);
+    await LoginWorkflow.sendLoginScreenData(client, server);
   }
 
   toString(): string {
