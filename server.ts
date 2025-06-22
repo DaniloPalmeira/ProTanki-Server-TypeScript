@@ -73,10 +73,9 @@ async function bootstrap() {
         logger.error("Failed to parse socialAuthLinks from config", { error });
     }
 
-    const allowedKeys = ["google", "facebook", "vkontakte"];
     const socialNetworks = Object.entries(socialLinksObj)
         .map(([key, url]) => {
-            if (allowedKeys.includes(key) && typeof url === 'string' && url.trim() !== '') {
+            if (typeof url === 'string' && url.trim() !== '') {
                 return [url, key];
             }
             return null;
