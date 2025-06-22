@@ -131,3 +131,4 @@ dist
 database.sqlite
 t.js
 teste.js
+.prettierrc

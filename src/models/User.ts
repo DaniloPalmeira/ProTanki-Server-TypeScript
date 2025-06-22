@@ -1,16 +1,7 @@
-import {
-  DataTypes,
-  Model,
-  Sequelize,
-  CreateOptions,
-  InstanceUpdateOptions,
-} from "sequelize";
-import sequelize from "../database";
+import mongoose, { Schema, model, Document } from "mongoose";
 import bcrypt from "bcrypt";
 
-// Interface para os atributos do modelo User
 export interface UserAttributes {
-  id?: number;
   username: string;
   password: string;
   email?: string | null;
@@ -22,151 +13,93 @@ export interface UserAttributes {
   lastLogin?: Date | null;
 }
 
-/**
- * Model for Users
- */
-class User extends Model<UserAttributes> implements UserAttributes {
-  public id!: number;
-  public username!: string;
-  public password!: string;
-  public email!: string | null;
-  public crystals!: number;
-  public experience!: number;
-  public level!: number;
-  public isActive!: boolean;
-  public createdAt!: Date;
-  public lastLogin!: Date | null;
-
-  // Método para verificar senha
-  public verifyPassword(
+export interface UserDocument extends UserAttributes, Document {
+  verifyPassword(
     password: string,
     callback: (error: Error | undefined, isMatch?: boolean) => void
-  ): void {
-    bcrypt.compare(
-      password,
-      this.password,
-      (error: Error | undefined, isMatch: boolean) => {
-        if (error) {
-          return callback(error);
-        }
-        callback(undefined, isMatch);
-      }
-    );
-  }
+  ): void;
 }
 
-User.init(
-  {
-    id: {
-      type: DataTypes.INTEGER,
-      autoIncrement: true,
-      primaryKey: true,
-    },
-    username: {
-      type: DataTypes.STRING(50),
-      unique: true,
-      allowNull: false,
-      validate: {
-        len: [3, 50], // Mínimo 3, máximo 50 caracteres
-        isAlphanumeric: true, // Apenas letras e números
-      },
-    },
-    password: {
-      type: DataTypes.STRING(255), // Para armazenar o hash
-      allowNull: false,
-      validate: {
-        len: [8, 255], // Mínimo 8 caracteres
-      },
-    },
-    email: {
-      type: DataTypes.STRING(100),
-      allowNull: true,
-      validate: {
-        isEmail: true, // Valida formato de e-mail
-      },
-    },
-    crystals: {
-      type: DataTypes.INTEGER,
-      allowNull: false,
-      defaultValue: 0,
-      validate: {
-        min: 0, // Não pode ser negativo
-      },
-    },
-    experience: {
-      type: DataTypes.INTEGER,
-      allowNull: false,
-      defaultValue: 0,
-      validate: {
-        min: 0,
-      },
-    },
-    level: {
-      type: DataTypes.INTEGER,
-      allowNull: false,
-      defaultValue: 1,
-      validate: {
-        min: 1, // Nível mínimo é 1
-      },
-    },
-    isActive: {
-      type: DataTypes.BOOLEAN,
-      allowNull: false,
-      defaultValue: true,
-    },
-    createdAt: {
-      type: DataTypes.DATE,
-      allowNull: false,
-      defaultValue: DataTypes.NOW,
-    },
-    lastLogin: {
-      type: DataTypes.DATE,
-      allowNull: true,
-    },
+const UserSchema = new Schema<UserDocument>({
+  username: {
+    type: String,
+    required: true,
+    unique: true,
+    trim: true,
+    minlength: 3,
+    maxlength: 50,
+    match: /^[a-zA-Z0-9]+$/,
   },
-  {
-    sequelize,
-    modelName: "User",
-    tableName: "Users",
-    timestamps: false,
-    hooks: {
-      beforeCreate: (user: User, options: CreateOptions<UserAttributes>) => {
-        return new Promise<void>((resolve, reject) => {
-          bcrypt.hash(
-            user.password,
-            10,
-            (error: Error | undefined, hash: string) => {
-              if (error) {
-                return reject(error);
-              }
-              user.password = hash;
-              resolve();
-            }
-          );
-        });
-      },
-      beforeUpdate: (
-        user: User,
-        options: InstanceUpdateOptions<UserAttributes>
-      ) => {
-        if (user.changed("password")) {
-          return new Promise<void>((resolve, reject) => {
-            bcrypt.hash(
-              user.password,
-              10,
-              (error: Error | undefined, hash: string) => {
-                if (error) {
-                  return reject(error);
-                }
-                user.password = hash;
-                resolve();
-              }
-            );
-          });
-        }
-      },
-    },
+  password: {
+    type: String,
+    required: true,
+    minlength: 8,
+  },
+  email: {
+    type: String,
+    trim: true,
+    lowercase: true,
+    match: [/.+\@.+\..+/, "Please fill a valid email address"],
+    default: null,
+  },
+  crystals: {
+    type: Number,
+    default: 0,
+    min: 0,
+  },
+  experience: {
+    type: Number,
+    default: 0,
+    min: 0,
+  },
+  level: {
+    type: Number,
+    default: 1,
+    min: 1,
+  },
+  isActive: {
+    type: Boolean,
+    default: true,
+  },
+  createdAt: {
+    type: Date,
+    default: Date.now,
+  },
+  lastLogin: {
+    type: Date,
+    default: null,
+  },
+});
+
+UserSchema.pre<UserDocument>("save", function (next: (error?: Error) => void) {
+  if (!this.isModified("password")) {
+    return next();
   }
-);
+  bcrypt.hash(this.password, 10, (err: Error | undefined, hash: string) => {
+    if (err) {
+      return next(err);
+    }
+    this.password = hash;
+    next();
+  });
+});
+
+UserSchema.methods.verifyPassword = function (
+  password: string,
+  callback: (error: Error | undefined, isMatch?: boolean) => void
+): void {
+  bcrypt.compare(
+    password,
+    this.password,
+    (error: Error | undefined, isMatch: boolean) => {
+      if (error) {
+        return callback(error);
+      }
+      callback(undefined, isMatch);
+    }
+  );
+};
+
+const User = model<UserDocument>("User", UserSchema);
 
 export default User;

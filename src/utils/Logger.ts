@@ -7,20 +7,17 @@ import path from "path";
 dotenv.config();
 
 const ENABLE_CONSOLE_LOGGING = process.env.ENABLE_CONSOLE_LOGGING !== "false";
-const LOG_LEVEL = process.env.LOG_LEVEL || "info"; // Novo: nível de log configurável
+const LOG_LEVEL = process.env.LOG_LEVEL || "info";
 const LOGS_DIR = path.join(__dirname, "../../logs");
 
-// Estado para rastrear se o logger está fechado
 let isLoggerClosed = false;
 
-// Cria o diretório de logs se não existir
 function ensureLogsDirectory(): void {
   try {
     if (!fs.existsSync(LOGS_DIR)) {
       fs.mkdirSync(LOGS_DIR, { recursive: true });
       console.log(`Created logs directory: ${LOGS_DIR}`);
     }
-    // Verifica permissões de escrita
     fs.accessSync(LOGS_DIR, fs.constants.W_OK);
   } catch (error) {
     console.error(`Failed to create or access logs directory: ${error}`);
@@ -28,42 +25,36 @@ function ensureLogsDirectory(): void {
   }
 }
 
-// Formato simplificado e mais limpo para o console
-const consoleFormat = winston.format.combine(
-  winston.format.colorize(),
-  winston.format.timestamp({ format: "YYYY-MM-DD HH:mm:ss" }),
-  winston.format.align(),
-  winston.format.printf(({ timestamp, level, message, ...meta }) => {
-    const metaString = Object.keys(meta).length
-      ? ` | ${JSON.stringify(meta, null, 2).replace(/\n/g, " ")}`
-      : "";
-    return `${timestamp} ${level}: ${message}${metaString}`;
-  })
-);
-
-// Formato para arquivos (JSON com timestamp)
-const fileFormat = winston.format.combine(
-  winston.format.timestamp({ format: "YYYY-MM-DD HH:mm:ss" }),
-  winston.format.errors({ stack: true }), // Captura stack traces
-  winston.format.json()
-);
-
-// Garante que o diretório de logs exista antes de configurar os transportes
 ensureLogsDirectory();
 
-// Configuração dos transports
+const customFormat = winston.format.printf(({ timestamp, level, message, stack, ...meta }) => {
+  let log = `${timestamp} ${level}: ${message}`;
+
+  if (stack) {
+    log += `\n${stack}`;
+  }
+
+  if (meta && Object.keys(meta).length) {
+    log += `\n${JSON.stringify(meta, null, 2)}`;
+  }
+
+  return log;
+});
+
+const fileFormat = winston.format.combine(winston.format.timestamp({ format: "YYYY-MM-DD HH:mm:ss" }), winston.format.errors({ stack: true }), winston.format.splat(), customFormat);
+
+const consoleFormat = winston.format.combine(winston.format.colorize(), winston.format.timestamp({ format: "YYYY-MM-DD HH:mm:ss" }), winston.format.errors({ stack: true }), winston.format.splat(), customFormat);
+
 const transports: winston.transport[] = [
-  // Logs gerais
   new DailyRotateFile({
     filename: path.join(LOGS_DIR, "app-%DATE%.log"),
     datePattern: "YYYY-MM-DD",
     maxFiles: "14d",
     format: fileFormat,
-    level: LOG_LEVEL, // Usa nível configurável
+    level: LOG_LEVEL,
     handleExceptions: true,
     handleRejections: true,
   }),
-  // Logs de erro
   new DailyRotateFile({
     filename: path.join(LOGS_DIR, "error-%DATE%.log"),
     datePattern: "YYYY-MM-DD",
@@ -75,24 +66,21 @@ const transports: winston.transport[] = [
   }),
 ];
 
-// Adiciona console transport se habilitado
 if (ENABLE_CONSOLE_LOGGING) {
   transports.push(
     new winston.transports.Console({
       format: consoleFormat,
-      level: LOG_LEVEL, // Usa nível configurável
+      level: LOG_LEVEL,
       handleExceptions: true,
       handleRejections: true,
     })
   );
 }
 
-// Criação do logger
 const logger = winston.createLogger({
-  level: LOG_LEVEL, // Usa nível configurável
+  level: LOG_LEVEL,
   format: fileFormat,
   transports,
-  // Configuração explícita para capturar erros não tratados
   exceptionHandlers: [
     new DailyRotateFile({
       filename: path.join(LOGS_DIR, "exceptions-%DATE%.log"),
@@ -100,9 +88,7 @@ const logger = winston.createLogger({
       maxFiles: "14d",
       format: fileFormat,
     }),
-    ...(ENABLE_CONSOLE_LOGGING
-      ? [new winston.transports.Console({ format: consoleFormat })]
-      : []),
+    ...(ENABLE_CONSOLE_LOGGING ? [new winston.transports.Console({ format: consoleFormat })] : []),
   ],
   rejectionHandlers: [
     new DailyRotateFile({
@@ -111,46 +97,41 @@ const logger = winston.createLogger({
       maxFiles: "14d",
       format: fileFormat,
     }),
-    ...(ENABLE_CONSOLE_LOGGING
-      ? [new winston.transports.Console({ format: consoleFormat })]
-      : []),
+    ...(ENABLE_CONSOLE_LOGGING ? [new winston.transports.Console({ format: consoleFormat })] : []),
   ],
-  // Garante que o processo não termine imediatamente ao capturar erros
   exitOnError: false,
 });
 
-// Adiciona manipulador de erro para transportes
 transports.forEach((transport, index) => {
   transport.on("error", (error) => {
     console.error(`Error in transport ${index} (${transport.constructor.name}): ${error.message}`);
     if (!isLoggerClosed) {
-      logger.error(`Transport error`, { transport: transport.constructor.name, error });
+      logger.error(`Transport error`, {
+        transport: transport.constructor.name,
+        error,
+      });
     }
   });
 });
 
-// Log de inicialização
 logger.info("Logger initialized", {
   consoleLogging: ENABLE_CONSOLE_LOGGING,
   logLevel: LOG_LEVEL,
   transports: transports.length,
 });
 
-// Garante que os logs sejam flushados antes de encerrar
 logger.on("finish", () => {
   isLoggerClosed = true;
 });
 
 process.on("beforeExit", (code) => {
-  console.log(`Process exiting with code: ${code}`);
   if (!isLoggerClosed) {
     logger.end(() => {
-      console.log("Logger flushed and closed");
+      console.log(`Logger flushed and closed before exit with code: ${code}`);
     });
   }
 });
 
-// Intercepta erros não capturados globalmente
 process.on("unhandledRejection", (reason, promise) => {
   if (!isLoggerClosed) {
     logger.error("Unhandled Rejection at:", { promise, reason });

@@ -1,11 +1,7 @@
-import Invite, { InviteAttributes } from "../models/Invite";
+import Invite from "../models/Invite";
 import { IInviteResponse } from "../types/IInviteResponse";
-import {
-  INVITE_CODE_CHARACTERS,
-  INVITE_CODE_LENGTH,
-} from "../config/constants";
+import { INVITE_CODE_CHARACTERS, INVITE_CODE_LENGTH } from "../config/constants";
 import logger from "../utils/Logger";
-import { FindOptions } from "sequelize";
 
 export class InviteService {
   private static readonly MAX_CODE_GENERATION_ATTEMPTS = 10;
@@ -13,99 +9,39 @@ export class InviteService {
   private static generateInviteCode(): string {
     let code = "";
     for (let i = 0; i < INVITE_CODE_LENGTH; i++) {
-      const randomIndex = Math.floor(
-        Math.random() * INVITE_CODE_CHARACTERS.length
-      );
+      const randomIndex = Math.floor(Math.random() * INVITE_CODE_CHARACTERS.length);
       code += INVITE_CODE_CHARACTERS.charAt(randomIndex);
     }
     return code;
   }
 
-  // Funções utilitárias para converter promessas em callbacks
-  private static findInvite(
-    options: FindOptions<InviteAttributes>,
-    callback: (error: Error | null, invite: Invite | null) => void
-  ): void {
-    Invite.findOne(options)
-      .then((invite: Invite | null) => callback(null, invite))
-      .catch((error: Error) => callback(error, null));
-  }
-
-  private static createInvite(
-    attributes: InviteAttributes,
-    callback: (error: Error | null, invite?: Invite) => void
-  ): void {
-    Invite.create(attributes)
-      .then((invite: Invite) => callback(null, invite))
-      .catch((error: Error) => callback(error));
-  }
-
-  private static saveInvite(
-    invite: Invite,
-    callback: (error: Error | null) => void
-  ): void {
-    invite
-      .save()
-      .then(() => callback(null))
-      .catch((error: Error) => callback(error));
-  }
-
-  public static createInviteCode(
-    callback: (error: Error | null, code?: string) => void
-  ): void {
-    let attempts = 0;
-
-    function tryCreateCode(): void {
-      if (attempts >= InviteService.MAX_CODE_GENERATION_ATTEMPTS) {
-        const error = new Error(
-          "Failed to generate unique invite code after maximum attempts"
-        );
-        return callback(error);
+  public static async createInviteCode(): Promise<string> {
+    for (let attempts = 0; attempts < this.MAX_CODE_GENERATION_ATTEMPTS; attempts++) {
+      const code = this.generateInviteCode();
+      try {
+        const existingInvite = await Invite.findOne({ code });
+        if (!existingInvite) {
+          const invite = await Invite.create({ code, player: null });
+          return invite.code;
+        }
+      } catch (error) {
+        logger.error(`Error during invite code creation for code ${code}`, { error });
+        throw error;
       }
-
-      const code = InviteService.generateInviteCode();
-      InviteService.findInvite({ where: { code } }, (error, existingInvite) => {
-        if (error) {
-          logger.error(`Error checking invite code ${code}`, { error });
-          return callback(error);
-        }
-
-        if (existingInvite) {
-          attempts++;
-          return tryCreateCode();
-        }
-
-        InviteService.createInvite(
-          { code, player: null },
-          (createError, invite) => {
-            if (createError) {
-              logger.error(`Error creating invite code ${code}`, {
-                error: createError,
-              });
-              return callback(createError);
-            }
-            callback(null, code);
-          }
-        );
-      });
     }
-
-    tryCreateCode();
+    throw new Error("Failed to generate unique invite code after maximum attempts");
   }
 
-  public static validateInviteCode(
-    code: string,
-    callback: (error: Error | null, response?: IInviteResponse) => void
-  ): void {
-    InviteService.findInvite({ where: { code } }, (error, invite) => {
-      if (error) {
-        logger.error(`Error validating invite code ${code}`, { error });
-        return callback(error);
-      }
-      callback(null, {
+  public static async validateInviteCode(code: string): Promise<IInviteResponse> {
+    try {
+      const invite = await Invite.findOne({ code });
+      return {
         isValid: !!invite,
         nickname: invite?.player || null,
-      });
-    });
+      };
+    } catch (error) {
+      logger.error(`Error validating invite code ${code}`, { error });
+      throw error;
+    }
   }
 }

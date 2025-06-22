@@ -1,13 +1,12 @@
 import { ProTankiClient } from "../../server/ProTankiClient";
 import { ProTankiServer } from "../../server/ProTankiServer";
+import { UserService } from "../../services/UserService";
 import { ICheckNicknameAvailable } from "../interfaces/ICheckNicknameAvailable";
 import { BasePacket } from "./BasePacket";
 import NicknameAvailable from "./NicknameAvailable";
+import NicknameUnavailable from "./NicknameUnavailable";
 
-export default class CheckNicknameAvailable
-  extends BasePacket
-  implements ICheckNicknameAvailable
-{
+export default class CheckNicknameAvailable extends BasePacket implements ICheckNicknameAvailable {
   nickname: string;
 
   constructor(nickname: string = "") {
@@ -39,9 +38,17 @@ export default class CheckNicknameAvailable
     return buffer;
   }
 
-  run(server: ProTankiServer, client: ProTankiClient): void {
-    if (this.nickname.toLowerCase() === "available") {
+  async run(server: ProTankiServer, client: ProTankiClient): Promise<void> {
+    if (!this.nickname || this.nickname.length < 3) {
+      return;
+    }
+
+    const isAvailable = await UserService.isUsernameAvailable(this.nickname);
+    if (isAvailable) {
       client.sendPacket(new NicknameAvailable());
+    } else {
+      const suggestions = await UserService.generateUsernameSuggestions(this.nickname);
+      client.sendPacket(new NicknameUnavailable(suggestions));
     }
   }
 

@@ -15,12 +15,7 @@ export class ResourceManager {
   private static resourceDir = path.join(__dirname, "../../.resource");
   private static pathsFile = path.join(__dirname, "../config/resources.json");
 
-  private static languageImageFiles = [
-    "en.jpg",
-    "pt_br.jpg",
-    "ru.jpg",
-    "ua.jpg",
-  ];
+  private static languageImageFiles = ["en.jpg", "pt_br.jpg", "ru.jpg", "ua.jpg"];
 
   private static fileNameToType: { [key: string]: number } = {
     "image.jpg": 10,
@@ -58,22 +53,16 @@ export class ResourceManager {
       // Fallback: Try alternate resource directory
       const fallbackDir = path.join(this.resourceDir, "../../.resource/");
       const fallbackPath = path.join(fallbackDir, normalizedPath);
-      logger.debug(
-        `Fallback: Checking resource path: ${fallbackPath} for ${config.id}`
-      );
+      logger.debug(`Fallback: Checking resource path: ${fallbackPath} for ${config.id}`);
 
       if (!fs.existsSync(fallbackPath)) {
-        throw new Error(
-          `Path not found for resource ${config.id} at ${resourcePath} or fallback ${fallbackPath}`
-        );
+        throw new Error(`Path not found for resource ${config.id} at ${resourcePath} or fallback ${fallbackPath}`);
       }
 
       this.resourceDir = fallbackDir;
       resourcePath = fallbackPath;
 
-      logger.info(
-        `Using fallback resource directory: ${this.resourceDir} for ${config.id}`
-      );
+      logger.info(`Using fallback resource directory: ${this.resourceDir} for ${config.id}`);
     }
 
     const files = fs.readdirSync(resourcePath);
@@ -86,9 +75,7 @@ export class ResourceManager {
       throw new Error(`Unknown resource type for ${config.id}`);
     }
 
-    const { idHigh, idLow, versionHigh, versionLow } = this.parseResourcePath(
-      config.path
-    );
+    const { idHigh, idLow, versionHigh, versionLow } = this.parseResourcePath(config.path);
 
     const dependency: IDependency = {
       idhigh: idHigh.toString(),
@@ -101,23 +88,16 @@ export class ResourceManager {
     };
 
     if (resourceType === 13) {
-      dependency.fileNames = files.filter((file) =>
-        this.languageImageFiles.includes(file)
-      );
+      dependency.fileNames = files.filter((file) => this.languageImageFiles.includes(file));
     }
 
     return dependency;
   }
 
-  private static resolveResourceType(
-    config: ResourceConfig,
-    files: string[]
-  ): number | undefined {
+  private static resolveResourceType(config: ResourceConfig, files: string[]): number | undefined {
     if (config.type !== undefined) return config.type;
 
-    const hasLanguageFile = this.languageImageFiles.some((file) =>
-      files.includes(file)
-    );
+    const hasLanguageFile = this.languageImageFiles.some((file) => files.includes(file));
     if (hasLanguageFile) return 13;
 
     const matchedFile = files.find((file) => this.fileNameToType[file]);
@@ -160,17 +140,7 @@ export class ResourceManager {
     };
   }
 
-  public static getResourcePath({
-    idHigh,
-    idLow,
-    versionHigh,
-    versionLow,
-  }: {
-    idHigh: number;
-    idLow: number;
-    versionHigh: number;
-    versionLow: number;
-  }): string {
+  public static getResourcePath({ idHigh, idLow, versionHigh, versionLow }: { idHigh: number; idLow: number; versionHigh: number; versionLow: number }): string {
     // Extrair part2, part3 e part4 de idLow
     const part2 = (idLow >> 16) & 0xff; // Desloca 16 bits e mascara para obter 8 bits
     const part3 = (idLow >> 8) & 0xff; // Desloca 8 bits e mascara para obter 8 bits

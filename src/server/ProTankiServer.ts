@@ -8,6 +8,7 @@ import { IInviteResponse } from "../types/IInviteResponse";
 import { InviteService } from "../services/InviteService";
 import { DEFAULT_MAX_CLIENTS, DEFAULT_PORT } from "../config/constants";
 import logger from "../utils/Logger";
+import { promisify } from "util";
 
 export class ProTankiServer {
   private server: net.Server;
@@ -37,9 +38,7 @@ export class ProTankiServer {
       options.maxClients = DEFAULT_MAX_CLIENTS;
     }
     if (!options.loginForm || !options.socialNetworks) {
-      throw new Error(
-        "Missing required server options: loginForm or socialNetworks"
-      );
+      throw new Error("Missing required server options: loginForm or socialNetworks");
     }
   }
 
@@ -56,17 +55,16 @@ export class ProTankiServer {
     });
   }
 
-  public stop(callback: (error?: Error) => void): void {
-    this.server.close((err) => {
-      if (err) {
-        logger.error("Error stopping ProTanki Server", { error: err });
-        return callback(err);
-      }
-      this.clientManager
-        .getClients()
-        .forEach((client) => client.closeConnection());
-      logger.info("ProTanki Server stopped");
-      callback();
+  public stop(): Promise<void> {
+    return new Promise((resolve, reject) => {
+      this.server.close((err) => {
+        if (err) {
+          logger.error("Error stopping ProTanki Server", { error: err });
+          return reject(err);
+        }
+        this.clientManager.getClients().forEach((client) => client.closeConnection());
+        resolve();
+      });
     });
   }
 
@@ -99,22 +97,6 @@ export class ProTankiServer {
     return this.needInviteCode;
   }
 
-  public updateNeedInviteCode(value: boolean): void {
-    this.needInviteCode = value;
-    logger.info("Updated needInviteCode", {
-      needInviteCode: this.needInviteCode,
-    });
-  }
-
-  public updateMaxClients(value: number): void {
-    if (value < 0) {
-      logger.warn("Attempt to set maxClients to invalid value", { value });
-      return;
-    }
-    this.maxClients = value;
-    logger.info("Updated maxClients", { maxClients: this.maxClients });
-  }
-
   public getSocialNetworks(): Array<string[]> {
     return this.socialNetworks;
   }
@@ -123,17 +105,13 @@ export class ProTankiServer {
     return this.loginForm;
   }
 
-  public validateInviteCode(
-    code: string,
-    callback: (response: IInviteResponse) => void
-  ): void {
-    InviteService.validateInviteCode(code, (error, response) => {
-      if (error) {
-        logger.error(`Error validating invite code ${code}`, { error });
-        return callback({ isValid: false });
-      }
-      callback(response!);
-    });
+  public async validateInviteCode(code: string): Promise<IInviteResponse> {
+    try {
+      return await InviteService.validateInviteCode(code);
+    } catch (error) {
+      logger.error(`Error validating invite code ${code}`, { error });
+      return { isValid: false };
+    }
   }
 
   public broadcastToLobby(packet: IPacket): void {

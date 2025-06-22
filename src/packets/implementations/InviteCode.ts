@@ -37,20 +37,20 @@ export default class InviteCode extends BasePacket implements IInviteCode {
     return buffer;
   }
 
-  run(server: ProTankiServer, client: ProTankiClient): void {
-    server.validateInviteCode(this.inviteCode, (result) => {
-      if (!result.isValid) {
-        client.sendPacket(new InviteCodeInvalid());
-        return;
-      }
+  async run(server: ProTankiServer, client: ProTankiClient): Promise<void> {
+    const result = await server.validateInviteCode(this.inviteCode);
 
-      if (result.nickname) {
-        client.sendPacket(new InviteCodeLogin(result.nickname));
-        return;
-      }
+    if (!result.isValid) {
+      client.sendPacket(new InviteCodeInvalid());
+      return;
+    }
 
-      client.sendPacket(new InviteCodeRegister());
-    });
+    if (result.nickname) {
+      client.sendPacket(new InviteCodeLogin(result.nickname));
+      return;
+    }
+
+    client.sendPacket(new InviteCodeRegister());
   }
 
   toString(): string {

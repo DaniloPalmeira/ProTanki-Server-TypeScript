@@ -2,8 +2,7 @@ import { createCanvas, CanvasRenderingContext2D } from "canvas";
 
 // Função para gerar uma string aleatória
 function generateRandomText(length: number): string {
-  const chars =
-    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+  const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
   let result = "";
   for (let i = 0; i < length; i++) {
     result += chars.charAt(Math.floor(Math.random() * chars.length));
@@ -30,9 +29,7 @@ function generateCaptcha(): CaptchaResult {
 
   // Adiciona ruído ao fundo
   for (let i = 0; i < 10000; i++) {
-    ctx.fillStyle = `rgba(${Math.random() * 100}, ${Math.random() * 100}, ${
-      Math.random() * 100
-    }, 0.3)`;
+    ctx.fillStyle = `rgba(${Math.random() * 100}, ${Math.random() * 100}, ${Math.random() * 100}, 0.3)`;
     ctx.fillRect(Math.random() * width, Math.random() * height, 2, 2);
   }
 

@@ -7,10 +7,7 @@ import RecoveryEmailNotExists from "./RecoveryEmailNotExists";
 import { UserService } from "../../services/UserService";
 import logger from "../../utils/Logger";
 
-export default class RecoveryAccountSendCode
-  extends BasePacket
-  implements IRecoveryAccountSendCode
-{
+export default class RecoveryAccountSendCode extends BasePacket implements IRecoveryAccountSendCode {
   email: string;
 
   constructor(email: string = "") {
@@ -40,30 +37,25 @@ export default class RecoveryAccountSendCode
     return buffer;
   }
 
-  run(server: ProTankiServer, client: ProTankiClient): void {
+  async run(server: ProTankiServer, client: ProTankiClient): Promise<void> {
     logger.info(`Recovery code requested for email: ${this.email}`, {
       client: client.getRemoteAddress(),
     });
 
-    // Verifica se o e-mail existe no banco de dados
-    UserService.findUserByEmail(this.email, (error, user) => {
-      if (error) {
-        logger.error(`Error checking email ${this.email}`, { error });
-        client.sendPacket(new RecoveryEmailNotExists());
-        return;
-      }
-
+    try {
+      const user = await UserService.findUserByEmail(this.email);
       if (user) {
-        // E-mail existe, simular envio de código de recuperação
         logger.info(`Recovery email sent to: ${this.email}`);
         client.recoveryCode = "abcdefghijklmnopqrstuvwxyz";
         client.sendPacket(new RecoveryEmailSent());
       } else {
-        // E-mail não encontrado
         logger.info(`Email not found: ${this.email}`);
         client.sendPacket(new RecoveryEmailNotExists());
       }
-    });
+    } catch (error) {
+      logger.error(`Error checking email ${this.email}`, { error });
+      client.sendPacket(new RecoveryEmailNotExists());
+    }
   }
 
   toString(): string {

@@ -8,7 +8,6 @@ import { IPacket } from "../packets/interfaces/IPacket";
 import Protection from "../packets/implementations/Protection";
 import logger from "../utils/Logger";
 
-// Interface para pacotes na fila
 interface PacketQueueItem {
   packetId: number;
   packetData: Buffer;
@@ -79,12 +78,8 @@ export class ProTankiClient {
       }
 
       const packetId = this.rawDataReceived.readInt32BE(4);
-      const packetData = this.rawDataReceived.slice(
-        ProTankiClient.HEADER_SIZE,
-        packetSize
-      );
+      const packetData = this.rawDataReceived.slice(ProTankiClient.HEADER_SIZE, packetSize);
 
-      // Adiciona o pacote à fila
       this.packetQueue.push({ packetId, packetData });
       logger.debug(`Packet queued`, {
         id: packetId,
@@ -95,11 +90,10 @@ export class ProTankiClient {
       this.rawDataReceived = this.rawDataReceived.slice(packetSize);
     }
 
-    // Processa a fila de pacotes
     this.processPacketQueue();
   }
 
-  private processPacketQueue(): void {
+  private async processPacketQueue(): Promise<void> {
     if (this.isProcessingQueue || this.packetQueue.length === 0) {
       return;
     }
@@ -108,6 +102,7 @@ export class ProTankiClient {
 
     while (this.packetQueue.length > 0) {
       const { packetId, packetData } = this.packetQueue.shift()!;
+
       logger.info(`Processing packet`, {
         id: packetId,
         client: this.getRemoteAddress(),
@@ -130,7 +125,7 @@ export class ProTankiClient {
           client: this.getRemoteAddress(),
         });
         if (packetClass.run) {
-          packetClass.run(this.server, this);
+          await packetClass.run(this.server, this);
         }
       } catch (error) {
         logger.error(`Error processing packet ID ${packetId}`, {
@@ -160,9 +155,7 @@ export class ProTankiClient {
     try {
       const rawBuffer = packet.write();
       const packetId = packet.getId();
-      const finalBuffer = encrypt
-        ? this.encryptionService.encrypt(rawBuffer)
-        : rawBuffer;
+      const finalBuffer = encrypt ? this.encryptionService.encrypt(rawBuffer) : rawBuffer;
       const packetBuffer = this.buildPacketBuffer(packetId, finalBuffer);
 
       logger.debug(`Sending packet`, {
