@@ -3,6 +3,9 @@ import { ProTankiServer } from "../../server/ProTankiServer";
 import { ICreateAccount } from "../interfaces/ICreateAccount";
 import { BasePacket } from "./BasePacket";
 import SystemMessage from "./SystemMessage";
+import logger from "../../utils/Logger";
+import { UserService } from "../../services/UserService";
+import NicknameUnavailable from "./NicknameUnavailable";
 
 export default class CreateAccount extends BasePacket implements ICreateAccount {
   nickname?: string;
@@ -38,7 +41,35 @@ export default class CreateAccount extends BasePacket implements ICreateAccount 
   }
 
   async run(server: ProTankiServer, client: ProTankiClient): Promise<void> {
-    client.sendPacket(new SystemMessage("Funcionalidade ainda não implementada."));
+    if (!this.nickname || !this.password || this.nickname.length < 3 || this.password.length < 8) {
+      client.sendPacket(new SystemMessage("Apelido ou senha inválidos."));
+      return;
+    }
+
+    try {
+      await UserService.createUser({
+        username: this.nickname,
+        password: this.password,
+      });
+
+      logger.info(`Account created successfully for ${this.nickname}`, {
+        client: client.getRemoteAddress(),
+      });
+
+      client.sendPacket(new SystemMessage("Conta criada com sucesso!\nVocê já pode fazer o login."));
+    } catch (error: any) {
+      logger.warn(`Failed to create account for ${this.nickname}`, {
+        error: error.message,
+        client: client.getRemoteAddress(),
+      });
+
+      if (error.message.includes("already exists")) {
+        const suggestions = await UserService.generateUsernameSuggestions(this.nickname);
+        client.sendPacket(new NicknameUnavailable(suggestions));
+      } else {
+        client.sendPacket(new SystemMessage("Ocorreu um erro ao criar a conta.\nTente novamente."));
+      }
+    }
   }
 
   toString(): string {
