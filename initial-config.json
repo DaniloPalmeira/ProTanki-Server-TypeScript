@@ -1,5 +1,6 @@
 {
-  "needInviteCode": "false",
-  "maxClients": "10",
-  "captchaLocations": "[]"
+    "needInviteCode": "false",
+    "maxClients": "10",
+    "captchaLocations": "[]",
+    "socialAuthLinks": "{\"google\":\"\",\"facebook\":\"\",\"vkontakte\":\"\"}"
 }
