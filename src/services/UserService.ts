@@ -80,7 +80,10 @@ export class UserService {
 
   public static async login(username: string, password: string, inviteCode: string | null): Promise<UserDocument> {
     try {
-      const user = await User.findOne({ username });
+      const user = await User.findOne({
+        username: { $regex: new RegExp(`^${username}$`, "i") },
+      });
+
       if (!user) {
         throw new Error("Invalid username or password");
       }
