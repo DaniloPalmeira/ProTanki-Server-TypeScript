@@ -14,10 +14,7 @@ export interface UserAttributes {
 }
 
 export interface UserDocument extends UserAttributes, Document {
-  verifyPassword(
-    password: string,
-    callback: (error: Error | undefined, isMatch?: boolean) => void
-  ): void;
+  verifyPassword(password: string, callback: (error: Error | undefined, isMatch?: boolean) => void): void;
 }
 
 const UserSchema = new Schema<UserDocument>({
@@ -33,7 +30,7 @@ const UserSchema = new Schema<UserDocument>({
   password: {
     type: String,
     required: true,
-    minlength: 8,
+    minlength: 3,
   },
   email: {
     type: String,
@@ -84,20 +81,13 @@ UserSchema.pre<UserDocument>("save", function (next: (error?: Error) => void) {
   });
 });
 
-UserSchema.methods.verifyPassword = function (
-  password: string,
-  callback: (error: Error | undefined, isMatch?: boolean) => void
-): void {
-  bcrypt.compare(
-    password,
-    this.password,
-    (error: Error | undefined, isMatch: boolean) => {
-      if (error) {
-        return callback(error);
-      }
-      callback(undefined, isMatch);
+UserSchema.methods.verifyPassword = function (password: string, callback: (error: Error | undefined, isMatch?: boolean) => void): void {
+  bcrypt.compare(password, this.password, (error: Error | undefined, isMatch: boolean) => {
+    if (error) {
+      return callback(error);
     }
-  );
+    callback(undefined, isMatch);
+  });
 };
 
 const User = model<UserDocument>("User", UserSchema);

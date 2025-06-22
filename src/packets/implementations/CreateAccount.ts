@@ -41,7 +41,7 @@ export default class CreateAccount extends BasePacket implements ICreateAccount 
   }
 
   async run(server: ProTankiServer, client: ProTankiClient): Promise<void> {
-    if (!this.nickname || !this.password || this.nickname.length < 3 || this.password.length < 8) {
+    if (!this.nickname || !this.password || this.nickname.length < 3 || this.password.length < 3) {
       client.sendPacket(new SystemMessage("Apelido ou senha inválidos."));
       return;
     }
