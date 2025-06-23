@@ -8,7 +8,6 @@ import { ResourcePathUtils } from "../src/utils/ResourcePathUtils";
 const ROOT_DIR = path.join(__dirname, "..");
 const RESOURCES_DIR = path.join(ROOT_DIR, "resources");
 const RESOURCE_BUILD_DIR = path.join(ROOT_DIR, ".resource");
-const CONFIG_DIR = path.join(ROOT_DIR, "src", "config");
 const TYPES_DIR = path.join(ROOT_DIR, "src", "types");
 
 interface ResourceDefinition {
@@ -20,8 +19,6 @@ interface ResourceDefinition {
 }
 
 function generateResourceId(friendlyPath: string): number {
-  // Aplica o hash e depois a máscara de 24 bits (0xFFFFFF) para garantir
-  // que o número se encaixe na estrutura de 3 bytes do caminho.
   return (crc32.str(friendlyPath) & 0xffffff) >>> 0;
 }
 
@@ -65,22 +62,18 @@ async function copyRootFiles() {
   }
 }
 
-function generateIdMap(resources: ResourceDefinition[]): Record<string, number> {
-  const map: Record<string, number> = {};
-  for (const res of resources) {
-    map[res.id] = res.idLow;
-  }
-  return map;
-}
+function generateResourceTypesFileContent(resources: ResourceDefinition[]): string {
+  let content = `// Arquivo gerado automaticamente. Não edite manualmente.\n\n`;
 
-function generateResourcesJson(resources: ResourceDefinition[]): any[] {
-  return resources.map((res) => ({ id: res.id, path: res.buildPath }));
-}
+  content += `export const ResourceData = {\n`;
+  resources.forEach((res) => {
+    content += `    "${res.id}": { idLow: ${res.idLow}, path: "${res.buildPath}", versionLow: ${res.versionLow} },\n`;
+  });
+  content += `} as const;\n\n`;
 
-function generateResourceTypes(resources: ResourceDefinition[]): string {
-  const resourceIds = resources.map((res) => res.id);
-  const typeContent = `// Arquivo gerado automaticamente. Não edite manualmente.\n\ndeclare const ResourceIds: {\n${resourceIds.map((id) => `    "${id}": "${id}";`).join("\n")}\n};\n\nexport type ResourceId = keyof typeof ResourceIds;\n`;
-  return typeContent;
+  content += `export type ResourceId = keyof typeof ResourceData;\n`;
+
+  return content;
 }
 
 async function build() {
@@ -88,10 +81,6 @@ async function build() {
 
   await rimraf(RESOURCE_BUILD_DIR);
   await fs.promises.mkdir(RESOURCE_BUILD_DIR, { recursive: true });
-
-  if (!fs.existsSync(CONFIG_DIR)) {
-    await fs.promises.mkdir(CONFIG_DIR, { recursive: true });
-  }
 
   console.log("Discovering resources from 'resources' directory...");
   const resources = await findResources(RESOURCES_DIR);
@@ -105,16 +94,8 @@ async function build() {
   }
   console.log(`Found ${resources.length} resources. No collisions detected.`);
 
-  console.log("Generating 'resources.json'...");
-  const resourcesJson = generateResourcesJson(resources);
-  await fs.promises.writeFile(path.join(CONFIG_DIR, "resources.json"), JSON.stringify(resourcesJson, null, 4));
-
-  console.log("Generating 'idMap.json'...");
-  const idMapJson = generateIdMap(resources);
-  await fs.promises.writeFile(path.join(CONFIG_DIR, "idMap.json"), JSON.stringify(idMapJson, null, 4));
-
   console.log("Generating 'resourceTypes.d.ts'...");
-  const typesContent = generateResourceTypes(resources);
+  const typesContent = generateResourceTypesFileContent(resources);
   await fs.promises.writeFile(path.join(TYPES_DIR, "resourceTypes.d.ts"), typesContent);
 
   console.log("Copying categorized resource files to '.resource' directory...");

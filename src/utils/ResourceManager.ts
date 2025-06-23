@@ -1,24 +1,15 @@
 import fs from "fs";
 import path from "path";
 import { IDependency } from "../packets/interfaces/ILoadDependencies";
-import { ResourceId } from "../types/resourceTypes";
+import { ResourceId, ResourceData } from "../types/resourceTypes";
 import logger from "./Logger";
 import { ResourcePathUtils } from "./ResourcePathUtils";
 
-interface ResourceConfig {
-  id: ResourceId;
-  path: string;
-}
-
 export class ResourceManager {
   private static dependencies: Map<ResourceId, IDependency> = new Map();
-  private static idLowMap: Map<ResourceId, number> = new Map();
 
   private static resourceDir = path.join(__dirname, "../../.resource");
-  private static pathsFile = path.join(__dirname, "../config/resources.json");
-  private static idMapFile = path.join(__dirname, "../config/idMap.json");
 
-  private static languageImageFiles = ["en.jpg", "pt_br.jpg", "ru.jpg", "ua.jpg"];
   private static fileNameToType: { [key: string]: number } = {
     "image.jpg": 10,
     "image.png": 10,
@@ -29,48 +20,36 @@ export class ResourceManager {
 
   public static loadResources(): void {
     try {
-      if (!fs.existsSync(this.pathsFile) || !fs.existsSync(this.idMapFile)) {
-        logger.warn(`Resource config files not found. Run 'npm run build:resources' to generate them.`);
-        return;
-      }
+      const resourceIds = Object.keys(ResourceData) as ResourceId[];
 
-      const pathData = fs.readFileSync(this.pathsFile, "utf8");
-      const idMapData = fs.readFileSync(this.idMapFile, "utf8");
-
-      const pathConfigs: ResourceConfig[] = JSON.parse(pathData);
-      const idLowMappings: Record<ResourceId, number> = JSON.parse(idMapData);
-
-      for (const id in idLowMappings) {
-        this.idLowMap.set(id as ResourceId, idLowMappings[id as ResourceId]);
-      }
-
-      pathConfigs.forEach((config) => {
-        const dependency = this.createDependency(config);
-        this.dependencies.set(config.id, dependency);
+      resourceIds.forEach((id) => {
+        const config = ResourceData[id];
+        const dependency = this.createDependency(id, config.path);
+        this.dependencies.set(id, dependency);
       });
 
-      logger.info(`Loaded ${pathConfigs.length} resource configurations`);
+      logger.info(`Loaded ${resourceIds.length} resource configurations`);
     } catch (error) {
       logger.error("Error loading resource configurations", { error });
       throw error;
     }
   }
 
-  private static createDependency(config: ResourceConfig): IDependency {
-    const resourcePath = path.join(this.resourceDir, config.path);
+  private static createDependency(id: ResourceId, resourceBuildPath: string): IDependency {
+    const fullResourcePath = path.join(this.resourceDir, resourceBuildPath);
 
-    if (!fs.existsSync(resourcePath)) {
-      throw new Error(`Path not found for resource ${config.id} at ${resourcePath}. Run 'npm run build:resources'.`);
+    if (!fs.existsSync(fullResourcePath)) {
+      throw new Error(`Path not found for resource ${id} at ${fullResourcePath}. Run 'npm run build:resources'.`);
     }
 
-    const files = fs.readdirSync(resourcePath);
+    const files = fs.readdirSync(fullResourcePath);
     const resourceType = this.resolveResourceType(files);
 
     if (resourceType === undefined) {
-      throw new Error(`Could not determine resource type for id "${config.id}".`);
+      throw new Error(`Could not determine resource type for id "${id}".`);
     }
 
-    const { idHigh, idLow, versionHigh, versionLow } = ResourcePathUtils.parseResourcePath(config.path);
+    const { idHigh, idLow, versionHigh, versionLow } = ResourcePathUtils.parseResourcePath(resourceBuildPath);
 
     const dependency: IDependency = {
       idhigh: idHigh.toString(),
@@ -83,16 +62,17 @@ export class ResourceManager {
     };
 
     if (resourceType === 13) {
-      dependency.fileNames = files.filter((file) => this.languageImageFiles.includes(file));
+      dependency.fileNames = files.filter((file) => file.endsWith(".jpg") || file.endsWith(".png"));
     }
 
     return dependency;
   }
 
   private static resolveResourceType(files: string[]): number | undefined {
-    const hasLanguageFile = this.languageImageFiles.some((file) => files.includes(file));
+    // A lógica para 'language_images' pode ser mais genérica agora
+    const hasLanguageFile = files.some((file) => file.match(/^(en|pt_br|ru|ua)\.(jpg|png)$/));
     if (hasLanguageFile) {
-      return 13; // Tipo para coleções de imagens de idioma
+      return 13;
     }
 
     const matchedFile = files.find((file) => this.fileNameToType[file]);
@@ -108,10 +88,10 @@ export class ResourceManager {
   }
 
   public static getIdlowById(id: ResourceId): number {
-    const idLow = this.idLowMap.get(id);
-    if (idLow === undefined) {
+    const resourceInfo = ResourceData[id];
+    if (!resourceInfo) {
       throw new Error(`Resource idLow with ID '${id}' not found.`);
     }
-    return idLow;
+    return resourceInfo.idLow;
   }
 }

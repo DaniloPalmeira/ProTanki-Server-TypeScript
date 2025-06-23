@@ -135,4 +135,3 @@ teste.js
 .resource
 /src/config/resources.json
 /src/config/idMap.json
-/src/types/resourceTypes.d.ts

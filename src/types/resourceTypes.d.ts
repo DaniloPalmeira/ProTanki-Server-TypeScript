@@ -1,5 +1,8 @@
-// Este é um arquivo placeholder para satisfazer a importação inicial do TypeScript.
-// Ele será sobrescrito automaticamente pelo script `npm run build:resources`
-// e é ignorado pelo Git para evitar que o conteúdo gerado seja versionado.
+// Arquivo gerado automaticamente. Não edite manualmente.
 
-export type ResourceId = string;
+export const ResourceData = {
+    "ui/language_images": { idLow: 13660573, path: "/0/320/161/235/3/", versionLow: 3 },
+    "ui/login_background": { idLow: 12669901, path: "/0/301/123/315/1/", versionLow: 1 },
+} as const;
+
+export type ResourceId = keyof typeof ResourceData;
