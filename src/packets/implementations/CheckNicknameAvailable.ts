@@ -5,6 +5,8 @@ import { ICheckNicknameAvailable } from "../interfaces/ICheckNicknameAvailable";
 import { BasePacket } from "./BasePacket";
 import NicknameAvailable from "./NicknameAvailable";
 import NicknameUnavailable from "./NicknameUnavailable";
+import InvalidNickname from "./InvalidNickname";
+import { ValidationUtils } from "../../utils/ValidationUtils";
 
 export default class CheckNicknameAvailable extends BasePacket implements ICheckNicknameAvailable {
   nickname: string;
@@ -40,6 +42,11 @@ export default class CheckNicknameAvailable extends BasePacket implements ICheck
 
   async run(server: ProTankiServer, client: ProTankiClient): Promise<void> {
     if (!this.nickname || this.nickname.length < 3) {
+      return;
+    }
+
+    if (ValidationUtils.isNicknameInappropriate(this.nickname)) {
+      client.sendPacket(new InvalidNickname());
       return;
     }
 

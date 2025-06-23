@@ -6,6 +6,8 @@ import SystemMessage from "./SystemMessage";
 import logger from "../../utils/Logger";
 import { UserService } from "../../services/UserService";
 import NicknameUnavailable from "./NicknameUnavailable";
+import { ValidationUtils } from "../../utils/ValidationUtils";
+import InvalidNickname from "./InvalidNickname";
 
 export default class CreateAccount extends BasePacket implements ICreateAccount {
   nickname?: string;
@@ -43,6 +45,11 @@ export default class CreateAccount extends BasePacket implements ICreateAccount 
   async run(server: ProTankiServer, client: ProTankiClient): Promise<void> {
     if (!this.nickname || !this.password || this.nickname.length < 3 || this.password.length < 3) {
       client.sendPacket(new SystemMessage("Apelido ou senha inválidos."));
+      return;
+    }
+
+    if (ValidationUtils.isNicknameInappropriate(this.nickname)) {
+      client.sendPacket(new InvalidNickname());
       return;
     }
 
