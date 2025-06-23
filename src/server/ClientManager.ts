@@ -4,23 +4,27 @@ import { ProTankiClient } from "./ProTankiClient";
 export class ClientManager {
   private clients: ProTankiClient[] = [];
 
-  addClient(client: ProTankiClient): void {
+  public addClient(client: ProTankiClient): void {
     this.clients.push(client);
   }
 
-  removeClient(client: ProTankiClient): void {
+  public removeClient(client: ProTankiClient): void {
     this.clients = this.clients.filter((c) => c !== client);
   }
 
-  getClients(): ProTankiClient[] {
+  public getClients(): ProTankiClient[] {
     return this.clients;
   }
 
-  getClientCount(): number {
+  public getClientCount(): number {
     return this.clients.length;
   }
 
-  sendToLobbyClients(packet: IPacket): void {
+  public findClientByIp(ip: string): ProTankiClient | undefined {
+    return this.clients.find((c) => c.getRemoteAddress() === ip);
+  }
+
+  public sendToLobbyClients(packet: IPacket): void {
     this.clients.forEach((client) => {
       if (client.getState() === "lobby") {
         client.sendPacket(packet);

@@ -8,7 +8,6 @@ import { IInviteResponse } from "../types/IInviteResponse";
 import { InviteService } from "../services/InviteService";
 import { DEFAULT_MAX_CLIENTS, DEFAULT_PORT } from "../config/constants";
 import logger from "../utils/Logger";
-import { promisify } from "util";
 
 export class ProTankiServer {
   private server: net.Server;
@@ -91,6 +90,14 @@ export class ProTankiServer {
       client: socket.remoteAddress || "unknown",
     });
     new ProTankiClient({ socket, server: this });
+  }
+
+  public getClients(): ProTankiClient[] {
+    return this.clientManager.getClients();
+  }
+
+  public findClientByIp(ip: string): ProTankiClient | undefined {
+    return this.clientManager.findClientByIp(ip);
   }
 
   public getNeedInviteCode(): boolean {
