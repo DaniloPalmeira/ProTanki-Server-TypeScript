@@ -33,7 +33,7 @@ export class LoginWorkflow {
     client.sendPacket(new CaptchaLocation(captchaLocations));
 
     const dependencies = {
-      resources: [ResourceManager.getResourceById("language_images"), ResourceManager.getResourceById("login_background")],
+      resources: [ResourceManager.getResourceById("ui/language_images"), ResourceManager.getResourceById("ui/login_background")],
     };
     client.sendPacket(new LoadDependencies(dependencies, CALLBACK.LOGIN_FORM));
   }

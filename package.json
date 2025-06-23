@@ -4,15 +4,17 @@
   "description": "TypeScript-based server for ProTanki game",
   "main": "dist/server.js",
   "scripts": {
-    "update": "ts-node scripts/generateResourceTypes.ts",
-    "build": "tsc && cpx \"src/config/**/*.json\" dist/src/config && cpx initial-config.json dist/",
+    "build:resources": "ts-node scripts/buildResources.ts",
+    "build": "npm run build:resources && tsc && cpx \"src/config/initial-config.json\" dist",
     "start": "node dist/server.js",
-    "dev": "ts-node-dev --respawn --transpile-only server.ts"
+    "dev": "npm run build:resources && ts-node-dev --respawn --transpile-only server.ts"
   },
   "devDependencies": {
     "@types/bcrypt": "^5.0.2",
     "@types/cors": "^2.8.18",
     "@types/express": "^5.0.1",
+    "@types/fs-extra": "^11.0.4",
+    "@types/rimraf": "^3.0.2",
     "cpx": "^1.5.0",
     "ts-node-dev": "^2.0.0"
   },
@@ -26,9 +28,12 @@
     "bcrypt": "^6.0.0",
     "canvas": "^3.1.0",
     "cors": "^2.8.5",
+    "crc-32": "^1.2.2",
     "dotenv": "^16.5.0",
     "express": "^5.1.0",
+    "fs-extra": "^11.2.0",
     "mongoose": "^8.4.1",
+    "rimraf": "^5.0.7",
     "winston": "^3.17.0",
     "winston-daily-rotate-file": "^5.0.0"
   }

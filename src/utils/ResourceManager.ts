@@ -113,6 +113,11 @@ export class ResourceManager {
     return resource;
   }
 
+  public static getIdlowById(id: ResourceId): number {
+    const resource = this.getResourceById(id);
+    return resource.idlow;
+  }
+
   public static parseResourcePath(resourcePath: string): {
     idHigh: number;
     idLow: number;

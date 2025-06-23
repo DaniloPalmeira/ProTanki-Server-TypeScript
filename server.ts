@@ -92,7 +92,7 @@ async function bootstrap() {
     needInviteCode: NEED_INVITE_CODE,
     socialNetworks: socialNetworks,
     loginForm: {
-      bgResource: 122842,
+      bgResource: ResourceManager.getIdlowById("ui/login_background"),
       enableRequiredEmail: false,
       maxPasswordLength: 64,
       minPasswordLength: 3,
