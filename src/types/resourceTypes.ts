@@ -1,10 +1,8 @@
-// Este é um arquivo placeholder para satisfazer a importação inicial do TypeScript.
-// Ele garante que o servidor possa ser analisado sem erros antes do primeiro build,
-// definindo a "forma" dos dados que o ResourceManager espera importar.
-//
-// O conteúdo real será gerado e sobrescrito pelo script `npm run build:resources`.
-// Este arquivo é ignorado pelo Git para evitar que o conteúdo gerado seja versionado.
+// Arquivo gerado automaticamente. Não edite manualmente.
 
-export const ResourceData: Record<string, { idLow: number; path: string; versionLow: number }> = {};
+export const ResourceData = {
+    "ui/language_images": { idLow: 13660573, path: "/0/320/161/235/3/", versionLow: 3 },
+    "ui/login_background": { idLow: 12669901, path: "/0/301/123/315/1/", versionLow: 1 },
+} as const;
 
 export type ResourceId = keyof typeof ResourceData;
