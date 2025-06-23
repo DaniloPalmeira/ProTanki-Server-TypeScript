@@ -94,9 +94,9 @@ async function build() {
   }
   console.log(`Found ${resources.length} resources. No collisions detected.`);
 
-  console.log("Generating 'resourceTypes.d.ts'...");
+  console.log("Generating 'resourceTypes.ts'...");
   const typesContent = generateResourceTypesFileContent(resources);
-  await fs.promises.writeFile(path.join(TYPES_DIR, "resourceTypes.d.ts"), typesContent);
+  await fs.promises.writeFile(path.join(TYPES_DIR, "resourceTypes.ts"), typesContent);
 
   console.log("Copying categorized resource files to '.resource' directory...");
   for (const res of resources) {
