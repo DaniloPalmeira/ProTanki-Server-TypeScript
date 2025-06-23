@@ -2,8 +2,8 @@ import { ProTankiClient } from "../../server/ProTankiClient";
 import { ProTankiServer } from "../../server/ProTankiServer";
 import { BasePacket } from "./BasePacket";
 import { IRecoveryAccountVerifyCode } from "../interfaces/IRecoveryAccountVerifyCode";
-import RecoveryEmailInvalidCode from "./RecoveryEmailInvalidCode";
 import GoToRecoveryPassword from "./GoToRecoveryPassword";
+import { LoginWorkflow } from "../../workflows/LoginWorkflow";
 
 export default class RecoveryAccountVerifyCode extends BasePacket implements IRecoveryAccountVerifyCode {
   code: string;
@@ -28,7 +28,7 @@ export default class RecoveryAccountVerifyCode extends BasePacket implements IRe
       return Buffer.from([1]);
     }
     const stringBuffer = Buffer.from(this.code, "utf8");
-    const packetSize = 5 + stringBuffer.length;
+    const packetSize = 1 + 4 + stringBuffer.length;
     const buffer = Buffer.alloc(packetSize);
     buffer.writeInt8(0, 0);
     buffer.writeInt32BE(stringBuffer.length, 1);
@@ -40,7 +40,7 @@ export default class RecoveryAccountVerifyCode extends BasePacket implements IRe
     if (client.recoveryCode && client.recoveryCode === this.code) {
       client.sendPacket(new GoToRecoveryPassword(client.recoveryEmail));
     } else {
-      client.sendPacket(new RecoveryEmailInvalidCode());
+      LoginWorkflow.handleInvalidRecoveryCode(client);
     }
   }
 
