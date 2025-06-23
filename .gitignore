@@ -132,3 +132,7 @@ database.sqlite
 t.js
 teste.js
 .prettierrc
+.resource
+/src/config/resources.json
+/src/config/idMap.json
+/src/types/resourceTypes.d.ts
