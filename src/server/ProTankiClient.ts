@@ -23,6 +23,7 @@ export class ProTankiClient {
   public language: string = "";
   public captchaSolution: string = "";
   public recoveryCode: string = "";
+  public recoveryEmail: string = "";
   private packetQueue: PacketQueueItem[] = [];
   private isProcessingQueue: boolean = false;
 

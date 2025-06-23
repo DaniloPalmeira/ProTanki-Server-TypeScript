@@ -32,6 +32,7 @@ export default class RecoveryAccountSendCode extends BasePacket implements IReco
     const stringBuffer = Buffer.from(this.email, "utf8");
     const packetSize = 5 + stringBuffer.length;
     const buffer = Buffer.alloc(packetSize);
+    buffer.writeInt8(0, 0);
     buffer.writeInt32BE(stringBuffer.length, 1);
     stringBuffer.copy(buffer, 5);
     return buffer;
@@ -46,7 +47,8 @@ export default class RecoveryAccountSendCode extends BasePacket implements IReco
       const user = await UserService.findUserByEmail(this.email);
       if (user) {
         logger.info(`Recovery email sent to: ${this.email}`);
-        client.recoveryCode = "abcdefghijklmnopqrstuvwxyz";
+        client.recoveryEmail = this.email;
+        client.recoveryCode = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa";
         client.sendPacket(new RecoveryEmailSent());
       } else {
         logger.info(`Email not found: ${this.email}`);
