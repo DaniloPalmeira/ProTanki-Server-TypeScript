@@ -1,6 +1,6 @@
 import readline from "readline";
 import { ProTankiServer } from "../server/ProTankiServer";
-import logger from "../utils/Logger";
+import logger, { consoleTransport } from "../utils/Logger";
 import RawPacket from "../packets/implementations/dev/RawPacket";
 
 export class DebugConsole {
@@ -17,13 +17,19 @@ export class DebugConsole {
   }
 
   public start(): void {
-    logger.info("Debug console started. Type 'help' for a list of commands.");
+    if (consoleTransport) {
+      consoleTransport.on("log", (formattedMessage: string) => {
+        this.printLogMessage(formattedMessage);
+      });
+      logger.info("Debug console started. Type 'help' for a list of commands.");
+    }
+
     this.rl.prompt();
 
     this.rl
       .on("line", (line) => {
         this.handleCommand(line.trim()).catch((err) => {
-          logger.error("Error executing console command", { error: err });
+          this.printLogMessage(`Error executing console command: ${err.message}`);
         });
         this.rl.prompt();
       })
@@ -31,6 +37,13 @@ export class DebugConsole {
         logger.info("Exiting server...");
         process.exit(0);
       });
+  }
+
+  private printLogMessage(message: string): void {
+    readline.clearLine(process.stdout, 0);
+    readline.cursorTo(process.stdout, 0);
+    process.stdout.write(message + "\n");
+    this.rl.prompt(true);
   }
 
   private async handleCommand(line: string): Promise<void> {
@@ -60,11 +73,11 @@ export class DebugConsole {
   }
 
   private showHelp(): void {
-    console.log("Available commands:");
+    console.log("\nAvailable commands:");
     console.log("  send <all|ip> <packetId> [payloadHex] - Send a packet.");
     console.log("  list                                 - List connected clients.");
     console.log("  help                                 - Show this help message.");
-    console.log("  exit                                 - Shutdown the server.");
+    console.log("  exit                                 - Shutdown the server.\n");
   }
 
   private handleListCommand(): void {
@@ -106,7 +119,7 @@ export class DebugConsole {
     const packet = new RawPacket(packetId, payload);
 
     if (target.toLowerCase() === "all") {
-      this.server.broadcastToLobby(packet);
+      this.server.broadcastToAll(packet);
       console.log(`Packet ${packetId} sent to all clients.`);
       return;
     }

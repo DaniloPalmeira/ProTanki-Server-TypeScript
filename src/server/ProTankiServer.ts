@@ -121,6 +121,10 @@ export class ProTankiServer {
     }
   }
 
+  public broadcastToAll(packet: IPacket): void {
+    this.clientManager.getClients().forEach((client) => client.sendPacket(packet));
+  }
+
   public broadcastToLobby(packet: IPacket): void {
     this.clientManager.sendToLobbyClients(packet);
   }

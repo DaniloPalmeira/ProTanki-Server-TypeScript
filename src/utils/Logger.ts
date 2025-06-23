@@ -3,6 +3,7 @@ import DailyRotateFile from "winston-daily-rotate-file";
 import dotenv from "dotenv";
 import fs from "fs";
 import path from "path";
+import { ConsoleLogTransport } from "../console/ConsoleLogTransport";
 
 dotenv.config();
 
@@ -66,15 +67,14 @@ const transports: winston.transport[] = [
   }),
 ];
 
+export let consoleTransport: ConsoleLogTransport | null = null;
+
 if (ENABLE_CONSOLE_LOGGING) {
-  transports.push(
-    new winston.transports.Console({
-      format: consoleFormat,
-      level: LOG_LEVEL,
-      handleExceptions: true,
-      handleRejections: true,
-    })
-  );
+  consoleTransport = new ConsoleLogTransport({
+    format: consoleFormat,
+    level: LOG_LEVEL,
+  });
+  transports.push(consoleTransport);
 }
 
 const logger = winston.createLogger({
@@ -88,7 +88,6 @@ const logger = winston.createLogger({
       maxFiles: "14d",
       format: fileFormat,
     }),
-    ...(ENABLE_CONSOLE_LOGGING ? [new winston.transports.Console({ format: consoleFormat })] : []),
   ],
   rejectionHandlers: [
     new DailyRotateFile({
@@ -97,7 +96,6 @@ const logger = winston.createLogger({
       maxFiles: "14d",
       format: fileFormat,
     }),
-    ...(ENABLE_CONSOLE_LOGGING ? [new winston.transports.Console({ format: consoleFormat })] : []),
   ],
   exitOnError: false,
 });
@@ -106,10 +104,7 @@ transports.forEach((transport, index) => {
   transport.on("error", (error) => {
     console.error(`Error in transport ${index} (${transport.constructor.name}): ${error.message}`);
     if (!isLoggerClosed) {
-      logger.error(`Transport error`, {
-        transport: transport.constructor.name,
-        error,
-      });
+      logger.error(`Transport error`, { transport: transport.constructor.name, error });
     }
   });
 });
