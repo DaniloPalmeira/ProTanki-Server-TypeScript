@@ -2,6 +2,7 @@ import readline from "readline";
 import { ProTankiServer } from "../server/ProTankiServer";
 import logger, { consoleTransport } from "../utils/Logger";
 import RawPacket from "../packets/implementations/dev/RawPacket";
+import { UserService } from "../services/UserService";
 
 export class DebugConsole {
   private server: ProTankiServer;
@@ -61,6 +62,9 @@ export class DebugConsole {
       case "list":
         this.handleListCommand();
         break;
+      case "punish":
+        await this.handlePunishCommand(args);
+        break;
       case "exit":
         this.rl.close();
         break;
@@ -74,10 +78,11 @@ export class DebugConsole {
 
   private showHelp(): void {
     console.log("\nAvailable commands:");
-    console.log("  send <all|ip> <packetId> [payloadHex] - Send a packet.");
-    console.log("  list                                 - List connected clients.");
-    console.log("  help                                 - Show this help message.");
-    console.log("  exit                                 - Shutdown the server.\n");
+    console.log("  send <all|ip> <packetId> [payloadHex]   - Send a packet.");
+    console.log("  list                                   - List connected clients.");
+    console.log("  punish <user> <duration> [reason]      - Punish a user (e.g., 10d, 5h, 30m).");
+    console.log("  help                                   - Show this help message.");
+    console.log("  exit                                   - Shutdown the server.\n");
   }
 
   private handleListCommand(): void {
@@ -130,6 +135,49 @@ export class DebugConsole {
       console.log(`Packet ${packetId} sent to ${target}.`);
     } else {
       console.log(`Error: Client with IP ${target} not found.`);
+    }
+  }
+
+  private async handlePunishCommand(args: string[]): Promise<void> {
+    if (args.length < 2) {
+      console.log("Usage: punish <username> <duration> [reason]");
+      console.log("Example: punish player1 7d Bad behavior");
+      return;
+    }
+
+    const username = args[0];
+    const durationStr = args[1];
+    const reason = args.slice(2).join(" ") || null;
+
+    const durationRegex = /^(\d+)([dhm])$/;
+    const match = durationStr.match(durationRegex);
+
+    if (!match) {
+      console.log("Error: Invalid duration format. Use 'd' for days, 'h' for hours, 'm' for minutes.");
+      return;
+    }
+
+    const value = parseInt(match[1]);
+    const unit = match[2];
+    let durationMs = 0;
+
+    switch (unit) {
+      case "d":
+        durationMs = value * 24 * 60 * 60 * 1000;
+        break;
+      case "h":
+        durationMs = value * 60 * 60 * 1000;
+        break;
+      case "m":
+        durationMs = value * 60 * 1000;
+        break;
+    }
+
+    try {
+      await UserService.punishUser(username, durationMs, reason);
+      console.log(`User ${username} has been punished.`);
+    } catch (error: any) {
+      console.log(`Error: ${error.message}`);
     }
   }
 }

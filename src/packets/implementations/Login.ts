@@ -6,6 +6,7 @@ import SystemMessage from "./SystemMessage";
 import IncorrectPassword from "./IncorrectPassword";
 import { UserService } from "../../services/UserService";
 import logger from "../../utils/Logger";
+import Punishment from "./Punishment";
 
 export default class Login extends BasePacket implements ILogin {
   username?: string;
@@ -48,6 +49,20 @@ export default class Login extends BasePacket implements ILogin {
 
     try {
       const user = await UserService.login(this.username, this.password, null);
+
+      if (user.isPunished && user.punishmentExpiresAt && user.punishmentExpiresAt > new Date()) {
+        const now = new Date();
+        const timeLeftMs = user.punishmentExpiresAt.getTime() - now.getTime();
+
+        const days = Math.floor(timeLeftMs / (1000 * 60 * 60 * 24));
+        const hours = Math.floor((timeLeftMs % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        const minutes = Math.floor((timeLeftMs % (1000 * 60 * 60)) / (1000 * 60));
+
+        client.sendPacket(new Punishment(user.punishmentReason, days, hours, minutes));
+        logger.info(`Punished user ${user.username} attempted to login`, { client: client.getRemoteAddress() });
+        return;
+      }
+
       logger.info(`Successful login attempt for user ${user.username}`, {
         client: client.getRemoteAddress(),
       });

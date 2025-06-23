@@ -9,6 +9,9 @@ export interface UserAttributes {
   experience: number;
   level: number;
   isActive: boolean;
+  isPunished: boolean;
+  punishmentExpiresAt: Date | null;
+  punishmentReason: string | null;
   createdAt?: Date;
   lastLogin?: Date | null;
 }
@@ -57,6 +60,18 @@ const UserSchema = new Schema<UserDocument>({
   isActive: {
     type: Boolean,
     default: true,
+  },
+  isPunished: {
+    type: Boolean,
+    default: false,
+  },
+  punishmentExpiresAt: {
+    type: Date,
+    default: null,
+  },
+  punishmentReason: {
+    type: String,
+    default: null,
   },
   createdAt: {
     type: Date,

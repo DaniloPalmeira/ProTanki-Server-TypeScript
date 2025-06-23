@@ -13,6 +13,17 @@ export interface UserCreationAttributes {
 }
 
 export class UserService {
+  public static async findUserByUsername(username: string): Promise<UserDocument | null> {
+    try {
+      return await User.findOne({
+        username: { $regex: new RegExp(`^${username}$`, "i") },
+      });
+    } catch (error) {
+      logger.error(`Error finding user by username ${username}`, { error });
+      throw error;
+    }
+  }
+
   public static async findUserByEmail(email: string): Promise<UserDocument | null> {
     try {
       return await User.findOne({ email });
@@ -80,9 +91,7 @@ export class UserService {
 
   public static async login(username: string, password: string, inviteCode: string | null): Promise<UserDocument> {
     try {
-      const user = await User.findOne({
-        username: { $regex: new RegExp(`^${username}$`, "i") },
-      });
+      const user = await this.findUserByUsername(username);
 
       if (!user) {
         throw new Error("Invalid username or password");
@@ -119,6 +128,25 @@ export class UserService {
       logger.error(`Error during login for user ${username}`, { error });
       throw error;
     }
+  }
+
+  public static async punishUser(username: string, durationMs: number, reason: string | null): Promise<UserDocument> {
+    const user = await this.findUserByUsername(username);
+    if (!user) {
+      throw new Error(`User ${username} not found.`);
+    }
+
+    user.isPunished = true;
+    user.punishmentExpiresAt = new Date(Date.now() + durationMs);
+    user.punishmentReason = reason;
+
+    await user.save();
+    logger.info(`User ${username} has been punished`, {
+      reason,
+      expiresAt: user.punishmentExpiresAt,
+    });
+
+    return user;
   }
 
   public static async updateResources(userId: string, updates: { crystals?: number; experience?: number; level?: number }): Promise<UserDocument> {
