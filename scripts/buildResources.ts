@@ -3,10 +3,10 @@ import path from "path";
 import fse from "fs-extra";
 import { rimraf } from "rimraf";
 import crc32 from "crc-32";
-import { ResourceManager } from "../src/utils/ResourceManager";
+import { ResourcePathUtils } from "../src/utils/ResourcePathUtils";
 
 const ROOT_DIR = path.join(__dirname, "..");
-const RESOURCE_SOURCE_DIR = path.join(ROOT_DIR, "resource_source");
+const RESOURCES_DIR = path.join(ROOT_DIR, "resources");
 const RESOURCE_BUILD_DIR = path.join(ROOT_DIR, ".resource");
 const CONFIG_DIR = path.join(ROOT_DIR, "src", "config");
 const TYPES_DIR = path.join(ROOT_DIR, "src", "types");
@@ -20,7 +20,9 @@ interface ResourceDefinition {
 }
 
 function generateResourceId(friendlyPath: string): number {
-  return crc32.str(friendlyPath) >>> 0;
+  // Aplica o hash e depois a máscara de 24 bits (0xFFFFFF) para garantir
+  // que o número se encaixe na estrutura de 3 bytes do caminho.
+  return (crc32.str(friendlyPath) & 0xffffff) >>> 0;
 }
 
 async function findResources(dir: string, parentPath: string = ""): Promise<ResourceDefinition[]> {
@@ -40,7 +42,7 @@ async function findResources(dir: string, parentPath: string = ""): Promise<Reso
         const latestVersion = versionDirs[0];
         const id = relativePath.replace(/\\/g, "/");
         const idLow = generateResourceId(id);
-        const buildPath = ResourceManager.getResourcePath({ idHigh: 0, idLow, versionHigh: 0, versionLow: latestVersion });
+        const buildPath = ResourcePathUtils.getResourcePath({ idLow, versionLow: latestVersion });
 
         resources.push({ id, idLow, versionLow: latestVersion, sourcePath: path.join(fullPath, `v${latestVersion}`), buildPath });
       } else {
@@ -52,10 +54,10 @@ async function findResources(dir: string, parentPath: string = ""): Promise<Reso
 }
 
 async function copyRootFiles() {
-  const entries = await fs.promises.readdir(RESOURCE_SOURCE_DIR, { withFileTypes: true });
+  const entries = await fs.promises.readdir(RESOURCES_DIR, { withFileTypes: true });
   for (const entry of entries) {
     if (entry.isFile()) {
-      const sourceFile = path.join(RESOURCE_SOURCE_DIR, entry.name);
+      const sourceFile = path.join(RESOURCES_DIR, entry.name);
       const destFile = path.join(RESOURCE_BUILD_DIR, entry.name);
       await fse.copy(sourceFile, destFile);
       console.log(`Copied root file: ${entry.name}`);
@@ -91,8 +93,8 @@ async function build() {
     await fs.promises.mkdir(CONFIG_DIR, { recursive: true });
   }
 
-  console.log("Discovering resources from 'resource_source' directory...");
-  const resources = await findResources(RESOURCE_SOURCE_DIR);
+  console.log("Discovering resources from 'resources' directory...");
+  const resources = await findResources(RESOURCES_DIR);
 
   const idMap = new Map<number, string>();
   for (const res of resources) {
