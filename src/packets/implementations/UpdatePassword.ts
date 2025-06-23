@@ -55,7 +55,12 @@ export default class UpdatePassword extends BasePacket implements IUpdatePasswor
       client.sendPacket(new UpdatePasswordResult(false, "Sua senha foi alterada com sucesso."));
     } catch (error: any) {
       logger.error(`Failed to update password for ${originalEmail}`, { error: error.message });
-      client.sendPacket(new UpdatePasswordResult(true, "Ocorreu um erro ao atualizar sua senha."));
+
+      if (error.message.includes("is already in use")) {
+        client.sendPacket(new UpdatePasswordResult(true, "O e-mail fornecido já está em uso por outra conta."));
+      } else {
+        client.sendPacket(new UpdatePasswordResult(true, "Ocorreu um erro ao atualizar sua senha."));
+      }
     }
   }
 

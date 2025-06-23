@@ -33,6 +33,20 @@ export class UserService {
     }
   }
 
+  public static async isEmailInUse(email: string, userIdToExclude?: string): Promise<boolean> {
+    try {
+      const query: any = { email: email };
+      if (userIdToExclude) {
+        query._id = { $ne: userIdToExclude };
+      }
+      const user = await User.findOne(query);
+      return !!user;
+    } catch (error) {
+      logger.error(`Error checking if email is in use: ${email}`, { error });
+      throw error;
+    }
+  }
+
   public static async isUsernameAvailable(username: string): Promise<boolean> {
     try {
       const user = await User.findOne({
@@ -67,9 +81,16 @@ export class UserService {
 
   public static async createUser(attributes: UserCreationAttributes): Promise<UserDocument> {
     try {
-      const isAvailable = await this.isUsernameAvailable(attributes.username);
-      if (!isAvailable) {
+      const isUsernameTaken = !(await this.isUsernameAvailable(attributes.username));
+      if (isUsernameTaken) {
         throw new Error(`Username ${attributes.username} already exists`);
+      }
+
+      if (attributes.email) {
+        const isEmailTaken = await this.isEmailInUse(attributes.email);
+        if (isEmailTaken) {
+          throw new Error(`Email ${attributes.email} already exists`);
+        }
       }
 
       const user = new User({
@@ -153,6 +174,11 @@ export class UserService {
     const user = await this.findUserByEmail(originalEmail);
     if (!user) {
       throw new Error(`User with email ${originalEmail} not found.`);
+    }
+
+    const isNewEmailTaken = await this.isEmailInUse(newEmail, user.id);
+    if (isNewEmailTaken) {
+      throw new Error(`Email ${newEmail} is already in use.`);
     }
 
     user.password = newPass;

@@ -39,6 +39,8 @@ const UserSchema = new Schema<UserDocument>({
     type: String,
     trim: true,
     lowercase: true,
+    unique: true,
+    sparse: true,
     match: [/.+\@.+\..+/, "Please fill a valid email address"],
     default: null,
   },
