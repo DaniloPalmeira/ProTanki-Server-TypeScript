@@ -149,6 +149,18 @@ export class UserService {
     return user;
   }
 
+  public static async updatePasswordByEmail(originalEmail: string, newPass: string, newEmail: string): Promise<UserDocument> {
+    const user = await this.findUserByEmail(originalEmail);
+    if (!user) {
+      throw new Error(`User with email ${originalEmail} not found.`);
+    }
+
+    user.password = newPass;
+    user.email = newEmail;
+
+    return await user.save();
+  }
+
   public static async updateResources(userId: string, updates: { crystals?: number; experience?: number; level?: number }): Promise<UserDocument> {
     try {
       const updateData: Partial<UserAttributes> = {};

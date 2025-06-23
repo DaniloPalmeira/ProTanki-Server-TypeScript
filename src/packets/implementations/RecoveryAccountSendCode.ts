@@ -6,6 +6,7 @@ import RecoveryEmailSent from "./RecoveryEmailSent";
 import RecoveryEmailNotExists from "./RecoveryEmailNotExists";
 import { UserService } from "../../services/UserService";
 import logger from "../../utils/Logger";
+import crypto from "crypto";
 
 export default class RecoveryAccountSendCode extends BasePacket implements IRecoveryAccountSendCode {
   email: string;
@@ -30,7 +31,7 @@ export default class RecoveryAccountSendCode extends BasePacket implements IReco
       return Buffer.from([1]);
     }
     const stringBuffer = Buffer.from(this.email, "utf8");
-    const packetSize = 5 + stringBuffer.length;
+    const packetSize = 1 + 4 + stringBuffer.length;
     const buffer = Buffer.alloc(packetSize);
     buffer.writeInt8(0, 0);
     buffer.writeInt32BE(stringBuffer.length, 1);
@@ -46,9 +47,11 @@ export default class RecoveryAccountSendCode extends BasePacket implements IReco
     try {
       const user = await UserService.findUserByEmail(this.email);
       if (user) {
-        logger.info(`Recovery email sent to: ${this.email}`);
+        const recoveryCode = crypto.randomBytes(16).toString("hex");
+
+        logger.info(`Recovery email sent to: ${this.email}, code: ${recoveryCode}`);
         client.recoveryEmail = this.email;
-        client.recoveryCode = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa";
+        client.recoveryCode = recoveryCode;
         client.sendPacket(new RecoveryEmailSent());
       } else {
         logger.info(`Email not found: ${this.email}`);
