@@ -1,7 +1,7 @@
-import { IIncorrectPassword } from "../interfaces/IIncorrectPassword";
+import { IEmpty } from "../interfaces/IEmpty";
 import { BasePacket } from "./BasePacket";
 
-export default class IncorrectPassword extends BasePacket implements IIncorrectPassword {
+export default class IncorrectPassword extends BasePacket implements IEmpty {
   read(buffer: Buffer): void {}
 
   write(): Buffer {
