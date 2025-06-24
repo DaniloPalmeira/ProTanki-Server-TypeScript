@@ -97,6 +97,7 @@ export class UserService {
         username: attributes.username,
         password: attributes.password,
         email: attributes.email,
+        emailConfirmed: false, // E-mail novo sempre começa como não confirmado
         crystals: attributes.crystals,
         experience: attributes.experience,
         level: attributes.level,
@@ -182,7 +183,12 @@ export class UserService {
     }
 
     user.password = newPass;
-    user.email = newEmail;
+
+    // Se o e-mail foi alterado, ele precisa ser reconfirmado
+    if (user.email !== newEmail) {
+      user.email = newEmail;
+      user.emailConfirmed = false;
+    }
 
     return await user.save();
   }

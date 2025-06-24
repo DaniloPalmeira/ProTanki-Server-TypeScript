@@ -1,9 +1,11 @@
+import EmailInfo from "../packets/implementations/EmailInfo";
 import LocalizationInfo from "../packets/implementations/LocalizationInfo";
 import LobbyData from "../packets/implementations/LobbyData";
 import PremiumInfo from "../packets/implementations/PremiumInfo";
 import SetLayout from "../packets/implementations/SetLayout";
 import { ProTankiClient } from "../server/ProTankiClient";
 import { ProTankiServer } from "../server/ProTankiServer";
+import { FormatUtils } from "../utils/FormatUtils";
 
 export class LobbyWorkflow {
   public static async enterLobby(client: ProTankiClient, server: ProTankiServer): Promise<void> {
@@ -37,14 +39,17 @@ export class LobbyWorkflow {
         durationCrystalAbonement: crystalAbonementSecondsLeft,
         hasDoubleCrystal: user.hasDoubleCrystal,
         nextRankScore: user.nextRankScore,
-        place: 0, // Placeholder
+        place: 0,
         rank: user.rank,
-        rating: 0, // Placeholder
+        rating: 0,
         score: user.score,
-        serverNumber: 1, // Placeholder
+        serverNumber: 1,
         nickname: user.username,
-        userProfileUrl: "http://ratings.example.com/pt_br/user/", // Placeholder
+        userProfileUrl: "http://ratings.example.com/pt_br/user/",
       })
     );
+
+    const maskedEmail = user.email ? FormatUtils.maskEmail(user.email) : null;
+    client.sendPacket(new EmailInfo(maskedEmail, user.emailConfirmed));
   }
 }

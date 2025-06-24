@@ -5,6 +5,7 @@ export interface UserAttributes {
   username: string;
   password: string;
   email?: string | null;
+  emailConfirmed: boolean;
   crystals: number;
   experience: number;
   level: number;
@@ -49,6 +50,10 @@ const UserSchema = new Schema<UserDocument>({
     sparse: true,
     match: [/.+\@.+\..+/, "Please fill a valid email address"],
     default: null,
+  },
+  emailConfirmed: {
+    type: Boolean,
+    default: false,
   },
   crystals: {
     type: Number,
