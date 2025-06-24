@@ -10,5 +10,7 @@
   "chatBufferSize": "60",
   "chatMinChar": "60",
   "chatMinWord": "5",
-  "chatLinksWhitelist": "[\"http://example.com\"]"
+  "chatLinksWhitelist": "[\"http://example.com\"]",
+  "chatCharDelayFactor": "176",
+  "chatMessageBaseDelay": "880"
 }

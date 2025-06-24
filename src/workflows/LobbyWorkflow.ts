@@ -1,6 +1,7 @@
 import { Achievement } from "../models/enums/Achievement";
 import { ChatModeratorLevel } from "../models/enums/ChatModeratorLevel";
 import AchievementTips from "../packets/implementations/AchievementTips";
+import AntifloodSettings from "../packets/implementations/AntifloodSettings";
 import ChatProperties from "../packets/implementations/ChatProperties";
 import ConfirmLayoutChange from "../packets/implementations/ConfirmLayoutChange";
 import EmailInfo from "../packets/implementations/EmailInfo";
@@ -101,6 +102,8 @@ export class LobbyWorkflow {
         typingSpeedAntifloodEnabled: configs.chatTypingSpeedAntifloodEnabled === "true",
       })
     );
+
+    client.sendPacket(new AntifloodSettings(parseInt(configs.chatCharDelayFactor || "176"), parseInt(configs.chatMessageBaseDelay || "880")));
   }
 
   public static async sendFriendsList(client: ProTankiClient, server: ProTankiServer): Promise<void> {
