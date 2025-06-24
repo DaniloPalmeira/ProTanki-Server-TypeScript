@@ -139,4 +139,4 @@ process.on("uncaughtException", (error) => {
   }
 });
 
-export default console;
+export default logger;
