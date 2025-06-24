@@ -19,6 +19,9 @@ export interface UserAttributes {
   score: number;
   nextRankScore: number;
   crystalAbonementExpiresAt: Date | null;
+  friends: mongoose.Types.ObjectId[];
+  friendRequestsSent: mongoose.Types.ObjectId[];
+  friendRequestsReceived: mongoose.Types.ObjectId[];
   createdAt?: Date;
   lastLogin?: Date | null;
 }
@@ -110,6 +113,24 @@ const UserSchema = new Schema<UserDocument>({
     type: Date,
     default: null,
   },
+  friends: [
+    {
+      type: Schema.Types.ObjectId,
+      ref: "User",
+    },
+  ],
+  friendRequestsSent: [
+    {
+      type: Schema.Types.ObjectId,
+      ref: "User",
+    },
+  ],
+  friendRequestsReceived: [
+    {
+      type: Schema.Types.ObjectId,
+      ref: "User",
+    },
+  ],
   createdAt: {
     type: Date,
     default: Date.now,

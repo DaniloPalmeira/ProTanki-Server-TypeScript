@@ -1,6 +1,8 @@
 import User, { UserAttributes, UserDocument } from "../models/User";
 import Invite from "../models/Invite";
 import logger from "../utils/Logger";
+import { IFriendsListProps } from "../packets/interfaces/IFriendsList";
+import { IPacket } from "../packets/interfaces/IPacket";
 
 export interface UserCreationAttributes {
   username: string;
@@ -97,7 +99,7 @@ export class UserService {
         username: attributes.username,
         password: attributes.password,
         email: attributes.email,
-        emailConfirmed: false, // E-mail novo sempre começa como não confirmado
+        emailConfirmed: false,
         crystals: attributes.crystals,
         experience: attributes.experience,
         level: attributes.level,
@@ -109,6 +111,24 @@ export class UserService {
       logger.error(`Error creating user ${attributes.username}`, { error });
       throw error;
     }
+  }
+
+  public static async getFriendsData(userId: string): Promise<IFriendsListProps> {
+    const user = await User.findById(userId).populate("friends", "username").populate("friendRequestsSent", "username").populate("friendRequestsReceived", "username").exec();
+
+    if (!user) {
+      throw new Error("User not found for fetching friends data.");
+    }
+
+    const pluckUsername = (friend: any): string => friend.username;
+
+    return {
+      acceptedFriends: user.friends.map(pluckUsername),
+      newAcceptedFriends: [],
+      incomingRequests: user.friendRequestsReceived.map(pluckUsername),
+      newIncomingRequests: [],
+      outgoingRequests: user.friendRequestsSent.map(pluckUsername),
+    };
   }
 
   public static async login(username: string, password: string, inviteCode: string | null): Promise<UserDocument> {
@@ -184,7 +204,6 @@ export class UserService {
 
     user.password = newPass;
 
-    // Se o e-mail foi alterado, ele precisa ser reconfirmado
     if (user.email !== newEmail) {
       user.email = newEmail;
       user.emailConfirmed = false;

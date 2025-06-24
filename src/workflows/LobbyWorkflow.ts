@@ -1,4 +1,5 @@
 import EmailInfo from "../packets/implementations/EmailInfo";
+import FriendsList from "../packets/implementations/FriendsList";
 import LocalizationInfo from "../packets/implementations/LocalizationInfo";
 import LobbyData from "../packets/implementations/LobbyData";
 import PremiumInfo from "../packets/implementations/PremiumInfo";
@@ -6,6 +7,7 @@ import SetBattleInviteSound from "../packets/implementations/SetBattleInviteSoun
 import SetLayout from "../packets/implementations/SetLayout";
 import { ProTankiClient } from "../server/ProTankiClient";
 import { ProTankiServer } from "../server/ProTankiServer";
+import { UserService } from "../services/UserService";
 import { FormatUtils } from "../utils/FormatUtils";
 import { ResourceManager } from "../utils/ResourceManager";
 
@@ -56,5 +58,12 @@ export class LobbyWorkflow {
 
     const battleInviteSoundId = ResourceManager.getIdlowById("sounds/notifications/battle_invite");
     client.sendPacket(new SetBattleInviteSound(battleInviteSoundId));
+  }
+
+  public static async sendFriendsList(client: ProTankiClient, server: ProTankiServer): Promise<void> {
+    if (!client.user) return;
+
+    const friendsData = await UserService.getFriendsData(client.user.id);
+    client.sendPacket(new FriendsList(friendsData));
   }
 }
