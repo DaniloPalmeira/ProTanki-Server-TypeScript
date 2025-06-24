@@ -4,16 +4,16 @@ import { IRecoveryAccountSendCode } from "../interfaces/IRecoveryAccountSendCode
 import { BasePacket } from "./BasePacket";
 
 export default class RecoveryAccountSendCode extends BasePacket implements IRecoveryAccountSendCode {
-  email: string;
+  email: string | null;
 
-  constructor(email: string = "") {
+  constructor(email: string | null) {
     super();
     this.email = email;
   }
 
   read(buffer: Buffer): void {
     const reader = new BufferReader(buffer);
-    this.email = reader.readOptionalString() ?? "";
+    this.email = reader.readOptionalString();
   }
 
   write(): Buffer {

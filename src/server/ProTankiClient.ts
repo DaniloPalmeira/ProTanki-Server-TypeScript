@@ -20,10 +20,10 @@ export class ProTankiClient {
   private state: ClientState;
   private encryptionService: EncryptionService;
   private rawDataReceived: Buffer = Buffer.alloc(0);
-  public language: string = "";
-  public captchaSolution: string = "";
-  public recoveryCode: string = "";
-  public recoveryEmail: string = "";
+  public language: string | null = null;
+  public captchaSolution: string | null = null;
+  public recoveryCode: string | null = null;
+  public recoveryEmail: string | null = null;
   public user: UserDocument | null = null;
   private packetQueue: PacketQueueItem[] = [];
   private isProcessingQueue: boolean = false;

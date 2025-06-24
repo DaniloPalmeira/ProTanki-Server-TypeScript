@@ -4,12 +4,18 @@ import { ISendChatMessage } from "../interfaces/ISendChatMessage";
 
 export default class SendChatMessage extends BasePacket implements ISendChatMessage {
   targetNickname: string | null = null;
-  message: string = "";
+  message: string | null;
+
+  constructor(targetNickname: string | null, message: string | null) {
+    super();
+    this.targetNickname = targetNickname;
+    this.message = message;
+  }
 
   read(buffer: Buffer): void {
     const reader = new BufferReader(buffer);
     this.targetNickname = reader.readOptionalString();
-    this.message = reader.readOptionalString() ?? "";
+    this.message = reader.readOptionalString();
   }
 
   write(): Buffer {

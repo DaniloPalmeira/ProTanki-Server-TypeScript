@@ -3,11 +3,16 @@ import { IGetUserInfo } from "../interfaces/IGetUserInfo";
 import { BasePacket } from "./BasePacket";
 
 export default class GetUserInfo extends BasePacket implements IGetUserInfo {
-  nickname: string = "";
+  nickname: string | null;
+
+  constructor(nickname: string | null) {
+    super();
+    this.nickname = nickname;
+  }
 
   read(buffer: Buffer): void {
     const reader = new BufferReader(buffer);
-    this.nickname = reader.readOptionalString() ?? "";
+    this.nickname = reader.readOptionalString();
   }
 
   write(): Buffer {

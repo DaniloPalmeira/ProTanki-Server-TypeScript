@@ -4,16 +4,16 @@ import { BasePacket } from "./BasePacket";
 import { IRecoveryAccountVerifyCode } from "../interfaces/IRecoveryAccountVerifyCode";
 
 export default class RecoveryAccountVerifyCode extends BasePacket implements IRecoveryAccountVerifyCode {
-  code: string;
+  code: string | null;
 
-  constructor(code: string = "") {
+  constructor(code: string | null) {
     super();
     this.code = code;
   }
 
   read(buffer: Buffer): void {
     const reader = new BufferReader(buffer);
-    this.code = reader.readOptionalString() ?? "";
+    this.code = reader.readOptionalString();
   }
 
   write(): Buffer {

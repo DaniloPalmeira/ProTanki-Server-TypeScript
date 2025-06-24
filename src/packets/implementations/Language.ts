@@ -4,16 +4,16 @@ import { ILanguage } from "../interfaces/ILanguage";
 import { BasePacket } from "./BasePacket";
 
 export default class Language extends BasePacket implements ILanguage {
-  lang: string;
+  lang: string | null;
 
-  constructor(lang: string = "") {
+  constructor(lang: string | null) {
     super();
     this.lang = lang;
   }
 
   read(buffer: Buffer): void {
     const reader = new BufferReader(buffer);
-    this.lang = reader.readOptionalString() ?? "";
+    this.lang = reader.readOptionalString();
   }
 
   write(): Buffer {

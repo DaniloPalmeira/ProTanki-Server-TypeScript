@@ -4,16 +4,16 @@ import { ICheckNicknameAvailable } from "../interfaces/ICheckNicknameAvailable";
 import { BasePacket } from "./BasePacket";
 
 export default class CheckNicknameAvailable extends BasePacket implements ICheckNicknameAvailable {
-  nickname: string;
+  nickname: string | null;
 
-  constructor(nickname: string = "") {
+  constructor(nickname: string | null) {
     super();
     this.nickname = nickname;
   }
 
   read(buffer: Buffer): void {
     const reader = new BufferReader(buffer);
-    this.nickname = reader.readOptionalString() ?? "";
+    this.nickname = reader.readOptionalString();
   }
 
   write(): Buffer {

@@ -5,9 +5,9 @@ import { ICaptchaVerify } from "../interfaces/ICaptchaVerify";
 
 export default class CaptchaVerify extends BasePacket implements ICaptchaVerify {
   view: number;
-  solution: string;
+  solution: string | null;
 
-  constructor(view: number = 0, solution: string = "") {
+  constructor(view: number = 0, solution: string | null) {
     super();
     this.view = view;
     this.solution = solution;
@@ -16,7 +16,7 @@ export default class CaptchaVerify extends BasePacket implements ICaptchaVerify 
   read(buffer: Buffer): void {
     const reader = new BufferReader(buffer);
     this.view = reader.readInt32BE();
-    this.solution = reader.readOptionalString() ?? "";
+    this.solution = reader.readOptionalString();
   }
 
   write(): Buffer {

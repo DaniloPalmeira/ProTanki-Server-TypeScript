@@ -4,16 +4,16 @@ import { IGoToRecoveryPassword } from "../interfaces/IGoToRecoveryPassword";
 import { BasePacket } from "./BasePacket";
 
 export default class GoToRecoveryPassword extends BasePacket implements IGoToRecoveryPassword {
-  email: string;
+  email: string | null;
 
-  constructor(email: string = "") {
+  constructor(email: string | null) {
     super();
     this.email = email;
   }
 
   read(buffer: Buffer): void {
     const reader = new BufferReader(buffer);
-    this.email = reader.readOptionalString() ?? "";
+    this.email = reader.readOptionalString();
   }
 
   write(): Buffer {

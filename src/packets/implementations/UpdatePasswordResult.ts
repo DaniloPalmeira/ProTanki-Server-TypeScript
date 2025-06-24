@@ -4,9 +4,9 @@ import { BasePacket } from "./BasePacket";
 
 export default class UpdatePasswordResult extends BasePacket implements IUpdatePasswordResult {
   isError: boolean;
-  message: string;
+  message: string | null;
 
-  constructor(isError: boolean = false, message: string = "") {
+  constructor(isError: boolean = false, message: string | null) {
     super();
     this.isError = isError;
     this.message = message;

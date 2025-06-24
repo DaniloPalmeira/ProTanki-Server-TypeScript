@@ -18,8 +18,8 @@ export default class SocialNetwork extends BasePacket implements ISocialNetwork 
 
     for (let i = 0; i < socialNetworkParamsLength; i++) {
       const button: Array<String> = [];
-      button.push(reader.readOptionalString() ?? "");
-      button.push(reader.readOptionalString() ?? "");
+      button.push(reader.readOptionalString() ?? "unknow");
+      button.push(reader.readOptionalString() ?? "unknow");
       socialNetworkParams.push(button);
     }
     this.socialNetworkParams = socialNetworkParams;
