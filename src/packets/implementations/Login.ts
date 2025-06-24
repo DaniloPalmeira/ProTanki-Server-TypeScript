@@ -2,11 +2,11 @@ import { ProTankiClient } from "../../server/ProTankiClient";
 import { ProTankiServer } from "../../server/ProTankiServer";
 import { ILogin } from "../interfaces/ILogin";
 import { BasePacket } from "./BasePacket";
-import SystemMessage from "./SystemMessage";
 import IncorrectPassword from "./IncorrectPassword";
 import { UserService } from "../../services/UserService";
 import logger from "../../utils/Logger";
 import Punishment from "./Punishment";
+import HideLoginForm from "./HideLoginForm";
 
 export default class Login extends BasePacket implements ILogin {
   username?: string;
@@ -66,7 +66,10 @@ export default class Login extends BasePacket implements ILogin {
       logger.info(`Successful login attempt for user ${user.username}`, {
         client: client.getRemoteAddress(),
       });
-      client.sendPacket(new SystemMessage("Login bem-sucedido!\nO lobby do jogo ainda não foi implementado."));
+
+      client.sendPacket(new HideLoginForm());
+
+      // Próximos passos virão aqui...
     } catch (error: any) {
       logger.warn(`Failed login attempt for username ${this.username}`, {
         error: error.message,
