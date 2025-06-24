@@ -1,3 +1,4 @@
+import ConfirmLayoutChange from "../packets/implementations/ConfirmLayoutChange";
 import EmailInfo from "../packets/implementations/EmailInfo";
 import FriendsList from "../packets/implementations/FriendsList";
 import LocalizationInfo from "../packets/implementations/LocalizationInfo";
@@ -15,8 +16,8 @@ export class LobbyWorkflow {
   public static async enterLobby(client: ProTankiClient, server: ProTankiServer): Promise<void> {
     const user = client.user!;
 
-    // LayoutState = 0 = "BATTLE_SELECT"
     client.sendPacket(new SetLayout(0));
+    client.sendPacket(new ConfirmLayoutChange(0, 0));
 
     let premiumSecondsLeft = 0;
     if (user.premiumExpiresAt && user.premiumExpiresAt > new Date()) {
