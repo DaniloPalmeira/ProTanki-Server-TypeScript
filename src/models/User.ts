@@ -12,6 +12,8 @@ export interface UserAttributes {
   isPunished: boolean;
   punishmentExpiresAt: Date | null;
   punishmentReason: string | null;
+  hasDoubleCrystal: boolean;
+  premiumExpiresAt: Date | null;
   createdAt?: Date;
   lastLogin?: Date | null;
 }
@@ -73,6 +75,14 @@ const UserSchema = new Schema<UserDocument>({
   },
   punishmentReason: {
     type: String,
+    default: null,
+  },
+  hasDoubleCrystal: {
+    type: Boolean,
+    default: false,
+  },
+  premiumExpiresAt: {
+    type: Date,
     default: null,
   },
   createdAt: {
