@@ -1,3 +1,5 @@
+import { Achievement } from "../models/enums/Achievement";
+import AchievementTips from "../packets/implementations/AchievementTips";
 import ConfirmLayoutChange from "../packets/implementations/ConfirmLayoutChange";
 import EmailInfo from "../packets/implementations/EmailInfo";
 import FriendsList from "../packets/implementations/FriendsList";
@@ -59,6 +61,15 @@ export class LobbyWorkflow {
 
     const battleInviteSoundId = ResourceManager.getIdlowById("sounds/notifications/battle_invite");
     client.sendPacket(new SetBattleInviteSound(battleInviteSoundId));
+
+    const tipsToSend: Achievement[] = [];
+    if (!user.unlockedAchievements.includes(Achievement.FIRST_PURCHASE)) {
+      tipsToSend.push(Achievement.FIRST_PURCHASE);
+    }
+    if (!user.unlockedAchievements.includes(Achievement.FIGHT_FIRST_BATTLE)) {
+      tipsToSend.push(Achievement.FIGHT_FIRST_BATTLE);
+    }
+    client.sendPacket(new AchievementTips(tipsToSend));
   }
 
   public static async sendFriendsList(client: ProTankiClient, server: ProTankiServer): Promise<void> {

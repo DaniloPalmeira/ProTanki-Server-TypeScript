@@ -1,5 +1,6 @@
 import mongoose, { Schema, model, Document } from "mongoose";
 import bcrypt from "bcrypt";
+import { Achievement } from "./enums/Achievement";
 
 export interface UserAttributes {
   username: string;
@@ -22,6 +23,7 @@ export interface UserAttributes {
   friends: mongoose.Types.ObjectId[];
   friendRequestsSent: mongoose.Types.ObjectId[];
   friendRequestsReceived: mongoose.Types.ObjectId[];
+  unlockedAchievements: number[];
   createdAt?: Date;
   lastLogin?: Date | null;
 }
@@ -131,6 +133,10 @@ const UserSchema = new Schema<UserDocument>({
       ref: "User",
     },
   ],
+  unlockedAchievements: {
+    type: [Number],
+    default: [],
+  },
   createdAt: {
     type: Date,
     default: Date.now,
