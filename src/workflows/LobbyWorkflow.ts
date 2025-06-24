@@ -2,10 +2,12 @@ import EmailInfo from "../packets/implementations/EmailInfo";
 import LocalizationInfo from "../packets/implementations/LocalizationInfo";
 import LobbyData from "../packets/implementations/LobbyData";
 import PremiumInfo from "../packets/implementations/PremiumInfo";
+import SetBattleInviteSound from "../packets/implementations/SetBattleInviteSound";
 import SetLayout from "../packets/implementations/SetLayout";
 import { ProTankiClient } from "../server/ProTankiClient";
 import { ProTankiServer } from "../server/ProTankiServer";
 import { FormatUtils } from "../utils/FormatUtils";
+import { ResourceManager } from "../utils/ResourceManager";
 
 export class LobbyWorkflow {
   public static async enterLobby(client: ProTankiClient, server: ProTankiServer): Promise<void> {
@@ -51,5 +53,8 @@ export class LobbyWorkflow {
 
     const maskedEmail = user.email ? FormatUtils.maskEmail(user.email) : null;
     client.sendPacket(new EmailInfo(maskedEmail, user.emailConfirmed));
+
+    const battleInviteSoundId = ResourceManager.getIdlowById("sounds/notifications/battle_invite");
+    client.sendPacket(new SetBattleInviteSound(battleInviteSoundId));
   }
 }
