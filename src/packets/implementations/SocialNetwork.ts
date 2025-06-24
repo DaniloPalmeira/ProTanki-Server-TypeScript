@@ -3,10 +3,7 @@ import { ProTankiServer } from "../../server/ProTankiServer";
 import { ISocialNetwork } from "../interfaces/ISocialNetwork";
 import { BasePacket } from "./BasePacket";
 
-export default class SocialNetwork
-  extends BasePacket
-  implements ISocialNetwork
-{
+export default class SocialNetwork extends BasePacket implements ISocialNetwork {
   socialNetworkParams: Array<Array<String>>;
 
   constructor(socialNetworkParams: Array<Array<String>>) {
@@ -39,22 +36,34 @@ export default class SocialNetwork
   }
 
   write(): Buffer {
-    let packet = Buffer.alloc(4);
-    packet.writeInt32BE(this.socialNetworkParams.length, 0);
-
-    this.socialNetworkParams.forEach((button) => {
-      button.forEach((val, index) => {
-        let packet1 = Buffer.alloc(1);
-        const isEmpty = val.length === 0 ? 1 : 0;
-        packet1.writeInt8(isEmpty, 0);
-        if (isEmpty === 0) {
-          const tempPacket = Buffer.alloc(4);
-          tempPacket.writeInt32BE(val.length, 0);
-          packet1 = Buffer.concat([packet1, tempPacket, Buffer.from(val)]);
+    let totalSize = 4;
+    for (const button of this.socialNetworkParams) {
+      for (const val of button) {
+        if (val.length === 0) {
+          totalSize += 1;
+        } else {
+          totalSize += 1 + 4 + Buffer.byteLength(String(val), "utf8");
         }
-        packet = Buffer.concat([packet, packet1]);
-      });
-    });
+      }
+    }
+
+    const packet = Buffer.alloc(totalSize);
+    let offset = 0;
+
+    offset = packet.writeInt32BE(this.socialNetworkParams.length, offset);
+
+    for (const button of this.socialNetworkParams) {
+      for (const val of button) {
+        const isEmpty = val.length === 0;
+        offset = packet.writeUInt8(isEmpty ? 1 : 0, offset);
+        if (!isEmpty) {
+          const valBuffer = Buffer.from(String(val), "utf8");
+          offset = packet.writeInt32BE(valBuffer.length, offset);
+          valBuffer.copy(packet, offset);
+          offset += valBuffer.length;
+        }
+      }
+    }
     return packet;
   }
 

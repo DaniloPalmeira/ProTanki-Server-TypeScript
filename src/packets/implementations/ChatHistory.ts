@@ -13,57 +13,64 @@ export default class ChatHistory extends BasePacket implements IChatHistory {
     throw new Error("Method not implemented.");
   }
 
-  private writeOptionalString(value: string | null): Buffer {
-    const isEmpty = !value;
-    if (isEmpty) {
-      return Buffer.from([1]);
-    }
-    const stringBuffer = Buffer.from(value!, "utf8");
-    const header = Buffer.alloc(5);
-    header.writeInt8(0, 0);
-    header.writeInt32BE(stringBuffer.length, 1);
-    return Buffer.concat([header, stringBuffer]);
+  private getOptionalStringSize(value: string | null): number {
+    if (!value) return 1;
+    return 1 + 4 + Buffer.byteLength(value, "utf8");
   }
 
-  private writeUser(user: IChatMessageUser | null): Buffer {
-    const isEmpty = !user;
-    if (isEmpty) {
-      return Buffer.from([1]);
+  private getUserSize(user: IChatMessageUser | null): number {
+    if (!user) return 1;
+    return 1 + 4 + this.getOptionalStringSize(user.ip) + 4 + this.getOptionalStringSize(user.uid);
+  }
+
+  private writeOptionalStringToBuffer(buffer: Buffer, offset: number, value: string | null): number {
+    const isEmpty = !value;
+    offset = buffer.writeUInt8(isEmpty ? 1 : 0, offset);
+    if (!isEmpty) {
+      const valueBuffer = Buffer.from(value!, "utf8");
+      offset = buffer.writeInt32BE(valueBuffer.length, offset);
+      valueBuffer.copy(buffer, offset);
+      offset += valueBuffer.length;
     }
+    return offset;
+  }
 
-    const bufferParts: Buffer[] = [];
-    bufferParts.push(Buffer.from([0])); // Not empty flag for the user object
-
-    const levelBuffer = Buffer.alloc(4);
-    levelBuffer.writeInt32BE(user.moderatorLevel);
-    bufferParts.push(levelBuffer);
-
-    bufferParts.push(this.writeOptionalString(user.ip));
-
-    const rankBuffer = Buffer.alloc(4);
-    rankBuffer.writeInt32BE(user.rank);
-    bufferParts.push(rankBuffer);
-
-    bufferParts.push(this.writeOptionalString(user.uid));
-
-    return Buffer.concat(bufferParts);
+  private writeUserToBuffer(buffer: Buffer, offset: number, user: IChatMessageUser | null): number {
+    const isEmpty = !user;
+    offset = buffer.writeUInt8(isEmpty ? 1 : 0, offset);
+    if (!isEmpty) {
+      offset = buffer.writeInt32BE(user!.moderatorLevel, offset);
+      offset = this.writeOptionalStringToBuffer(buffer, offset, user!.ip);
+      offset = buffer.writeInt32BE(user!.rank, offset);
+      offset = this.writeOptionalStringToBuffer(buffer, offset, user!.uid);
+    }
+    return offset;
   }
 
   write(): Buffer {
-    const countBuffer = Buffer.alloc(4);
-    countBuffer.writeInt32BE(this.messages.length);
+    let totalSize = 4;
+    for (const msg of this.messages) {
+      totalSize += this.getUserSize(msg.source);
+      totalSize += 1;
+      totalSize += this.getUserSize(msg.target);
+      totalSize += this.getOptionalStringSize(msg.message);
+      totalSize += 1;
+    }
 
-    const messageBuffers = this.messages.map((msg) => {
-      const sourceBuffer = this.writeUser(msg.source);
-      const systemFlag = Buffer.from([msg.isSystem ? 1 : 0]);
-      const targetBuffer = this.writeUser(msg.target);
-      const messageBuffer = this.writeOptionalString(msg.message);
-      const warningFlag = Buffer.from([msg.isWarning ? 1 : 0]);
+    const packet = Buffer.alloc(totalSize);
+    let offset = 0;
 
-      return Buffer.concat([sourceBuffer, systemFlag, targetBuffer, messageBuffer, warningFlag]);
-    });
+    offset = packet.writeInt32BE(this.messages.length, offset);
 
-    return Buffer.concat([countBuffer, ...messageBuffers]);
+    for (const msg of this.messages) {
+      offset = this.writeUserToBuffer(packet, offset, msg.source);
+      offset = packet.writeUInt8(msg.isSystem ? 1 : 0, offset);
+      offset = this.writeUserToBuffer(packet, offset, msg.target);
+      offset = this.writeOptionalStringToBuffer(packet, offset, msg.message);
+      offset = packet.writeUInt8(msg.isWarning ? 1 : 0, offset);
+    }
+
+    return packet;
   }
 
   toString(): string {

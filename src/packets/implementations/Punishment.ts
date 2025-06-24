@@ -20,26 +20,27 @@ export default class Punishment extends BasePacket implements IPunishment {
   }
 
   write(): Buffer {
-    let bufferParts: Buffer[] = [];
-
-    // Reason
     const isReasonEmpty = !this.reason;
-    bufferParts.push(Buffer.from([isReasonEmpty ? 1 : 0]));
+    const reasonBuffer = isReasonEmpty ? null : Buffer.from(this.reason!, "utf8");
+    const reasonSize = isReasonEmpty ? 1 : 1 + 4 + reasonBuffer!.length;
+    const timeSize = 4 * 3;
+    const totalSize = reasonSize + timeSize;
+
+    const packet = Buffer.alloc(totalSize);
+    let offset = 0;
+
+    offset = packet.writeUInt8(isReasonEmpty ? 1 : 0, offset);
     if (!isReasonEmpty) {
-      const reasonBuffer = Buffer.from(this.reason!, "utf8");
-      const reasonLengthBuffer = Buffer.alloc(4);
-      reasonLengthBuffer.writeInt32BE(reasonBuffer.length, 0);
-      bufferParts.push(reasonLengthBuffer, reasonBuffer);
+      offset = packet.writeInt32BE(reasonBuffer!.length, offset);
+      reasonBuffer!.copy(packet, offset);
+      offset += reasonBuffer!.length;
     }
 
-    // Time parts
-    const timeBuffer = Buffer.alloc(4 * 3);
-    timeBuffer.writeInt32BE(this.minutes, 0);
-    timeBuffer.writeInt32BE(this.hours, 4);
-    timeBuffer.writeInt32BE(this.days, 8);
-    bufferParts.push(timeBuffer);
+    offset = packet.writeInt32BE(this.minutes, offset);
+    offset = packet.writeInt32BE(this.hours, offset);
+    offset = packet.writeInt32BE(this.days, offset);
 
-    return Buffer.concat(bufferParts);
+    return packet;
   }
 
   toString(): string {

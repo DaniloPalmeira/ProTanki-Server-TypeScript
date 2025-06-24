@@ -21,37 +21,51 @@ export default class FriendsList extends BasePacket implements IFriendsList {
     throw new Error("Method not implemented.");
   }
 
-  private writeStringArray(array: string[]): Buffer {
-    let bufferParts: Buffer[] = [];
+  private getStringArraySize(array: string[]): number {
+    if (!array || array.length === 0) return 1;
 
-    const isEmpty = array.length === 0;
-    bufferParts.push(Buffer.from([isEmpty ? 1 : 0]));
+    let size = 1 + 4;
+    for (const item of array) {
+      size += 1 + 4 + Buffer.byteLength(item, "utf8");
+    }
+    return size;
+  }
+
+  private writeStringArrayToBuffer(buffer: Buffer, offset: number, array: string[]): number {
+    const isEmpty = !array || array.length === 0;
+    offset = buffer.writeUInt8(isEmpty ? 1 : 0, offset);
 
     if (!isEmpty) {
-      const countBuffer = Buffer.alloc(4);
-      countBuffer.writeInt32BE(array.length);
-      bufferParts.push(countBuffer);
-
+      offset = buffer.writeInt32BE(array.length, offset);
       for (const item of array) {
+        offset = buffer.writeUInt8(0, offset);
         const itemBuff = Buffer.from(item, "utf8");
-        const itemHeader = Buffer.alloc(5);
-        itemHeader.writeInt8(0, 0); // not empty
-        itemHeader.writeInt32BE(itemBuff.length, 1);
-        bufferParts.push(itemHeader, itemBuff);
+        offset = buffer.writeInt32BE(itemBuff.length, offset);
+        itemBuff.copy(buffer, offset);
+        offset += itemBuff.length;
       }
     }
-
-    return Buffer.concat(bufferParts);
+    return offset;
   }
 
   write(): Buffer {
-    const acceptedBuff = this.writeStringArray(this.acceptedFriends);
-    const newAcceptedBuff = this.writeStringArray(this.newAcceptedFriends);
-    const incomingBuff = this.writeStringArray(this.incomingRequests);
-    const newIncomingBuff = this.writeStringArray(this.newIncomingRequests);
-    const outgoingBuff = this.writeStringArray(this.outgoingRequests);
+    let totalSize = 0;
+    totalSize += this.getStringArraySize(this.acceptedFriends);
+    totalSize += this.getStringArraySize(this.newAcceptedFriends);
+    totalSize += this.getStringArraySize(this.incomingRequests);
+    totalSize += this.getStringArraySize(this.newIncomingRequests);
+    totalSize += this.getStringArraySize(this.outgoingRequests);
 
-    return Buffer.concat([acceptedBuff, newAcceptedBuff, incomingBuff, newIncomingBuff, outgoingBuff]);
+    const packet = Buffer.alloc(totalSize);
+    let offset = 0;
+
+    offset = this.writeStringArrayToBuffer(packet, offset, this.acceptedFriends);
+    offset = this.writeStringArrayToBuffer(packet, offset, this.newAcceptedFriends);
+    offset = this.writeStringArrayToBuffer(packet, offset, this.incomingRequests);
+    offset = this.writeStringArrayToBuffer(packet, offset, this.newIncomingRequests);
+    offset = this.writeStringArrayToBuffer(packet, offset, this.outgoingRequests);
+
+    return packet;
   }
 
   toString(): string {
