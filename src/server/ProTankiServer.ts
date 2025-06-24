@@ -8,6 +8,18 @@ import { IInviteResponse } from "../types/IInviteResponse";
 import { InviteService } from "../services/InviteService";
 import { DEFAULT_MAX_CLIENTS, DEFAULT_PORT } from "../config/constants";
 import logger from "../utils/Logger";
+import { ConfigService } from "../services/ConfigService";
+import { UserService } from "../services/UserService";
+import { ChatService } from "../services/ChatService";
+import { CommandService } from "../commands/CommandService";
+
+export interface IServerServices {
+  configService: ConfigService;
+  userService: UserService;
+  inviteService: InviteService;
+  chatService: ChatService;
+  commandService: CommandService;
+}
 
 export class ProTankiServer {
   private server: net.Server;
@@ -18,13 +30,26 @@ export class ProTankiServer {
   private socialNetworks: Array<string[]>;
   private loginForm: IRegistrationForm;
 
-  constructor(options: IServerOptions) {
+  public readonly configService: ConfigService;
+  public readonly userService: UserService;
+  public readonly inviteService: InviteService;
+  public readonly chatService: ChatService;
+  public readonly commandService: CommandService;
+
+  constructor(options: IServerOptions, services: IServerServices) {
     this.validateOptions(options);
     this.port = options.port;
     this.maxClients = options.maxClients;
     this.needInviteCode = options.needInviteCode;
     this.socialNetworks = options.socialNetworks;
     this.loginForm = options.loginForm;
+
+    this.configService = services.configService;
+    this.userService = services.userService;
+    this.inviteService = services.inviteService;
+    this.chatService = services.chatService;
+    this.commandService = services.commandService;
+
     this.server = net.createServer(this.handleConnection.bind(this));
     this.clientManager = new ClientManager();
   }
@@ -118,7 +143,7 @@ export class ProTankiServer {
 
   public async validateInviteCode(code: string): Promise<IInviteResponse> {
     try {
-      return await InviteService.validateInviteCode(code);
+      return await this.inviteService.validateInviteCode(code);
     } catch (error) {
       logger.error(`Error validating invite code ${code}`, { error });
       return { isValid: false };

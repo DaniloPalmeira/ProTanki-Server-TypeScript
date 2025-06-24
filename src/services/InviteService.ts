@@ -4,9 +4,9 @@ import { INVITE_CODE_CHARACTERS, INVITE_CODE_LENGTH } from "../config/constants"
 import logger from "../utils/Logger";
 
 export class InviteService {
-  private static readonly MAX_CODE_GENERATION_ATTEMPTS = 10;
+  private readonly MAX_CODE_GENERATION_ATTEMPTS = 10;
 
-  private static generateInviteCode(): string {
+  private generateInviteCode(): string {
     let code = "";
     for (let i = 0; i < INVITE_CODE_LENGTH; i++) {
       const randomIndex = Math.floor(Math.random() * INVITE_CODE_CHARACTERS.length);
@@ -15,7 +15,7 @@ export class InviteService {
     return code;
   }
 
-  public static async createInviteCode(): Promise<string> {
+  public async createInviteCode(): Promise<string> {
     for (let attempts = 0; attempts < this.MAX_CODE_GENERATION_ATTEMPTS; attempts++) {
       const code = this.generateInviteCode();
       try {
@@ -32,7 +32,7 @@ export class InviteService {
     throw new Error("Failed to generate unique invite code after maximum attempts");
   }
 
-  public static async validateInviteCode(code: string): Promise<IInviteResponse> {
+  public async validateInviteCode(code: string): Promise<IInviteResponse> {
     try {
       const invite = await Invite.findOne({ code });
       return {

@@ -2,7 +2,7 @@ import Config, { IConfig } from "../models/Config";
 import logger from "../utils/Logger";
 
 export class ConfigService {
-  public static async getConfig(key: string): Promise<string | undefined> {
+  public async getConfig(key: string): Promise<string | undefined> {
     try {
       const config = await Config.findOne({ key });
       return config?.value;
@@ -12,7 +12,7 @@ export class ConfigService {
     }
   }
 
-  public static async setConfig(key: string, value: string): Promise<IConfig> {
+  public async setConfig(key: string, value: string): Promise<IConfig> {
     try {
       const config = await Config.findOneAndUpdate({ key }, { value }, { new: true, upsert: true });
       logger.info(`Config updated`, { key, value });
@@ -23,7 +23,7 @@ export class ConfigService {
     }
   }
 
-  public static async getAllConfigs(): Promise<{ [key: string]: string }> {
+  public async getAllConfigs(): Promise<{ [key: string]: string }> {
     try {
       const configs = await Config.find({});
       const configMap: { [key: string]: string } = {};
@@ -37,7 +37,7 @@ export class ConfigService {
     }
   }
 
-  public static async initializeDefaultConfigs(defaults: { [key: string]: string }): Promise<void> {
+  public async initializeDefaultConfigs(defaults: { [key: string]: string }): Promise<void> {
     const keys = Object.keys(defaults);
     for (const key of keys) {
       const value = defaults[key];

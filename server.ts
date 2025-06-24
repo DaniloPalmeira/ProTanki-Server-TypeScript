@@ -11,6 +11,8 @@ import fs from "fs";
 import path from "path";
 import { DebugConsole } from "./src/console/DebugConsole";
 import { CommandService } from "./src/commands/CommandService";
+import { InviteService } from "./src/services/InviteService";
+import { ChatService } from "./src/services/ChatService";
 
 dotenv.config();
 
@@ -19,7 +21,11 @@ const PORT = process.env.PORT ? parseInt(process.env.PORT) : DEFAULT_PORT;
 async function bootstrap() {
   logger.info("Starting server initialization");
 
-  CommandService.init();
+  const commandService = new CommandService();
+  const configService = new ConfigService();
+  const userService = new UserService();
+  const inviteService = new InviteService();
+  const chatService = new ChatService(userService);
 
   ResourceManager.loadResources();
   logger.info("Resource configurations loaded");
@@ -29,9 +35,9 @@ async function bootstrap() {
 
   const configPath = path.join(__dirname, "initial-config.json");
   const defaultConfigs = JSON.parse(fs.readFileSync(configPath, "utf8"));
-  await ConfigService.initializeDefaultConfigs(defaultConfigs);
+  await configService.initializeDefaultConfigs(defaultConfigs);
 
-  const configs = await ConfigService.getAllConfigs();
+  const configs = await configService.getAllConfigs();
   const NEED_INVITE_CODE = configs.needInviteCode === "true";
   const MAX_CLIENTS = configs.maxClients ? parseInt(configs.maxClients) : DEFAULT_MAX_CLIENTS;
 
@@ -52,21 +58,30 @@ async function bootstrap() {
     })
     .filter((item): item is [string, string] => item !== null);
 
-  const server = new ProTankiServer({
-    port: PORT,
-    maxClients: MAX_CLIENTS,
-    needInviteCode: NEED_INVITE_CODE,
-    socialNetworks: socialNetworks,
-    loginForm: {
-      bgResource: ResourceManager.getIdlowById("ui/login_background"),
-      enableRequiredEmail: false,
-      maxPasswordLength: 64,
-      minPasswordLength: 3,
+  const server = new ProTankiServer(
+    {
+      port: PORT,
+      maxClients: MAX_CLIENTS,
+      needInviteCode: NEED_INVITE_CODE,
+      socialNetworks: socialNetworks,
+      loginForm: {
+        bgResource: ResourceManager.getIdlowById("ui/login_background"),
+        enableRequiredEmail: false,
+        maxPasswordLength: 64,
+        minPasswordLength: 3,
+      },
     },
-  });
+    {
+      commandService,
+      configService,
+      userService,
+      inviteService,
+      chatService,
+    }
+  );
 
   const resourceServer = new ResourceServer();
-  const debugConsole = new DebugConsole(server);
+  const debugConsole = new DebugConsole(server, userService);
 
   logger.info("Starting ProTanki and Resource servers");
   server.start();

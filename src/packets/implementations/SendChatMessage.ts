@@ -44,7 +44,6 @@ export default class SendChatMessage extends BasePacket implements ISendChatMess
       return;
     }
 
-    // É um comando?
     if (this.message.startsWith("/")) {
       const replyFunction = (message: string) => {
         const replyData: IChatMessageData = {
@@ -63,12 +62,11 @@ export default class SendChatMessage extends BasePacket implements ISendChatMess
         server: server,
         reply: replyFunction,
       };
-      await CommandService.process(this.message, context);
+      await server.commandService.process(this.message, context);
       return;
     }
 
-    // Se não, é uma mensagem de chat normal
-    const configs = await ConfigService.getAllConfigs();
+    const configs = await server.configService.getAllConfigs();
     const antifloodEnabled = configs.chatAntifloodEnabled === "true";
 
     if (antifloodEnabled) {
@@ -85,7 +83,7 @@ export default class SendChatMessage extends BasePacket implements ISendChatMess
       }
     }
 
-    const populatedMessage = await ChatService.postMessage(client.user, this.targetNickname, this.message);
+    const populatedMessage = await server.chatService.postMessage(client.user, this.targetNickname, this.message);
 
     const messageData: IChatMessageData = {
       message: populatedMessage.message,

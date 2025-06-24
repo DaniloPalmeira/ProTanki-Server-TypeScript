@@ -22,7 +22,7 @@ export class LoginWorkflow {
 
     let captchaLocations: number[] = [];
     try {
-      const locationsValue = await ConfigService.getConfig("captchaLocations");
+      const locationsValue = await server.configService.getConfig("captchaLocations");
       if (locationsValue) {
         captchaLocations = JSON.parse(locationsValue);
       }

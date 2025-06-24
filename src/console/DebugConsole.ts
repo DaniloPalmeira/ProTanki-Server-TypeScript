@@ -7,9 +7,11 @@ import { UserService } from "../services/UserService";
 export class DebugConsole {
   private server: ProTankiServer;
   private rl: readline.Interface;
+  private userService: UserService;
 
-  constructor(server: ProTankiServer) {
+  constructor(server: ProTankiServer, userService: UserService) {
     this.server = server;
+    this.userService = userService;
     this.rl = readline.createInterface({
       input: process.stdin,
       output: process.stdout,
@@ -79,10 +81,10 @@ export class DebugConsole {
   private showHelp(): void {
     console.log("\nAvailable commands:");
     console.log("  send <all|ip> <packetId> [payloadHex]   - Send a packet.");
-    console.log("  list                                   - List connected clients.");
+    console.log("  list                                     - List connected clients.");
     console.log("  punish <user> <duration> [reason]      - Punish a user (e.g., 10d, 5h, 30m).");
-    console.log("  help                                   - Show this help message.");
-    console.log("  exit                                   - Shutdown the server.\n");
+    console.log("  help                                     - Show this help message.");
+    console.log("  exit                                     - Shutdown the server.\n");
   }
 
   private handleListCommand(): void {
@@ -174,7 +176,7 @@ export class DebugConsole {
     }
 
     try {
-      await UserService.punishUser(username, durationMs, reason);
+      await this.userService.punishUser(username, durationMs, reason);
       console.log(`User ${username} has been punished.`);
     } catch (error: any) {
       console.log(`Error: ${error.message}`);

@@ -12,7 +12,13 @@ export interface PopulatedChatMessage {
 }
 
 export class ChatService {
-  public static async getChatHistory(limit: number): Promise<PopulatedChatMessage[]> {
+  private userService: UserService;
+
+  constructor(userService: UserService) {
+    this.userService = userService;
+  }
+
+  public async getChatHistory(limit: number): Promise<PopulatedChatMessage[]> {
     try {
       const messages = await ChatMessage.find().sort({ timestamp: -1 }).limit(limit).populate<{ sourceUser: UserDocument | null }>("sourceUser", "username rank chatModeratorLevel").populate<{ targetUser: UserDocument | null }>("targetUser", "username rank chatModeratorLevel").exec();
 
@@ -23,10 +29,10 @@ export class ChatService {
     }
   }
 
-  public static async postMessage(sourceUser: UserDocument, targetNickname: string | null, message: string): Promise<PopulatedChatMessage> {
+  public async postMessage(sourceUser: UserDocument, targetNickname: string | null, message: string): Promise<PopulatedChatMessage> {
     let targetUser: UserDocument | null = null;
     if (targetNickname) {
-      targetUser = await UserService.findUserByUsername(targetNickname);
+      targetUser = await this.userService.findUserByUsername(targetNickname);
     }
 
     const chatMessage = new ChatMessage({

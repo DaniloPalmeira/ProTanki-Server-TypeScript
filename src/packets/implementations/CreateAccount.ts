@@ -54,7 +54,7 @@ export default class CreateAccount extends BasePacket implements ICreateAccount 
     }
 
     try {
-      await UserService.createUser({
+      await server.userService.createUser({
         username: this.nickname,
         password: this.password,
       });
@@ -71,7 +71,7 @@ export default class CreateAccount extends BasePacket implements ICreateAccount 
       });
 
       if (error.message.includes("already exists")) {
-        const suggestions = await UserService.generateUsernameSuggestions(this.nickname);
+        const suggestions = await server.userService.generateUsernameSuggestions(this.nickname);
         client.sendPacket(new NicknameUnavailable(suggestions));
       } else {
         client.sendPacket(new SystemMessage("Ocorreu um erro ao criar a conta.\nTente novamente."));

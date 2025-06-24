@@ -49,7 +49,7 @@ export default class Login extends BasePacket implements ILogin {
     }
 
     try {
-      const user = await UserService.login(this.username, this.password, null);
+      const user = await server.userService.login(this.username, this.password, null);
       client.user = user;
 
       if (user.isPunished && user.punishmentExpiresAt && user.punishmentExpiresAt > new Date()) {

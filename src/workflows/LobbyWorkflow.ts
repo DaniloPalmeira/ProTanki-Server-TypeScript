@@ -29,7 +29,7 @@ import { ResourceManager } from "../utils/ResourceManager";
 export class LobbyWorkflow {
   public static async enterLobby(client: ProTankiClient, server: ProTankiServer): Promise<void> {
     const user = client.user!;
-    const configs = await ConfigService.getAllConfigs();
+    const configs = await server.configService.getAllConfigs();
 
     client.setState("lobby");
 
@@ -114,7 +114,7 @@ export class LobbyWorkflow {
     client.sendPacket(new AntifloodSettings(parseInt(configs.chatCharDelayFactor || "176"), parseInt(configs.chatMessageBaseDelay || "880")));
 
     const historyLimit = parseInt(configs.chatHistoryLimit || "70");
-    const messages = await ChatService.getChatHistory(historyLimit);
+    const messages = await server.chatService.getChatHistory(historyLimit);
     const messageData: IChatMessageData[] = messages.map((msg) => ({
       message: msg.message,
       isSystem: msg.isSystemMessage,
@@ -142,12 +142,12 @@ export class LobbyWorkflow {
   public static async sendFriendsList(client: ProTankiClient, server: ProTankiServer): Promise<void> {
     if (!client.user) return;
 
-    const friendsData = await UserService.getFriendsData(client.user.id);
+    const friendsData = await server.userService.getFriendsData(client.user.id);
     client.sendPacket(new FriendsList(friendsData));
   }
 
   public static async sendFullUserInfo(client: ProTankiClient, server: ProTankiServer, targetNickname: string): Promise<void> {
-    const targetUser = await UserService.findUserByUsername(targetNickname);
+    const targetUser = await server.userService.findUserByUsername(targetNickname);
     if (!targetUser) {
       logger.warn(`User info requested for non-existent user: ${targetNickname}`);
       return;

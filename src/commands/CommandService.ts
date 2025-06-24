@@ -6,13 +6,13 @@ import fs from "fs";
 import path from "path";
 
 export class CommandService {
-  private static commands = new Map<string, ICommand>();
+  private commands = new Map<string, ICommand>();
 
-  public static init(): void {
+  public constructor() {
     this.loadCommands();
   }
 
-  private static loadCommands(): void {
+  private loadCommands(): void {
     const commandDir = path.join(__dirname, "implementations");
     const files = fs.readdirSync(commandDir).filter((file) => file.endsWith(".ts") || file.endsWith(".js"));
 
@@ -33,12 +33,12 @@ export class CommandService {
     }
   }
 
-  private static register(command: ICommand): void {
+  private register(command: ICommand): void {
     this.commands.set(command.name.toLowerCase(), command);
     logger.info(`Command registered: /${command.name}`);
   }
 
-  public static async process(rawMessage: string, context: CommandContext): Promise<void> {
+  public async process(rawMessage: string, context: CommandContext): Promise<void> {
     if (!rawMessage.startsWith("/")) return;
 
     const parts = rawMessage.slice(1).split(" ");

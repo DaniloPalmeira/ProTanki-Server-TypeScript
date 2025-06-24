@@ -45,7 +45,7 @@ export default class RecoveryAccountSendCode extends BasePacket implements IReco
     });
 
     try {
-      const user = await UserService.findUserByEmail(this.email);
+      const user = await server.userService.findUserByEmail(this.email);
       if (user) {
         const recoveryCode = crypto.randomBytes(16).toString("hex");
 

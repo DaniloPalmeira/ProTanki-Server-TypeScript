@@ -50,11 +50,11 @@ export default class CheckNicknameAvailable extends BasePacket implements ICheck
       return;
     }
 
-    const isAvailable = await UserService.isUsernameAvailable(this.nickname);
+    const isAvailable = await server.userService.isUsernameAvailable(this.nickname);
     if (isAvailable) {
       client.sendPacket(new NicknameAvailable());
     } else {
-      const suggestions = await UserService.generateUsernameSuggestions(this.nickname);
+      const suggestions = await server.userService.generateUsernameSuggestions(this.nickname);
       client.sendPacket(new NicknameUnavailable(suggestions));
     }
   }
