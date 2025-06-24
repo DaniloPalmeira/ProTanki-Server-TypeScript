@@ -16,7 +16,6 @@ export default class LobbyData extends BasePacket implements ILobbyData {
   nickname: string;
   userProfileUrl: string;
 
-  // 3. O construtor agora usa a interface de DADOS, que é limpa e correta.
   constructor(data: ILobbyDataProps) {
     super();
     this.crystals = data.crystals;
