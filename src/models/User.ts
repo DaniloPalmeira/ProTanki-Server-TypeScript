@@ -28,6 +28,7 @@ export interface UserAttributes {
   referralHash: string;
   chatModeratorLevel: ChatModeratorLevel;
   lastMessageTimestamp: Date | null;
+  notificationsEnabled: boolean;
   createdAt?: Date;
   lastLogin?: Date | null;
 }
@@ -66,13 +67,11 @@ const UserSchema = new Schema<UserDocument>({
   referralHash: { type: String, required: true, unique: true },
   chatModeratorLevel: { type: Number, enum: [0, 1, 2, 3, 4], default: ChatModeratorLevel.NONE },
   lastMessageTimestamp: { type: Date, default: null },
+  notificationsEnabled: { type: Boolean, default: true },
   createdAt: { type: Date, default: Date.now },
   lastLogin: { type: Date, default: null },
 });
 
-// Criando um índice parcial para o campo de e-mail
-// Isso garante que o e-mail seja único, mas apenas para documentos que possuem o campo de e-mail.
-// Documentos com e-mail nulo são ignorados por este índice.
 UserSchema.index(
   { email: 1 },
   {
