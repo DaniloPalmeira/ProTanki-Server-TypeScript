@@ -1,3 +1,4 @@
+import LocalizationInfo from "../packets/implementations/LocalizationInfo";
 import PremiumInfo from "../packets/implementations/PremiumInfo";
 import SetLayout from "../packets/implementations/SetLayout";
 import { ProTankiClient } from "../server/ProTankiClient";
@@ -14,6 +15,13 @@ export class LobbyWorkflow {
       premiumSecondsLeft = Math.round((user.premiumExpiresAt.getTime() - Date.now()) / 1000);
     }
     client.sendPacket(new PremiumInfo(premiumSecondsLeft));
+
+    const countries: [string, string][] = [
+      ["BR", "Brazil"],
+      ["US", "United States"],
+      ["RU", "Russia"],
+    ];
+    client.sendPacket(new LocalizationInfo(countries, "BR", true));
 
     // Próximos pacotes do lobby serão adicionados aqui...
   }
