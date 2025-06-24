@@ -14,6 +14,10 @@ export interface UserAttributes {
   punishmentReason: string | null;
   hasDoubleCrystal: boolean;
   premiumExpiresAt: Date | null;
+  rank: number;
+  score: number;
+  nextRankScore: number;
+  crystalAbonementExpiresAt: Date | null;
   createdAt?: Date;
   lastLogin?: Date | null;
 }
@@ -82,6 +86,22 @@ const UserSchema = new Schema<UserDocument>({
     default: false,
   },
   premiumExpiresAt: {
+    type: Date,
+    default: null,
+  },
+  rank: {
+    type: Number,
+    default: 1,
+  },
+  score: {
+    type: Number,
+    default: 0,
+  },
+  nextRankScore: {
+    type: Number,
+    default: 100,
+  },
+  crystalAbonementExpiresAt: {
     type: Date,
     default: null,
   },
