@@ -3,6 +3,7 @@ import Invite from "../models/Invite";
 import logger from "../utils/Logger";
 import { IFriendsListProps } from "../packets/interfaces/IFriendsList";
 import { IPacket } from "../packets/interfaces/IPacket";
+import crypto from "crypto";
 
 export interface UserCreationAttributes {
   username: string;
@@ -104,6 +105,7 @@ export class UserService {
         experience: attributes.experience,
         level: attributes.level,
         isActive: attributes.isActive,
+        referralHash: crypto.randomBytes(16).toString("hex"),
       });
 
       return await user.save();

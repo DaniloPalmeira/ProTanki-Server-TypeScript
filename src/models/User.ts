@@ -24,6 +24,7 @@ export interface UserAttributes {
   friendRequestsSent: mongoose.Types.ObjectId[];
   friendRequestsReceived: mongoose.Types.ObjectId[];
   unlockedAchievements: number[];
+  referralHash: string;
   createdAt?: Date;
   lastLogin?: Date | null;
 }
@@ -136,6 +137,11 @@ const UserSchema = new Schema<UserDocument>({
   unlockedAchievements: {
     type: [Number],
     default: [],
+  },
+  referralHash: {
+    type: String,
+    required: true,
+    unique: true,
   },
   createdAt: {
     type: Date,

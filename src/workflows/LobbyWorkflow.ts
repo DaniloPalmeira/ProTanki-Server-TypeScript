@@ -6,6 +6,7 @@ import FriendsList from "../packets/implementations/FriendsList";
 import LocalizationInfo from "../packets/implementations/LocalizationInfo";
 import LobbyData from "../packets/implementations/LobbyData";
 import PremiumInfo from "../packets/implementations/PremiumInfo";
+import ReferralInfo from "../packets/implementations/ReferralInfo";
 import SetBattleInviteSound from "../packets/implementations/SetBattleInviteSound";
 import SetLayout from "../packets/implementations/SetLayout";
 import { ProTankiClient } from "../server/ProTankiClient";
@@ -70,6 +71,8 @@ export class LobbyWorkflow {
       tipsToSend.push(Achievement.FIGHT_FIRST_BATTLE);
     }
     client.sendPacket(new AchievementTips(tipsToSend));
+
+    client.sendPacket(new ReferralInfo(user.referralHash, "s.pro-tanki.com"));
   }
 
   public static async sendFriendsList(client: ProTankiClient, server: ProTankiServer): Promise<void> {
