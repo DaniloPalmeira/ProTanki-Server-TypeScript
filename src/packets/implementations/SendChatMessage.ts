@@ -1,14 +1,5 @@
-import { ProTankiClient } from "../../server/ProTankiClient";
-import { ProTankiServer } from "../../server/ProTankiServer";
 import { BasePacket } from "./BasePacket";
 import { ISendChatMessage } from "../interfaces/ISendChatMessage";
-import { ChatService } from "../../services/ChatService";
-import { ConfigService } from "../../services/ConfigService";
-import ChatHistory from "./ChatHistory";
-import { IChatMessageData } from "../interfaces/IChatHistory";
-import logger from "../../utils/Logger";
-import { CommandContext } from "../../commands/ICommand";
-import { CommandService } from "../../commands/CommandService";
 
 export default class SendChatMessage extends BasePacket implements ISendChatMessage {
   targetNickname: string | null = null;
@@ -37,78 +28,6 @@ export default class SendChatMessage extends BasePacket implements ISendChatMess
 
   write(): Buffer {
     throw new Error("Method not implemented.");
-  }
-
-  async run(server: ProTankiServer, client: ProTankiClient): Promise<void> {
-    if (!client.user || !this.message) {
-      return;
-    }
-
-    if (this.message.startsWith("/")) {
-      const replyFunction = (message: string) => {
-        const replyData: IChatMessageData = {
-          message,
-          isSystem: true,
-          isWarning: false,
-          source: null,
-          target: null,
-        };
-        const replyPacket = new ChatHistory([replyData]);
-        client.sendPacket(replyPacket);
-      };
-
-      const context: CommandContext = {
-        executor: client,
-        server: server,
-        reply: replyFunction,
-      };
-      await server.commandService.process(this.message, context);
-      return;
-    }
-
-    const configs = await server.configService.getAllConfigs();
-    const antifloodEnabled = configs.chatAntifloodEnabled === "true";
-
-    if (antifloodEnabled) {
-      const charDelay = parseInt(configs.chatCharDelayFactor || "0");
-      const baseDelay = parseInt(configs.chatMessageBaseDelay || "0");
-      const cooldown = this.message.length * charDelay + baseDelay;
-
-      const now = Date.now();
-      const lastMessageTime = client.user.lastMessageTimestamp?.getTime() || 0;
-
-      if (now - lastMessageTime < cooldown) {
-        logger.warn(`User ${client.user.username} is sending messages too fast.`, { client: client.getRemoteAddress() });
-        return;
-      }
-    }
-
-    const populatedMessage = await server.chatService.postMessage(client.user, this.targetNickname, this.message);
-
-    const messageData: IChatMessageData = {
-      message: populatedMessage.message,
-      isSystem: populatedMessage.isSystemMessage,
-      isWarning: populatedMessage.isWarning,
-      source: populatedMessage.sourceUser
-        ? {
-            uid: populatedMessage.sourceUser.username,
-            rank: populatedMessage.sourceUser.rank,
-            moderatorLevel: populatedMessage.sourceUser.chatModeratorLevel,
-            ip: null,
-          }
-        : null,
-      target: populatedMessage.targetUser
-        ? {
-            uid: populatedMessage.targetUser.username,
-            rank: populatedMessage.targetUser.rank,
-            moderatorLevel: populatedMessage.targetUser.chatModeratorLevel,
-            ip: null,
-          }
-        : null,
-    };
-
-    const packetToSend = new ChatHistory([messageData]);
-    server.broadcastToLobby(packetToSend);
   }
 
   toString(): string {

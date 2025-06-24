@@ -1,9 +1,5 @@
-import { CALLBACK } from "../../config/constants";
-import { ProTankiClient } from "../../server/ProTankiClient";
-import { ProTankiServer } from "../../server/ProTankiServer";
 import { IResourceCallback } from "../interfaces/IResourceCallback";
 import { BasePacket } from "./BasePacket";
-import { LoginWorkflow } from "../../workflows/LoginWorkflow";
 
 export default class ResourceCallback extends BasePacket implements IResourceCallback {
   callbackId: number;
@@ -21,12 +17,6 @@ export default class ResourceCallback extends BasePacket implements IResourceCal
     const packet = Buffer.alloc(4);
     packet.writeInt32BE(this.callbackId, 0);
     return packet;
-  }
-
-  run(server: ProTankiServer, client: ProTankiClient): void {
-    if (this.callbackId === CALLBACK.LOGIN_FORM) {
-      LoginWorkflow.initializeLoginForm(client, server);
-    }
   }
 
   toString(): string {

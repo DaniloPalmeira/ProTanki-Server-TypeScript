@@ -131,8 +131,13 @@ export class ProTankiClient {
         logger.info(`Packet processed: ${packetClass.toString()}`, {
           client: this.getRemoteAddress(),
         });
-        if (packetClass.run) {
-          await packetClass.run(this.server, this);
+
+        const handler = this.server.packetHandlerService.getHandler(packetId);
+
+        if (handler) {
+          await handler.execute(this, this.server, packetClass);
+        } else {
+          logger.warn(`No handler implemented for packet ID: ${packetId}`);
         }
       } catch (error: any) {
         logger.error(`Error processing packet ID ${packetId}`, {

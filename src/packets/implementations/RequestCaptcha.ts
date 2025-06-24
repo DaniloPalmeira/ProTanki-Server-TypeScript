@@ -1,14 +1,7 @@
-import { ProTankiClient } from "../../server/ProTankiClient";
-import { ProTankiServer } from "../../server/ProTankiServer";
 import { IRequestCaptcha } from "../interfaces/IRequestCaptcha";
 import { BasePacket } from "./BasePacket";
-import generateCaptcha from "../../utils/GenerateCaptcha";
-import Captcha from "./Captcha";
 
-export default class RequestCaptcha
-  extends BasePacket
-  implements IRequestCaptcha
-{
+export default class RequestCaptcha extends BasePacket implements IRequestCaptcha {
   view: number;
 
   constructor(view: number) {
@@ -25,12 +18,6 @@ export default class RequestCaptcha
     packet.writeInt32BE(this.view);
 
     return packet;
-  }
-
-  run(server: ProTankiServer, client: ProTankiClient): void {
-    const captcha = generateCaptcha();
-    client.captchaSolution = captcha.text;
-    client.sendPacket(new Captcha(this.view, captcha.image));
   }
 
   toString(): string {

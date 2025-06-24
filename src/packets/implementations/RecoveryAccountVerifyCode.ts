@@ -1,9 +1,5 @@
-import { ProTankiClient } from "../../server/ProTankiClient";
-import { ProTankiServer } from "../../server/ProTankiServer";
 import { BasePacket } from "./BasePacket";
 import { IRecoveryAccountVerifyCode } from "../interfaces/IRecoveryAccountVerifyCode";
-import GoToRecoveryPassword from "./GoToRecoveryPassword";
-import { LoginWorkflow } from "../../workflows/LoginWorkflow";
 
 export default class RecoveryAccountVerifyCode extends BasePacket implements IRecoveryAccountVerifyCode {
   code: string;
@@ -34,14 +30,6 @@ export default class RecoveryAccountVerifyCode extends BasePacket implements IRe
     buffer.writeInt32BE(stringBuffer.length, 1);
     stringBuffer.copy(buffer, 5);
     return buffer;
-  }
-
-  run(server: ProTankiServer, client: ProTankiClient): void {
-    if (client.recoveryCode && client.recoveryCode === this.code) {
-      client.sendPacket(new GoToRecoveryPassword(client.recoveryEmail));
-    } else {
-      LoginWorkflow.handleInvalidRecoveryCode(client);
-    }
   }
 
   toString(): string {

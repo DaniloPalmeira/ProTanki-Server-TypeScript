@@ -1,12 +1,5 @@
-import { ProTankiClient } from "../../server/ProTankiClient";
-import { ProTankiServer } from "../../server/ProTankiServer";
 import { IRecoveryAccountSendCode } from "../interfaces/IRecoveryAccountSendCode";
 import { BasePacket } from "./BasePacket";
-import RecoveryEmailSent from "./RecoveryEmailSent";
-import RecoveryEmailNotExists from "./RecoveryEmailNotExists";
-import { UserService } from "../../services/UserService";
-import logger from "../../utils/Logger";
-import crypto from "crypto";
 
 export default class RecoveryAccountSendCode extends BasePacket implements IRecoveryAccountSendCode {
   email: string;
@@ -37,30 +30,6 @@ export default class RecoveryAccountSendCode extends BasePacket implements IReco
     buffer.writeInt32BE(stringBuffer.length, 1);
     stringBuffer.copy(buffer, 5);
     return buffer;
-  }
-
-  async run(server: ProTankiServer, client: ProTankiClient): Promise<void> {
-    logger.info(`Recovery code requested for email: ${this.email}`, {
-      client: client.getRemoteAddress(),
-    });
-
-    try {
-      const user = await server.userService.findUserByEmail(this.email);
-      if (user) {
-        const recoveryCode = crypto.randomBytes(16).toString("hex");
-
-        logger.info(`Recovery email sent to: ${this.email}, code: ${recoveryCode}`);
-        client.recoveryEmail = this.email;
-        client.recoveryCode = recoveryCode;
-        client.sendPacket(new RecoveryEmailSent());
-      } else {
-        logger.info(`Email not found: ${this.email}`);
-        client.sendPacket(new RecoveryEmailNotExists());
-      }
-    } catch (error) {
-      logger.error(`Error checking email ${this.email}`, { error });
-      client.sendPacket(new RecoveryEmailNotExists());
-    }
   }
 
   toString(): string {

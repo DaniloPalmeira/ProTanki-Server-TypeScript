@@ -1,6 +1,3 @@
-import { ProTankiClient } from "../../server/ProTankiClient";
-import { ProTankiServer } from "../../server/ProTankiServer";
-import { LobbyWorkflow } from "../../workflows/LobbyWorkflow";
 import { ILoadFriends } from "../interfaces/ILoadFriends";
 import { BasePacket } from "./BasePacket";
 
@@ -13,10 +10,6 @@ export default class LoadFriends extends BasePacket implements ILoadFriends {
 
   write(): Buffer {
     throw new Error("Method not implemented.");
-  }
-
-  async run(server: ProTankiServer, client: ProTankiClient): Promise<void> {
-    await LobbyWorkflow.sendFriendsList(client, server);
   }
 
   toString(): string {

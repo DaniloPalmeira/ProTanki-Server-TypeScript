@@ -12,6 +12,7 @@ import { ConfigService } from "../services/ConfigService";
 import { UserService } from "../services/UserService";
 import { ChatService } from "../services/ChatService";
 import { CommandService } from "../commands/CommandService";
+import { PacketHandlerService } from "../handlers/PacketHandlerService";
 
 export interface IServerServices {
   configService: ConfigService;
@@ -19,6 +20,7 @@ export interface IServerServices {
   inviteService: InviteService;
   chatService: ChatService;
   commandService: CommandService;
+  packetHandlerService: PacketHandlerService;
 }
 
 export class ProTankiServer {
@@ -35,6 +37,7 @@ export class ProTankiServer {
   public readonly inviteService: InviteService;
   public readonly chatService: ChatService;
   public readonly commandService: CommandService;
+  public readonly packetHandlerService: PacketHandlerService;
 
   constructor(options: IServerOptions, services: IServerServices) {
     this.validateOptions(options);
@@ -49,6 +52,7 @@ export class ProTankiServer {
     this.inviteService = services.inviteService;
     this.chatService = services.chatService;
     this.commandService = services.commandService;
+    this.packetHandlerService = services.packetHandlerService;
 
     this.server = net.createServer(this.handleConnection.bind(this));
     this.clientManager = new ClientManager();

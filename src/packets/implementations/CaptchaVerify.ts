@@ -1,15 +1,7 @@
-import { ProTankiClient } from "../../server/ProTankiClient";
-import { ProTankiServer } from "../../server/ProTankiServer";
 import { BasePacket } from "./BasePacket";
-import CaptchaIsValid from "./CaptchaIsValid";
-import CaptchaIsInvalid from "./CaptchaIsInvalid";
-import generateCaptcha from "../../utils/GenerateCaptcha";
 import { ICaptchaVerify } from "../interfaces/ICaptchaVerify";
 
-export default class CaptchaVerify
-  extends BasePacket
-  implements ICaptchaVerify
-{
+export default class CaptchaVerify extends BasePacket implements ICaptchaVerify {
   view: number;
   solution: string;
 
@@ -29,8 +21,7 @@ export default class CaptchaVerify
   }
 
   write(): Buffer {
-    const packetSize =
-      4 + 1 + (this.solution.length > 0 ? 4 + this.solution.length : 0);
+    const packetSize = 4 + 1 + (this.solution.length > 0 ? 4 + this.solution.length : 0);
     const packet = Buffer.alloc(packetSize);
     packet.writeInt32BE(this.view, 0);
     packet.writeInt8(this.solution.length > 0 ? 0 : 1, 4);
@@ -39,17 +30,6 @@ export default class CaptchaVerify
       Buffer.from(this.solution, "utf8").copy(packet, 9);
     }
     return packet;
-  }
-
-  run(server: ProTankiServer, client: ProTankiClient): void {
-    if (client.captchaSolution === this.solution.toLowerCase()) {
-      client.sendPacket(new CaptchaIsValid(this.view));
-      return;
-    }
-
-    const captcha = generateCaptcha();
-    client.captchaSolution = captcha.text;
-    client.sendPacket(new CaptchaIsInvalid(this.view, captcha.image));
   }
 
   toString(): string {

@@ -1,6 +1,3 @@
-import { ProTankiClient } from "../../server/ProTankiClient";
-import { ProTankiServer } from "../../server/ProTankiServer";
-import { LobbyWorkflow } from "../../workflows/LobbyWorkflow";
 import { IGetUserInfo } from "../interfaces/IGetUserInfo";
 import { BasePacket } from "./BasePacket";
 
@@ -17,12 +14,6 @@ export default class GetUserInfo extends BasePacket implements IGetUserInfo {
 
   write(): Buffer {
     throw new Error("Method not implemented.");
-  }
-
-  async run(server: ProTankiServer, client: ProTankiClient): Promise<void> {
-    if (this.nickname) {
-      await LobbyWorkflow.sendFullUserInfo(client, server, this.nickname);
-    }
   }
 
   toString(): string {

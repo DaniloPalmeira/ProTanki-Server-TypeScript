@@ -1,9 +1,5 @@
-import { ProTankiClient } from "../../server/ProTankiClient";
-import { ProTankiServer } from "../../server/ProTankiServer";
 import { ILanguage } from "../interfaces/ILanguage";
 import { BasePacket } from "./BasePacket";
-import logger from "../../utils/Logger";
-import { LoginWorkflow } from "../../workflows/LoginWorkflow";
 
 export default class Language extends BasePacket implements ILanguage {
   lang: string;
@@ -33,15 +29,6 @@ export default class Language extends BasePacket implements ILanguage {
     buffer.writeInt32BE(stringBuffer.length, 1);
     stringBuffer.copy(buffer, 5);
     return buffer;
-  }
-
-  async run(server: ProTankiServer, client: ProTankiClient): Promise<void> {
-    client.language = this.lang;
-    logger.info(`Setting language to: ${this.lang}`, {
-      client: client.getRemoteAddress(),
-    });
-
-    await LoginWorkflow.sendLoginScreenData(client, server);
   }
 
   toString(): string {
