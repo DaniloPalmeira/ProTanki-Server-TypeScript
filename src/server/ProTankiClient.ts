@@ -43,6 +43,10 @@ export class ProTankiClient {
     return this.state;
   }
 
+  public setState(newState: ClientState): void {
+    this.state = newState;
+  }
+
   public getRemoteAddress(): string {
     return this.socket.remoteAddress || "unknown";
   }
@@ -130,7 +134,7 @@ export class ProTankiClient {
         if (packetClass.run) {
           await packetClass.run(this.server, this);
         }
-      } catch (error) {
+      } catch (error: any) {
         logger.error(`Error processing packet ID ${packetId}`, {
           error,
           client: this.getRemoteAddress(),

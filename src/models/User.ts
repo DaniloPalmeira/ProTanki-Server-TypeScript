@@ -27,6 +27,7 @@ export interface UserAttributes {
   unlockedAchievements: number[];
   referralHash: string;
   chatModeratorLevel: ChatModeratorLevel;
+  lastMessageTimestamp: Date | null;
   createdAt?: Date;
   lastLogin?: Date | null;
 }
@@ -36,128 +37,32 @@ export interface UserDocument extends UserAttributes, Document {
 }
 
 const UserSchema = new Schema<UserDocument>({
-  username: {
-    type: String,
-    required: true,
-    unique: true,
-    trim: true,
-    minlength: 3,
-    maxlength: 50,
-    match: /^[a-zA-Z0-9]+$/,
-  },
-  password: {
-    type: String,
-    required: true,
-    minlength: 3,
-  },
-  email: {
-    type: String,
-    trim: true,
-    lowercase: true,
-    unique: true,
-    sparse: true,
-    match: [/.+\@.+\..+/, "Please fill a valid email address"],
-    default: null,
-  },
-  emailConfirmed: {
-    type: Boolean,
-    default: false,
-  },
-  crystals: {
-    type: Number,
-    default: 0,
-    min: 0,
-  },
-  experience: {
-    type: Number,
-    default: 0,
-    min: 0,
-  },
-  level: {
-    type: Number,
-    default: 1,
-    min: 1,
-  },
-  isActive: {
-    type: Boolean,
-    default: true,
-  },
-  isPunished: {
-    type: Boolean,
-    default: false,
-  },
-  punishmentExpiresAt: {
-    type: Date,
-    default: null,
-  },
-  punishmentReason: {
-    type: String,
-    default: null,
-  },
-  hasDoubleCrystal: {
-    type: Boolean,
-    default: false,
-  },
-  premiumExpiresAt: {
-    type: Date,
-    default: null,
-  },
-  rank: {
-    type: Number,
-    default: 1,
-  },
-  score: {
-    type: Number,
-    default: 0,
-  },
-  nextRankScore: {
-    type: Number,
-    default: 100,
-  },
-  crystalAbonementExpiresAt: {
-    type: Date,
-    default: null,
-  },
-  friends: [
-    {
-      type: Schema.Types.ObjectId,
-      ref: "User",
-    },
-  ],
-  friendRequestsSent: [
-    {
-      type: Schema.Types.ObjectId,
-      ref: "User",
-    },
-  ],
-  friendRequestsReceived: [
-    {
-      type: Schema.Types.ObjectId,
-      ref: "User",
-    },
-  ],
-  unlockedAchievements: {
-    type: [Number],
-    default: [],
-  },
-  referralHash: {
-    type: String,
-    required: true,
-    unique: true,
-  },
-  chatModeratorLevel: {
-    type: Number,
-    enum: [0, 1, 2, 3, 4], // Usar os valores numéricos do enum para validação
-    default: ChatModeratorLevel.NONE,
-  },
-  createdAt: {
-    type: Date,
-    default: Date.now,
-  },
-  lastLogin: {
-    type: Date,
-    default: null,
-  },
+  username: { type: String, required: true, unique: true, trim: true, minlength: 3, maxlength: 50, match: /^[a-zA-Z0-9]+$/ },
+  password: { type: String, required: true, minlength: 3 },
+  email: { type: String, trim: true, lowercase: true, unique: true, sparse: true, match: [/.+\@.+\..+/, "Please fill a valid email address"], default: null },
+  emailConfirmed: { type: Boolean, default: false },
+  crystals: { type: Number, default: 0, min: 0 },
+  experience: { type: Number, default: 0, min: 0 },
+  level: { type: Number, default: 1, min: 1 },
+  isActive: { type: Boolean, default: true },
+  isPunished: { type: Boolean, default: false },
+  punishmentExpiresAt: { type: Date, default: null },
+  punishmentReason: { type: String, default: null },
+  hasDoubleCrystal: { type: Boolean, default: false },
+  premiumExpiresAt: { type: Date, default: null },
+  rank: { type: Number, default: 1 },
+  score: { type: Number, default: 0 },
+  nextRankScore: { type: Number, default: 100 },
+  crystalAbonementExpiresAt: { type: Date, default: null },
+  friends: [{ type: Schema.Types.ObjectId, ref: "User" }],
+  friendRequestsSent: [{ type: Schema.Types.ObjectId, ref: "User" }],
+  friendRequestsReceived: [{ type: Schema.Types.ObjectId, ref: "User" }],
+  unlockedAchievements: { type: [Number], default: [] },
+  referralHash: { type: String, required: true, unique: true },
+  chatModeratorLevel: { type: Number, enum: [0, 1, 2, 3, 4], default: ChatModeratorLevel.NONE },
+  lastMessageTimestamp: { type: Date, default: null },
+  createdAt: { type: Date, default: Date.now },
+  lastLogin: { type: Date, default: null },
 });
 
 UserSchema.pre<UserDocument>("save", function (next: (error?: Error) => void) {

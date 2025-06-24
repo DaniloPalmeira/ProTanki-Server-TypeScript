@@ -1,6 +1,7 @@
 import ChatMessage from "../models/ChatMessage";
 import { UserDocument } from "../models/User";
 import logger from "../utils/Logger";
+import { UserService } from "./UserService";
 
 export interface PopulatedChatMessage {
   sourceUser: UserDocument | null;
@@ -20,5 +21,31 @@ export class ChatService {
       logger.error("Failed to get chat history", { error });
       return [];
     }
+  }
+
+  public static async postMessage(sourceUser: UserDocument, targetNickname: string | null, message: string): Promise<PopulatedChatMessage> {
+    let targetUser: UserDocument | null = null;
+    if (targetNickname) {
+      targetUser = await UserService.findUserByUsername(targetNickname);
+    }
+
+    const chatMessage = new ChatMessage({
+      sourceUser: sourceUser._id,
+      targetUser: targetUser ? targetUser._id : null,
+      message: message,
+    });
+
+    await chatMessage.save();
+
+    sourceUser.lastMessageTimestamp = new Date();
+    await sourceUser.save();
+
+    return {
+      sourceUser,
+      targetUser,
+      message,
+      isSystemMessage: false,
+      isWarning: false,
+    };
   }
 }

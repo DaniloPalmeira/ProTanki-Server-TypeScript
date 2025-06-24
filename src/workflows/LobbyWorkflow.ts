@@ -31,6 +31,8 @@ export class LobbyWorkflow {
     const user = client.user!;
     const configs = await ConfigService.getAllConfigs();
 
+    client.setState("lobby");
+
     client.sendPacket(new SetLayout(0));
     client.sendPacket(new ConfirmLayoutChange(0, 0));
 
@@ -157,7 +159,7 @@ export class LobbyWorkflow {
     client.sendPacket(new OnlineNotifierData(isOnline, 1, targetUser.username));
     client.sendPacket(new RankNotifierData(targetUser.rank, targetUser.username));
 
-    let premiumSecondsLeft = -1;
+    let premiumSecondsLeft = 0;
     if (targetUser.premiumExpiresAt && targetUser.premiumExpiresAt > new Date()) {
       premiumSecondsLeft = Math.round((targetUser.premiumExpiresAt.getTime() - Date.now()) / 1000);
     }
