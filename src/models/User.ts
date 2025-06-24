@@ -26,6 +26,7 @@ export interface UserAttributes {
   friendRequestsReceived: mongoose.Types.ObjectId[];
   unlockedAchievements: number[];
   referralHash: string;
+  referredBy: mongoose.Types.ObjectId | null;
   chatModeratorLevel: ChatModeratorLevel;
   lastMessageTimestamp: Date | null;
   notificationsEnabled: boolean;
@@ -65,6 +66,7 @@ const UserSchema = new Schema<UserDocument>({
   friendRequestsReceived: [{ type: Schema.Types.ObjectId, ref: "User" }],
   unlockedAchievements: { type: [Number], default: [] },
   referralHash: { type: String, required: true, unique: true },
+  referredBy: { type: Schema.Types.ObjectId, ref: "User", default: null },
   chatModeratorLevel: { type: Number, enum: [0, 1, 2, 3, 4], default: ChatModeratorLevel.NONE },
   lastMessageTimestamp: { type: Date, default: null },
   notificationsEnabled: { type: Boolean, default: true },
