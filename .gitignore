@@ -133,3 +133,4 @@ t.js
 teste.js
 .prettierrc
 .resource
+.vscode/settings.json
