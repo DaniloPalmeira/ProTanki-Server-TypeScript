@@ -1,5 +1,4 @@
-import { ProTankiClient } from "../../server/ProTankiClient";
-import { ProTankiServer } from "../../server/ProTankiServer";
+import { BufferWriter } from "../../utils/buffer/BufferWriter";
 import { IEmpty } from "../interfaces/IEmpty";
 import { BasePacket } from "./BasePacket";
 
@@ -11,9 +10,7 @@ export default class HideLoader extends BasePacket implements IEmpty {
   read(buffer: Buffer): void {}
 
   write(): Buffer {
-    const packet = Buffer.alloc(0);
-
-    return packet;
+    return new BufferWriter().getBuffer();
   }
 
   toString(): string {

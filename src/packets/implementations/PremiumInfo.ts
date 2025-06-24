@@ -1,3 +1,4 @@
+import { BufferWriter } from "../../utils/buffer/BufferWriter";
 import { IPremiumInfo } from "../interfaces/IPremiumInfo";
 import { BasePacket } from "./BasePacket";
 
@@ -14,8 +15,6 @@ export default class PremiumInfo extends BasePacket implements IPremiumInfo {
     this.lifeTimeInSeconds = lifeTimeInSeconds;
     this.needShowNotificationCompletionPremium = needShowNotification;
     this.needShowWelcomeAlert = needShowWelcome;
-
-    // Hardcoded for now as their logic is not specified
     this.reminderCompletionPremiumTime = 0;
     this.wasShowAlertForFirstPurchasePremium = false;
     this.wasShowReminderCompletionPremium = false;
@@ -26,28 +25,14 @@ export default class PremiumInfo extends BasePacket implements IPremiumInfo {
   }
 
   write(): Buffer {
-    const packet = Buffer.alloc(12);
-    let offset = 0;
-
-    packet.writeInt8(this.needShowNotificationCompletionPremium ? 1 : 0, offset);
-    offset += 1;
-
-    packet.writeInt8(this.needShowWelcomeAlert ? 1 : 0, offset);
-    offset += 1;
-
-    packet.writeFloatBE(this.reminderCompletionPremiumTime, offset);
-    offset += 4;
-
-    packet.writeInt8(this.wasShowAlertForFirstPurchasePremium ? 1 : 0, offset);
-    offset += 1;
-
-    packet.writeInt8(this.wasShowReminderCompletionPremium ? 1 : 0, offset);
-    offset += 1;
-
-    packet.writeInt32BE(this.lifeTimeInSeconds, offset);
-    offset += 4;
-
-    return packet;
+    const writer = new BufferWriter();
+    writer.writeUInt8(this.needShowNotificationCompletionPremium ? 1 : 0);
+    writer.writeUInt8(this.needShowWelcomeAlert ? 1 : 0);
+    writer.writeFloatBE(this.reminderCompletionPremiumTime);
+    writer.writeUInt8(this.wasShowAlertForFirstPurchasePremium ? 1 : 0);
+    writer.writeUInt8(this.wasShowReminderCompletionPremium ? 1 : 0);
+    writer.writeInt32BE(this.lifeTimeInSeconds);
+    return writer.getBuffer();
   }
 
   toString(): string {

@@ -1,3 +1,5 @@
+import { BufferReader } from "../../utils/buffer/BufferReader";
+import { BufferWriter } from "../../utils/buffer/BufferWriter";
 import { ISetBattleInviteSound } from "../interfaces/ISetBattleInviteSound";
 import { BasePacket } from "./BasePacket";
 
@@ -10,13 +12,14 @@ export default class SetBattleInviteSound extends BasePacket implements ISetBatt
   }
 
   read(buffer: Buffer): void {
-    this.soundIdLow = buffer.readInt32BE(0);
+    const reader = new BufferReader(buffer);
+    this.soundIdLow = reader.readInt32BE();
   }
 
   write(): Buffer {
-    const packet = Buffer.alloc(4);
-    packet.writeInt32BE(this.soundIdLow, 0);
-    return packet;
+    const writer = new BufferWriter();
+    writer.writeInt32BE(this.soundIdLow);
+    return writer.getBuffer();
   }
 
   toString(): string {

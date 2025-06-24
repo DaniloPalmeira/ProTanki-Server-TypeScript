@@ -1,35 +1,25 @@
+import { BufferReader } from "../../utils/buffer/BufferReader";
+import { BufferWriter } from "../../utils/buffer/BufferWriter";
 import { IInviteCode } from "../interfaces/IInviteCode";
 import { BasePacket } from "./BasePacket";
 
 export default class InviteCode extends BasePacket implements IInviteCode {
-  inviteCode: string;
+  inviteCode: string | null;
 
-  constructor(inviteCode: string = "") {
+  constructor(inviteCode: string | null = null) {
     super();
     this.inviteCode = inviteCode;
   }
 
   read(buffer: Buffer): void {
-    const isEmpty = buffer.readInt8(0) === 1;
-    if (isEmpty) {
-      this.inviteCode = "";
-      return;
-    }
-    const length = buffer.readInt32BE(1);
-    this.inviteCode = buffer.toString("utf8", 5, 5 + length);
+    const reader = new BufferReader(buffer);
+    this.inviteCode = reader.readOptionalString();
   }
 
   write(): Buffer {
-    if (this.inviteCode.length == 0) {
-      return Buffer.from([1]);
-    }
-    const stringBuffer = Buffer.from(this.inviteCode, "utf8");
-    const packetSize = 5 + stringBuffer.length;
-    const buffer = Buffer.alloc(packetSize);
-    buffer.writeInt8(0, 0);
-    buffer.writeInt32BE(stringBuffer.length, 1);
-    stringBuffer.copy(buffer, 5);
-    return buffer;
+    const writer = new BufferWriter();
+    writer.writeOptionalString(this.inviteCode);
+    return writer.getBuffer();
   }
 
   toString(): string {

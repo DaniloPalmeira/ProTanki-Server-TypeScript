@@ -1,7 +1,7 @@
 import { IPacket } from "./IPacket";
 
 export interface ILogin extends IPacket {
-    username?: string;
-    password?: string;
-    rememberMe: boolean;
+  username: string | null;
+  password: string | null;
+  rememberMe: boolean;
 }

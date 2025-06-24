@@ -3,7 +3,6 @@ import { ProTankiServer } from "./ProTankiServer";
 import { ClientState } from "../types/ClientState";
 import { EncryptionService } from "../crypto/EncryptionService";
 import { IClientOptions } from "../types/IClientOptions";
-import { PacketFactory } from "../packets/PacketFactory";
 import { IPacket } from "../packets/interfaces/IPacket";
 import Protection from "../packets/implementations/Protection";
 import logger from "../utils/Logger";
@@ -116,10 +115,10 @@ export class ProTankiClient {
       });
 
       const decryptedPacket = this.encryptionService.decrypt(packetData);
-      const packetClass = PacketFactory(packetId);
+      const packetInstance = this.server.packetService.createPacket(packetId);
 
-      if (!packetClass) {
-        logger.warn(`No packet handler found for ID: ${packetId}`, {
+      if (!packetInstance) {
+        logger.warn(`No packet class found for ID: ${packetId}`, {
           client: this.getRemoteAddress(),
           packetHex: decryptedPacket.toString("hex"),
         });
@@ -127,15 +126,15 @@ export class ProTankiClient {
       }
 
       try {
-        packetClass.read(decryptedPacket);
-        logger.info(`Packet processed: ${packetClass.toString()}`, {
+        packetInstance.read(decryptedPacket);
+        logger.info(`Packet processed: ${packetInstance.toString()}`, {
           client: this.getRemoteAddress(),
         });
 
         const handler = this.server.packetHandlerService.getHandler(packetId);
 
         if (handler) {
-          await handler.execute(this, this.server, packetClass);
+          await handler.execute(this, this.server, packetInstance);
         } else {
           logger.warn(`No handler implemented for packet ID: ${packetId}`);
         }

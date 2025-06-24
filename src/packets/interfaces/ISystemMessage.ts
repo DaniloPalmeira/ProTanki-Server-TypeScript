@@ -1,5 +1,5 @@
 import { IPacket } from "./IPacket";
 
 export interface ISystemMessage extends IPacket {
-  text: string;
+  text: string | null;
 }

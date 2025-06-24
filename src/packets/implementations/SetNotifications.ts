@@ -1,3 +1,4 @@
+import { BufferReader } from "../../utils/buffer/BufferReader";
 import { BasePacket } from "./BasePacket";
 import { ISetNotifications } from "../interfaces/ISetNotifications";
 
@@ -5,7 +6,8 @@ export default class SetNotifications extends BasePacket implements ISetNotifica
   enabled: boolean = false;
 
   read(buffer: Buffer): void {
-    this.enabled = buffer.readUInt8(0) === 1;
+    const reader = new BufferReader(buffer);
+    this.enabled = reader.readUInt8() === 1;
   }
 
   write(): Buffer {

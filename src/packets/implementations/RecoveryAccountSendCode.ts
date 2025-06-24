@@ -1,3 +1,5 @@
+import { BufferReader } from "../../utils/buffer/BufferReader";
+import { BufferWriter } from "../../utils/buffer/BufferWriter";
 import { IRecoveryAccountSendCode } from "../interfaces/IRecoveryAccountSendCode";
 import { BasePacket } from "./BasePacket";
 
@@ -10,26 +12,14 @@ export default class RecoveryAccountSendCode extends BasePacket implements IReco
   }
 
   read(buffer: Buffer): void {
-    const isEmpty = buffer.readInt8(0) === 1;
-    if (isEmpty) {
-      this.email = "";
-      return;
-    }
-    const length = buffer.readInt32BE(1);
-    this.email = buffer.toString("utf8", 5, 5 + length);
+    const reader = new BufferReader(buffer);
+    this.email = reader.readOptionalString() ?? "";
   }
 
   write(): Buffer {
-    if (this.email.length == 0) {
-      return Buffer.from([1]);
-    }
-    const stringBuffer = Buffer.from(this.email, "utf8");
-    const packetSize = 1 + 4 + stringBuffer.length;
-    const buffer = Buffer.alloc(packetSize);
-    buffer.writeInt8(0, 0);
-    buffer.writeInt32BE(stringBuffer.length, 1);
-    stringBuffer.copy(buffer, 5);
-    return buffer;
+    const writer = new BufferWriter();
+    writer.writeOptionalString(this.email);
+    return writer.getBuffer();
   }
 
   toString(): string {

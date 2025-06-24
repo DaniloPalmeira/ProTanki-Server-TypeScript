@@ -1,3 +1,4 @@
+import { BufferReader } from "../../utils/buffer/BufferReader";
 import { IGetUserInfo } from "../interfaces/IGetUserInfo";
 import { BasePacket } from "./BasePacket";
 
@@ -5,11 +6,8 @@ export default class GetUserInfo extends BasePacket implements IGetUserInfo {
   nickname: string = "";
 
   read(buffer: Buffer): void {
-    const isEmpty = buffer.readInt8(0) === 1;
-    if (!isEmpty) {
-      const length = buffer.readInt32BE(1);
-      this.nickname = buffer.toString("utf8", 5, 5 + length);
-    }
+    const reader = new BufferReader(buffer);
+    this.nickname = reader.readOptionalString() ?? "";
   }
 
   write(): Buffer {

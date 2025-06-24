@@ -1,3 +1,4 @@
+import { BufferWriter } from "../../utils/buffer/BufferWriter";
 import { IOnlineNotifierData } from "../interfaces/IOnlineNotifierData";
 import { BasePacket } from "./BasePacket";
 
@@ -18,22 +19,11 @@ export default class OnlineNotifierData extends BasePacket implements IOnlineNot
   }
 
   write(): Buffer {
-    const nickBuffer = Buffer.from(this.nickname, "utf8");
-    const packet = Buffer.alloc(1 + 4 + 1 + 4 + nickBuffer.length);
-    let offset = 0;
-
-    packet.writeInt8(this.isOnline ? 1 : 0, offset);
-    offset += 1;
-    packet.writeInt32BE(this.server, offset);
-    offset += 4;
-
-    packet.writeInt8(0, offset);
-    offset += 1;
-    packet.writeInt32BE(nickBuffer.length, offset);
-    offset += 4;
-    nickBuffer.copy(packet, offset);
-
-    return packet;
+    const writer = new BufferWriter();
+    writer.writeUInt8(this.isOnline ? 1 : 0);
+    writer.writeInt32BE(this.server);
+    writer.writeOptionalString(this.nickname);
+    return writer.getBuffer();
   }
 
   toString(): string {

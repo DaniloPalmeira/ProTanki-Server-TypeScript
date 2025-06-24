@@ -1,12 +1,9 @@
-import { ProTankiClient } from "../../server/ProTankiClient";
-import { ProTankiServer } from "../../server/ProTankiServer";
+import { BufferReader } from "../../utils/buffer/BufferReader";
+import { BufferWriter } from "../../utils/buffer/BufferWriter";
 import { ICaptchaView } from "../interfaces/ICaptchaView";
 import { BasePacket } from "./BasePacket";
 
-export default class CaptchaIsValid
-  extends BasePacket
-  implements ICaptchaView
-{
+export default class CaptchaIsValid extends BasePacket implements ICaptchaView {
   view: number;
 
   constructor(view: number) {
@@ -15,14 +12,14 @@ export default class CaptchaIsValid
   }
 
   read(buffer: Buffer): void {
-    this.view = buffer.readInt32BE(0);
+    const reader = new BufferReader(buffer);
+    this.view = reader.readInt32BE();
   }
 
   write(): Buffer {
-    const packetSize = 4;
-    const packet = Buffer.alloc(packetSize);
-    packet.writeInt32BE(this.view, 0);
-    return packet;
+    const writer = new BufferWriter();
+    writer.writeInt32BE(this.view);
+    return writer.getBuffer();
   }
 
   toString(): string {

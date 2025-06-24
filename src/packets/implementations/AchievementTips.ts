@@ -1,3 +1,5 @@
+import { BufferReader } from "../../utils/buffer/BufferReader";
+import { BufferWriter } from "../../utils/buffer/BufferWriter";
 import { Achievement } from "../../models/enums/Achievement";
 import { IAchievementTips } from "../interfaces/IAchievementTips";
 import { BasePacket } from "./BasePacket";
@@ -15,14 +17,12 @@ export default class AchievementTips extends BasePacket implements IAchievementT
   }
 
   write(): Buffer {
-    const packet = Buffer.alloc(4 + this.achievementIds.length * 4);
-    packet.writeInt32BE(this.achievementIds.length, 0);
-
-    this.achievementIds.forEach((id, index) => {
-      packet.writeInt32BE(id, 4 + index * 4);
+    const writer = new BufferWriter();
+    writer.writeInt32BE(this.achievementIds.length);
+    this.achievementIds.forEach((id) => {
+      writer.writeInt32BE(id);
     });
-
-    return packet;
+    return writer.getBuffer();
   }
 
   toString(): string {

@@ -23,6 +23,13 @@ export class BufferReader {
     return value;
   }
 
+  public readInt8(): number {
+    this.checkCanRead(1);
+    const value = this.buffer.readInt8(this.offset);
+    this.offset += 1;
+    return value;
+  }
+
   public readInt32BE(): number {
     this.checkCanRead(4);
     const value = this.buffer.readInt32BE(this.offset);
@@ -54,10 +61,10 @@ export class BufferReader {
     return value;
   }
 
-  public readStringArray(): string[] | null {
+  public readStringArray(): string[] {
     const isEmpty = this.readUInt8() === 1;
     if (isEmpty) {
-      return null;
+      return [];
     }
 
     const count = this.readInt32BE();
@@ -69,5 +76,12 @@ export class BufferReader {
       }
     }
     return array;
+  }
+
+  public readBytes(length: number): Buffer {
+    this.checkCanRead(length);
+    const value = this.buffer.subarray(this.offset, this.offset + length);
+    this.offset += length;
+    return value;
   }
 }

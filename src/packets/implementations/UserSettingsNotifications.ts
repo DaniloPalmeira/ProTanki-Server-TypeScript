@@ -1,3 +1,4 @@
+import { BufferWriter } from "../../utils/buffer/BufferWriter";
 import { BasePacket } from "./BasePacket";
 import { IUserSettingsNotifications } from "../interfaces/IUserSettingsNotifications";
 
@@ -14,9 +15,9 @@ export default class UserSettingsNotifications extends BasePacket implements IUs
   }
 
   write(): Buffer {
-    const packet = Buffer.alloc(1);
-    packet.writeUInt8(this.notificationsEnabled ? 1 : 0, 0);
-    return packet;
+    const writer = new BufferWriter();
+    writer.writeUInt8(this.notificationsEnabled ? 1 : 0);
+    return writer.getBuffer();
   }
 
   toString(): string {

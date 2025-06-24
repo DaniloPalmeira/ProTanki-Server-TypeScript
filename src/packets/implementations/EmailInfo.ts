@@ -1,3 +1,4 @@
+import { BufferWriter } from "../../utils/buffer/BufferWriter";
 import { IEmailInfo } from "../interfaces/IEmailInfo";
 import { BasePacket } from "./BasePacket";
 
@@ -16,26 +17,10 @@ export default class EmailInfo extends BasePacket implements IEmailInfo {
   }
 
   write(): Buffer {
-    const isEmailEmpty = !this.email;
-    const emailBuffer = isEmailEmpty ? Buffer.alloc(0) : Buffer.from(this.email!, "utf8");
-
-    const packetSize = 1 + (isEmailEmpty ? 0 : 4 + emailBuffer.length) + 1;
-    const packet = Buffer.alloc(packetSize);
-    let offset = 0;
-
-    packet.writeInt8(isEmailEmpty ? 1 : 0, offset);
-    offset += 1;
-
-    if (!isEmailEmpty) {
-      packet.writeInt32BE(emailBuffer.length, offset);
-      offset += 4;
-      emailBuffer.copy(packet, offset);
-      offset += emailBuffer.length;
-    }
-
-    packet.writeInt8(this.emailConfirmed ? 1 : 0, offset);
-
-    return packet;
+    const writer = new BufferWriter();
+    writer.writeOptionalString(this.email);
+    writer.writeUInt8(this.emailConfirmed ? 1 : 0);
+    return writer.getBuffer();
   }
 
   toString(): string {

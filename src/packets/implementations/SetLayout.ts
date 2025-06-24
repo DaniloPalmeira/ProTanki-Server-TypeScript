@@ -1,3 +1,5 @@
+import { BufferReader } from "../../utils/buffer/BufferReader";
+import { BufferWriter } from "../../utils/buffer/BufferWriter";
 import { ISetLayout } from "../interfaces/ISetLayout";
 import { BasePacket } from "./BasePacket";
 
@@ -10,13 +12,14 @@ export default class SetLayout extends BasePacket implements ISetLayout {
   }
 
   read(buffer: Buffer): void {
-    this.layoutId = buffer.readInt32BE(0);
+    const reader = new BufferReader(buffer);
+    this.layoutId = reader.readInt32BE();
   }
 
   write(): Buffer {
-    const packet = Buffer.alloc(4);
-    packet.writeInt32BE(this.layoutId, 0);
-    return packet;
+    const writer = new BufferWriter();
+    writer.writeInt32BE(this.layoutId);
+    return writer.getBuffer();
   }
 
   toString(): string {

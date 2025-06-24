@@ -1,3 +1,4 @@
+import { BufferWriter } from "../../utils/buffer/BufferWriter";
 import { IRankNotifierData } from "../interfaces/IRankNotifierData";
 import { BasePacket } from "./BasePacket";
 
@@ -16,20 +17,10 @@ export default class RankNotifierData extends BasePacket implements IRankNotifie
   }
 
   write(): Buffer {
-    const nickBuffer = Buffer.from(this.nickname, "utf8");
-    const packet = Buffer.alloc(4 + 1 + 4 + nickBuffer.length);
-    let offset = 0;
-
-    packet.writeInt32BE(this.rank, offset);
-    offset += 4;
-
-    packet.writeInt8(0, offset);
-    offset += 1;
-    packet.writeInt32BE(nickBuffer.length, offset);
-    offset += 4;
-    nickBuffer.copy(packet, offset);
-
-    return packet;
+    const writer = new BufferWriter();
+    writer.writeInt32BE(this.rank);
+    writer.writeOptionalString(this.nickname);
+    return writer.getBuffer();
   }
 
   toString(): string {

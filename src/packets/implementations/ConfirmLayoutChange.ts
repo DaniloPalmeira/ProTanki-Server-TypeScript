@@ -1,3 +1,4 @@
+import { BufferWriter } from "../../utils/buffer/BufferWriter";
 import { IConfirmLayoutChange } from "../interfaces/IConfirmLayoutChange";
 import { BasePacket } from "./BasePacket";
 
@@ -16,10 +17,10 @@ export default class ConfirmLayoutChange extends BasePacket implements IConfirmL
   }
 
   write(): Buffer {
-    const packet = Buffer.alloc(8);
-    packet.writeInt32BE(this.fromLayout, 0);
-    packet.writeInt32BE(this.toLayout, 4);
-    return packet;
+    const writer = new BufferWriter();
+    writer.writeInt32BE(this.fromLayout);
+    writer.writeInt32BE(this.toLayout);
+    return writer.getBuffer();
   }
 
   toString(): string {

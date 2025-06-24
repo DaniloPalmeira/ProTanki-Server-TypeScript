@@ -1,3 +1,4 @@
+import { BufferWriter } from "../../utils/buffer/BufferWriter";
 import { IPunishment } from "../interfaces/IPunishment";
 import { BasePacket } from "./BasePacket";
 
@@ -20,27 +21,12 @@ export default class Punishment extends BasePacket implements IPunishment {
   }
 
   write(): Buffer {
-    const isReasonEmpty = !this.reason;
-    const reasonBuffer = isReasonEmpty ? null : Buffer.from(this.reason!, "utf8");
-    const reasonSize = isReasonEmpty ? 1 : 1 + 4 + reasonBuffer!.length;
-    const timeSize = 4 * 3;
-    const totalSize = reasonSize + timeSize;
-
-    const packet = Buffer.alloc(totalSize);
-    let offset = 0;
-
-    offset = packet.writeUInt8(isReasonEmpty ? 1 : 0, offset);
-    if (!isReasonEmpty) {
-      offset = packet.writeInt32BE(reasonBuffer!.length, offset);
-      reasonBuffer!.copy(packet, offset);
-      offset += reasonBuffer!.length;
-    }
-
-    offset = packet.writeInt32BE(this.minutes, offset);
-    offset = packet.writeInt32BE(this.hours, offset);
-    offset = packet.writeInt32BE(this.days, offset);
-
-    return packet;
+    const writer = new BufferWriter();
+    writer.writeOptionalString(this.reason);
+    writer.writeInt32BE(this.minutes);
+    writer.writeInt32BE(this.hours);
+    writer.writeInt32BE(this.days);
+    return writer.getBuffer();
   }
 
   toString(): string {

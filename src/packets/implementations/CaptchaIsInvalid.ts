@@ -1,5 +1,5 @@
-import { ProTankiClient } from "../../server/ProTankiClient";
-import { ProTankiServer } from "../../server/ProTankiServer";
+import { BufferReader } from "../../utils/buffer/BufferReader";
+import { BufferWriter } from "../../utils/buffer/BufferWriter";
 import { ICaptcha } from "../interfaces/ICaptcha";
 import { BasePacket } from "./BasePacket";
 
@@ -14,24 +14,22 @@ export default class CaptchaIsInvalid extends BasePacket implements ICaptcha {
   }
 
   read(buffer: Buffer): void {
-    this.view = buffer.readInt32BE(0);
-    const imageLen = buffer.readInt32BE(4);
-    this.image = buffer.subarray(8, 8 + imageLen);
+    const reader = new BufferReader(buffer);
+    this.view = reader.readInt32BE();
+    const imageLen = reader.readInt32BE();
+    this.image = reader.readBytes(imageLen);
   }
 
   write(): Buffer {
-    const packetSize = 4 + 4 + this.image.length;
-    const packet = Buffer.alloc(packetSize);
-
-    packet.writeInt32BE(this.view, 0);
-    packet.writeInt32BE(this.image.length, 4);
-    this.image.copy(packet, 8);
-
-    return packet;
+    const writer = new BufferWriter();
+    writer.writeInt32BE(this.view);
+    writer.writeInt32BE(this.image.length);
+    writer.writeBuffer(this.image);
+    return writer.getBuffer();
   }
 
   toString(): string {
-    return `Captcha(view=${this.view}, image=${this.image.toString("hex")}`;
+    return `CaptchaIsInvalid(view=${this.view}, imageLen=${this.image.length})`;
   }
 
   static getId(): number {

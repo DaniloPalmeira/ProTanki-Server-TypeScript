@@ -1,3 +1,4 @@
+import { BufferReader } from "../../utils/buffer/BufferReader";
 import { ILoadFriends } from "../interfaces/ILoadFriends";
 import { BasePacket } from "./BasePacket";
 
@@ -5,7 +6,8 @@ export default class LoadFriends extends BasePacket implements ILoadFriends {
   unknown: boolean = false;
 
   read(buffer: Buffer): void {
-    this.unknown = buffer.readInt8(0) === 1;
+    const reader = new BufferReader(buffer);
+    this.unknown = reader.readUInt8() === 1;
   }
 
   write(): Buffer {

@@ -1,23 +1,25 @@
+import { BufferReader } from "../../utils/buffer/BufferReader";
+import { BufferWriter } from "../../utils/buffer/BufferWriter";
 import { IRequestCaptcha } from "../interfaces/IRequestCaptcha";
 import { BasePacket } from "./BasePacket";
 
 export default class RequestCaptcha extends BasePacket implements IRequestCaptcha {
   view: number;
 
-  constructor(view: number) {
+  constructor(view: number = 0) {
     super();
     this.view = view;
   }
 
   read(buffer: Buffer): void {
-    this.view = buffer.readInt32BE(0);
+    const reader = new BufferReader(buffer);
+    this.view = reader.readInt32BE();
   }
 
   write(): Buffer {
-    const packet = Buffer.alloc(4);
-    packet.writeInt32BE(this.view);
-
-    return packet;
+    const writer = new BufferWriter();
+    writer.writeInt32BE(this.view);
+    return writer.getBuffer();
   }
 
   toString(): string {

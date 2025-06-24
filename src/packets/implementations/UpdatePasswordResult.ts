@@ -1,3 +1,4 @@
+import { BufferWriter } from "../../utils/buffer/BufferWriter";
 import { IUpdatePasswordResult } from "../interfaces/IUpdatePasswordResult";
 import { BasePacket } from "./BasePacket";
 
@@ -16,20 +17,10 @@ export default class UpdatePasswordResult extends BasePacket implements IUpdateP
   }
 
   write(): Buffer {
-    const messageBuffer = Buffer.from(this.message, "utf8");
-    const packet = Buffer.alloc(1 + 1 + 4 + messageBuffer.length);
-
-    packet.writeInt8(this.isError ? 1 : 0, 0);
-
-    const isMessageEmpty = this.message.length === 0;
-    packet.writeInt8(isMessageEmpty ? 1 : 0, 1);
-
-    if (!isMessageEmpty) {
-      packet.writeInt32BE(messageBuffer.length, 2);
-      messageBuffer.copy(packet, 6);
-    }
-
-    return packet;
+    const writer = new BufferWriter();
+    writer.writeUInt8(this.isError ? 1 : 0);
+    writer.writeOptionalString(this.message);
+    return writer.getBuffer();
   }
 
   toString(): string {

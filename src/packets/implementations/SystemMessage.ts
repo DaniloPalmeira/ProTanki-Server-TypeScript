@@ -1,36 +1,25 @@
+import { BufferReader } from "../../utils/buffer/BufferReader";
+import { BufferWriter } from "../../utils/buffer/BufferWriter";
 import { ISystemMessage } from "../interfaces/ISystemMessage";
 import { BasePacket } from "./BasePacket";
 
 export default class SystemMessage extends BasePacket implements ISystemMessage {
-  text: string;
+  text: string | null;
 
-  constructor(text: string = "") {
+  constructor(text: string | null = null) {
     super();
     this.text = text;
   }
 
   read(buffer: Buffer): void {
-    const isEmpty = buffer.readInt8(0) === 1;
-    if (!isEmpty) {
-      const length = buffer.readInt32BE(1);
-      this.text = buffer.toString("utf8", 5, 5 + length);
-    }
+    const reader = new BufferReader(buffer);
+    this.text = reader.readOptionalString();
   }
 
   write(): Buffer {
-    const isEmpty = this.text.length === 0;
-    if (isEmpty) {
-      return Buffer.from([1]);
-    }
-
-    const stringBuffer = Buffer.from(this.text, "utf8");
-    const packet = Buffer.alloc(1 + 4 + stringBuffer.length);
-
-    packet.writeInt8(0, 0);
-    packet.writeInt32BE(stringBuffer.length, 1);
-    stringBuffer.copy(packet, 5);
-
-    return packet;
+    const writer = new BufferWriter();
+    writer.writeOptionalString(this.text);
+    return writer.getBuffer();
   }
 
   toString(): string {

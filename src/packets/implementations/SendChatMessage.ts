@@ -1,3 +1,4 @@
+import { BufferReader } from "../../utils/buffer/BufferReader";
 import { BasePacket } from "./BasePacket";
 import { ISendChatMessage } from "../interfaces/ISendChatMessage";
 
@@ -6,24 +7,9 @@ export default class SendChatMessage extends BasePacket implements ISendChatMess
   message: string = "";
 
   read(buffer: Buffer): void {
-    let offset = 0;
-
-    let isEmpty = buffer.readInt8(offset) === 1;
-    offset += 1;
-    if (!isEmpty) {
-      const nickLength = buffer.readInt32BE(offset);
-      offset += 4;
-      this.targetNickname = buffer.toString("utf-8", offset, offset + nickLength);
-      offset += nickLength;
-    }
-
-    isEmpty = buffer.readInt8(offset) === 1;
-    offset += 1;
-    if (!isEmpty) {
-      const messageLength = buffer.readInt32BE(offset);
-      offset += 4;
-      this.message = buffer.toString("utf-8", offset, offset + messageLength);
-    }
+    const reader = new BufferReader(buffer);
+    this.targetNickname = reader.readOptionalString();
+    this.message = reader.readOptionalString() ?? "";
   }
 
   write(): Buffer {

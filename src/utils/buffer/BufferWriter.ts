@@ -10,6 +10,14 @@ export class BufferWriter {
     return this;
   }
 
+  public writeInt8(value: number): this {
+    const buffer = Buffer.alloc(1);
+    buffer.writeInt8(value, 0);
+    this.chunks.push(buffer);
+    this.totalLength += 1;
+    return this;
+  }
+
   public writeInt32BE(value: number): this {
     const buffer = Buffer.alloc(4);
     buffer.writeInt32BE(value, 0);

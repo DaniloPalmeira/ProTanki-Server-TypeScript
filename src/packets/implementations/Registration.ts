@@ -1,5 +1,5 @@
-import { ProTankiClient } from "../../server/ProTankiClient";
-import { ProTankiServer } from "../../server/ProTankiServer";
+import { BufferReader } from "../../utils/buffer/BufferReader";
+import { BufferWriter } from "../../utils/buffer/BufferWriter";
 import { IRegistration } from "../interfaces/IRegistration";
 import { BasePacket } from "./BasePacket";
 
@@ -9,12 +9,7 @@ export default class Registration extends BasePacket implements IRegistration {
   maxPasswordLength: number;
   minPasswordLength: number;
 
-  constructor(
-    bgResource: number = 0,
-    enableRequiredEmail: boolean = false,
-    maxPasswordLength: number = 0,
-    minPasswordLength: number = 0
-  ) {
+  constructor(bgResource: number = 0, enableRequiredEmail: boolean = false, maxPasswordLength: number = 0, minPasswordLength: number = 0) {
     super();
     this.bgResource = bgResource;
     this.enableRequiredEmail = enableRequiredEmail;
@@ -23,20 +18,20 @@ export default class Registration extends BasePacket implements IRegistration {
   }
 
   read(buffer: Buffer): void {
-    this.bgResource = buffer.readInt32BE(0);
-    this.enableRequiredEmail = buffer.readInt8(4) === 1;
-    this.maxPasswordLength = buffer.readInt32BE(5);
-    this.minPasswordLength = buffer.readInt32BE(9);
+    const reader = new BufferReader(buffer);
+    this.bgResource = reader.readInt32BE();
+    this.enableRequiredEmail = reader.readUInt8() === 1;
+    this.maxPasswordLength = reader.readInt32BE();
+    this.minPasswordLength = reader.readInt32BE();
   }
 
   write(): Buffer {
-    const packet = Buffer.alloc(13);
-    packet.writeInt32BE(this.bgResource, 0);
-    packet.writeInt8(this.enableRequiredEmail ? 1 : 0, 4);
-    packet.writeInt32BE(this.maxPasswordLength, 5);
-    packet.writeInt32BE(this.minPasswordLength, 9);
-
-    return packet;
+    const writer = new BufferWriter();
+    writer.writeInt32BE(this.bgResource);
+    writer.writeUInt8(this.enableRequiredEmail ? 1 : 0);
+    writer.writeInt32BE(this.maxPasswordLength);
+    writer.writeInt32BE(this.minPasswordLength);
+    return writer.getBuffer();
   }
 
   toString(): string {

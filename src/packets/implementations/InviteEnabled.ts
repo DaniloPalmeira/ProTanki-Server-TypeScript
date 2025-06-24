@@ -1,12 +1,9 @@
-import { ProTankiClient } from "../../server/ProTankiClient";
-import { ProTankiServer } from "../../server/ProTankiServer";
+import { BufferReader } from "../../utils/buffer/BufferReader";
+import { BufferWriter } from "../../utils/buffer/BufferWriter";
 import { IInviteEnabled } from "../interfaces/IInviteEnabled";
 import { BasePacket } from "./BasePacket";
 
-export default class InviteEnabled
-  extends BasePacket
-  implements IInviteEnabled
-{
+export default class InviteEnabled extends BasePacket implements IInviteEnabled {
   requireInviteCode: boolean;
 
   constructor(requireInviteCode: boolean = false) {
@@ -15,14 +12,14 @@ export default class InviteEnabled
   }
 
   read(buffer: Buffer): void {
-    this.requireInviteCode = buffer.readInt8(0) === 1;
+    const reader = new BufferReader(buffer);
+    this.requireInviteCode = reader.readUInt8() === 1;
   }
 
   write(): Buffer {
-    const packet = Buffer.alloc(1);
-    packet.writeInt8(this.requireInviteCode ? 1 : 0, 0);
-
-    return packet;
+    const writer = new BufferWriter();
+    writer.writeUInt8(this.requireInviteCode ? 1 : 0);
+    return writer.getBuffer();
   }
 
   toString(): string {

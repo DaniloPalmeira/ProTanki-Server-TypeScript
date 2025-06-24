@@ -1,38 +1,25 @@
-import { ProTankiClient } from "../../server/ProTankiClient";
-import { ProTankiServer } from "../../server/ProTankiServer";
+import { BufferReader } from "../../utils/buffer/BufferReader";
+import { BufferWriter } from "../../utils/buffer/BufferWriter";
 import { IInviteCodeLogin } from "../interfaces/IInviteCodeLogin";
 import { BasePacket } from "./BasePacket";
 
-export default class InviteCodeLogin
-  extends BasePacket
-  implements IInviteCodeLogin
-{
-  nickname?: string;
+export default class InviteCodeLogin extends BasePacket implements IInviteCodeLogin {
+  nickname: string | null;
 
-  constructor(nickname?: string) {
+  constructor(nickname: string | null = null) {
     super();
     this.nickname = nickname;
   }
 
   read(buffer: Buffer): void {
-    const isEmpty = buffer.readInt8(0) === 1;
-    this.nickname = undefined;
-    if (!isEmpty) {
-      const length = buffer.readInt32BE(1);
-      this.nickname = buffer.toString("utf8", 5, 5 + length);
-    }
+    const reader = new BufferReader(buffer);
+    this.nickname = reader.readOptionalString();
   }
 
   write(): Buffer {
-    const isEmpty = !this.nickname || this.nickname.length === 0;
-    const nicknameLength = this.nickname?.length || 0;
-    const packet = Buffer.alloc(isEmpty ? 1 : 5 + nicknameLength);
-    packet.writeInt8(isEmpty ? 1 : 0, 0);
-    if (!isEmpty) {
-      packet.writeInt32BE(nicknameLength, 1);
-      packet.write(this.nickname!, 5);
-    }
-    return packet;
+    const writer = new BufferWriter();
+    writer.writeOptionalString(this.nickname);
+    return writer.getBuffer();
   }
 
   toString(): string {

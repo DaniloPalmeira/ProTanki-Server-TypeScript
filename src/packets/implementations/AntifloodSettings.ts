@@ -1,3 +1,4 @@
+import { BufferWriter } from "../../utils/buffer/BufferWriter";
 import { IAntifloodSettings } from "../interfaces/IAntifloodSettings";
 import { BasePacket } from "./BasePacket";
 
@@ -16,10 +17,10 @@ export default class AntifloodSettings extends BasePacket implements IAntifloodS
   }
 
   write(): Buffer {
-    const packet = Buffer.alloc(8);
-    packet.writeInt32BE(this.charDelayFactor, 0);
-    packet.writeInt32BE(this.messageBaseDelay, 4);
-    return packet;
+    const writer = new BufferWriter();
+    writer.writeInt32BE(this.charDelayFactor);
+    writer.writeInt32BE(this.messageBaseDelay);
+    return writer.getBuffer();
   }
 
   toString(): string {
