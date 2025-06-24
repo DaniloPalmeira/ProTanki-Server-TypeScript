@@ -30,14 +30,23 @@ export default class ChatHistory extends BasePacket implements IChatHistory {
     if (isEmpty) {
       return Buffer.from([1]);
     }
-    const buffer = Buffer.alloc(8);
-    buffer.writeInt32BE(user!.moderatorLevel, 0);
-    buffer.writeInt32BE(user!.rank, 4);
 
-    const ipBuffer = this.writeOptionalString(user!.ip);
-    const uidBuffer = this.writeOptionalString(user!.uid);
+    const bufferParts: Buffer[] = [];
+    bufferParts.push(Buffer.from([0])); // Not empty flag for the user object
 
-    return Buffer.concat([Buffer.from([0]), buffer, ipBuffer, uidBuffer]);
+    const levelBuffer = Buffer.alloc(4);
+    levelBuffer.writeInt32BE(user.moderatorLevel);
+    bufferParts.push(levelBuffer);
+
+    bufferParts.push(this.writeOptionalString(user.ip));
+
+    const rankBuffer = Buffer.alloc(4);
+    rankBuffer.writeInt32BE(user.rank);
+    bufferParts.push(rankBuffer);
+
+    bufferParts.push(this.writeOptionalString(user.uid));
+
+    return Buffer.concat(bufferParts);
   }
 
   write(): Buffer {
@@ -46,10 +55,12 @@ export default class ChatHistory extends BasePacket implements IChatHistory {
 
     const messageBuffers = this.messages.map((msg) => {
       const sourceBuffer = this.writeUser(msg.source);
+      const systemFlag = Buffer.from([msg.isSystem ? 1 : 0]);
       const targetBuffer = this.writeUser(msg.target);
       const messageBuffer = this.writeOptionalString(msg.message);
-      const flags = Buffer.from([msg.isSystem ? 1 : 0, msg.isWarning ? 1 : 0]);
-      return Buffer.concat([sourceBuffer, flags.subarray(0, 1), targetBuffer, messageBuffer, flags.subarray(1, 2)]);
+      const warningFlag = Buffer.from([msg.isWarning ? 1 : 0]);
+
+      return Buffer.concat([sourceBuffer, systemFlag, targetBuffer, messageBuffer, warningFlag]);
     });
 
     return Buffer.concat([countBuffer, ...messageBuffers]);

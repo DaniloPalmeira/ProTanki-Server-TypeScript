@@ -1,4 +1,4 @@
-import ChatMessage, { IChatMessage } from "../models/ChatMessage";
+import ChatMessage from "../models/ChatMessage";
 import { UserDocument } from "../models/User";
 import logger from "../utils/Logger";
 
