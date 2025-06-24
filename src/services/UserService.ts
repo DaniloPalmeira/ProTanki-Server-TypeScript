@@ -3,6 +3,7 @@ import Invite from "../models/Invite";
 import logger from "../utils/Logger";
 import { IFriendsListProps } from "../packets/interfaces/IFriendsList";
 import crypto from "crypto";
+import mongoose from "mongoose";
 
 export interface UserCreationAttributes {
   username: string;
@@ -112,6 +113,41 @@ export class UserService {
       logger.error(`Error creating user ${attributes.username}`, { error });
       throw error;
     }
+  }
+
+  public async sendFriendRequest(senderUser: UserDocument, targetNickname: string): Promise<void> {
+    const targetUser = await this.findUserByUsername(targetNickname);
+
+    if (!targetUser) {
+      throw new Error(`Usuário "${targetNickname}" não encontrado.`);
+    }
+
+    const senderId = senderUser._id as mongoose.Types.ObjectId;
+    const targetId = targetUser._id as mongoose.Types.ObjectId;
+
+    if (senderId.equals(targetId)) {
+      throw new Error("Você não pode adicionar a si mesmo como amigo.");
+    }
+
+    if (senderUser.friends.some((friendId) => friendId.equals(targetId))) {
+      throw new Error(`Você já é amigo de "${targetNickname}".`);
+    }
+
+    if (senderUser.friendRequestsSent.some((friendId) => friendId.equals(targetId))) {
+      throw new Error(`Você já enviou um pedido de amizade para "${targetNickname}".`);
+    }
+
+    if (senderUser.friendRequestsReceived.some((friendId) => friendId.equals(targetId))) {
+      throw new Error(`"${targetNickname}" já lhe enviou um pedido de amizade. Aceite o pedido em vez de enviar um novo.`);
+    }
+
+    senderUser.friendRequestsSent.push(targetId);
+    targetUser.friendRequestsReceived.push(senderId);
+
+    await senderUser.save();
+    await targetUser.save();
+
+    logger.info(`Friend request sent from ${senderUser.username} to ${targetUser.username}`);
   }
 
   public async getFriendsData(userId: string): Promise<IFriendsListProps> {
