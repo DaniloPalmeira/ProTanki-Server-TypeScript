@@ -7,6 +7,7 @@ import { PacketFactory } from "../packets/PacketFactory";
 import { IPacket } from "../packets/interfaces/IPacket";
 import Protection from "../packets/implementations/Protection";
 import logger from "../utils/Logger";
+import { UserDocument } from "../models/User";
 
 interface PacketQueueItem {
   packetId: number;
@@ -24,6 +25,7 @@ export class ProTankiClient {
   public captchaSolution: string = "";
   public recoveryCode: string = "";
   public recoveryEmail: string = "";
+  public user: UserDocument | null = null;
   private packetQueue: PacketQueueItem[] = [];
   private isProcessingQueue: boolean = false;
 

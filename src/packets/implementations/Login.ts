@@ -7,6 +7,7 @@ import { UserService } from "../../services/UserService";
 import logger from "../../utils/Logger";
 import Punishment from "./Punishment";
 import HideLoginForm from "./HideLoginForm";
+import { LobbyWorkflow } from "../../workflows/LobbyWorkflow";
 
 export default class Login extends BasePacket implements ILogin {
   username?: string;
@@ -49,6 +50,7 @@ export default class Login extends BasePacket implements ILogin {
 
     try {
       const user = await UserService.login(this.username, this.password, null);
+      client.user = user;
 
       if (user.isPunished && user.punishmentExpiresAt && user.punishmentExpiresAt > new Date()) {
         const now = new Date();
@@ -63,13 +65,12 @@ export default class Login extends BasePacket implements ILogin {
         return;
       }
 
-      logger.info(`Successful login attempt for user ${user.username}`, {
+      logger.info(`Successful login for user ${user.username}`, {
         client: client.getRemoteAddress(),
       });
 
       client.sendPacket(new HideLoginForm());
-
-      // Próximos passos virão aqui...
+      await LobbyWorkflow.enterLobby(client, server);
     } catch (error: any) {
       logger.warn(`Failed login attempt for username ${this.username}`, {
         error: error.message,
