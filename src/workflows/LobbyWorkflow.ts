@@ -1,5 +1,6 @@
 import { Achievement } from "../models/enums/Achievement";
 import { ChatModeratorLevel } from "../models/enums/ChatModeratorLevel";
+import { UserDocument } from "../models/User";
 import AchievementTips from "../packets/implementations/AchievementTips";
 import AntifloodSettings from "../packets/implementations/AntifloodSettings";
 import ChatHistory from "../packets/implementations/ChatHistory";
@@ -25,26 +26,30 @@ import { ResourceManager } from "../utils/ResourceManager";
 
 export class LobbyWorkflow {
   public static async enterLobby(client: ProTankiClient, server: ProTankiServer): Promise<void> {
-    const user = client.user!;
-    const configService = server.configService;
+    if (!client.user) {
+      logger.error("Attempted to enter lobby without a user authenticated.", { client: client.getRemoteAddress() });
+      return;
+    }
 
+    this.sendLayoutAndState(client);
+    this.sendPlayerVitals(client.user, client);
+    this.sendInitialSettings(client);
+    this.sendAchievementTips(client.user, client);
+    await this.sendChatSetup(client.user, client, server);
+  }
+
+  private static sendLayoutAndState(client: ProTankiClient): void {
     client.setState("lobby");
-
     client.sendPacket(new SetLayout(0));
     client.sendPacket(new ConfirmLayoutChange(0, 0));
+  }
 
+  private static sendPlayerVitals(user: UserDocument, client: ProTankiClient): void {
     let premiumSecondsLeft = 0;
     if (user.premiumExpiresAt && user.premiumExpiresAt > new Date()) {
       premiumSecondsLeft = Math.round((user.premiumExpiresAt.getTime() - Date.now()) / 1000);
     }
     client.sendPacket(new PremiumInfo(premiumSecondsLeft));
-
-    const countries: [string, string][] = [
-      ["BR", "Brazil"],
-      ["US", "United States"],
-      ["RU", "Russia"],
-    ];
-    client.sendPacket(new LocalizationInfo(countries, "BR", true));
 
     let crystalAbonementSecondsLeft = 0;
     if (user.crystalAbonementExpiresAt && user.crystalAbonementExpiresAt > new Date()) {
@@ -71,9 +76,22 @@ export class LobbyWorkflow {
     const maskedEmail = user.email ? FormatUtils.maskEmail(user.email) : null;
     client.sendPacket(new EmailInfo(maskedEmail, user.emailConfirmed));
 
+    client.sendPacket(new ReferralInfo(user.referralHash, "s.pro-tanki.com"));
+  }
+
+  private static sendInitialSettings(client: ProTankiClient): void {
+    const countries: [string, string][] = [
+      ["BR", "Brazil"],
+      ["US", "United States"],
+      ["RU", "Russia"],
+    ];
+    client.sendPacket(new LocalizationInfo(countries, "BR", true));
+
     const battleInviteSoundId = ResourceManager.getIdlowById("sounds/notifications/battle_invite");
     client.sendPacket(new SetBattleInviteSound(battleInviteSoundId));
+  }
 
+  private static sendAchievementTips(user: UserDocument, client: ProTankiClient): void {
     const tipsToSend: Achievement[] = [];
     if (!user.unlockedAchievements.includes(Achievement.FIRST_PURCHASE)) {
       tipsToSend.push(Achievement.FIRST_PURCHASE);
@@ -82,8 +100,10 @@ export class LobbyWorkflow {
       tipsToSend.push(Achievement.FIGHT_FIRST_BATTLE);
     }
     client.sendPacket(new AchievementTips(tipsToSend));
+  }
 
-    client.sendPacket(new ReferralInfo(user.referralHash, "s.pro-tanki.com"));
+  private static async sendChatSetup(user: UserDocument, client: ProTankiClient, server: ProTankiServer): Promise<void> {
+    const configService = server.configService;
 
     client.sendPacket(
       new ChatProperties({
