@@ -54,7 +54,7 @@ export default class PremiumInfo extends BasePacket implements IPremiumInfo {
     return `PremiumInfo(lifeTimeInSeconds=${this.lifeTimeInSeconds})`;
   }
 
-  getId(): number {
+  static getId(): number {
     return 1405859779;
   }
 }

@@ -40,7 +40,7 @@ export default class ReferralInfo extends BasePacket implements IReferralInfo {
     return `ReferralInfo(hash=${this.hash}, host=${this.host})`;
   }
 
-  getId(): number {
+  static getId(): number {
     return 832270655;
   }
 }

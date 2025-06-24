@@ -29,7 +29,7 @@ export default class CaptchaIsValid
     return `CaptchaIsValid(view=${this.view})`;
   }
 
-  getId(): number {
+  static getId(): number {
     return -819536476;
   }
 }

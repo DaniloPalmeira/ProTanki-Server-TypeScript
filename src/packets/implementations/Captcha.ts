@@ -34,7 +34,7 @@ export default class Captcha extends BasePacket implements ICaptcha {
     return `Captcha(view=${this.view}, image=${this.image.toString("hex")}`;
   }
 
-  getId(): number {
+  static getId(): number {
     return -1670408519;
   }
 }

@@ -69,7 +69,7 @@ export default class NicknameUnavailable extends BasePacket implements INickname
     return `NicknameUnavailable(suggestions=${this.suggestions.join(", ")})`;
   }
 
-  getId(): number {
+  static getId(): number {
     return 442888643;
   }
 }

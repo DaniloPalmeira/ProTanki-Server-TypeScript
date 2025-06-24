@@ -23,7 +23,7 @@ export default class LoadFriends extends BasePacket implements ILoadFriends {
     return `LoadFriends(unknown=${this.unknown})`;
   }
 
-  getId(): number {
+  static getId(): number {
     return -731115522;
   }
 }

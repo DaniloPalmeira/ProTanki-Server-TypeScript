@@ -48,7 +48,7 @@ export default class Language extends BasePacket implements ILanguage {
     return `Language(lang=${this.lang})`;
   }
 
-  getId(): number {
+  static getId(): number {
     return -1864333717;
   }
 }

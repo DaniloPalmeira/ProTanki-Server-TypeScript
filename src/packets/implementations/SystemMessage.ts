@@ -37,7 +37,7 @@ export default class SystemMessage extends BasePacket implements ISystemMessage 
     return `SystemMessage(text=${this.text})`;
   }
 
-  getId(): number {
+  static getId(): number {
     return -600078553;
   }
 }

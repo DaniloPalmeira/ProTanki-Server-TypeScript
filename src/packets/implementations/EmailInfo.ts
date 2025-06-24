@@ -42,7 +42,7 @@ export default class EmailInfo extends BasePacket implements IEmailInfo {
     return `EmailInfo(email=${this.email}, confirmed=${this.emailConfirmed})`;
   }
 
-  getId(): number {
+  static getId(): number {
     return 613462801;
   }
 }

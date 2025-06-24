@@ -37,7 +37,7 @@ export default class GoToRecoveryPassword extends BasePacket implements IGoToRec
     return `GoToRecoveryPassword(email=${this.email})`;
   }
 
-  getId(): number {
+  static getId(): number {
     return -2118900410;
   }
 }

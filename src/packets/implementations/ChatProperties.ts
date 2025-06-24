@@ -111,7 +111,7 @@ export default class ChatProperties extends BasePacket implements IChatPropertie
     return `ChatProperties(user: ${this.selfName}, modLevel: ${this.chatModeratorLevel})`;
   }
 
-  getId(): number {
+  static getId(): number {
     return 178154988;
   }
 }

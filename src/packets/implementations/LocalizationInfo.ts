@@ -55,7 +55,7 @@ export default class LocalizationInfo extends BasePacket implements ILocalizatio
     return `LocalizationInfo(countries=${this.countries.length}, default=${this.defaultCountryCode})`;
   }
 
-  getId(): number {
+  static getId(): number {
     return -1232334539;
   }
 }

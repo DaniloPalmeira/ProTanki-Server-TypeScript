@@ -64,7 +64,7 @@ export default class UpdatePassword extends BasePacket implements IUpdatePasswor
     }
   }
 
-  getId(): number {
+  static getId(): number {
     return 762959326;
   }
 }

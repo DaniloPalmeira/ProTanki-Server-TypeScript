@@ -67,7 +67,7 @@ export default class RecoveryAccountSendCode extends BasePacket implements IReco
     return `RecoveryAccountSendCode(email=${this.email})`;
   }
 
-  getId(): number {
+  static getId(): number {
     return 1744584433;
   }
 }

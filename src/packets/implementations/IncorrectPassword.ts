@@ -12,7 +12,7 @@ export default class IncorrectPassword extends BasePacket implements IEmpty {
     return `IncorrectPassword()`;
   }
 
-  getId(): number {
+  static getId(): number {
     return 103812952;
   }
 }

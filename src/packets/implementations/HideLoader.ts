@@ -20,7 +20,7 @@ export default class HideLoader extends BasePacket implements IEmpty {
     return `HideLoader()`;
   }
 
-  getId(): number {
+  static getId(): number {
     return -1282173466;
   }
 }

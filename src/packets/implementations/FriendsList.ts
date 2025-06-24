@@ -58,7 +58,7 @@ export default class FriendsList extends BasePacket implements IFriendsList {
     return `FriendsList(accepted: ${this.acceptedFriends.length}, incoming: ${this.incomingRequests.length})`;
   }
 
-  getId(): number {
+  static getId(): number {
     return 1422563374;
   }
 }

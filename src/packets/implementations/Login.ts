@@ -84,7 +84,7 @@ export default class Login extends BasePacket implements ILogin {
     return `Login(username=${this.username}, password=${"*".repeat(this.password?.length || 0)}, rememberMe=${this.rememberMe})`;
   }
 
-  getId(): number {
+  static getId(): number {
     return -739684591;
   }
 }

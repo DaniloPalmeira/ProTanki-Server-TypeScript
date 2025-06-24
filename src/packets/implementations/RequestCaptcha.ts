@@ -37,7 +37,7 @@ export default class RequestCaptcha
     return `RequestCaptcha(view=${this.view})`;
   }
 
-  getId(): number {
+  static getId(): number {
     return -349828108;
   }
 }

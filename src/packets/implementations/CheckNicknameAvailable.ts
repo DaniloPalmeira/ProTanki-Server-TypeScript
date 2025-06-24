@@ -63,7 +63,7 @@ export default class CheckNicknameAvailable extends BasePacket implements ICheck
     return `CheckNicknameAvailable(nickname=${this.nickname})`;
   }
 
-  getId(): number {
+  static getId(): number {
     return 1083705823;
   }
 }

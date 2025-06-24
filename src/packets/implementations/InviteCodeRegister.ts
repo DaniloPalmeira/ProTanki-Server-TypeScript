@@ -17,7 +17,7 @@ export default class InviteCodeRegister extends BasePacket implements IEmpty {
     return `InviteCodeRegister()`;
   }
 
-  getId(): number {
+  static getId(): number {
     return 184934482;
   }
 }

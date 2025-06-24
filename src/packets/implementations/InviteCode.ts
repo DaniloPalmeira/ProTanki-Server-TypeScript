@@ -57,7 +57,7 @@ export default class InviteCode extends BasePacket implements IInviteCode {
     return `InviteCode(inviteCode=${this.inviteCode})`;
   }
 
-  getId(): number {
+  static getId(): number {
     return 509394385;
   }
 }

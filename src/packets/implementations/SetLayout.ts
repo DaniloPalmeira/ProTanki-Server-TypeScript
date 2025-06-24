@@ -23,7 +23,7 @@ export default class SetLayout extends BasePacket implements ISetLayout {
     return `SetLayout(layoutId=${this.layoutId})`;
   }
 
-  getId(): number {
+  static getId(): number {
     return 1118835050;
   }
 }

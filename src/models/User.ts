@@ -147,7 +147,7 @@ const UserSchema = new Schema<UserDocument>({
   },
   chatModeratorLevel: {
     type: Number,
-    enum: Object.values(ChatModeratorLevel),
+    enum: [0, 1, 2, 3, 4], // Usar os valores numéricos do enum para validação
     default: ChatModeratorLevel.NONE,
   },
   createdAt: {

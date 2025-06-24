@@ -36,7 +36,7 @@ export default class UpdatePasswordResult extends BasePacket implements IUpdateP
     return `UpdatePasswordResult(isError=${this.isError}, message=${this.message})`;
   }
 
-  getId(): number {
+  static getId(): number {
     return 1570555748;
   }
 }

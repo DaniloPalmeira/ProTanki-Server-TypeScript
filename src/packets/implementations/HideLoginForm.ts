@@ -12,7 +12,7 @@ export default class HideLoginForm extends BasePacket implements IEmpty {
     return "HideLoginForm()";
   }
 
-  getId(): number {
+  static getId(): number {
     return -1923286328;
   }
 }

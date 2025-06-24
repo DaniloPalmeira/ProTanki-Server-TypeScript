@@ -39,7 +39,7 @@ export default class InviteCodeLogin
     return `InviteCodeLogin(nickname=${this.nickname})`;
   }
 
-  getId(): number {
+  static getId(): number {
     return 714838911;
   }
 }

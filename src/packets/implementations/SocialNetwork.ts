@@ -62,7 +62,7 @@ export default class SocialNetwork
     return `SocialNetwork(socialNetworkParams=${this.socialNetworkParams})`;
   }
 
-  getId(): number {
+  static getId(): number {
     return -1715719586;
   }
 }

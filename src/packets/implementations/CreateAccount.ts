@@ -83,7 +83,7 @@ export default class CreateAccount extends BasePacket implements ICreateAccount 
     return `CreateAccount(nickname=${this.nickname}, password=${"*".repeat(this.password?.length || 0)}, rememberMe=${this.rememberMe})`;
   }
 
-  getId(): number {
+  static getId(): number {
     return 427083290;
   }
 }

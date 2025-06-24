@@ -26,7 +26,7 @@ export default class ConfirmLayoutChange extends BasePacket implements IConfirmL
     return `ConfirmLayoutChange(from=${this.fromLayout}, to=${this.toLayout})`;
   }
 
-  getId(): number {
+  static getId(): number {
     return -593368100;
   }
 }

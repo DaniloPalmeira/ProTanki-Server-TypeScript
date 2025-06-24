@@ -44,7 +44,7 @@ export default class CaptchaLocation
     return `CaptchaLocation(captchaLocations=${this.captchaLocations})`;
   }
 
-  getId(): number {
+  static getId(): number {
     return 321971701;
   }
 }

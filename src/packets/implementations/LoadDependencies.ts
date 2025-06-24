@@ -56,7 +56,7 @@ export default class LoadDependencies
     }, dependencies=${JSON.stringify(this.dependencies)})`;
   }
 
-  getId(): number {
+  static getId(): number {
     return -1797047325;
   }
 }

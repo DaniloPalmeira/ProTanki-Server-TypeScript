@@ -14,7 +14,7 @@ export default class InviteCodeInvalid extends BasePacket implements IEmpty {
     return `InviteCodeInvalid()`;
   }
 
-  getId(): number {
+  static getId(): number {
     return 312571157;
   }
 }

@@ -46,7 +46,7 @@ export default class Punishment extends BasePacket implements IPunishment {
     return `Punishment(reason=${this.reason}, days=${this.days}, hours=${this.hours}, minutes=${this.minutes})`;
   }
 
-  getId(): number {
+  static getId(): number {
     return 1200280053;
   }
 }

@@ -14,7 +14,7 @@ export default class Ping extends BasePacket implements IEmpty {
     return `Ping()`;
   }
 
-  getId(): number {
+  static getId(): number {
     return -555602629;
   }
 }

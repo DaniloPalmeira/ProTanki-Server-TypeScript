@@ -23,7 +23,7 @@ export default class Pong extends BasePacket implements IEmpty {
     return `Pong()`;
   }
 
-  getId(): number {
+  static getId(): number {
     return 1484572481;
   }
 }

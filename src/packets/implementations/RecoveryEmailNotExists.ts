@@ -14,7 +14,7 @@ export default class RecoveryEmailNotExists extends BasePacket implements IEmpty
     return `RecoveryEmailNotExists()`;
   }
 
-  getId(): number {
+  static getId(): number {
     return -262455387;
   }
 }

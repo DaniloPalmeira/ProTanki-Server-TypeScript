@@ -29,7 +29,7 @@ export default class AchievementTips extends BasePacket implements IAchievementT
     return `AchievementTips(ids=[${this.achievementIds.join(", ")}])`;
   }
 
-  getId(): number {
+  static getId(): number {
     return 602656160;
   }
 }

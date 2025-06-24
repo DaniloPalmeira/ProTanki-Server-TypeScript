@@ -16,7 +16,7 @@ export default class NicknameAvailable extends BasePacket implements IEmpty {
     return `NicknameAvailable()`;
   }
 
-  getId(): number {
+  static getId(): number {
     return -706679202;
   }
 }

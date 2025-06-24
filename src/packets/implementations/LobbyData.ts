@@ -88,7 +88,7 @@ export default class LobbyData extends BasePacket implements ILobbyData {
     return `LobbyData(nickname=${this.nickname}, rank=${this.rank}, score=${this.score})`;
   }
 
-  getId(): number {
+  static getId(): number {
     return 907073245;
   }
 }

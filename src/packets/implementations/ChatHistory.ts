@@ -59,7 +59,7 @@ export default class ChatHistory extends BasePacket implements IChatHistory {
     return `ChatHistory(messages=${this.messages.length})`;
   }
 
-  getId(): number {
+  static getId(): number {
     return -1263520410;
   }
 }

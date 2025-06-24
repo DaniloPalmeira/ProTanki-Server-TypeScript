@@ -14,7 +14,7 @@ export default class RecoveryEmailSent extends BasePacket implements IEmpty {
     return `RecoveryEmailSent()`;
   }
 
-  getId(): number {
+  static getId(): number {
     return -1607756600;
   }
 }

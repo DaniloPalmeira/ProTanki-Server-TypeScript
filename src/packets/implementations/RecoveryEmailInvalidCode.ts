@@ -14,7 +14,7 @@ export default class RecoveryEmailInvalidCode extends BasePacket implements IEmp
     return `RecoveryEmailInvalidCode()`;
   }
 
-  getId(): number {
+  static getId(): number {
     return -16447159;
   }
 }

@@ -23,7 +23,7 @@ export default class SetBattleInviteSound extends BasePacket implements ISetBatt
     return `SetBattleInviteSound(soundIdLow=${this.soundIdLow})`;
   }
 
-  getId(): number {
+  static getId(): number {
     return 834877801;
   }
 }

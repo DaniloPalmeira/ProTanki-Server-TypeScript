@@ -33,7 +33,7 @@ export default class ResourceCallback extends BasePacket implements IResourceCal
     return `ResourceCallback(callbackId=${this.callbackId})`;
   }
 
-  getId(): number {
+  static getId(): number {
     return -82304134;
   }
 }

@@ -56,7 +56,7 @@ export default class CaptchaVerify
     return `CaptchaVerify(view=${this.view},solution=${this.solution})`;
   }
 
-  getId(): number {
+  static getId(): number {
     return 1271163230;
   }
 }

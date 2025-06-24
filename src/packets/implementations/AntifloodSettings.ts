@@ -26,7 +26,7 @@ export default class AntifloodSettings extends BasePacket implements IAntifloodS
     return `AntifloodSettings(charDelayFactor=${this.charDelayFactor}, messageBaseDelay=${this.messageBaseDelay})`;
   }
 
-  getId(): number {
+  static getId(): number {
     return 744948472;
   }
 }

@@ -48,7 +48,7 @@ export default class RecoveryAccountVerifyCode extends BasePacket implements IRe
     return `RecoveryAccountVerifyCode(code=${this.code})`;
   }
 
-  getId(): number {
+  static getId(): number {
     return 903498755;
   }
 }

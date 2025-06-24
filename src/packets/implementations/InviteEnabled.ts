@@ -29,7 +29,7 @@ export default class InviteEnabled
     return `InviteEnabled(requireInviteCode=${this.requireInviteCode})`;
   }
 
-  getId(): number {
+  static getId(): number {
     return 444933603;
   }
 }

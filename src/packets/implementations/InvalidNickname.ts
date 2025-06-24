@@ -12,7 +12,7 @@ export default class InvalidNickname extends BasePacket implements IEmpty {
         return `InvalidNickname()`;
     }
 
-    getId(): number {
+    static getId(): number {
         return 1480924803;
     }
 }
