@@ -37,13 +37,9 @@ export default class SendChatMessageHandler implements IPacketHandler<SendChatMe
       return;
     }
 
-    const configs = await server.configService.getAllConfigs();
-    const antifloodEnabled = configs.chatAntifloodEnabled === "true";
-
-    if (antifloodEnabled) {
-      const charDelay = parseInt(configs.chatCharDelayFactor || "0");
-      const baseDelay = parseInt(configs.chatMessageBaseDelay || "0");
-      const cooldown = packet.message.length * charDelay + baseDelay;
+    const configService = server.configService;
+    if (configService.getChatAntifloodEnabled()) {
+      const cooldown = packet.message.length * configService.getChatCharDelayFactor() + configService.getChatMessageBaseDelay();
 
       const now = Date.now();
       const lastMessageTime = client.user.lastMessageTimestamp?.getTime() || 0;

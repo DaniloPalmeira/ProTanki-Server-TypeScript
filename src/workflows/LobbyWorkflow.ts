@@ -19,9 +19,6 @@ import SetLayout from "../packets/implementations/SetLayout";
 import { IChatMessageData } from "../packets/interfaces/IChatHistory";
 import { ProTankiClient } from "../server/ProTankiClient";
 import { ProTankiServer } from "../server/ProTankiServer";
-import { ChatService } from "../services/ChatService";
-import { ConfigService } from "../services/ConfigService";
-import { UserService } from "../services/UserService";
 import { FormatUtils } from "../utils/FormatUtils";
 import logger from "../utils/Logger";
 import { ResourceManager } from "../utils/ResourceManager";
@@ -29,7 +26,7 @@ import { ResourceManager } from "../utils/ResourceManager";
 export class LobbyWorkflow {
   public static async enterLobby(client: ProTankiClient, server: ProTankiServer): Promise<void> {
     const user = client.user!;
-    const configs = await server.configService.getAllConfigs();
+    const configService = server.configService;
 
     client.setState("lobby");
 
@@ -88,32 +85,25 @@ export class LobbyWorkflow {
 
     client.sendPacket(new ReferralInfo(user.referralHash, "s.pro-tanki.com"));
 
-    let linksWhitelist: string[] = [];
-    try {
-      linksWhitelist = JSON.parse(configs.chatLinksWhitelist || "[]");
-    } catch (e) {
-      logger.error("Failed to parse chatLinksWhitelist", { error: e });
-    }
-
     client.sendPacket(
       new ChatProperties({
         admin: user.chatModeratorLevel === ChatModeratorLevel.ADMINISTRATOR,
-        antifloodEnabled: configs.chatAntifloodEnabled === "true",
-        bufferSize: parseInt(configs.chatBufferSize || "60"),
-        chatEnabled: configs.chatEnabled === "true",
+        antifloodEnabled: configService.getChatAntifloodEnabled(),
+        bufferSize: configService.getChatBufferSize(),
+        chatEnabled: configService.getChatEnabled(),
         chatModeratorLevel: user.chatModeratorLevel,
-        linksWhiteList: linksWhitelist,
-        minChar: parseInt(configs.chatMinChar || "60"),
-        minWord: parseInt(configs.chatMinWord || "5"),
+        linksWhiteList: configService.getChatLinksWhitelist(),
+        minChar: configService.getChatMinChar(),
+        minWord: configService.getChatMinWord(),
         selfName: user.username,
-        showLinks: configs.chatShowLinks === "true",
-        typingSpeedAntifloodEnabled: configs.chatTypingSpeedAntifloodEnabled === "true",
+        showLinks: configService.getChatShowLinks(),
+        typingSpeedAntifloodEnabled: configService.getChatTypingSpeedAntifloodEnabled(),
       })
     );
 
-    client.sendPacket(new AntifloodSettings(parseInt(configs.chatCharDelayFactor || "176"), parseInt(configs.chatMessageBaseDelay || "880")));
+    client.sendPacket(new AntifloodSettings(configService.getChatCharDelayFactor(), configService.getChatMessageBaseDelay()));
 
-    const historyLimit = parseInt(configs.chatHistoryLimit || "70");
+    const historyLimit = configService.getChatHistoryLimit();
     const messages = await server.chatService.getChatHistory(historyLimit);
     const messageData: IChatMessageData[] = messages.map((msg) => ({
       message: msg.message,

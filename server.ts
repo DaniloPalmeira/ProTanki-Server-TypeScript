@@ -2,7 +2,7 @@ import { ProTankiServer } from "./src/server/ProTankiServer";
 import { ResourceServer } from "./src/server/ResourceServer";
 import dotenv from "dotenv";
 import { connectToDatabase, disconnectFromDatabase } from "./src/database";
-import { DEFAULT_MAX_CLIENTS, DEFAULT_PORT } from "./src/config/constants";
+import { DEFAULT_PORT } from "./src/config/constants";
 import { UserService } from "./src/services/UserService";
 import { ConfigService } from "./src/services/ConfigService";
 import { ResourceManager } from "./src/utils/ResourceManager";
@@ -39,33 +39,14 @@ async function bootstrap() {
   const defaultConfigs = JSON.parse(fs.readFileSync(configPath, "utf8"));
   await configService.initializeDefaultConfigs(defaultConfigs);
 
-  const configs = await configService.getAllConfigs();
-  const NEED_INVITE_CODE = configs.needInviteCode === "true";
-  const MAX_CLIENTS = configs.maxClients ? parseInt(configs.maxClients) : DEFAULT_MAX_CLIENTS;
-
-  const socialLinksJson = configs.socialAuthLinks || "{}";
-  let socialLinksObj: { [key: string]: string } = {};
-  try {
-    socialLinksObj = JSON.parse(socialLinksJson);
-  } catch (error) {
-    logger.error("Failed to parse socialAuthLinks from config", { error });
-  }
-
-  const socialNetworks = Object.entries(socialLinksObj)
-    .map(([key, url]) => {
-      if (typeof url === "string" && url.trim() !== "") {
-        return [url, key];
-      }
-      return null;
-    })
-    .filter((item): item is [string, string] => item !== null);
+  await configService.loadAndCacheConfigs();
 
   const server = new ProTankiServer(
     {
       port: PORT,
-      maxClients: MAX_CLIENTS,
-      needInviteCode: NEED_INVITE_CODE,
-      socialNetworks: socialNetworks,
+      maxClients: configService.getMaxClients(),
+      needInviteCode: configService.getNeedInviteCode(),
+      socialNetworks: configService.getSocialNetworksForServer(),
       loginForm: {
         bgResource: ResourceManager.getIdlowById("ui/login_background"),
         enableRequiredEmail: false,
