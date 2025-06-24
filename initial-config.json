@@ -12,5 +12,6 @@
   "chatMinWord": "5",
   "chatLinksWhitelist": "[\"http://example.com\"]",
   "chatCharDelayFactor": "176",
-  "chatMessageBaseDelay": "880"
+  "chatMessageBaseDelay": "880",
+  "chatHistoryLimit": "70"
 }
