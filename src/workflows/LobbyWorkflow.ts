@@ -9,7 +9,10 @@ import EmailInfo from "../packets/implementations/EmailInfo";
 import FriendsList from "../packets/implementations/FriendsList";
 import LocalizationInfo from "../packets/implementations/LocalizationInfo";
 import LobbyData from "../packets/implementations/LobbyData";
+import OnlineNotifierData from "../packets/implementations/OnlineNotifierData";
 import PremiumInfo from "../packets/implementations/PremiumInfo";
+import PremiumNotifierData from "../packets/implementations/PremiumNotifierData";
+import RankNotifierData from "../packets/implementations/RankNotifierData";
 import ReferralInfo from "../packets/implementations/ReferralInfo";
 import SetBattleInviteSound from "../packets/implementations/SetBattleInviteSound";
 import SetLayout from "../packets/implementations/SetLayout";
@@ -28,18 +31,15 @@ export class LobbyWorkflow {
     const user = client.user!;
     const configs = await ConfigService.getAllConfigs();
 
-    // 1. Mudar e confirmar layout
     client.sendPacket(new SetLayout(0));
     client.sendPacket(new ConfirmLayoutChange(0, 0));
 
-    // 2. Informações de Premium
     let premiumSecondsLeft = 0;
     if (user.premiumExpiresAt && user.premiumExpiresAt > new Date()) {
       premiumSecondsLeft = Math.round((user.premiumExpiresAt.getTime() - Date.now()) / 1000);
     }
     client.sendPacket(new PremiumInfo(premiumSecondsLeft));
 
-    // 3. Informações de Localização
     const countries: [string, string][] = [
       ["BR", "Brazil"],
       ["US", "United States"],
@@ -47,7 +47,6 @@ export class LobbyWorkflow {
     ];
     client.sendPacket(new LocalizationInfo(countries, "BR", true));
 
-    // 4. Dados do Usuário para o Painel (Patente, cristais, etc.)
     let crystalAbonementSecondsLeft = 0;
     if (user.crystalAbonementExpiresAt && user.crystalAbonementExpiresAt > new Date()) {
       crystalAbonementSecondsLeft = Math.round((user.crystalAbonementExpiresAt.getTime() - Date.now()) / 1000);
@@ -70,15 +69,12 @@ export class LobbyWorkflow {
       })
     );
 
-    // 5. Informações de E-mail
     const maskedEmail = user.email ? FormatUtils.maskEmail(user.email) : null;
     client.sendPacket(new EmailInfo(maskedEmail, user.emailConfirmed));
 
-    // 6. Som de convite para batalha
     const battleInviteSoundId = ResourceManager.getIdlowById("sounds/notifications/battle_invite");
     client.sendPacket(new SetBattleInviteSound(battleInviteSoundId));
 
-    // 7. Dicas de conquistas para novos jogadores
     const tipsToSend: Achievement[] = [];
     if (!user.unlockedAchievements.includes(Achievement.FIRST_PURCHASE)) {
       tipsToSend.push(Achievement.FIRST_PURCHASE);
@@ -88,10 +84,8 @@ export class LobbyWorkflow {
     }
     client.sendPacket(new AchievementTips(tipsToSend));
 
-    // 8. Informações de Referência
     client.sendPacket(new ReferralInfo(user.referralHash, "s.pro-tanki.com"));
 
-    // 9. Propriedades do Chat
     let linksWhitelist: string[] = [];
     try {
       linksWhitelist = JSON.parse(configs.chatLinksWhitelist || "[]");
@@ -115,10 +109,8 @@ export class LobbyWorkflow {
       })
     );
 
-    // 10. Configurações de Anti-flood
     client.sendPacket(new AntifloodSettings(parseInt(configs.chatCharDelayFactor || "176"), parseInt(configs.chatMessageBaseDelay || "880")));
 
-    // 11. Histórico do Chat
     const historyLimit = parseInt(configs.chatHistoryLimit || "70");
     const messages = await ChatService.getChatHistory(historyLimit);
     const messageData: IChatMessageData[] = messages.map((msg) => ({
@@ -150,5 +142,25 @@ export class LobbyWorkflow {
 
     const friendsData = await UserService.getFriendsData(client.user.id);
     client.sendPacket(new FriendsList(friendsData));
+  }
+
+  public static async sendFullUserInfo(client: ProTankiClient, server: ProTankiServer, targetNickname: string): Promise<void> {
+    const targetUser = await UserService.findUserByUsername(targetNickname);
+    if (!targetUser) {
+      logger.warn(`User info requested for non-existent user: ${targetNickname}`);
+      return;
+    }
+
+    const targetClient = server.findClientByUsername(targetNickname);
+    const isOnline = !!targetClient;
+
+    client.sendPacket(new OnlineNotifierData(isOnline, 1, targetUser.username));
+    client.sendPacket(new RankNotifierData(targetUser.rank, targetUser.username));
+
+    let premiumSecondsLeft = -1;
+    if (targetUser.premiumExpiresAt && targetUser.premiumExpiresAt > new Date()) {
+      premiumSecondsLeft = Math.round((targetUser.premiumExpiresAt.getTime() - Date.now()) / 1000);
+    }
+    client.sendPacket(new PremiumNotifierData(premiumSecondsLeft, targetUser.username));
   }
 }

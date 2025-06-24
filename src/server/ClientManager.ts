@@ -24,6 +24,11 @@ export class ClientManager {
     return this.clients.find((c) => c.getRemoteAddress() === ip);
   }
 
+  public findClientByUsername(username: string): ProTankiClient | undefined {
+    const lowerCaseUsername = username.toLowerCase();
+    return this.clients.find((c) => c.user?.username.toLowerCase() === lowerCaseUsername);
+  }
+
   public sendToLobbyClients(packet: IPacket): void {
     this.clients.forEach((client) => {
       if (client.getState() === "lobby") {

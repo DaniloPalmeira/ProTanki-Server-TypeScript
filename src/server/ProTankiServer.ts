@@ -100,6 +100,10 @@ export class ProTankiServer {
     return this.clientManager.findClientByIp(ip);
   }
 
+  public findClientByUsername(username: string): ProTankiClient | undefined {
+    return this.clientManager.findClientByUsername(username);
+  }
+
   public getNeedInviteCode(): boolean {
     return this.needInviteCode;
   }
