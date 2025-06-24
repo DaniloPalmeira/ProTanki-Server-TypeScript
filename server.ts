@@ -3,7 +3,6 @@ import { ResourceServer } from "./src/server/ResourceServer";
 import dotenv from "dotenv";
 import { connectToDatabase, disconnectFromDatabase } from "./src/database";
 import { DEFAULT_MAX_CLIENTS, DEFAULT_PORT } from "./src/config/constants";
-import { InviteService } from "./src/services/InviteService";
 import { UserService } from "./src/services/UserService";
 import { ConfigService } from "./src/services/ConfigService";
 import { ResourceManager } from "./src/utils/ResourceManager";
@@ -11,46 +10,16 @@ import logger from "./src/utils/Logger";
 import fs from "fs";
 import path from "path";
 import { DebugConsole } from "./src/console/DebugConsole";
+import { CommandService } from "./src/commands/CommandService";
 
 dotenv.config();
 
 const PORT = process.env.PORT ? parseInt(process.env.PORT) : DEFAULT_PORT;
 
-async function seedTestData(): Promise<void> {
-  const testInviteCodes: string[] = [];
-  for (let i = 0; i < 5; i++) {
-    try {
-      const code = await InviteService.createInviteCode();
-      testInviteCodes.push(code);
-    } catch (error) {
-      logger.error("Erro ao gerar código de teste", { error });
-      throw error;
-    }
-  }
-  logger.info("Códigos de convite de teste gerados", { codes: testInviteCodes });
-
-  const testUsers = [
-    { username: "player1", password: "password123", email: "player1@example.com" },
-    { username: "player2", password: "password123", email: "player2@example.com" },
-  ];
-
-  for (const userData of testUsers) {
-    try {
-      await UserService.createUser(userData);
-    } catch (error: any) {
-      if (error.message.includes("already exists")) {
-        logger.warn(`Usuário de teste ${userData.username} já existe, pulando.`);
-      } else {
-        logger.error(`Erro ao criar usuário de teste ${userData.username}`, { error });
-        throw error;
-      }
-    }
-  }
-  logger.info("Usuários de teste criados", { users: testUsers.map((u) => u.username) });
-}
-
 async function bootstrap() {
   logger.info("Starting server initialization");
+
+  CommandService.init();
 
   ResourceManager.loadResources();
   logger.info("Resource configurations loaded");
@@ -83,9 +52,6 @@ async function bootstrap() {
     })
     .filter((item): item is [string, string] => item !== null);
 
-  logger.info("Seeding test data");
-  await seedTestData();
-
   const server = new ProTankiServer({
     port: PORT,
     maxClients: MAX_CLIENTS,
@@ -100,7 +66,6 @@ async function bootstrap() {
   });
 
   const resourceServer = new ResourceServer();
-
   const debugConsole = new DebugConsole(server);
 
   logger.info("Starting ProTanki and Resource servers");
@@ -140,11 +105,5 @@ async function bootstrap() {
     const errorDetails = error instanceof Error ? { message: error.message, stack: error.stack } : { message: String(error), stack: undefined };
 
     logger.error("Failed to bootstrap server", { error: errorDetails });
-
-    logger.on("finish", () => {
-      logger.info("Logger flushed and closed due to startup error");
-      setTimeout(() => process.exit(1), 1000);
-    });
-    logger.end();
   }
 })();

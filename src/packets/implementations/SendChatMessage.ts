@@ -7,6 +7,8 @@ import { ConfigService } from "../../services/ConfigService";
 import ChatHistory from "./ChatHistory";
 import { IChatMessageData } from "../interfaces/IChatHistory";
 import logger from "../../utils/Logger";
+import { CommandContext } from "../../commands/ICommand";
+import { CommandService } from "../../commands/CommandService";
 
 export default class SendChatMessage extends BasePacket implements ISendChatMessage {
   targetNickname: string | null = null;
@@ -42,6 +44,30 @@ export default class SendChatMessage extends BasePacket implements ISendChatMess
       return;
     }
 
+    // É um comando?
+    if (this.message.startsWith("/")) {
+      const replyFunction = (message: string) => {
+        const replyData: IChatMessageData = {
+          message,
+          isSystem: true,
+          isWarning: false,
+          source: null,
+          target: null,
+        };
+        const replyPacket = new ChatHistory([replyData]);
+        client.sendPacket(replyPacket);
+      };
+
+      const context: CommandContext = {
+        executor: client,
+        server: server,
+        reply: replyFunction,
+      };
+      await CommandService.process(this.message, context);
+      return;
+    }
+
+    // Se não, é uma mensagem de chat normal
     const configs = await ConfigService.getAllConfigs();
     const antifloodEnabled = configs.chatAntifloodEnabled === "true";
 
@@ -70,7 +96,7 @@ export default class SendChatMessage extends BasePacket implements ISendChatMess
             uid: populatedMessage.sourceUser.username,
             rank: populatedMessage.sourceUser.rank,
             moderatorLevel: populatedMessage.sourceUser.chatModeratorLevel,
-            ip: " ",
+            ip: null,
           }
         : null,
       target: populatedMessage.targetUser
@@ -78,13 +104,12 @@ export default class SendChatMessage extends BasePacket implements ISendChatMess
             uid: populatedMessage.targetUser.username,
             rank: populatedMessage.targetUser.rank,
             moderatorLevel: populatedMessage.targetUser.chatModeratorLevel,
-            ip: " ",
+            ip: null,
           }
         : null,
     };
 
     const packetToSend = new ChatHistory([messageData]);
-
     server.broadcastToLobby(packetToSend);
   }
 
