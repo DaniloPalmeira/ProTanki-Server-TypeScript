@@ -39,7 +39,12 @@ export interface UserDocument extends UserAttributes, Document {
 const UserSchema = new Schema<UserDocument>({
   username: { type: String, required: true, unique: true, trim: true, minlength: 3, maxlength: 50, match: /^[a-zA-Z0-9]+$/ },
   password: { type: String, required: true, minlength: 3 },
-  email: { type: String, trim: true, lowercase: true, unique: true, sparse: true, match: [/.+\@.+\..+/, "Please fill a valid email address"], default: null },
+  email: {
+    type: String,
+    trim: true,
+    lowercase: true,
+    default: null,
+  },
   emailConfirmed: { type: Boolean, default: false },
   crystals: { type: Number, default: 0, min: 0 },
   experience: { type: Number, default: 0, min: 0 },
@@ -64,6 +69,17 @@ const UserSchema = new Schema<UserDocument>({
   createdAt: { type: Date, default: Date.now },
   lastLogin: { type: Date, default: null },
 });
+
+// Criando um índice parcial para o campo de e-mail
+// Isso garante que o e-mail seja único, mas apenas para documentos que possuem o campo de e-mail.
+// Documentos com e-mail nulo são ignorados por este índice.
+UserSchema.index(
+  { email: 1 },
+  {
+    unique: true,
+    partialFilterExpression: { email: { $type: "string" } },
+  }
+);
 
 UserSchema.pre<UserDocument>("save", function (next: (error?: Error) => void) {
   if (!this.isModified("password")) {
