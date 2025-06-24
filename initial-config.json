@@ -1,6 +1,14 @@
 {
-    "needInviteCode": "false",
-    "maxClients": "10",
-    "captchaLocations": "[]",
-    "socialAuthLinks": "{\"google\":\"\",\"facebook\":\"\",\"vkontakte\":\"\"}"
+  "needInviteCode": "false",
+  "maxClients": "10",
+  "captchaLocations": "[]",
+  "socialAuthLinks": "{\"google\":\"https://www.google.com\",\"facebook\":\"https://www.facebook.com\",\"vkontakte\":\"https://vk.com\"}",
+  "chatEnabled": "true",
+  "chatAntifloodEnabled": "true",
+  "chatTypingSpeedAntifloodEnabled": "true",
+  "chatShowLinks": "true",
+  "chatBufferSize": "60",
+  "chatMinChar": "60",
+  "chatMinWord": "5",
+  "chatLinksWhitelist": "[\"http://example.com\"]"
 }

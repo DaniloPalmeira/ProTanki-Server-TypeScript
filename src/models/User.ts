@@ -1,6 +1,7 @@
 import mongoose, { Schema, model, Document } from "mongoose";
 import bcrypt from "bcrypt";
 import { Achievement } from "./enums/Achievement";
+import { ChatModeratorLevel } from "./enums/ChatModeratorLevel";
 
 export interface UserAttributes {
   username: string;
@@ -25,6 +26,7 @@ export interface UserAttributes {
   friendRequestsReceived: mongoose.Types.ObjectId[];
   unlockedAchievements: number[];
   referralHash: string;
+  chatModeratorLevel: ChatModeratorLevel;
   createdAt?: Date;
   lastLogin?: Date | null;
 }
@@ -142,6 +144,11 @@ const UserSchema = new Schema<UserDocument>({
     type: String,
     required: true,
     unique: true,
+  },
+  chatModeratorLevel: {
+    type: Number,
+    enum: Object.values(ChatModeratorLevel),
+    default: ChatModeratorLevel.NONE,
   },
   createdAt: {
     type: Date,

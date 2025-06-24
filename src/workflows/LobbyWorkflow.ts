@@ -1,5 +1,7 @@
 import { Achievement } from "../models/enums/Achievement";
+import { ChatModeratorLevel } from "../models/enums/ChatModeratorLevel";
 import AchievementTips from "../packets/implementations/AchievementTips";
+import ChatProperties from "../packets/implementations/ChatProperties";
 import ConfirmLayoutChange from "../packets/implementations/ConfirmLayoutChange";
 import EmailInfo from "../packets/implementations/EmailInfo";
 import FriendsList from "../packets/implementations/FriendsList";
@@ -11,13 +13,16 @@ import SetBattleInviteSound from "../packets/implementations/SetBattleInviteSoun
 import SetLayout from "../packets/implementations/SetLayout";
 import { ProTankiClient } from "../server/ProTankiClient";
 import { ProTankiServer } from "../server/ProTankiServer";
+import { ConfigService } from "../services/ConfigService";
 import { UserService } from "../services/UserService";
 import { FormatUtils } from "../utils/FormatUtils";
+import logger from "../utils/Logger";
 import { ResourceManager } from "../utils/ResourceManager";
 
 export class LobbyWorkflow {
   public static async enterLobby(client: ProTankiClient, server: ProTankiServer): Promise<void> {
     const user = client.user!;
+    const configs = await ConfigService.getAllConfigs();
 
     client.sendPacket(new SetLayout(0));
     client.sendPacket(new ConfirmLayoutChange(0, 0));
@@ -73,6 +78,29 @@ export class LobbyWorkflow {
     client.sendPacket(new AchievementTips(tipsToSend));
 
     client.sendPacket(new ReferralInfo(user.referralHash, "s.pro-tanki.com"));
+
+    let linksWhitelist: string[] = [];
+    try {
+      linksWhitelist = JSON.parse(configs.chatLinksWhitelist || "[]");
+    } catch (e) {
+      logger.error("Failed to parse chatLinksWhitelist", { error: e });
+    }
+
+    client.sendPacket(
+      new ChatProperties({
+        admin: user.chatModeratorLevel === ChatModeratorLevel.ADMINISTRATOR,
+        antifloodEnabled: configs.chatAntifloodEnabled === "true",
+        bufferSize: parseInt(configs.chatBufferSize || "60"),
+        chatEnabled: configs.chatEnabled === "true",
+        chatModeratorLevel: user.chatModeratorLevel,
+        linksWhiteList: linksWhitelist,
+        minChar: parseInt(configs.chatMinChar || "60"),
+        minWord: parseInt(configs.chatMinWord || "5"),
+        selfName: user.username,
+        showLinks: configs.chatShowLinks === "true",
+        typingSpeedAntifloodEnabled: configs.chatTypingSpeedAntifloodEnabled === "true",
+      })
+    );
   }
 
   public static async sendFriendsList(client: ProTankiClient, server: ProTankiServer): Promise<void> {
