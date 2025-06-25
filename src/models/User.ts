@@ -24,6 +24,8 @@ export interface UserAttributes {
   friends: mongoose.Types.ObjectId[];
   friendRequestsSent: mongoose.Types.ObjectId[];
   friendRequestsReceived: mongoose.Types.ObjectId[];
+  newFriends: mongoose.Types.ObjectId[];
+  newFriendRequests: mongoose.Types.ObjectId[];
   unlockedAchievements: number[];
   referralHash: string;
   referredBy: mongoose.Types.ObjectId | null;
@@ -64,6 +66,8 @@ const UserSchema = new Schema<UserDocument>({
   friends: [{ type: Schema.Types.ObjectId, ref: "User" }],
   friendRequestsSent: [{ type: Schema.Types.ObjectId, ref: "User" }],
   friendRequestsReceived: [{ type: Schema.Types.ObjectId, ref: "User" }],
+  newFriends: [{ type: Schema.Types.ObjectId, ref: "User" }],
+  newFriendRequests: [{ type: Schema.Types.ObjectId, ref: "User" }],
   unlockedAchievements: { type: [Number], default: [] },
   referralHash: { type: String, required: true, unique: true },
   referredBy: { type: Schema.Types.ObjectId, ref: "User", default: null },

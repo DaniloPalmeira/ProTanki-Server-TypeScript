@@ -23,6 +23,7 @@ export default class DeclineAllFriendRequestsHandler implements IPacketHandler<D
 
         const senderClient = server.findClientByUsername(sender.username);
         if (senderClient) {
+          senderClient.user = sender;
           senderClient.sendPacket(new FriendRequestCanceledOrDeclined(client.user.username));
         }
       }

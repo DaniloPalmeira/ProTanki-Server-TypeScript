@@ -10,21 +10,21 @@ export default class CancelFriendRequestHandler implements IPacketHandler<Cancel
   public readonly packetId = CancelFriendRequest.getId();
 
   public async execute(client: ProTankiClient, server: ProTankiServer, packet: CancelFriendRequest): Promise<void> {
-    if (!client.user) {
-      logger.warn("CancelFriendRequest received from unauthenticated client.", { client: client.getRemoteAddress() });
-      return;
-    }
-
-    const targetNickname = packet.nickname;
-    if (!targetNickname) {
+    if (!client.user || !packet.nickname) {
       return;
     }
 
     try {
-      await server.userService.cancelFriendRequest(client.user, targetNickname);
-      client.sendPacket(new FriendRequestCanceledOrDeclined(targetNickname));
+      const targetUser = await server.userService.cancelFriendRequest(client.user, packet.nickname);
+      client.sendPacket(new FriendRequestCanceledOrDeclined(targetUser.username));
+
+      const targetClient = server.findClientByUsername(targetUser.username);
+      if (targetClient) {
+        targetClient.user = targetUser;
+        targetClient.sendPacket(new FriendRequestCanceledOrDeclined(client.user.username));
+      }
     } catch (error: any) {
-      logger.error(`Failed to cancel friend request from ${client.user.username} to ${targetNickname}`, {
+      logger.error(`Failed to cancel friend request from ${client.user.username} to ${packet.nickname}`, {
         error: error.message,
         client: client.getRemoteAddress(),
       });

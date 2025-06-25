@@ -10,27 +10,28 @@ export default class AcceptFriendRequestHandler implements IPacketHandler<Accept
   public readonly packetId = AcceptFriendRequest.getId();
 
   public async execute(client: ProTankiClient, server: ProTankiServer, packet: AcceptFriendRequest): Promise<void> {
-    if (!client.user) {
-      logger.warn("AcceptFriendRequest received from unauthenticated client.", { client: client.getRemoteAddress() });
-      return;
-    }
-
-    const senderNickname = packet.nickname;
-    if (!senderNickname) {
+    const currentUser = client.user;
+    if (!currentUser || !packet.nickname) {
+      logger.warn("AcceptFriendRequest received from unauthenticated or incomplete client.", { client: client.getRemoteAddress() });
       return;
     }
 
     try {
-      const senderUser = await server.userService.acceptFriendRequest(client.user, senderNickname);
+      const senderUser = await server.userService.acceptFriendRequest(currentUser, packet.nickname);
 
+      const updatedUser = await server.userService.findUserByUsername(currentUser.username);
+      if (updatedUser) {
+        client.user = updatedUser;
+      }
       client.sendPacket(new FriendRequestAccepted(senderUser.username));
 
       const senderClient = server.findClientByUsername(senderUser.username);
       if (senderClient) {
-        senderClient.sendPacket(new FriendRequestAccepted(client.user.username));
+        senderClient.user = senderUser;
+        senderClient.sendPacket(new FriendRequestAccepted(currentUser.username));
       }
     } catch (error: any) {
-      logger.error(`Failed to accept friend request for ${client.user.username} from ${senderNickname}`, {
+      logger.error(`Failed to accept friend request for ${currentUser.username} from ${packet.nickname}`, {
         error: error.message,
         client: client.getRemoteAddress(),
       });
