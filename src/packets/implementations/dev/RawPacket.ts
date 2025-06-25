@@ -23,7 +23,11 @@ export default class RawPacket extends BasePacket implements IPacket {
     return `RawPacket(id=${this.id}, payload=${this.data.toString("hex")})`;
   }
 
-  static getId(): number {
+  getId(): number {
     return this.id;
+  }
+
+  static getId(): number {
+    throw new Error("RawPacket does not have a static ID. Use the instance's getId() method.");
   }
 }
