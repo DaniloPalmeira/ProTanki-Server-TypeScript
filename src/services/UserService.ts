@@ -216,6 +216,34 @@ export class UserService {
     return senderUser;
   }
 
+  public async acceptFriendRequest(user: UserDocument, senderNickname: string): Promise<UserDocument> {
+    const senderUser = await this.findUserByUsername(senderNickname);
+
+    if (!senderUser) {
+      throw new Error(`Usuário "${senderNickname}" não encontrado.`);
+    }
+
+    const userId = user._id as mongoose.Types.ObjectId;
+    const senderId = senderUser._id as mongoose.Types.ObjectId;
+
+    if (!user.friendRequestsReceived.some((id) => id.equals(senderId))) {
+      throw new Error(`Nenhum pedido de amizade de "${senderNickname}" para aceitar.`);
+    }
+
+    user.friendRequestsReceived = user.friendRequestsReceived.filter((id) => !id.equals(senderId));
+    senderUser.friendRequestsSent = senderUser.friendRequestsSent.filter((id) => !id.equals(userId));
+
+    user.friends.push(senderId);
+    senderUser.friends.push(userId);
+
+    await user.save();
+    await senderUser.save();
+
+    logger.info(`User ${user.username} accepted friend request from ${senderUser.username}. They are now friends.`);
+
+    return senderUser;
+  }
+
   public async getFriendsData(userId: string): Promise<IFriendsListProps> {
     const user = await User.findById(userId).populate("friends", "username").populate("friendRequestsSent", "username").populate("friendRequestsReceived", "username").exec();
 
