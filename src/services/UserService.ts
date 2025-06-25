@@ -150,6 +150,29 @@ export class UserService {
     logger.info(`Friend request sent from ${senderUser.username} to ${targetUser.username}`);
   }
 
+  public async declineAllFriendRequests(user: UserDocument): Promise<string[]> {
+    const populatedUser = await user.populate<{ friendRequestsReceived: UserDocument[] }>("friendRequestsReceived", "username");
+
+    const receivedRequests = populatedUser.friendRequestsReceived;
+    if (receivedRequests.length === 0) {
+      return [];
+    }
+
+    const declinedNicknames: string[] = receivedRequests.map((sender) => sender.username);
+    const senderIds: mongoose.Types.ObjectId[] = receivedRequests.map((sender) => sender._id as mongoose.Types.ObjectId);
+
+    user.friendRequestsReceived = [];
+    await user.save();
+
+    await User.updateMany({ _id: { $in: senderIds } }, { $pull: { friendRequestsSent: user._id as mongoose.Types.ObjectId } });
+
+    logger.info(`User ${user.username} declined all ${declinedNicknames.length} friend requests.`, {
+      declined: declinedNicknames,
+    });
+
+    return declinedNicknames;
+  }
+
   public async getFriendsData(userId: string): Promise<IFriendsListProps> {
     const user = await User.findById(userId).populate("friends", "username").populate("friendRequestsSent", "username").populate("friendRequestsReceived", "username").exec();
 
