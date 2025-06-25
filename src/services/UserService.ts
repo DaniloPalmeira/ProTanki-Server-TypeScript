@@ -150,15 +150,36 @@ export class UserService {
     logger.info(`Friend request sent from ${senderUser.username} to ${targetUser.username}`);
   }
 
-  public async declineAllFriendRequests(user: UserDocument): Promise<string[]> {
-    const populatedUser = await user.populate<{ friendRequestsReceived: UserDocument[] }>("friendRequestsReceived", "username");
+  public async cancelFriendRequest(senderUser: UserDocument, targetNickname: string): Promise<void> {
+    const targetUser = await this.findUserByUsername(targetNickname);
+    if (!targetUser) {
+      throw new Error(`Usuário "${targetNickname}" não encontrado.`);
+    }
+
+    const senderId = senderUser._id as mongoose.Types.ObjectId;
+    const targetId = targetUser._id as mongoose.Types.ObjectId;
+
+    if (!senderUser.friendRequestsSent.some((id) => id.equals(targetId))) {
+      throw new Error(`Você não enviou um pedido de amizade para "${targetNickname}".`);
+    }
+
+    senderUser.friendRequestsSent = senderUser.friendRequestsSent.filter((id) => !id.equals(targetId));
+    targetUser.friendRequestsReceived = targetUser.friendRequestsReceived.filter((id) => !id.equals(senderId));
+
+    await senderUser.save();
+    await targetUser.save();
+
+    logger.info(`User ${senderUser.username} canceled friend request to ${targetUser.username}.`);
+  }
+
+  public async declineAllFriendRequests(user: UserDocument): Promise<UserDocument[]> {
+    const populatedUser = await user.populate<{ friendRequestsReceived: UserDocument[] }>("friendRequestsReceived");
 
     const receivedRequests = populatedUser.friendRequestsReceived;
     if (receivedRequests.length === 0) {
       return [];
     }
 
-    const declinedNicknames: string[] = receivedRequests.map((sender) => sender.username);
     const senderIds: mongoose.Types.ObjectId[] = receivedRequests.map((sender) => sender._id as mongoose.Types.ObjectId);
 
     user.friendRequestsReceived = [];
@@ -166,14 +187,12 @@ export class UserService {
 
     await User.updateMany({ _id: { $in: senderIds } }, { $pull: { friendRequestsSent: user._id as mongoose.Types.ObjectId } });
 
-    logger.info(`User ${user.username} declined all ${declinedNicknames.length} friend requests.`, {
-      declined: declinedNicknames,
-    });
+    logger.info(`User ${user.username} declined all ${receivedRequests.length} friend requests.`);
 
-    return declinedNicknames;
+    return receivedRequests;
   }
 
-  public async declineFriendRequest(user: UserDocument, senderNickname: string): Promise<void> {
+  public async declineFriendRequest(user: UserDocument, senderNickname: string): Promise<UserDocument> {
     const senderUser = await this.findUserByUsername(senderNickname);
 
     if (!senderUser) {
@@ -183,9 +202,7 @@ export class UserService {
     const userId = user._id as mongoose.Types.ObjectId;
     const senderId = senderUser._id as mongoose.Types.ObjectId;
 
-    const requestIndex = user.friendRequestsReceived.findIndex((id) => id.equals(senderId));
-
-    if (requestIndex === -1) {
+    if (!user.friendRequestsReceived.some((id) => id.equals(senderId))) {
       throw new Error(`Nenhum pedido de amizade de "${senderNickname}" para ser recusado.`);
     }
 
@@ -196,6 +213,7 @@ export class UserService {
     await senderUser.save();
 
     logger.info(`User ${user.username} declined friend request from ${senderUser.username}.`);
+    return senderUser;
   }
 
   public async getFriendsData(userId: string): Promise<IFriendsListProps> {
