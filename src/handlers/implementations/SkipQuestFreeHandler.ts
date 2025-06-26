@@ -21,13 +21,13 @@ export default class SkipQuestFreeHandler implements IPacketHandler<SkipQuestFre
     try {
       const result = await server.questService.rerollQuest(currentUser, packet.missionId, false);
 
-      const definition = QuestDefinitions.find((def) => def.id === result.newQuest.definitionId);
+      const definition = QuestDefinitions.find((def) => def.type === result.newQuest.questType);
       if (!definition) throw new Error("New quest definition not found after reroll.");
 
       const newQuestPacketData: IQuest = {
         canSkipForFree: result.newQuest.canSkipForFree,
-        description: definition.description,
-        finishCriteria: definition.finishCriteria,
+        description: definition.description.replace("%n", result.newQuest.finishCriteria.toString()),
+        finishCriteria: result.newQuest.finishCriteria,
         image: ResourceManager.getIdlowById(definition.imageResource),
         progress: result.newQuest.progress,
         questId: result.newQuest.questId,

@@ -2,24 +2,32 @@ import mongoose, { Schema, model, Document } from "mongoose";
 import bcrypt from "bcrypt";
 import { Achievement } from "./enums/Achievement";
 import { ChatModeratorLevel } from "./enums/ChatModeratorLevel";
+import { QuestDifficulty, QuestType } from "../config/QuestData";
 
 export interface IUserQuest {
   questId: number;
-  definitionId: string;
+  questType: QuestType;
+  difficulty: QuestDifficulty;
   progress: number;
+  finishCriteria: number;
   prizes: { itemName: string; itemCount: number }[];
   isCompleted: boolean;
   canSkipForFree: boolean;
 }
 
-const UserQuestSchema = new Schema<IUserQuest>({
-  questId: { type: Number, required: true },
-  definitionId: { type: String, required: true },
-  progress: { type: Number, default: 0 },
-  prizes: [{ itemName: { type: String, required: true }, itemCount: Number }],
-  isCompleted: { type: Boolean, default: false },
-  canSkipForFree: { type: Boolean, default: true },
-});
+const UserQuestSchema = new Schema<IUserQuest>(
+  {
+    questId: { type: Number, required: true },
+    questType: { type: String, required: true, enum: ["KILLS", "SCORE", "CRYSTALS"] },
+    difficulty: { type: String, required: true, enum: ["easy", "medium", "hard"] },
+    progress: { type: Number, default: 0 },
+    finishCriteria: { type: Number, required: true },
+    prizes: [{ itemName: { type: String, required: true }, itemCount: { type: Number, required: true } }],
+    isCompleted: { type: Boolean, default: false },
+    canSkipForFree: { type: Boolean, default: true },
+  },
+  { _id: false }
+);
 
 export interface UserAttributes {
   username: string;
