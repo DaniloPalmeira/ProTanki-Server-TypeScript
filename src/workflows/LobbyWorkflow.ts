@@ -81,7 +81,8 @@ export class LobbyWorkflow {
 
   private static sendInitialSettings(client: ProTankiClient, server: ProTankiServer): void {
     const countries = server.configService.getShopEnabledCountries();
-    client.sendPacket(new LocalizationInfo(countries, "BR", true));
+    const locationSwitchingEnabled = server.configService.getShopLocationSwitchingEnabled();
+    client.sendPacket(new LocalizationInfo(countries, "BR", locationSwitchingEnabled));
 
     const battleInviteSoundId = ResourceManager.getIdlowById("sounds/notifications/battle_invite");
     client.sendPacket(new SetBattleInviteSound(battleInviteSoundId));

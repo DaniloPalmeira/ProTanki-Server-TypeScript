@@ -109,6 +109,8 @@ export class ConfigService {
     }
   };
 
+  public getShopLocationSwitchingEnabled = (): boolean => this.cachedConfigs.shopLocationSwitchingEnabled === "true";
+
   public getSocialNetworksForServer = (): [string, string][] => {
     const socialLinksObj = this.getSocialAuthLinks();
     return Object.entries(socialLinksObj)
