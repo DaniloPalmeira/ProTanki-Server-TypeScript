@@ -8,6 +8,7 @@ import ReplaceQuest from "../../packets/implementations/ReplaceQuest";
 import { IQuest } from "../../packets/interfaces/IShowQuestsWindow";
 import { QuestDefinitions } from "../../config/QuestData";
 import { ResourceManager } from "../../utils/ResourceManager";
+import UpdateCrystals from "../../packets/implementations/UpdateCrystals";
 
 export default class SkipQuestPaidHandler implements IPacketHandler<SkipQuestPaid> {
   public readonly packetId = SkipQuestPaid.getId();
@@ -35,11 +36,15 @@ export default class SkipQuestPaidHandler implements IPacketHandler<SkipQuestPai
         prizes: result.newQuest.prizes,
       };
 
-      client.sendPacket(new ReplaceQuest(result.oldQuestId, newQuestPacketData));
-
       const updatedUser = await server.userService.findUserByUsername(currentUser.username);
       if (updatedUser) {
         client.user = updatedUser;
+      }
+
+      client.sendPacket(new ReplaceQuest(result.oldQuestId, newQuestPacketData));
+
+      if (client.user) {
+        client.sendPacket(new UpdateCrystals(client.user.crystals));
       }
     } catch (error: any) {
       logger.error(`Failed to skip quest with payment for user ${currentUser.username}`, { error: error.message });
