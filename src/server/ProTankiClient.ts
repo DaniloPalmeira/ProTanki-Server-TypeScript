@@ -29,6 +29,10 @@ export class ProTankiClient {
   private packetQueue: PacketQueueItem[] = [];
   private isProcessingQueue: boolean = false;
 
+  public isInFlowMode: boolean = false;
+  public flowTarget: string | null = null;
+  public flowPayloadHex: string | null = null;
+
   constructor({ socket, server }: IClientOptions) {
     this.socket = socket;
     this.server = server;
