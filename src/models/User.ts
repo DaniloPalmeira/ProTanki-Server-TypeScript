@@ -9,6 +9,7 @@ export interface IUserQuest {
   progress: number;
   prizes: { itemName: string; itemCount: number }[];
   isCompleted: boolean;
+  canSkipForFree: boolean;
 }
 
 const UserQuestSchema = new Schema<IUserQuest>({
@@ -17,6 +18,7 @@ const UserQuestSchema = new Schema<IUserQuest>({
   progress: { type: Number, default: 0 },
   prizes: [{ itemName: { type: String, required: true }, itemCount: Number }],
   isCompleted: { type: Boolean, default: false },
+  canSkipForFree: { type: Boolean, default: true },
 });
 
 export interface UserAttributes {
