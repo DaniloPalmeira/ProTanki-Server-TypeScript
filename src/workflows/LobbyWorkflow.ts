@@ -59,14 +59,14 @@ export class LobbyWorkflow {
     client.sendPacket(
       new LobbyData({
         crystals: user.crystals,
-        currentRankScore: user.score,
+        currentRankScore: user.experience,
         durationCrystalAbonement: crystalAbonementSecondsLeft,
         hasDoubleCrystal: user.hasDoubleCrystal,
         nextRankScore: user.nextRankScore,
         place: 0,
         rank: user.rank,
         rating: 0,
-        score: user.score,
+        score: user.experience,
         serverNumber: 1,
         nickname: user.username,
         userProfileUrl: "http://ratings.example.com/pt_br/user/",

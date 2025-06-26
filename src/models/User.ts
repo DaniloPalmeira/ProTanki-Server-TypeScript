@@ -10,7 +10,6 @@ export interface UserAttributes {
   emailConfirmed: boolean;
   crystals: number;
   experience: number;
-  level: number;
   isActive: boolean;
   isPunished: boolean;
   punishmentExpiresAt: Date | null;
@@ -18,7 +17,6 @@ export interface UserAttributes {
   hasDoubleCrystal: boolean;
   premiumExpiresAt: Date | null;
   rank: number;
-  score: number;
   nextRankScore: number;
   crystalAbonementExpiresAt: Date | null;
   friends: mongoose.Types.ObjectId[];
@@ -52,7 +50,6 @@ const UserSchema = new Schema<UserDocument>({
   emailConfirmed: { type: Boolean, default: false },
   crystals: { type: Number, default: 0, min: 0 },
   experience: { type: Number, default: 0, min: 0 },
-  level: { type: Number, default: 1, min: 1 },
   isActive: { type: Boolean, default: true },
   isPunished: { type: Boolean, default: false },
   punishmentExpiresAt: { type: Date, default: null },
@@ -60,7 +57,6 @@ const UserSchema = new Schema<UserDocument>({
   hasDoubleCrystal: { type: Boolean, default: false },
   premiumExpiresAt: { type: Date, default: null },
   rank: { type: Number, default: 1 },
-  score: { type: Number, default: 0 },
   nextRankScore: { type: Number, default: 100 },
   crystalAbonementExpiresAt: { type: Date, default: null },
   friends: [{ type: Schema.Types.ObjectId, ref: "User" }],

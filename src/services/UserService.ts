@@ -4,6 +4,7 @@ import logger from "../utils/Logger";
 import { IFriendsListProps } from "../packets/interfaces/IFriendsList";
 import crypto from "crypto";
 import mongoose from "mongoose";
+import { RankService } from "./RankService";
 
 export interface UserCreationAttributes {
   username: string;
@@ -11,11 +12,15 @@ export interface UserCreationAttributes {
   email?: string | null;
   crystals?: number;
   experience?: number;
-  level?: number;
-  isActive?: boolean;
 }
 
 export class UserService {
+  private rankService: RankService;
+
+  constructor(rankService: RankService) {
+    this.rankService = rankService;
+  }
+
   public async findUserByUsername(username: string): Promise<UserDocument | null> {
     try {
       return await User.findOne({
@@ -96,15 +101,18 @@ export class UserService {
         }
       }
 
+      const initialRankData = this.rankService.getInitialRankData();
+
       const user = new User({
         username: attributes.username,
         password: attributes.password,
         email: attributes.email,
         emailConfirmed: false,
         crystals: attributes.crystals,
-        experience: attributes.experience,
-        level: attributes.level,
-        isActive: attributes.isActive,
+        experience: attributes.experience ?? initialRankData.score,
+        rank: initialRankData.rank,
+        nextRankScore: initialRankData.nextRankScore,
+        isActive: true,
         referralHash: crypto.randomBytes(16).toString("hex"),
       });
 
@@ -114,6 +122,7 @@ export class UserService {
       throw error;
     }
   }
+
   public async linkEmailToAccount(user: UserDocument, newEmail: string): Promise<UserDocument> {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(newEmail)) {
@@ -438,27 +447,20 @@ export class UserService {
     return await user.save();
   }
 
-  public async updateResources(userId: string, updates: { crystals?: number; experience?: number; level?: number }): Promise<UserDocument> {
-    try {
-      const updateData: Partial<UserAttributes> = {};
-      if (updates.crystals !== undefined && updates.crystals >= 0) {
-        updateData.crystals = updates.crystals;
-      }
-      if (updates.experience !== undefined && updates.experience >= 0) {
-        updateData.experience = updates.experience;
-      }
-      if (updates.level !== undefined && updates.level >= 1) {
-        updateData.level = updates.level;
-      }
-
-      const user = await User.findByIdAndUpdate(userId, { $set: updateData }, { new: true });
-      if (!user) {
-        throw new Error("User not found");
-      }
-      return user;
-    } catch (error) {
-      logger.error(`Error updating resources for user ID ${userId}`, { error });
-      throw error;
+  public async updateResources(userId: string, updates: { crystals?: number; experience?: number }): Promise<UserDocument> {
+    const user = await User.findById(userId);
+    if (!user) {
+      throw new Error("User not found");
     }
+
+    if (updates.crystals !== undefined) {
+      user.crystals = updates.crystals;
+    }
+    if (updates.experience !== undefined) {
+      user.experience = updates.experience;
+      this.rankService.updateRank(user);
+    }
+
+    return await user.save();
   }
 }

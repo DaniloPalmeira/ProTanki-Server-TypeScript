@@ -16,6 +16,7 @@ import { ChatService } from "./src/services/ChatService";
 import { PacketHandlerService } from "./src/handlers/PacketHandlerService";
 import { PacketService } from "./src/packets/PacketService";
 import { ShopService } from "./src/services/ShopService";
+import { RankService } from "./src/services/RankService";
 
 dotenv.config();
 
@@ -26,7 +27,8 @@ async function bootstrap() {
 
   const commandService = new CommandService();
   const configService = new ConfigService();
-  const userService = new UserService();
+  const rankService = new RankService();
+  const userService = new UserService(rankService);
   const inviteService = new InviteService();
   const chatService = new ChatService(userService);
   const packetHandlerService = new PacketHandlerService();
@@ -67,6 +69,7 @@ async function bootstrap() {
       packetHandlerService,
       packetService,
       shopService,
+      rankService,
     }
   );
 
