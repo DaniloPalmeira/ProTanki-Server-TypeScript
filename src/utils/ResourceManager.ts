@@ -69,7 +69,6 @@ export class ResourceManager {
   }
 
   private static resolveResourceType(files: string[]): number | undefined {
-    // A lógica para 'language_images' pode ser mais genérica agora
     const hasLanguageFile = files.some((file) => file.match(/^(en|pt_br|ru|ua)\.(jpg|png)$/));
     if (hasLanguageFile) {
       return 13;
@@ -85,6 +84,10 @@ export class ResourceManager {
       throw new Error(`Resource dependency with ID '${id}' not found.`);
     }
     return resource;
+  }
+
+  public static getBulkResources(ids: ResourceId[]): IDependency[] {
+    return ids.map((id) => this.getResourceById(id));
   }
 
   public static getIdlowById(id: ResourceId): number {

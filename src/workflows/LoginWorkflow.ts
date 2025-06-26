@@ -10,6 +10,7 @@ import Registration from "../packets/implementations/Registration";
 import SocialNetwork from "../packets/implementations/SocialNetwork";
 import { ProTankiClient } from "../server/ProTankiClient";
 import { ProTankiServer } from "../server/ProTankiServer";
+import { ResourceId } from "../types/resourceTypes";
 import generateCaptcha from "../utils/GenerateCaptcha";
 import logger from "../utils/Logger";
 import { ResourceManager } from "../utils/ResourceManager";
@@ -20,8 +21,10 @@ export class LoginWorkflow {
     client.sendPacket(new SocialNetwork(server.getSocialNetworks()));
     client.sendPacket(new CaptchaLocation(server.configService.getCaptchaLocations()));
 
+    const resourceIds: ResourceId[] = ["ui/language_images", "ui/login_background", "ui/quests/icons/battle_score", "ui/quests/icons/get_crystal", "ui/quests/icons/kill_enemies", "ui/quests/window/week1/quest_chain", "ui/quests/window/week2/quest_chain", "ui/quests/window/week3/quest_chain", "ui/quests/window/week4/quest_chain", "ui/quests/window/week1/final_reward", "ui/quests/window/week2/final_reward", "ui/quests/window/week3/final_reward", "ui/quests/window/week4/final_reward"];
+
     const dependencies = {
-      resources: [ResourceManager.getResourceById("ui/language_images"), ResourceManager.getResourceById("ui/login_background")],
+      resources: ResourceManager.getBulkResources(resourceIds),
     };
     client.sendPacket(new LoadDependencies(dependencies, CALLBACK.LOGIN_FORM));
   }

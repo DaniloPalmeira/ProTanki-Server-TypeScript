@@ -3,6 +3,22 @@ import bcrypt from "bcrypt";
 import { Achievement } from "./enums/Achievement";
 import { ChatModeratorLevel } from "./enums/ChatModeratorLevel";
 
+export interface IUserQuest {
+  questId: number;
+  definitionId: string;
+  progress: number;
+  prizes: { itemName: string; itemCount: number }[];
+  isCompleted: boolean;
+}
+
+const UserQuestSchema = new Schema<IUserQuest>({
+  questId: { type: Number, required: true },
+  definitionId: { type: String, required: true },
+  progress: { type: Number, default: 0 },
+  prizes: [{ itemName: { type: String, required: true }, itemCount: Number }],
+  isCompleted: { type: Boolean, default: false },
+});
+
 export interface UserAttributes {
   username: string;
   password: string;
@@ -30,6 +46,11 @@ export interface UserAttributes {
   chatModeratorLevel: ChatModeratorLevel;
   lastMessageTimestamp: Date | null;
   notificationsEnabled: boolean;
+  dailyQuests: IUserQuest[];
+  questLevel: number;
+  questStreak: number;
+  lastQuestCompletedDate: Date | null;
+  lastQuestGeneratedDate: Date | null;
   createdAt?: Date;
   lastLogin?: Date | null;
 }
@@ -41,12 +62,7 @@ export interface UserDocument extends UserAttributes, Document {
 const UserSchema = new Schema<UserDocument>({
   username: { type: String, required: true, unique: true, trim: true, minlength: 3, maxlength: 50, match: /^[a-zA-Z0-9]+$/ },
   password: { type: String, required: true, minlength: 3 },
-  email: {
-    type: String,
-    trim: true,
-    lowercase: true,
-    default: null,
-  },
+  email: { type: String, trim: true, lowercase: true, default: null },
   emailConfirmed: { type: Boolean, default: false },
   crystals: { type: Number, default: 0, min: 0 },
   experience: { type: Number, default: 0, min: 0 },
@@ -70,26 +86,23 @@ const UserSchema = new Schema<UserDocument>({
   chatModeratorLevel: { type: Number, enum: [0, 1, 2, 3, 4], default: ChatModeratorLevel.NONE },
   lastMessageTimestamp: { type: Date, default: null },
   notificationsEnabled: { type: Boolean, default: true },
+  dailyQuests: { type: [UserQuestSchema], default: [] },
+  questLevel: { type: Number, default: 1 },
+  questStreak: { type: Number, default: 0 },
+  lastQuestCompletedDate: { type: Date, default: null },
+  lastQuestGeneratedDate: { type: Date, default: null },
   createdAt: { type: Date, default: Date.now },
   lastLogin: { type: Date, default: null },
 });
 
-UserSchema.index(
-  { email: 1 },
-  {
-    unique: true,
-    partialFilterExpression: { email: { $type: "string" } },
-  }
-);
+UserSchema.index({ email: 1 }, { unique: true, partialFilterExpression: { email: { $type: "string" } } });
 
 UserSchema.pre<UserDocument>("save", function (next: (error?: Error) => void) {
   if (!this.isModified("password")) {
     return next();
   }
   bcrypt.hash(this.password, 10, (err: Error | undefined, hash: string) => {
-    if (err) {
-      return next(err);
-    }
+    if (err) return next(err);
     this.password = hash;
     next();
   });
@@ -97,9 +110,7 @@ UserSchema.pre<UserDocument>("save", function (next: (error?: Error) => void) {
 
 UserSchema.methods.verifyPassword = function (password: string, callback: (error: Error | undefined, isMatch?: boolean) => void): void {
   bcrypt.compare(password, this.password, (error: Error | undefined, isMatch: boolean) => {
-    if (error) {
-      return callback(error);
-    }
+    if (error) return callback(error);
     callback(undefined, isMatch);
   });
 };

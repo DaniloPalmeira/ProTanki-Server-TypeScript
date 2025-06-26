@@ -16,6 +16,7 @@ import { PacketHandlerService } from "../handlers/PacketHandlerService";
 import { PacketService } from "../packets/PacketService";
 import { ShopService } from "../services/ShopService";
 import { RankService } from "../services/RankService";
+import { QuestService } from "../services/QuestService";
 
 export interface IServerServices {
   configService: ConfigService;
@@ -27,6 +28,7 @@ export interface IServerServices {
   packetService: PacketService;
   shopService: ShopService;
   rankService: RankService;
+  questService: QuestService;
 }
 
 export class ProTankiServer {
@@ -47,6 +49,7 @@ export class ProTankiServer {
   public readonly packetService: PacketService;
   public readonly shopService: ShopService;
   public readonly rankService: RankService;
+  public readonly questService: QuestService;
 
   constructor(options: IServerOptions, services: IServerServices) {
     this.validateOptions(options);
@@ -65,6 +68,7 @@ export class ProTankiServer {
     this.packetService = services.packetService;
     this.shopService = services.shopService;
     this.rankService = services.rankService;
+    this.questService = services.questService;
 
     this.server = net.createServer(this.handleConnection.bind(this));
     this.clientManager = new ClientManager();
