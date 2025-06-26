@@ -99,6 +99,16 @@ export class ConfigService {
     }
   };
 
+  public getShopEnabledCountries = (): [string, string][] => {
+    try {
+      const countriesObj = JSON.parse(this.cachedConfigs.shopEnabledCountries || "{}");
+      return Object.entries(countriesObj);
+    } catch (error) {
+      logger.error("Failed to parse shopEnabledCountries from config", { error });
+      return [];
+    }
+  };
+
   public getSocialNetworksForServer = (): [string, string][] => {
     const socialLinksObj = this.getSocialAuthLinks();
     return Object.entries(socialLinksObj)

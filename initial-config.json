@@ -13,5 +13,6 @@
   "chatLinksWhitelist": "[\"http://example.com\"]",
   "chatCharDelayFactor": "176",
   "chatMessageBaseDelay": "880",
-  "chatHistoryLimit": "70"
+  "chatHistoryLimit": "70",
+  "shopEnabledCountries": "{\"BR\":\"Brazil\",\"US\":\"United States\",\"RU\":\"Russia\"}"
 }

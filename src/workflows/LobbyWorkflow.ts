@@ -33,7 +33,7 @@ export class LobbyWorkflow {
 
     this.sendLayoutAndState(client);
     this.sendPlayerVitals(client.user, client);
-    this.sendInitialSettings(client);
+    this.sendInitialSettings(client, server);
     this.sendAchievementTips(client.user, client);
     await this.sendChatSetup(client.user, client, server);
   }
@@ -79,12 +79,8 @@ export class LobbyWorkflow {
     client.sendPacket(new ReferralInfo(user.referralHash, "s.pro-tanki.com"));
   }
 
-  private static sendInitialSettings(client: ProTankiClient): void {
-    const countries: [string, string][] = [
-      ["BR", "Brazil"],
-      ["US", "United States"],
-      ["RU", "Russia"],
-    ];
+  private static sendInitialSettings(client: ProTankiClient, server: ProTankiServer): void {
+    const countries = server.configService.getShopEnabledCountries();
     client.sendPacket(new LocalizationInfo(countries, "BR", true));
 
     const battleInviteSoundId = ResourceManager.getIdlowById("sounds/notifications/battle_invite");

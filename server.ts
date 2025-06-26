@@ -15,6 +15,7 @@ import { InviteService } from "./src/services/InviteService";
 import { ChatService } from "./src/services/ChatService";
 import { PacketHandlerService } from "./src/handlers/PacketHandlerService";
 import { PacketService } from "./src/packets/PacketService";
+import { ShopService } from "./src/services/ShopService";
 
 dotenv.config();
 
@@ -30,6 +31,7 @@ async function bootstrap() {
   const chatService = new ChatService(userService);
   const packetHandlerService = new PacketHandlerService();
   const packetService = new PacketService();
+  const shopService = new ShopService();
 
   ResourceManager.loadResources();
   logger.info("Resource configurations loaded");
@@ -64,6 +66,7 @@ async function bootstrap() {
       chatService,
       packetHandlerService,
       packetService,
+      shopService,
     }
   );
 
