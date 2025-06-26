@@ -114,6 +114,28 @@ export class UserService {
       throw error;
     }
   }
+  public async linkEmailToAccount(user: UserDocument, newEmail: string): Promise<UserDocument> {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(newEmail)) {
+      throw new Error("Formato de e-mail inválido.");
+    }
+
+    if (user.email && user.emailConfirmed) {
+      throw new Error("Um e-mail verificado já está vinculado a esta conta.");
+    }
+
+    const isTaken = await this.isEmailInUse(newEmail, user.id);
+    if (isTaken) {
+      throw new Error("EMAIL_IN_USE");
+    }
+
+    user.email = newEmail;
+    user.emailConfirmed = false;
+
+    await user.save();
+    logger.info(`User ${user.username} linked new email ${newEmail}.`);
+    return user;
+  }
 
   public async sendFriendRequest(senderUser: UserDocument, targetNickname: string): Promise<UserDocument> {
     const targetUser = await this.findUserByUsername(targetNickname);
