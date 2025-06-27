@@ -1,4 +1,27 @@
-export const battleDataObject = {
+import { ResourceId } from "../types/resourceTypes";
+
+interface IMapData {
+  enabled: boolean;
+  additionalCrystalsPercent: number;
+  mapId: string;
+  mapName: string;
+  maxPeople: number;
+  previewResource: ResourceId;
+  maxRank: number;
+  minRank: number;
+  supportedModes: string[];
+  theme: string;
+}
+
+interface IBattleData {
+  maxRangeLength: number;
+  battleCreationDisabled: boolean;
+  battleLimits: { battleMode: string; scoreLimit: number; timeLimitInSec: number }[];
+  proBattleTimeLeftInSec: number;
+  maps: IMapData[];
+}
+
+export const battleDataObject: IBattleData = {
   maxRangeLength: 10,
   battleCreationDisabled: false,
   battleLimits: [
@@ -10,15 +33,15 @@ export const battleDataObject = {
   ],
   proBattleTimeLeftInSec: 2591999,
   maps: [
-    { enabled: true, additionalCrystalsPercent: 0, mapId: "map_sandbox", mapName: "Caixa de areia", maxPeople: 8, preview: 618467, maxRank: 30, minRank: 1, supportedModes: ["DM", "TDM", "CTF", "CP"], theme: "SUMMER" },
-    { enabled: true, additionalCrystalsPercent: 0, mapId: "map_sandbox", mapName: "Caixa de areia", maxPeople: 8, preview: 618988, maxRank: 30, minRank: 1, supportedModes: ["DM", "TDM", "CTF", "CP"], theme: "WINTER" },
-    { enabled: true, additionalCrystalsPercent: 0, mapId: "map_sandbox", mapName: "Caixa de areia", maxPeople: 8, preview: 447830, maxRank: 30, minRank: 1, supportedModes: ["DM", "TDM", "CTF", "CP"], theme: "SUMMER_NIGHT" },
-    { enabled: true, additionalCrystalsPercent: 0, mapId: "map_sandbox", mapName: "Caixa de areia", maxPeople: 8, preview: 980103, maxRank: 30, minRank: 1, supportedModes: ["DM", "TDM", "CTF", "CP"], theme: "SPACE" },
-    { enabled: true, additionalCrystalsPercent: 0, mapId: "map_sandal", mapName: "Sandália", maxPeople: 12, preview: 276861, maxRank: 30, minRank: 1, supportedModes: ["DM", "TDM", "CTF", "CP"], theme: "SUMMER" },
-    { enabled: true, additionalCrystalsPercent: 0, mapId: "map_sandal", mapName: "Sandália", maxPeople: 12, preview: 913735, maxRank: 30, minRank: 1, supportedModes: ["DM", "TDM", "CTF", "CP"], theme: "WINTER" },
-    { enabled: true, additionalCrystalsPercent: 0, mapId: "map_sandal", mapName: "Sandália", maxPeople: 12, preview: 178332, maxRank: 30, minRank: 1, supportedModes: ["DM", "TDM", "CTF", "CP"], theme: "SPACE" },
-    { enabled: true, additionalCrystalsPercent: 0, mapId: "map_serpuhov", mapName: "Serpuhov", maxPeople: 20, preview: 303326, maxRank: 30, minRank: 1, supportedModes: ["DM", "TDM", "CTF", "CP"], theme: "SUMMER" },
-    { enabled: true, additionalCrystalsPercent: 0, mapId: "map_serpuhov", mapName: "Serpuhov", maxPeople: 20, preview: 270446, maxRank: 30, minRank: 1, supportedModes: ["DM", "TDM", "CTF", "CP"], theme: "WINTER" },
-    { enabled: true, additionalCrystalsPercent: 0, mapId: "map_serpuhov", mapName: "Serpuhov", maxPeople: 20, preview: 967457, maxRank: 30, minRank: 1, supportedModes: ["DM", "TDM", "CTF", "CP"], theme: "SPACE" },
+    { enabled: true, additionalCrystalsPercent: 0, mapId: "map_sandbox", mapName: "Caixa de areia", maxPeople: 8, previewResource: "maps/map_sandbox/preview/SUMMER", maxRank: 30, minRank: 1, supportedModes: ["DM", "TDM", "CTF", "CP"], theme: "SUMMER" },
+    { enabled: true, additionalCrystalsPercent: 0, mapId: "map_sandbox", mapName: "Caixa de areia", maxPeople: 8, previewResource: "maps/map_sandbox/preview/WINTER", maxRank: 30, minRank: 1, supportedModes: ["DM", "TDM", "CTF", "CP"], theme: "WINTER" },
+    { enabled: true, additionalCrystalsPercent: 0, mapId: "map_sandbox", mapName: "Caixa de areia", maxPeople: 8, previewResource: "maps/map_sandbox/preview/SUMMER_NIGHT", maxRank: 30, minRank: 1, supportedModes: ["DM", "TDM", "CTF", "CP"], theme: "SUMMER_NIGHT" },
+    { enabled: true, additionalCrystalsPercent: 0, mapId: "map_sandbox", mapName: "Caixa de areia", maxPeople: 8, previewResource: "maps/map_sandbox/preview/SPACE", maxRank: 30, minRank: 1, supportedModes: ["DM", "TDM", "CTF", "CP"], theme: "SPACE" },
+    { enabled: true, additionalCrystalsPercent: 0, mapId: "map_sandal", mapName: "Sandália", maxPeople: 12, previewResource: "maps/map_sandal/preview/SUMMER", maxRank: 30, minRank: 1, supportedModes: ["DM", "TDM", "CTF", "CP"], theme: "SUMMER" },
+    { enabled: true, additionalCrystalsPercent: 0, mapId: "map_sandal", mapName: "Sandália", maxPeople: 12, previewResource: "maps/map_sandal/preview/WINTER", maxRank: 30, minRank: 1, supportedModes: ["DM", "TDM", "CTF", "CP"], theme: "WINTER" },
+    { enabled: true, additionalCrystalsPercent: 0, mapId: "map_sandal", mapName: "Sandália", maxPeople: 12, previewResource: "maps/map_sandal/preview/SPACE", maxRank: 30, minRank: 1, supportedModes: ["DM", "TDM", "CTF", "CP"], theme: "SPACE" },
+    { enabled: true, additionalCrystalsPercent: 0, mapId: "map_serpuhov", mapName: "Serpuhov", maxPeople: 20, previewResource: "maps/map_serpuhov/preview/SUMMER", maxRank: 30, minRank: 1, supportedModes: ["DM", "TDM", "CTF", "CP"], theme: "SUMMER" },
+    { enabled: true, additionalCrystalsPercent: 0, mapId: "map_serpuhov", mapName: "Serpuhov", maxPeople: 20, previewResource: "maps/map_serpuhov/preview/WINTER", maxRank: 30, minRank: 1, supportedModes: ["DM", "TDM", "CTF", "CP"], theme: "WINTER" },
+    { enabled: true, additionalCrystalsPercent: 0, mapId: "map_serpuhov", mapName: "Serpuhov", maxPeople: 20, previewResource: "maps/map_serpuhov/preview/SPACE", maxRank: 30, minRank: 1, supportedModes: ["DM", "TDM", "CTF", "CP"], theme: "SPACE" },
   ],
 };

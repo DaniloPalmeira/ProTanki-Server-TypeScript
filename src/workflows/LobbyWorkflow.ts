@@ -25,6 +25,7 @@ import logger from "../utils/Logger";
 import { ResourceManager } from "../utils/ResourceManager";
 import BattleInfo from "../packets/implementations/BattleInfo";
 import { battleDataObject } from "../config/BattleData";
+import { ResourceId } from "../types/resourceTypes";
 
 export class LobbyWorkflow {
   public static async enterLobby(client: ProTankiClient, server: ProTankiServer): Promise<void> {
@@ -150,7 +151,21 @@ export class LobbyWorkflow {
   }
 
   private static sendBattleInfo(client: ProTankiClient): void {
-    const jsonData = JSON.stringify(battleDataObject);
+    const battleData = JSON.parse(JSON.stringify(battleDataObject));
+
+    battleData.maps.forEach((map: any) => {
+      if (map.previewResource) {
+        try {
+          map.preview = ResourceManager.getIdlowById(map.previewResource as ResourceId);
+        } catch (error) {
+          logger.error(`Failed to get preview resource for map: ${map.previewResource}`, { error });
+          map.preview = 0;
+        }
+        delete map.previewResource;
+      }
+    });
+
+    const jsonData = JSON.stringify(battleData);
     client.sendPacket(new BattleInfo(jsonData));
   }
 
