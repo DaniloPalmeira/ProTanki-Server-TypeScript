@@ -18,6 +18,7 @@ import { PacketService } from "./src/packets/PacketService";
 import { ShopService } from "./src/services/ShopService";
 import { RankService } from "./src/services/RankService";
 import { QuestService } from "./src/services/QuestService";
+import { BattleService } from "./src/services/BattleService";
 
 dotenv.config();
 
@@ -36,6 +37,7 @@ async function bootstrap() {
   const packetService = new PacketService();
   const shopService = new ShopService();
   const questService = new QuestService();
+  const battleService = new BattleService();
 
   ResourceManager.loadResources();
   logger.info("Resource configurations loaded");
@@ -73,6 +75,7 @@ async function bootstrap() {
       shopService,
       rankService,
       questService,
+      battleService,
     }
   );
 

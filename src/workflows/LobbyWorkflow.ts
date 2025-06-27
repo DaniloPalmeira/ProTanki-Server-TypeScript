@@ -27,7 +27,7 @@ import BattleInfo from "../packets/implementations/BattleInfo";
 import { battleDataObject } from "../config/BattleData";
 import { ResourceId } from "../types/resourceTypes";
 import BattleList from "../packets/implementations/BattleList";
-import { initialBattlesData } from "../config/InitialBattlesData";
+import { BattleMode, EquipmentConstraintsMode } from "../models/Battle";
 
 export class LobbyWorkflow {
   public static async enterLobby(client: ProTankiClient, server: ProTankiServer): Promise<void> {
@@ -42,7 +42,7 @@ export class LobbyWorkflow {
     this.sendAchievementTips(client.user, client);
     await this.sendChatSetup(client.user, client, server);
     this.sendBattleInfo(client);
-    this.sendBattleList(client);
+    this.sendBattleList(client, server);
   }
 
   private static sendLayoutAndState(client: ProTankiClient): void {
@@ -172,24 +172,38 @@ export class LobbyWorkflow {
     client.sendPacket(new BattleInfo(jsonData));
   }
 
-  private static sendBattleList(client: ProTankiClient): void {
-    const battles = JSON.parse(JSON.stringify(initialBattlesData));
+  private static sendBattleList(client: ProTankiClient, server: ProTankiServer): void {
+    const battles = server.battleService.getBattles();
 
-    for (const battle of battles) {
-      const mapInfo = battleDataObject.maps.find((m) => m.mapId === battle.map);
+    const battleListPayload = battles.map((battle) => {
+      const mapInfo = battleDataObject.maps.find((m) => m.mapId === battle.settings.mapId);
+      let preview = 0;
       if (mapInfo) {
         try {
-          battle.preview = ResourceManager.getIdlowById(mapInfo.previewResource as ResourceId);
+          preview = ResourceManager.getIdlowById(mapInfo.previewResource as ResourceId);
         } catch (error) {
           logger.warn(`Could not find resource for map preview: ${mapInfo.previewResource}`);
-          battle.preview = 0;
         }
-      } else {
-        battle.preview = 0;
       }
-    }
+      return {
+        battleId: battle.battleId,
+        battleMode: BattleMode[battle.settings.battleMode],
+        map: battle.settings.mapId,
+        maxPeople: battle.settings.maxPeopleCount,
+        name: battle.settings.name,
+        privateBattle: battle.settings.privateBattle,
+        proBattle: battle.settings.proBattle,
+        minRank: battle.settings.minRank,
+        maxRank: battle.settings.maxRank,
+        preview: preview,
+        parkourMode: battle.settings.parkourMode,
+        equipmentConstraintsMode: EquipmentConstraintsMode[battle.settings.equipmentConstraintsMode],
+        suspicionLevel: "NONE",
+        users: battle.users.map((u) => u.username),
+      };
+    });
 
-    const jsonData = JSON.stringify({ battles });
+    const jsonData = JSON.stringify({ battles: battleListPayload });
     client.sendPacket(new BattleList(jsonData));
   }
 
