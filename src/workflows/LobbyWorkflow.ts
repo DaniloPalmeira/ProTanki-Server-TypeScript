@@ -26,6 +26,8 @@ import { ResourceManager } from "../utils/ResourceManager";
 import BattleInfo from "../packets/implementations/BattleInfo";
 import { battleDataObject } from "../config/BattleData";
 import { ResourceId } from "../types/resourceTypes";
+import BattleList from "../packets/implementations/BattleList";
+import { initialBattlesData } from "../config/InitialBattlesData";
 
 export class LobbyWorkflow {
   public static async enterLobby(client: ProTankiClient, server: ProTankiServer): Promise<void> {
@@ -40,6 +42,7 @@ export class LobbyWorkflow {
     this.sendAchievementTips(client.user, client);
     await this.sendChatSetup(client.user, client, server);
     this.sendBattleInfo(client);
+    this.sendBattleList(client);
   }
 
   private static sendLayoutAndState(client: ProTankiClient): void {
@@ -167,6 +170,27 @@ export class LobbyWorkflow {
 
     const jsonData = JSON.stringify(battleData);
     client.sendPacket(new BattleInfo(jsonData));
+  }
+
+  private static sendBattleList(client: ProTankiClient): void {
+    const battles = JSON.parse(JSON.stringify(initialBattlesData));
+
+    for (const battle of battles) {
+      const mapInfo = battleDataObject.maps.find((m) => m.mapId === battle.map);
+      if (mapInfo) {
+        try {
+          battle.preview = ResourceManager.getIdlowById(mapInfo.previewResource as ResourceId);
+        } catch (error) {
+          logger.warn(`Could not find resource for map preview: ${mapInfo.previewResource}`);
+          battle.preview = 0;
+        }
+      } else {
+        battle.preview = 0;
+      }
+    }
+
+    const jsonData = JSON.stringify({ battles });
+    client.sendPacket(new BattleList(jsonData));
   }
 
   public static async sendFriendsList(client: ProTankiClient, server: ProTankiServer): Promise<void> {
