@@ -23,6 +23,8 @@ import { ProTankiServer } from "../server/ProTankiServer";
 import { FormatUtils } from "../utils/FormatUtils";
 import logger from "../utils/Logger";
 import { ResourceManager } from "../utils/ResourceManager";
+import BattleInfo from "../packets/implementations/BattleInfo";
+import { battleDataObject } from "../config/BattleData";
 
 export class LobbyWorkflow {
   public static async enterLobby(client: ProTankiClient, server: ProTankiServer): Promise<void> {
@@ -36,6 +38,7 @@ export class LobbyWorkflow {
     this.sendInitialSettings(client, server);
     this.sendAchievementTips(client.user, client);
     await this.sendChatSetup(client.user, client, server);
+    this.sendBattleInfo(client);
   }
 
   private static sendLayoutAndState(client: ProTankiClient): void {
@@ -144,6 +147,11 @@ export class LobbyWorkflow {
         : null,
     }));
     client.sendPacket(new ChatHistory(messageData));
+  }
+
+  private static sendBattleInfo(client: ProTankiClient): void {
+    const jsonData = JSON.stringify(battleDataObject);
+    client.sendPacket(new BattleInfo(jsonData));
   }
 
   public static async sendFriendsList(client: ProTankiClient, server: ProTankiServer): Promise<void> {
