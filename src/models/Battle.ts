@@ -1,4 +1,5 @@
 import { UserDocument } from "./User";
+import * as crypto from "crypto";
 
 export enum BattleMode {
   DM,
@@ -62,9 +63,11 @@ export class Battle {
   public readonly settings: IBattleCreationSettings;
   public users: UserDocument[] = [];
 
-  constructor(settings: IBattleCreationSettings, creator: UserDocument) {
-    this.battleId = Buffer.from(`${creator.username}-${Date.now()}`).toString("hex").substring(0, 16);
+  constructor(settings: IBattleCreationSettings, creator?: UserDocument) {
+    this.battleId = crypto.randomBytes(8).toString("hex");
     this.settings = settings;
-    this.users.push(creator);
+    if (creator) {
+      this.users.push(creator);
+    }
   }
 }

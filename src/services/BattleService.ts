@@ -1,10 +1,49 @@
 import { UserDocument } from "../models/User";
-import { Battle, IBattleCreationSettings } from "../models/Battle";
+import { Battle, BattleMode, EquipmentConstraintsMode, IBattleCreationSettings, MapTheme } from "../models/Battle";
 import { ValidationUtils } from "../utils/ValidationUtils";
 import logger from "../utils/Logger";
 
 export class BattleService {
   private activeBattles: Map<string, Battle> = new Map();
+
+  constructor() {
+    this.createDefaultBattle();
+  }
+
+  private createDefaultBattle(): void {
+    const defaultBattleSettings: IBattleCreationSettings = {
+      name: "Batalha para Novatos",
+      privateBattle: false,
+      proBattle: false,
+      battleMode: BattleMode.DM,
+      mapId: "map_sandbox",
+      maxPeopleCount: 8,
+      minRank: 1,
+      maxRank: 30,
+      timeLimitInSec: 600,
+      scoreLimit: 20,
+      autoBalance: true,
+      friendlyFire: false,
+      parkourMode: false,
+      equipmentConstraintsMode: EquipmentConstraintsMode.NONE,
+      reArmorEnabled: false,
+      mapTheme: MapTheme.SUMMER,
+      withoutBonuses: false,
+      withoutCrystals: false,
+      withoutSupplies: false,
+      withoutUpgrades: false,
+      reducedResistances: false,
+      esportDropTiming: false,
+      withoutGoldBoxes: false,
+      withoutGoldSiren: false,
+      withoutGoldZone: false,
+      withoutMedkit: false,
+      withoutMines: false,
+      randomGold: true,
+      dependentCooldownEnabled: false,
+    };
+    this.createBattle(defaultBattleSettings);
+  }
 
   public validateName(name: string): string {
     if (ValidationUtils.isNicknameInappropriate(name)) {
@@ -13,10 +52,14 @@ export class BattleService {
     return name;
   }
 
-  public createBattle(settings: IBattleCreationSettings, creator: UserDocument): Battle {
+  public createBattle(settings: IBattleCreationSettings, creator?: UserDocument): Battle {
     const battle = new Battle(settings, creator);
     this.activeBattles.set(battle.battleId, battle);
-    logger.info(`Battle created by ${creator.username}`, { battleId: battle.battleId, name: settings.name });
+    logger.info(`Battle created`, {
+      battleId: battle.battleId,
+      name: settings.name,
+      creator: creator?.username ?? "System",
+    });
     return battle;
   }
 
