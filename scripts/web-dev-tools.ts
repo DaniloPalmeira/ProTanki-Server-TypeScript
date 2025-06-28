@@ -88,7 +88,23 @@ const getPageHTML = () => `
                     resultDiv.style.display = 'block';
                     if (response.ok) {
                         resultDiv.className = 'result success';
-                        resultDiv.innerHTML = '<pre>' + JSON.stringify(data, null, 2) + '</pre>';
+                        
+                        let output = '';
+                        for (const key in data) {
+                            if (Object.prototype.hasOwnProperty.call(data, key)) {
+                                const value = data[key];
+                                const formattedKey = key.charAt(0).toUpperCase() + key.slice(1);
+                                output += \`\${formattedKey}:\\n\`;
+                                if (typeof value === 'object') {
+                                    output += JSON.stringify(value, null, 2);
+                                } else {
+                                    output += value;
+                                }
+                                output += '\\n\\n';
+                            }
+                        }
+                        
+                        resultDiv.innerHTML = '<pre>' + output.trim() + '</pre>';
                     } else {
                         throw new Error(data.error || 'Unknown error');
                     }
