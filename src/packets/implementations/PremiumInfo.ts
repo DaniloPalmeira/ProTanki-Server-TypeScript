@@ -1,27 +1,37 @@
+import { BufferReader } from "../../utils/buffer/BufferReader";
 import { BufferWriter } from "../../utils/buffer/BufferWriter";
 import { IPremiumInfo } from "../interfaces/IPremiumInfo";
 import { BasePacket } from "./BasePacket";
 
 export default class PremiumInfo extends BasePacket implements IPremiumInfo {
-  needShowNotificationCompletionPremium: boolean;
-  needShowWelcomeAlert: boolean;
-  reminderCompletionPremiumTime: number;
-  wasShowAlertForFirstPurchasePremium: boolean;
-  wasShowReminderCompletionPremium: boolean;
-  lifeTimeInSeconds: number;
+  needShowNotificationCompletionPremium: boolean = false;
+  needShowWelcomeAlert: boolean = false;
+  reminderCompletionPremiumTime: number = 0;
+  wasShowAlertForFirstPurchasePremium: boolean = false;
+  wasShowReminderCompletionPremium: boolean = false;
+  lifeTimeInSeconds: number = 0;
 
-  constructor(lifeTimeInSeconds: number = 0, needShowNotification: boolean = false, needShowWelcome: boolean = false) {
+  constructor(lifeTimeInSeconds?: number, needShowNotification?: boolean, needShowWelcome?: boolean) {
     super();
-    this.lifeTimeInSeconds = lifeTimeInSeconds;
-    this.needShowNotificationCompletionPremium = needShowNotification;
-    this.needShowWelcomeAlert = needShowWelcome;
-    this.reminderCompletionPremiumTime = 0;
-    this.wasShowAlertForFirstPurchasePremium = false;
-    this.wasShowReminderCompletionPremium = false;
+    if (lifeTimeInSeconds !== undefined) {
+      this.lifeTimeInSeconds = lifeTimeInSeconds;
+    }
+    if (needShowNotification !== undefined) {
+      this.needShowNotificationCompletionPremium = needShowNotification;
+    }
+    if (needShowWelcome !== undefined) {
+      this.needShowWelcomeAlert = needShowWelcome;
+    }
   }
 
   read(buffer: Buffer): void {
-    throw new Error("Method not implemented.");
+    const reader = new BufferReader(buffer);
+    this.needShowNotificationCompletionPremium = reader.readUInt8() === 1;
+    this.needShowWelcomeAlert = reader.readUInt8() === 1;
+    this.reminderCompletionPremiumTime = reader.readFloatBE();
+    this.wasShowAlertForFirstPurchasePremium = reader.readUInt8() === 1;
+    this.wasShowReminderCompletionPremium = reader.readUInt8() === 1;
+    this.lifeTimeInSeconds = reader.readInt32BE();
   }
 
   write(): Buffer {
@@ -36,7 +46,7 @@ export default class PremiumInfo extends BasePacket implements IPremiumInfo {
   }
 
   toString(): string {
-    return `PremiumInfo(lifeTimeInSeconds=${this.lifeTimeInSeconds})`;
+    return `PremiumInfo(\n` + `  lifeTimeInSeconds=${this.lifeTimeInSeconds},\n` + `  needShowNotificationCompletionPremium=${this.needShowNotificationCompletionPremium},\n` + `  needShowWelcomeAlert=${this.needShowWelcomeAlert},\n` + `  reminderCompletionPremiumTime=${this.reminderCompletionPremiumTime},\n` + `  wasShowAlertForFirstPurchasePremium=${this.wasShowAlertForFirstPurchasePremium},\n` + `  wasShowReminderCompletionPremium=${this.wasShowReminderCompletionPremium}\n` + `)`;
   }
 
   static getId(): number {

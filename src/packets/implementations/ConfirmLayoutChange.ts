@@ -1,19 +1,26 @@
+import { BufferReader } from "../../utils/buffer/BufferReader";
 import { BufferWriter } from "../../utils/buffer/BufferWriter";
 import { IConfirmLayoutChange } from "../interfaces/IConfirmLayoutChange";
 import { BasePacket } from "./BasePacket";
 
 export default class ConfirmLayoutChange extends BasePacket implements IConfirmLayoutChange {
-  fromLayout: number;
-  toLayout: number;
+  fromLayout: number = 0;
+  toLayout: number = 0;
 
-  constructor(from: number, to: number) {
+  constructor(from?: number, to?: number) {
     super();
-    this.fromLayout = from;
-    this.toLayout = to;
+    if (from !== undefined) {
+      this.fromLayout = from;
+    }
+    if (to !== undefined) {
+      this.toLayout = to;
+    }
   }
 
   read(buffer: Buffer): void {
-    throw new Error("Method not implemented.");
+    const reader = new BufferReader(buffer);
+    this.fromLayout = reader.readInt32BE();
+    this.toLayout = reader.readInt32BE();
   }
 
   write(): Buffer {

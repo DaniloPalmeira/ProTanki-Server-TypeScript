@@ -1,17 +1,21 @@
+import { BufferReader } from "../../utils/buffer/BufferReader";
 import { BufferWriter } from "../../utils/buffer/BufferWriter";
 import { BasePacket } from "./BasePacket";
 import { IUserSettingsNotifications } from "../interfaces/IUserSettingsNotifications";
 
 export default class UserSettingsNotifications extends BasePacket implements IUserSettingsNotifications {
-  notificationsEnabled: boolean;
+  notificationsEnabled: boolean = false;
 
-  constructor(enabled: boolean) {
+  constructor(enabled?: boolean) {
     super();
-    this.notificationsEnabled = enabled;
+    if (enabled !== undefined) {
+      this.notificationsEnabled = enabled;
+    }
   }
 
   read(buffer: Buffer): void {
-    throw new Error("Method not implemented.");
+    const reader = new BufferReader(buffer);
+    this.notificationsEnabled = reader.readUInt8() === 1;
   }
 
   write(): Buffer {

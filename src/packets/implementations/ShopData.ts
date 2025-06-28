@@ -1,17 +1,21 @@
+import { BufferReader } from "../../utils/buffer/BufferReader";
 import { BufferWriter } from "../../utils/buffer/BufferWriter";
 import { BasePacket } from "./BasePacket";
 import { IShopData } from "../interfaces/IShopData";
 
 export default class ShopData extends BasePacket implements IShopData {
-  payload: string | null;
+  payload: string | null = null;
 
-  constructor(payload: string | null) {
+  constructor(payload?: string | null) {
     super();
-    this.payload = payload;
+    if (payload) {
+      this.payload = payload;
+    }
   }
 
   read(buffer: Buffer): void {
-    throw new Error("Method not implemented.");
+    const reader = new BufferReader(buffer);
+    this.payload = reader.readOptionalString();
   }
 
   write(): Buffer {
@@ -21,7 +25,7 @@ export default class ShopData extends BasePacket implements IShopData {
   }
 
   toString(): string {
-    return `ShopData()`;
+    return `ShopData(payload=${this.payload})`;
   }
 
   static getId(): number {

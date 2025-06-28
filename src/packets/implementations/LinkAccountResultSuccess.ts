@@ -1,17 +1,21 @@
+import { BufferReader } from "../../utils/buffer/BufferReader";
 import { BufferWriter } from "../../utils/buffer/BufferWriter";
 import { BasePacket } from "./BasePacket";
 import { ILinkAccountResultSuccess } from "../interfaces/ILinkAccountResultSuccess";
 
 export default class LinkAccountResultSuccess extends BasePacket implements ILinkAccountResultSuccess {
-  identifier: string | null;
+  identifier: string | null = null;
 
-  constructor(identifier: string | null) {
+  constructor(identifier?: string | null) {
     super();
-    this.identifier = identifier;
+    if (identifier) {
+      this.identifier = identifier;
+    }
   }
 
   read(buffer: Buffer): void {
-    throw new Error("Method not implemented.");
+    const reader = new BufferReader(buffer);
+    this.identifier = reader.readOptionalString();
   }
 
   write(): Buffer {

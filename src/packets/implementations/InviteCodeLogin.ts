@@ -4,11 +4,13 @@ import { IInviteCodeLogin } from "../interfaces/IInviteCodeLogin";
 import { BasePacket } from "./BasePacket";
 
 export default class InviteCodeLogin extends BasePacket implements IInviteCodeLogin {
-  nickname: string | null;
+  nickname: string | null = null;
 
-  constructor(nickname: string | null = null) {
+  constructor(nickname?: string | null) {
     super();
-    this.nickname = nickname;
+    if (nickname) {
+      this.nickname = nickname;
+    }
   }
 
   read(buffer: Buffer): void {

@@ -1,21 +1,31 @@
+import { BufferReader } from "../../utils/buffer/BufferReader";
 import { BufferWriter } from "../../utils/buffer/BufferWriter";
 import { IOnlineNotifierData } from "../interfaces/IOnlineNotifierData";
 import { BasePacket } from "./BasePacket";
 
 export default class OnlineNotifierData extends BasePacket implements IOnlineNotifierData {
-  isOnline: boolean;
-  server: number;
-  nickname: string;
+  isOnline: boolean = false;
+  server: number = 0;
+  nickname: string = "";
 
-  constructor(isOnline: boolean, server: number, nickname: string) {
+  constructor(isOnline?: boolean, server?: number, nickname?: string) {
     super();
-    this.isOnline = isOnline;
-    this.server = server;
-    this.nickname = nickname;
+    if (isOnline !== undefined) {
+      this.isOnline = isOnline;
+    }
+    if (server !== undefined) {
+      this.server = server;
+    }
+    if (nickname) {
+      this.nickname = nickname;
+    }
   }
 
   read(buffer: Buffer): void {
-    throw new Error("Method not implemented.");
+    const reader = new BufferReader(buffer);
+    this.isOnline = reader.readUInt8() === 1;
+    this.server = reader.readInt32BE();
+    this.nickname = reader.readOptionalString() ?? "";
   }
 
   write(): Buffer {
@@ -27,7 +37,7 @@ export default class OnlineNotifierData extends BasePacket implements IOnlineNot
   }
 
   toString(): string {
-    return `OnlineNotifierData(nickname=${this.nickname}, isOnline=${this.isOnline})`;
+    return `OnlineNotifierData(isOnline=${this.isOnline}, server=${this.server}, nickname='${this.nickname}')`;
   }
 
   static getId(): number {

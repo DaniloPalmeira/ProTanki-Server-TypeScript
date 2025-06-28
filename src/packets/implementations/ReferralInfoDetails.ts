@@ -1,23 +1,43 @@
+import { BufferReader } from "../../utils/buffer/BufferReader";
 import { BufferWriter } from "../../utils/buffer/BufferWriter";
 import { BasePacket } from "./BasePacket";
 import { IReferralInfoDetails, IReferredUser } from "../interfaces/IReferralInfoDetails";
 
 export default class ReferralInfoDetails extends BasePacket implements IReferralInfoDetails {
-  referredUsers: IReferredUser[];
-  url: string;
-  bannerCodeString: string;
-  defaultRefMessage: string;
+  referredUsers: IReferredUser[] = [];
+  url: string = "";
+  bannerCodeString: string = "";
+  defaultRefMessage: string = "";
 
-  constructor(referredUsers: IReferredUser[], url: string, bannerCode: string, defaultMessage: string) {
+  constructor(referredUsers?: IReferredUser[], url?: string, bannerCode?: string, defaultMessage?: string) {
     super();
-    this.referredUsers = referredUsers;
-    this.url = url;
-    this.bannerCodeString = bannerCode;
-    this.defaultRefMessage = defaultMessage;
+    if (referredUsers) {
+      this.referredUsers = referredUsers;
+    }
+    if (url) {
+      this.url = url;
+    }
+    if (bannerCode) {
+      this.bannerCodeString = bannerCode;
+    }
+    if (defaultMessage) {
+      this.defaultRefMessage = defaultMessage;
+    }
   }
 
   read(buffer: Buffer): void {
-    throw new Error("Method not implemented.");
+    const reader = new BufferReader(buffer);
+    const count = reader.readInt32BE();
+    this.referredUsers = [];
+    for (let i = 0; i < count; i++) {
+      this.referredUsers.push({
+        income: reader.readInt32BE(),
+        user: reader.readOptionalString() ?? "",
+      });
+    }
+    this.url = reader.readOptionalString() ?? "";
+    this.bannerCodeString = reader.readOptionalString() ?? "";
+    this.defaultRefMessage = reader.readOptionalString() ?? "";
   }
 
   write(): Buffer {
@@ -36,7 +56,8 @@ export default class ReferralInfoDetails extends BasePacket implements IReferral
   }
 
   toString(): string {
-    return `ReferralInfoDetails(referredCount=${this.referredUsers.length})`;
+    const referredStr = this.referredUsers.map((u) => `{user: ${u.user}, income: ${u.income}}`).join(", ");
+    return `ReferralInfoDetails(\n` + `  referredUsers=[${referredStr}],\n` + `  url='${this.url}',\n` + `  bannerCodeString='${this.bannerCodeString}',\n` + `  defaultRefMessage='${this.defaultRefMessage}'\n` + `)`;
   }
 
   static getId(): number {

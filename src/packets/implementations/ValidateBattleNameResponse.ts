@@ -1,17 +1,21 @@
+import { BufferReader } from "../../utils/buffer/BufferReader";
 import { BufferWriter } from "../../utils/buffer/BufferWriter";
 import { IValidateBattleName } from "../interfaces/IValidateBattleName";
 import { BasePacket } from "./BasePacket";
 
 export default class ValidateBattleNameResponse extends BasePacket implements IValidateBattleName {
-  name: string | null;
+  name: string | null = null;
 
-  constructor(name: string | null) {
+  constructor(name?: string | null) {
     super();
-    this.name = name;
+    if (name) {
+      this.name = name;
+    }
   }
 
   read(buffer: Buffer): void {
-    throw new Error("Method not implemented.");
+    const reader = new BufferReader(buffer);
+    this.name = reader.readOptionalString();
   }
 
   write(): Buffer {

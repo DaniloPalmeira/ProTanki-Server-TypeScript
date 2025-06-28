@@ -4,11 +4,13 @@ import { IInviteEnabled } from "../interfaces/IInviteEnabled";
 import { BasePacket } from "./BasePacket";
 
 export default class InviteEnabled extends BasePacket implements IInviteEnabled {
-  requireInviteCode: boolean;
+  requireInviteCode: boolean = false;
 
-  constructor(requireInviteCode: boolean = false) {
+  constructor(requireInviteCode?: boolean) {
     super();
-    this.requireInviteCode = requireInviteCode;
+    if (requireInviteCode !== undefined) {
+      this.requireInviteCode = requireInviteCode;
+    }
   }
 
   read(buffer: Buffer): void {

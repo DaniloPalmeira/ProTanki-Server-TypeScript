@@ -4,11 +4,13 @@ import { ICaptchaView } from "../interfaces/ICaptchaView";
 import { BasePacket } from "./BasePacket";
 
 export default class CaptchaIsValid extends BasePacket implements ICaptchaView {
-  view: number;
+  view: number = 0;
 
-  constructor(view: number) {
+  constructor(view?: number) {
     super();
-    this.view = view;
+    if (view !== undefined) {
+      this.view = view;
+    }
   }
 
   read(buffer: Buffer): void {

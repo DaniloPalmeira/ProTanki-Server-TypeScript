@@ -4,11 +4,13 @@ import { IGoToRecoveryPassword } from "../interfaces/IGoToRecoveryPassword";
 import { BasePacket } from "./BasePacket";
 
 export default class GoToRecoveryPassword extends BasePacket implements IGoToRecoveryPassword {
-  email: string | null;
+  email: string | null = null;
 
-  constructor(email: string | null) {
+  constructor(email?: string | null) {
     super();
-    this.email = email;
+    if (email) {
+      this.email = email;
+    }
   }
 
   read(buffer: Buffer): void {

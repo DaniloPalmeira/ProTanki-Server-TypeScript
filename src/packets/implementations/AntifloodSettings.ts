@@ -1,19 +1,26 @@
+import { BufferReader } from "../../utils/buffer/BufferReader";
 import { BufferWriter } from "../../utils/buffer/BufferWriter";
 import { IAntifloodSettings } from "../interfaces/IAntifloodSettings";
 import { BasePacket } from "./BasePacket";
 
 export default class AntifloodSettings extends BasePacket implements IAntifloodSettings {
-  charDelayFactor: number;
-  messageBaseDelay: number;
+  charDelayFactor: number = 0;
+  messageBaseDelay: number = 0;
 
-  constructor(charDelayFactor: number, messageBaseDelay: number) {
+  constructor(charDelayFactor?: number, messageBaseDelay?: number) {
     super();
-    this.charDelayFactor = charDelayFactor;
-    this.messageBaseDelay = messageBaseDelay;
+    if (charDelayFactor !== undefined) {
+      this.charDelayFactor = charDelayFactor;
+    }
+    if (messageBaseDelay !== undefined) {
+      this.messageBaseDelay = messageBaseDelay;
+    }
   }
 
   read(buffer: Buffer): void {
-    throw new Error("Method not implemented.");
+    const reader = new BufferReader(buffer);
+    this.charDelayFactor = reader.readInt32BE();
+    this.messageBaseDelay = reader.readInt32BE();
   }
 
   write(): Buffer {

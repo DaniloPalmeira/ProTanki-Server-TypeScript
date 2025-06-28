@@ -1,17 +1,21 @@
+import { BufferReader } from "../../utils/buffer/BufferReader";
 import { BufferWriter } from "../../utils/buffer/BufferWriter";
 import { IConfirmBattleInfo } from "../interfaces/IConfirmBattleInfo";
 import { BasePacket } from "./BasePacket";
 
 export default class ConfirmBattleInfo extends BasePacket implements IConfirmBattleInfo {
-  battleId: string | null;
+  battleId: string | null = null;
 
-  constructor(battleId: string | null) {
+  constructor(battleId?: string | null) {
     super();
-    this.battleId = battleId;
+    if (battleId) {
+      this.battleId = battleId;
+    }
   }
 
   read(buffer: Buffer): void {
-    throw new Error("Method not implemented.");
+    const reader = new BufferReader(buffer);
+    this.battleId = reader.readOptionalString();
   }
 
   write(): Buffer {

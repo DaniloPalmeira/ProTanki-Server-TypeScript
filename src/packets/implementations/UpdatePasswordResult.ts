@@ -1,19 +1,26 @@
+import { BufferReader } from "../../utils/buffer/BufferReader";
 import { BufferWriter } from "../../utils/buffer/BufferWriter";
 import { IUpdatePasswordResult } from "../interfaces/IUpdatePasswordResult";
 import { BasePacket } from "./BasePacket";
 
 export default class UpdatePasswordResult extends BasePacket implements IUpdatePasswordResult {
-  isError: boolean;
-  message: string | null;
+  isError: boolean = false;
+  message: string | null = null;
 
-  constructor(isError: boolean = false, message: string | null) {
+  constructor(isError?: boolean, message?: string | null) {
     super();
-    this.isError = isError;
-    this.message = message;
+    if (isError !== undefined) {
+      this.isError = isError;
+    }
+    if (message) {
+      this.message = message;
+    }
   }
 
   read(buffer: Buffer): void {
-    throw new Error("Method not implemented.");
+    const reader = new BufferReader(buffer);
+    this.isError = reader.readUInt8() === 1;
+    this.message = reader.readOptionalString();
   }
 
   write(): Buffer {
@@ -24,7 +31,7 @@ export default class UpdatePasswordResult extends BasePacket implements IUpdateP
   }
 
   toString(): string {
-    return `UpdatePasswordResult(isError=${this.isError}, message=${this.message})`;
+    return `UpdatePasswordResult(isError=${this.isError}, message='${this.message}')`;
   }
 
   static getId(): number {

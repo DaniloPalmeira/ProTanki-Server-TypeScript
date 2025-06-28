@@ -4,11 +4,13 @@ import { ISystemMessage } from "../interfaces/ISystemMessage";
 import { BasePacket } from "./BasePacket";
 
 export default class SystemMessage extends BasePacket implements ISystemMessage {
-  text: string | null;
+  text: string | null = null;
 
-  constructor(text: string | null = null) {
+  constructor(text?: string | null) {
     super();
-    this.text = text;
+    if (text) {
+      this.text = text;
+    }
   }
 
   read(buffer: Buffer): void {

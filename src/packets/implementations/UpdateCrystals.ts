@@ -1,17 +1,21 @@
+import { BufferReader } from "../../utils/buffer/BufferReader";
 import { BufferWriter } from "../../utils/buffer/BufferWriter";
 import { BasePacket } from "./BasePacket";
 import { IUpdateCrystals } from "../interfaces/IUpdateCrystals";
 
 export default class UpdateCrystals extends BasePacket implements IUpdateCrystals {
-  crystals: number;
+  crystals: number = 0;
 
-  constructor(crystals: number) {
+  constructor(crystals?: number) {
     super();
-    this.crystals = crystals;
+    if (crystals !== undefined) {
+      this.crystals = crystals;
+    }
   }
 
   read(buffer: Buffer): void {
-    throw new Error("Method not implemented.");
+    const reader = new BufferReader(buffer);
+    this.crystals = reader.readInt32BE();
   }
 
   write(): Buffer {

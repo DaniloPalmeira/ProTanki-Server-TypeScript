@@ -1,29 +1,64 @@
+import { BufferReader } from "../../utils/buffer/BufferReader";
 import { BufferWriter } from "../../utils/buffer/BufferWriter";
 import { BasePacket } from "./BasePacket";
 import { IShowQuestsWindow, IQuest } from "../interfaces/IShowQuestsWindow";
 import { DailyQuestData } from "../../services/QuestService";
-import { IPacket } from "../interfaces/IPacket";
 
 export default class ShowQuestsWindow extends BasePacket implements IShowQuestsWindow {
-  quests: IQuest[];
-  currentQuestLevel: number;
-  currentQuestStreak: number;
-  doneForToday: boolean;
-  questImage: number;
-  rewardImage: number;
+  quests: IQuest[] = [];
+  currentQuestLevel: number = 0;
+  currentQuestStreak: number = 0;
+  doneForToday: boolean = false;
+  questImage: number = 0;
+  rewardImage: number = 0;
 
-  constructor(data: DailyQuestData) {
+  constructor(data?: DailyQuestData) {
     super();
-    this.quests = data.quests;
-    this.currentQuestLevel = data.currentQuestLevel;
-    this.currentQuestStreak = data.currentQuestStreak;
-    this.doneForToday = data.doneForToday;
-    this.questImage = data.questImage;
-    this.rewardImage = data.rewardImage;
+    if (data) {
+      this.quests = data.quests;
+      this.currentQuestLevel = data.currentQuestLevel;
+      this.currentQuestStreak = data.currentQuestStreak;
+      this.doneForToday = data.doneForToday;
+      this.questImage = data.questImage;
+      this.rewardImage = data.rewardImage;
+    }
   }
 
   read(buffer: Buffer): void {
-    throw new Error("Method not implemented.");
+    const reader = new BufferReader(buffer);
+    const questsCount = reader.readInt32BE();
+    this.quests = [];
+    for (let i = 0; i < questsCount; i++) {
+      const quest: IQuest = {
+        canSkipForFree: reader.readUInt8() === 1,
+        description: reader.readOptionalString(),
+        finishCriteria: reader.readInt32BE(),
+        image: reader.readInt32BE(),
+        prizes: [],
+        progress: 0,
+        questId: 0,
+        skipCost: 0,
+      };
+
+      const prizesCount = reader.readInt32BE();
+      for (let j = 0; j < prizesCount; j++) {
+        quest.prizes.push({
+          itemCount: reader.readInt32BE(),
+          itemName: reader.readOptionalString() ?? "",
+        });
+      }
+
+      quest.progress = reader.readInt32BE();
+      quest.questId = reader.readInt32BE();
+      quest.skipCost = reader.readInt32BE();
+      this.quests.push(quest);
+    }
+
+    this.currentQuestLevel = reader.readInt32BE();
+    this.currentQuestStreak = reader.readInt32BE();
+    this.doneForToday = reader.readUInt8() === 1;
+    this.questImage = reader.readInt32BE();
+    this.rewardImage = reader.readInt32BE();
   }
 
   write(): Buffer {
@@ -57,7 +92,7 @@ export default class ShowQuestsWindow extends BasePacket implements IShowQuestsW
   }
 
   toString(): string {
-    return `ShowQuestsWindow(quests=${this.quests.length})`;
+    return `ShowQuestsWindow(\n` + `  questsCount=${this.quests.length},\n` + `  currentQuestLevel=${this.currentQuestLevel},\n` + `  currentQuestStreak=${this.currentQuestStreak},\n` + `  doneForToday=${this.doneForToday},\n` + `  questImage=${this.questImage},\n` + `  rewardImage=${this.rewardImage}\n` + `)`;
   }
 
   static getId(): number {

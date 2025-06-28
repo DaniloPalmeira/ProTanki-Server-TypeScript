@@ -1,19 +1,26 @@
+import { BufferReader } from "../../utils/buffer/BufferReader";
 import { BufferWriter } from "../../utils/buffer/BufferWriter";
 import { IRankNotifierData } from "../interfaces/IRankNotifierData";
 import { BasePacket } from "./BasePacket";
 
 export default class RankNotifierData extends BasePacket implements IRankNotifierData {
-  rank: number;
-  nickname: string;
+  rank: number = 0;
+  nickname: string = "";
 
-  constructor(rank: number, nickname: string) {
+  constructor(rank?: number, nickname?: string) {
     super();
-    this.rank = rank;
-    this.nickname = nickname;
+    if (rank !== undefined) {
+      this.rank = rank;
+    }
+    if (nickname) {
+      this.nickname = nickname;
+    }
   }
 
   read(buffer: Buffer): void {
-    throw new Error("Method not implemented.");
+    const reader = new BufferReader(buffer);
+    this.rank = reader.readInt32BE();
+    this.nickname = reader.readOptionalString() ?? "";
   }
 
   write(): Buffer {
@@ -24,7 +31,7 @@ export default class RankNotifierData extends BasePacket implements IRankNotifie
   }
 
   toString(): string {
-    return `RankNotifierData(nickname=${this.nickname}, rank=${this.rank})`;
+    return `RankNotifierData(nickname='${this.nickname}', rank=${this.rank})`;
   }
 
   static getId(): number {

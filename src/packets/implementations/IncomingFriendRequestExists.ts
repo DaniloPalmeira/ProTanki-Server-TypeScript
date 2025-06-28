@@ -1,17 +1,21 @@
+import { BufferReader } from "../../utils/buffer/BufferReader";
 import { BufferWriter } from "../../utils/buffer/BufferWriter";
 import { BasePacket } from "./BasePacket";
 import { IIncomingFriendRequestExists } from "../interfaces/IIncomingFriendRequestExists";
 
 export default class IncomingFriendRequestExists extends BasePacket implements IIncomingFriendRequestExists {
-  nickname: string | null;
+  nickname: string | null = null;
 
-  constructor(nickname: string | null) {
+  constructor(nickname?: string | null) {
     super();
-    this.nickname = nickname;
+    if (nickname) {
+      this.nickname = nickname;
+    }
   }
 
   read(buffer: Buffer): void {
-    throw new Error("Method not implemented.");
+    const reader = new BufferReader(buffer);
+    this.nickname = reader.readOptionalString();
   }
 
   write(): Buffer {

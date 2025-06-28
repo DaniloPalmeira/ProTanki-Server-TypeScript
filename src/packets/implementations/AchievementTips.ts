@@ -5,15 +5,22 @@ import { IAchievementTips } from "../interfaces/IAchievementTips";
 import { BasePacket } from "./BasePacket";
 
 export default class AchievementTips extends BasePacket implements IAchievementTips {
-  achievementIds: Achievement[];
+  achievementIds: Achievement[] = [];
 
-  constructor(achievementIds: Achievement[]) {
+  constructor(achievementIds?: Achievement[]) {
     super();
-    this.achievementIds = achievementIds;
+    if (achievementIds) {
+      this.achievementIds = achievementIds;
+    }
   }
 
   read(buffer: Buffer): void {
-    throw new Error("Method not implemented.");
+    const reader = new BufferReader(buffer);
+    const count = reader.readInt32BE();
+    this.achievementIds = [];
+    for (let i = 0; i < count; i++) {
+      this.achievementIds.push(reader.readInt32BE());
+    }
   }
 
   write(): Buffer {

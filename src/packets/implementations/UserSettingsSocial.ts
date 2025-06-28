@@ -1,19 +1,34 @@
+import { BufferReader } from "../../utils/buffer/BufferReader";
 import { BufferWriter } from "../../utils/buffer/BufferWriter";
 import { BasePacket } from "./BasePacket";
 import { ISocialLink, IUserSettingsSocial } from "../interfaces/IUserSettingsSocial";
 
 export default class UserSettingsSocial extends BasePacket implements IUserSettingsSocial {
-  passwordCreated: boolean;
-  socialLinks: ISocialLink[];
+  passwordCreated: boolean = false;
+  socialLinks: ISocialLink[] = [];
 
-  constructor(passwordCreated: boolean, socialLinks: ISocialLink[]) {
+  constructor(passwordCreated?: boolean, socialLinks?: ISocialLink[]) {
     super();
-    this.passwordCreated = passwordCreated;
-    this.socialLinks = socialLinks;
+    if (passwordCreated !== undefined) {
+      this.passwordCreated = passwordCreated;
+    }
+    if (socialLinks) {
+      this.socialLinks = socialLinks;
+    }
   }
 
   read(buffer: Buffer): void {
-    throw new Error("Method not implemented.");
+    const reader = new BufferReader(buffer);
+    this.passwordCreated = reader.readUInt8() === 1;
+    const count = reader.readInt32BE();
+    this.socialLinks = [];
+    for (let i = 0; i < count; i++) {
+      this.socialLinks.push({
+        authorizationUrl: reader.readOptionalString() ?? "",
+        isLinked: reader.readUInt8() === 1,
+        snId: reader.readOptionalString() ?? "",
+      });
+    }
   }
 
   write(): Buffer {
@@ -31,7 +46,8 @@ export default class UserSettingsSocial extends BasePacket implements IUserSetti
   }
 
   toString(): string {
-    return `UserSettingsSocial(passwordCreated=${this.passwordCreated}, socialLinks=${this.socialLinks.length})`;
+    const linksStr = this.socialLinks.map((l) => `{id: ${l.snId}, linked: ${l.isLinked}}`).join(", ");
+    return `UserSettingsSocial(passwordCreated=${this.passwordCreated}, socialLinks=[${linksStr}])`;
   }
 
   static getId(): number {

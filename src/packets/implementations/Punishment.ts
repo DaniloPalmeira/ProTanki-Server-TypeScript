@@ -1,23 +1,36 @@
+import { BufferReader } from "../../utils/buffer/BufferReader";
 import { BufferWriter } from "../../utils/buffer/BufferWriter";
 import { IPunishment } from "../interfaces/IPunishment";
 import { BasePacket } from "./BasePacket";
 
 export default class Punishment extends BasePacket implements IPunishment {
-  reason: string | null;
-  days: number;
-  hours: number;
-  minutes: number;
+  reason: string | null = null;
+  days: number = 0;
+  hours: number = 0;
+  minutes: number = 0;
 
-  constructor(reason: string | null, days: number, hours: number, minutes: number) {
+  constructor(reason?: string | null, days?: number, hours?: number, minutes?: number) {
     super();
-    this.reason = reason;
-    this.days = days;
-    this.hours = hours;
-    this.minutes = minutes;
+    if (reason) {
+      this.reason = reason;
+    }
+    if (days !== undefined) {
+      this.days = days;
+    }
+    if (hours !== undefined) {
+      this.hours = hours;
+    }
+    if (minutes !== undefined) {
+      this.minutes = minutes;
+    }
   }
 
   read(buffer: Buffer): void {
-    throw new Error("Method not implemented.");
+    const reader = new BufferReader(buffer);
+    this.reason = reader.readOptionalString();
+    this.minutes = reader.readInt32BE();
+    this.hours = reader.readInt32BE();
+    this.days = reader.readInt32BE();
   }
 
   write(): Buffer {
@@ -30,7 +43,7 @@ export default class Punishment extends BasePacket implements IPunishment {
   }
 
   toString(): string {
-    return `Punishment(reason=${this.reason}, days=${this.days}, hours=${this.hours}, minutes=${this.minutes})`;
+    return `Punishment(reason='${this.reason}', days=${this.days}, hours=${this.hours}, minutes=${this.minutes})`;
   }
 
   static getId(): number {

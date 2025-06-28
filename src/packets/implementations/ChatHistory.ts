@@ -1,17 +1,44 @@
+import { BufferReader } from "../../utils/buffer/BufferReader";
 import { BufferWriter } from "../../utils/buffer/BufferWriter";
 import { IChatHistory, IChatMessageData, IChatMessageUser } from "../interfaces/IChatHistory";
 import { BasePacket } from "./BasePacket";
 
 export default class ChatHistory extends BasePacket implements IChatHistory {
-  messages: IChatMessageData[];
+  messages: IChatMessageData[] = [];
 
-  constructor(messages: IChatMessageData[]) {
+  constructor(messages?: IChatMessageData[]) {
     super();
-    this.messages = messages;
+    if (messages) {
+      this.messages = messages;
+    }
+  }
+
+  private readUserFromBuffer(reader: BufferReader): IChatMessageUser | null {
+    const isEmpty = reader.readUInt8() === 1;
+    if (isEmpty) {
+      return null;
+    }
+    return {
+      moderatorLevel: reader.readInt32BE(),
+      ip: reader.readOptionalString(),
+      rank: reader.readInt32BE(),
+      uid: reader.readOptionalString() ?? "",
+    };
   }
 
   read(buffer: Buffer): void {
-    throw new Error("Method not implemented.");
+    const reader = new BufferReader(buffer);
+    const count = reader.readInt32BE();
+    this.messages = [];
+    for (let i = 0; i < count; i++) {
+      this.messages.push({
+        source: this.readUserFromBuffer(reader),
+        isSystem: reader.readUInt8() === 1,
+        target: this.readUserFromBuffer(reader),
+        message: reader.readOptionalString() ?? "",
+        isWarning: reader.readUInt8() === 1,
+      });
+    }
   }
 
   private writeUserToBuffer(writer: BufferWriter, user: IChatMessageUser | null): void {
@@ -41,7 +68,8 @@ export default class ChatHistory extends BasePacket implements IChatHistory {
   }
 
   toString(): string {
-    return `ChatHistory(messages=${this.messages.length})`;
+    const messageSummaries = this.messages.map((m) => `{${m.source?.uid ?? "SYS"}->${m.target?.uid ?? "ALL"}: "${m.message}"}`).join(", ");
+    return `ChatHistory(count=${this.messages.length}, messages=[${messageSummaries}])`;
   }
 
   static getId(): number {

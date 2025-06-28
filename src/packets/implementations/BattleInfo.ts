@@ -1,17 +1,21 @@
+import { BufferReader } from "../../utils/buffer/BufferReader";
 import { BufferWriter } from "../../utils/buffer/BufferWriter";
 import { IBattleInfo } from "../interfaces/IBattleInfo";
 import { BasePacket } from "./BasePacket";
 
 export default class BattleInfo extends BasePacket implements IBattleInfo {
-  jsonData: string | null;
+  jsonData: string | null = null;
 
-  constructor(jsonData: string | null) {
+  constructor(jsonData?: string | null) {
     super();
-    this.jsonData = jsonData;
+    if (jsonData) {
+      this.jsonData = jsonData;
+    }
   }
 
   read(buffer: Buffer): void {
-    throw new Error("Method not implemented.");
+    const reader = new BufferReader(buffer);
+    this.jsonData = reader.readOptionalString();
   }
 
   write(): Buffer {
@@ -21,7 +25,7 @@ export default class BattleInfo extends BasePacket implements IBattleInfo {
   }
 
   toString(): string {
-    return `BattleInfo()`;
+    return `BattleInfo(jsonData=${this.jsonData})`;
   }
 
   static getId(): number {

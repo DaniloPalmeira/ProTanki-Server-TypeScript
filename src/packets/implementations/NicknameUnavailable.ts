@@ -4,11 +4,13 @@ import { BasePacket } from "./BasePacket";
 import { INicknameUnavailable } from "../interfaces/INicknameUnavailable";
 
 export default class NicknameUnavailable extends BasePacket implements INicknameUnavailable {
-  suggestions: string[] | null;
+  suggestions: string[] | null = null;
 
-  constructor(suggestions: string[] | null = null) {
+  constructor(suggestions?: string[] | null) {
     super();
-    this.suggestions = suggestions;
+    if (suggestions) {
+      this.suggestions = suggestions;
+    }
   }
 
   read(buffer: Buffer): void {
@@ -23,7 +25,8 @@ export default class NicknameUnavailable extends BasePacket implements INickname
   }
 
   toString(): string {
-    return `NicknameUnavailable(suggestions=${this.suggestions?.join(", ")})`;
+    const suggestionsStr = this.suggestions ? `[${this.suggestions.join(", ")}]` : "null";
+    return `NicknameUnavailable(suggestions=${suggestionsStr})`;
   }
 
   static getId(): number {

@@ -4,11 +4,13 @@ import { ICaptchaLocation } from "../interfaces/ICaptchaLocation";
 import { BasePacket } from "./BasePacket";
 
 export default class CaptchaLocation extends BasePacket implements ICaptchaLocation {
-  captchaLocations: Array<number>;
+  captchaLocations: Array<number> = [];
 
-  constructor(captchaLocations: Array<number>) {
+  constructor(captchaLocations?: Array<number>) {
     super();
-    this.captchaLocations = captchaLocations;
+    if (captchaLocations) {
+      this.captchaLocations = captchaLocations;
+    }
   }
 
   read(buffer: Buffer): void {
@@ -30,7 +32,7 @@ export default class CaptchaLocation extends BasePacket implements ICaptchaLocat
   }
 
   toString(): string {
-    return `CaptchaLocation(captchaLocations=${this.captchaLocations})`;
+    return `CaptchaLocation(locations=[${this.captchaLocations.join(", ")}])`;
   }
 
   static getId(): number {
