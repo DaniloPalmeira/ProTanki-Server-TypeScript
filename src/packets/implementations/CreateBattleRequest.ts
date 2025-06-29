@@ -73,7 +73,30 @@ export default class CreateBattleRequest extends BasePacket implements ICreateBa
   }
 
   toString(): string {
-    return `CreateBattleRequest(name=${this.name}, map=${this.mapId})`;
+    return (
+      `CreateBattleRequest(\n` +
+      `  name: ${this.name},\n` +
+      `  mapId: ${this.mapId},\n` +
+      `  battleMode: ${BattleMode[this.battleMode]},\n` +
+      `  maxPeopleCount: ${this.maxPeopleCount},\n` +
+      `  timeLimitInSec: ${this.timeLimitInSec},\n` +
+      `  scoreLimit: ${this.scoreLimit},\n` +
+      `  minRank: ${this.minRank},\n` +
+      `  maxRank: ${this.maxRank},\n` +
+      `  privateBattle: ${this.privateBattle},\n` +
+      `  proBattle: ${this.proBattle},\n` +
+      `  autoBalance: ${this.autoBalance},\n` +
+      `  friendlyFire: ${this.friendlyFire},\n` +
+      `  parkourMode: ${this.parkourMode},\n` +
+      `  equipmentConstraintsMode: ${EquipmentConstraintsMode[this.equipmentConstraintsMode]},\n` +
+      `  withoutBonuses: ${this.withoutBonuses},\n` +
+      `  withoutCrystals: ${this.withoutCrystals},\n` +
+      `  withoutSupplies: ${this.withoutSupplies},\n` +
+      `  withoutUpgrades: ${this.withoutUpgrades},\n` +
+      `  reArmorEnabled: ${this.reArmorEnabled},\n` +
+      `  reducedResistances: ${this.reducedResistances}\n` +
+      `)`
+    );
   }
 
   static getId(): number {
