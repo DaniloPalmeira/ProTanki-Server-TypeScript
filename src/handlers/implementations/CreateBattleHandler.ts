@@ -64,7 +64,9 @@ export default class CreateBattleHandler implements IPacketHandler<CreateBattleR
       };
     }
 
-    client.sendPacket(new CreateBattleResponse(JSON.stringify(finalPayload)));
+    const responsePacket = new CreateBattleResponse(JSON.stringify(finalPayload));
+    server.broadcastToLobby(responsePacket);
+
     await LobbyWorkflow.sendBattleDetails(client, server, battle);
   }
 }
