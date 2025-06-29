@@ -27,8 +27,10 @@ import BattleInfo from "../packets/implementations/BattleInfo";
 import { battleDataObject } from "../config/BattleData";
 import { ResourceId } from "../types/resourceTypes";
 import BattleList from "../packets/implementations/BattleList";
-import { BattleMode, EquipmentConstraintsMode } from "../models/Battle";
+import { Battle, BattleMode, EquipmentConstraintsMode } from "../models/Battle";
 import UserNotInBattlePacket from "../packets/implementations/UserNotInBattlePacket";
+import ConfirmBattleInfo from "../packets/implementations/ConfirmBattleInfo";
+import BattleDetails from "../packets/implementations/BattleDetails";
 
 export class LobbyWorkflow {
   public static async enterLobby(client: ProTankiClient, server: ProTankiServer): Promise<void> {
@@ -256,5 +258,74 @@ export class LobbyWorkflow {
     if (!isInBattle) {
       client.sendPacket(new UserNotInBattlePacket(targetNickname));
     }
+  }
+
+  public static async sendBattleDetails(client: ProTankiClient, server: ProTankiServer, battle: Battle): Promise<void> {
+    client.sendPacket(new ConfirmBattleInfo(battle.battleId));
+
+    const mapInfo = battleDataObject.maps.find((m) => m.mapId === battle.settings.mapId);
+    let preview = 0;
+    if (mapInfo) {
+      try {
+        preview = ResourceManager.getIdlowById(mapInfo.previewResource as ResourceId);
+      } catch (error) {
+        logger.warn(`Could not find resource for map preview: ${mapInfo.previewResource}`);
+      }
+    }
+
+    const baseDetailsPayload = {
+      battleMode: BattleMode[battle.settings.battleMode],
+      itemId: battle.battleId,
+      scoreLimit: battle.settings.scoreLimit,
+      timeLimitInSec: battle.settings.timeLimitInSec,
+      preview: preview,
+      maxPeopleCount: battle.settings.maxPeopleCount,
+      name: battle.settings.name,
+      proBattle: battle.settings.proBattle,
+      minRank: battle.settings.minRank,
+      maxRank: battle.settings.maxRank,
+      roundStarted: true,
+      spectator: false,
+      withoutBonuses: battle.settings.withoutBonuses,
+      withoutCrystals: battle.settings.withoutCrystals,
+      withoutSupplies: battle.settings.withoutSupplies,
+      proBattleEnterPrice: 150,
+      timeLeftInSec: battle.settings.timeLimitInSec,
+      userPaidNoSuppliesBattle: true,
+      proBattleTimeLeftInSec: 1,
+      parkourMode: battle.settings.parkourMode,
+      equipmentConstraintsMode: EquipmentConstraintsMode[battle.settings.equipmentConstraintsMode],
+      reArmorEnabled: battle.settings.reArmorEnabled,
+      reducedResistance: battle.settings.reducedResistances,
+      esportDropTiming: battle.settings.esportDropTiming,
+      withoutGoldBoxes: battle.settings.withoutGoldBoxes,
+      withoutGoldSiren: battle.settings.withoutGoldSiren,
+      withoutGoldZone: battle.settings.withoutGoldZone,
+      withoutMedkit: battle.settings.withoutMedkit,
+      withoutMines: battle.settings.withoutMines,
+      randomGold: battle.settings.randomGold,
+      dependentCooldownEnabled: battle.settings.dependentCooldownEnabled,
+    };
+
+    let finalPayload;
+    if (battle.isTeamMode()) {
+      finalPayload = {
+        ...baseDetailsPayload,
+        usersBlue: battle.usersBlue.map((user) => ({ kills: 0, score: user.experience, suspicious: false, user: user.username })),
+        usersRed: battle.usersRed.map((user) => ({ kills: 0, score: user.experience, suspicious: false, user: user.username })),
+        scoreRed: battle.scoreRed,
+        scoreBlue: battle.scoreBlue,
+        autoBalance: battle.settings.autoBalance,
+        friendlyFire: battle.settings.friendlyFire,
+      };
+    } else {
+      finalPayload = {
+        ...baseDetailsPayload,
+        users: battle.users.map((user) => user.username),
+      };
+    }
+
+    const jsonData = JSON.stringify(finalPayload);
+    client.sendPacket(new BattleDetails(jsonData));
   }
 }

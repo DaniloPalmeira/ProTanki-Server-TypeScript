@@ -8,6 +8,7 @@ import { ResourceManager } from "../../utils/ResourceManager";
 import { ResourceId } from "../../types/resourceTypes";
 import CreateBattleResponse from "../../packets/implementations/CreateBattleResponse";
 import logger from "../../utils/Logger";
+import { LobbyWorkflow } from "../../workflows/LobbyWorkflow";
 
 export default class CreateBattleHandler implements IPacketHandler<CreateBattleRequest> {
   public readonly packetId = CreateBattleRequest.getId();
@@ -53,16 +54,17 @@ export default class CreateBattleHandler implements IPacketHandler<CreateBattleR
     if (battle.isTeamMode()) {
       finalPayload = {
         ...basePayload,
-        usersBlue: battle.usersBlue.map((u) => u.username),
-        usersRed: battle.usersRed.map((u) => u.username),
+        usersBlue: [],
+        usersRed: [],
       };
     } else {
       finalPayload = {
         ...basePayload,
-        users: battle.users.map((u) => u.username),
+        users: [],
       };
     }
 
     client.sendPacket(new CreateBattleResponse(JSON.stringify(finalPayload)));
+    await LobbyWorkflow.sendBattleDetails(client, server, battle);
   }
 }

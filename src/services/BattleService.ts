@@ -55,14 +55,6 @@ export class BattleService {
   public createBattle(settings: IBattleCreationSettings, creator?: UserDocument): Battle {
     const battle = new Battle(settings);
 
-    if (creator) {
-      if (battle.isTeamMode()) {
-        battle.usersBlue.push(creator);
-      } else {
-        battle.users.push(creator);
-      }
-    }
-
     this.activeBattles.set(battle.battleId, battle);
     logger.info(`Battle created`, {
       battleId: battle.battleId,
