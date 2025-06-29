@@ -5,6 +5,7 @@ import LoadDependencies from "../packets/implementations/LoadDependencies";
 import MountItemPacket from "../packets/implementations/MountItemPacket";
 import RemoveBattleInfoPacket from "../packets/implementations/RemoveBattleInfoPacket";
 import SetLayout from "../packets/implementations/SetLayout";
+import ShopItemsPacket from "../packets/implementations/ShopItemsPacket";
 import { ProTankiClient } from "../server/ProTankiClient";
 import { ProTankiServer } from "../server/ProTankiServer";
 import { ResourceId } from "../types/resourceTypes";
@@ -151,6 +152,14 @@ export class GarageWorkflow {
     client.sendPacket(new MountItemPacket("wasp_m3", true));
     client.sendPacket(new MountItemPacket("smoky_m3", true));
     client.sendPacket(new MountItemPacket("green_m0", true));
+
+    const shopItemsJson = `{
+            "items": [],
+            "delayMountArmorInSec": 0,
+            "delayMountWeaponInSec": 0,
+            "delayMountColorInSec": 0
+        }`;
+    client.sendPacket(new ShopItemsPacket(shopItemsJson));
 
     client.sendPacket(new ConfirmLayoutChange(1, 1));
   }
