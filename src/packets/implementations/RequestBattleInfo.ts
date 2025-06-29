@@ -7,7 +7,8 @@ export default class RequestBattleInfo extends BasePacket implements IRequestBat
 
   read(buffer: Buffer): void {
     const reader = new BufferReader(buffer);
-    this.battleId = reader.readOptionalString();
+    const readId = reader.readOptionalString();
+    this.battleId = readId ? readId.trim() : null;
   }
 
   write(): Buffer {
