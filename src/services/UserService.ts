@@ -21,6 +21,29 @@ export class UserService {
     this.rankService = rankService;
   }
 
+  public async findUserByLoginToken(token: string): Promise<UserDocument | null> {
+    if (!token) return null;
+    try {
+      return await User.findOne({ loginToken: token });
+    } catch (error) {
+      logger.error(`Error finding user by login token`, { error });
+      throw error;
+    }
+  }
+
+  public async generateAndSetLoginToken(user: UserDocument): Promise<string> {
+    try {
+      const token = crypto.randomBytes(16).toString("hex");
+      user.loginToken = token;
+      await user.save();
+      logger.info(`Generated new login token for user ${user.username}`);
+      return token;
+    } catch (error) {
+      logger.error(`Error generating login token for user ${user.username}`, { error });
+      throw error;
+    }
+  }
+
   public async findUserByUsername(username: string): Promise<UserDocument | null> {
     try {
       return await User.findOne({

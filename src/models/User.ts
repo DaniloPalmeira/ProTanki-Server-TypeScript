@@ -61,6 +61,7 @@ export interface UserAttributes {
   questStreak: number;
   lastQuestCompletedDate: Date | null;
   lastQuestGeneratedDate: Date | null;
+  loginToken: string | null;
   createdAt?: Date;
   lastLogin?: Date | null;
 }
@@ -101,6 +102,7 @@ const UserSchema = new Schema<UserDocument>({
   questStreak: { type: Number, default: 0 },
   lastQuestCompletedDate: { type: Date, default: null },
   lastQuestGeneratedDate: { type: Date, default: null },
+  loginToken: { type: String, unique: true, sparse: true, default: null },
   createdAt: { type: Date, default: Date.now },
   lastLogin: { type: Date, default: null },
 });

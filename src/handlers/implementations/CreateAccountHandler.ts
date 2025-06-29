@@ -7,6 +7,7 @@ import { ValidationUtils } from "../../utils/ValidationUtils";
 import InvalidNickname from "../../packets/implementations/InvalidNickname";
 import logger from "../../utils/Logger";
 import NicknameUnavailable from "../../packets/implementations/NicknameUnavailable";
+import LoginTokenPacket from "../../packets/implementations/LoginTokenPacket";
 
 export default class CreateAccountHandler implements IPacketHandler<CreateAccount> {
   public readonly packetId = CreateAccount.getId();
@@ -23,10 +24,15 @@ export default class CreateAccountHandler implements IPacketHandler<CreateAccoun
     }
 
     try {
-      await server.userService.createUser({
+      const user = await server.userService.createUser({
         username: packet.nickname,
         password: packet.password,
       });
+
+      if (packet.rememberMe) {
+        const token = await server.userService.generateAndSetLoginToken(user);
+        client.sendPacket(new LoginTokenPacket(token));
+      }
 
       logger.info(`Account created successfully for ${packet.nickname}`, {
         client: client.getRemoteAddress(),
