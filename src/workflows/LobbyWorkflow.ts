@@ -237,6 +237,9 @@ export class LobbyWorkflow {
       return;
     }
 
+    client.subscriptions.add(targetNickname.toLowerCase());
+    logger.info(`Client ${client.user?.username} subscribed to updates for ${targetNickname}`);
+
     const targetClient = server.findClientByUsername(targetNickname);
     const isOnline = !!targetClient;
 

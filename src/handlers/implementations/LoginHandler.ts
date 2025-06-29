@@ -40,6 +40,8 @@ export default class LoginHandler implements IPacketHandler<Login> {
 
       client.sendPacket(new HideLoginForm());
       await LobbyWorkflow.enterLobby(client, server);
+
+      server.notifySubscribersOfStatusChange(user.username, true);
     } catch (error: any) {
       logger.warn(`Failed login attempt for username ${packet.username}`, {
         error: error.message,

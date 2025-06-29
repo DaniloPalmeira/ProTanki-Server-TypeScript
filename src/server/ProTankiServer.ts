@@ -18,6 +18,7 @@ import { ShopService } from "../services/ShopService";
 import { RankService } from "../services/RankService";
 import { QuestService } from "../services/QuestService";
 import { BattleService } from "../services/BattleService";
+import OnlineNotifierData from "../packets/implementations/OnlineNotifierData";
 
 export interface IServerServices {
   configService: ConfigService;
@@ -180,5 +181,16 @@ export class ProTankiServer {
 
   public broadcastToLobby(packet: IPacket): void {
     this.clientManager.sendToLobbyClients(packet);
+  }
+
+  public notifySubscribersOfStatusChange(username: string, isOnline: boolean, serverNumber: number = 1): void {
+    const lowerCaseUsername = username.toLowerCase();
+
+    this.clientManager.getClients().forEach((client) => {
+      if (client.subscriptions.has(lowerCaseUsername)) {
+        logger.info(`Notifying ${client.user?.username} about status change for ${username}`);
+        client.sendPacket(new OnlineNotifierData(isOnline, serverNumber, username));
+      }
+    });
   }
 }

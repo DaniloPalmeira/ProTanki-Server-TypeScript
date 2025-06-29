@@ -28,6 +28,7 @@ export class ProTankiClient {
   public shopCountryCode: string = "BR";
   private packetQueue: PacketQueueItem[] = [];
   private isProcessingQueue: boolean = false;
+  public subscriptions: Set<string> = new Set<string>();
 
   public isInFlowMode: boolean = false;
   public flowTarget: string | null = null;
@@ -158,6 +159,9 @@ export class ProTankiClient {
 
   private handleClose(): void {
     logger.info(`Connection closed`, { client: this.getRemoteAddress() });
+    if (this.user) {
+      this.server.notifySubscribersOfStatusChange(this.user.username, false);
+    }
     this.server.removeClient(this);
     this.socket.destroy();
   }
