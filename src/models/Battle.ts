@@ -62,12 +62,17 @@ export class Battle {
   public readonly battleId: string;
   public readonly settings: IBattleCreationSettings;
   public users: UserDocument[] = [];
+  public usersBlue: UserDocument[] = [];
+  public usersRed: UserDocument[] = [];
+  public scoreBlue: number = 0;
+  public scoreRed: number = 0;
 
-  constructor(settings: IBattleCreationSettings, creator?: UserDocument) {
+  constructor(settings: IBattleCreationSettings) {
     this.battleId = crypto.randomBytes(8).toString("hex");
     this.settings = settings;
-    if (creator) {
-      this.users.push(creator);
-    }
+  }
+
+  public isTeamMode(): boolean {
+    return this.settings.battleMode !== BattleMode.DM;
   }
 }

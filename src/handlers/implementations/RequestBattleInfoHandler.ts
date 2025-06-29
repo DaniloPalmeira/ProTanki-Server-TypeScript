@@ -40,7 +40,7 @@ export default class RequestBattleInfoHandler implements IPacketHandler<RequestB
       }
     }
 
-    const detailsPayload = {
+    const baseDetailsPayload = {
       battleMode: BattleMode[battle.settings.battleMode],
       itemId: battle.battleId,
       scoreLimit: battle.settings.scoreLimit,
@@ -51,15 +51,15 @@ export default class RequestBattleInfoHandler implements IPacketHandler<RequestB
       proBattle: battle.settings.proBattle,
       minRank: battle.settings.minRank,
       maxRank: battle.settings.maxRank,
-      roundStarted: true, // Placeholder
-      spectator: false, // Placeholder
+      roundStarted: true,
+      spectator: false,
       withoutBonuses: battle.settings.withoutBonuses,
       withoutCrystals: battle.settings.withoutCrystals,
       withoutSupplies: battle.settings.withoutSupplies,
-      proBattleEnterPrice: 150, // Placeholder
-      timeLeftInSec: battle.settings.timeLimitInSec, // Placeholder
-      userPaidNoSuppliesBattle: true, // Placeholder
-      proBattleTimeLeftInSec: 1, // Placeholder
+      proBattleEnterPrice: 150,
+      timeLeftInSec: battle.settings.timeLimitInSec,
+      userPaidNoSuppliesBattle: true,
+      proBattleTimeLeftInSec: 1,
       parkourMode: battle.settings.parkourMode,
       equipmentConstraintsMode: EquipmentConstraintsMode[battle.settings.equipmentConstraintsMode],
       reArmorEnabled: battle.settings.reArmorEnabled,
@@ -72,15 +72,27 @@ export default class RequestBattleInfoHandler implements IPacketHandler<RequestB
       withoutMines: battle.settings.withoutMines,
       randomGold: battle.settings.randomGold,
       dependentCooldownEnabled: battle.settings.dependentCooldownEnabled,
-      usersBlue: [], // Placeholder
-      usersRed: [], // Placeholder
-      scoreRed: 0, // Placeholder
-      scoreBlue: 0, // Placeholder
-      autoBalance: battle.settings.autoBalance,
-      friendlyFire: battle.settings.friendlyFire,
     };
 
-    const jsonData = JSON.stringify(detailsPayload);
+    let finalPayload;
+    if (battle.isTeamMode()) {
+      finalPayload = {
+        ...baseDetailsPayload,
+        usersBlue: battle.usersBlue.map((user) => ({ kills: 0, score: user.experience, suspicious: false, user: user.username })),
+        usersRed: battle.usersRed.map((user) => ({ kills: 0, score: user.experience, suspicious: false, user: user.username })),
+        scoreRed: battle.scoreRed,
+        scoreBlue: battle.scoreBlue,
+        autoBalance: battle.settings.autoBalance,
+        friendlyFire: battle.settings.friendlyFire,
+      };
+    } else {
+      finalPayload = {
+        ...baseDetailsPayload,
+        users: battle.users.map((user) => user.username),
+      };
+    }
+
+    const jsonData = JSON.stringify(finalPayload);
     client.sendPacket(new BattleDetails(jsonData));
   }
 }

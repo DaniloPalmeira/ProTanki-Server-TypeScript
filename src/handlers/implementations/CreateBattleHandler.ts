@@ -32,7 +32,7 @@ export default class CreateBattleHandler implements IPacketHandler<CreateBattleR
       }
     }
 
-    const responsePayload = {
+    const basePayload = {
       battleId: battle.battleId,
       battleMode: battleModeStr,
       map: battle.settings.mapId,
@@ -46,9 +46,23 @@ export default class CreateBattleHandler implements IPacketHandler<CreateBattleR
       parkourMode: battle.settings.parkourMode,
       equipmentConstraintsMode: equipmentConstraintsModeStr,
       suspicionLevel: "NONE",
-      users: [client.user.username],
     };
 
-    client.sendPacket(new CreateBattleResponse(JSON.stringify(responsePayload)));
+    let finalPayload;
+
+    if (battle.isTeamMode()) {
+      finalPayload = {
+        ...basePayload,
+        usersBlue: battle.usersBlue.map((u) => u.username),
+        usersRed: battle.usersRed.map((u) => u.username),
+      };
+    } else {
+      finalPayload = {
+        ...basePayload,
+        users: battle.users.map((u) => u.username),
+      };
+    }
+
+    client.sendPacket(new CreateBattleResponse(JSON.stringify(finalPayload)));
   }
 }
