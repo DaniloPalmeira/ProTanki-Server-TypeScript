@@ -1,0 +1,13 @@
+{
+  "resources": [
+    { "idhigh": "0", "idlow": 2515211, "versionhigh": "0", "versionlow": 1, "lazy": false, "alpha": false, "type": 17 },
+    { "idhigh": "0", "idlow": 5925801, "versionhigh": "0", "versionlow": 1, "lazy": false, "alpha": false, "type": 17 },
+    { "idhigh": "0", "idlow": 13738441, "versionhigh": "0", "versionlow": 1, "lazy": false, "alpha": true, "type": 10 },
+    { "idhigh": "0", "idlow": 12394839, "versionhigh": "0", "versionlow": 1, "lazy": false, "alpha": true, "type": 10 },
+    { "idhigh": "0", "idlow": 6161173, "versionhigh": "0", "versionlow": 1, "lazy": false, "alpha": false, "type": 10 },
+    { "idhigh": "0", "idlow": 3253407, "versionhigh": "0", "versionlow": 1, "lazy": false, "alpha": true, "type": 10 },
+    { "idhigh": "0", "idlow": 13797085, "versionhigh": "0", "versionlow": 1, "lazy": false, "alpha": false, "type": 10 },
+    { "idhigh": "0", "idlow": 3261656, "versionhigh": "0", "versionlow": 1, "lazy": false, "alpha": false, "type": 17 },
+    { "idhigh": "0", "idlow": 10241132, "versionhigh": "0", "versionlow": 1, "lazy": false, "alpha": true, "type": 10 }
+  ]
+}
