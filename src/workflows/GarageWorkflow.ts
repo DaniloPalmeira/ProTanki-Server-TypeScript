@@ -10,28 +10,29 @@ import logger from "../utils/Logger";
 import { ResourceManager } from "../utils/ResourceManager";
 
 export class GarageWorkflow {
-    public static async enterGarage(client: ProTankiClient, server: ProTankiServer): Promise<void> {
-        if (!client.user) {
-            logger.error("Attempted to enter garage without a user authenticated.", { client: client.getRemoteAddress() });
-            return;
-        }
-
-        client.setState("garage");
-        client.sendPacket(new SetLayout(1));
-        client.sendPacket(new RemoveBattleInfoPacket());
-
-        const resourceIds: ResourceId[] = [];
-
-        const dependencies = {
-            resources: ResourceManager.getBulkResources(resourceIds),
-        };
-        client.sendPacket(new LoadDependencies(dependencies, CALLBACK.GARAGE_DATA));
-
-        logger.info(`User ${client.user.username} is loading garage resources.`);
+  public static async enterGarage(client: ProTankiClient, server: ProTankiServer): Promise<void> {
+    if (!client.user) {
+      logger.error("Attempted to enter garage without a user authenticated.", { client: client.getRemoteAddress() });
+      return;
     }
 
-    public static initializeGarage(client: ProTankiClient, server: ProTankiServer): void {
-        logger.info(`Initializing garage for ${client.user?.username}.`);
-        client.sendPacket(new ConfirmLayoutChange(1, 1));
-    }
+    client.setState("garage");
+    client.sendPacket(new SetLayout(1));
+    client.sendPacket(new RemoveBattleInfoPacket());
+
+    const resourceIds: ResourceId[] = ["garage", "hull/wasp/m3/model", "hull/wasp/m3/preview", "paint/green/preview", "paint/green/texture", "paint/holiday/preview", "paint/holiday/texture", "turret/smoky/m3/model", "turret/smoky/m3/preview"];
+
+    const dependencies = {
+      resources: ResourceManager.getBulkResources(resourceIds),
+    };
+    client.sendPacket(new LoadDependencies(dependencies, CALLBACK.GARAGE_DATA));
+
+    logger.info(`User ${client.user.username} is loading garage resources.`);
+  }
+
+  public static initializeGarage(client: ProTankiClient, server: ProTankiServer): void {
+    logger.info(`Initializing garage for ${client.user?.username}.`);
+
+    client.sendPacket(new ConfirmLayoutChange(1, 1));
+  }
 }
