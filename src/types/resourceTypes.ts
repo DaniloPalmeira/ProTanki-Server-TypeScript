@@ -1,6 +1,9 @@
 // Arquivo gerado automaticamente. Não edite manualmente.
 
 export const ResourceData = {
+    "garage": { idLow: 2515211, path: "/0/46/141/13/1/", versionLow: 1 },
+    "hull/wasp/m3/model": { idLow: 5925801, path: "/0/132/153/251/1/", versionLow: 1 },
+    "hull/wasp/m3/preview": { idLow: 13738441, path: "/0/321/241/311/1/", versionLow: 1 },
     "maps/map_2042/preview/SPACE": { idLow: 9205564, path: "/0/214/167/74/1/", versionLow: 1 },
     "maps/map_2042/preview/SUMMER": { idLow: 1127015, path: "/0/21/62/147/1/", versionLow: 1 },
     "maps/map_2042/preview/WINTER": { idLow: 13778403, path: "/0/322/75/343/1/", versionLow: 1 },
@@ -294,7 +297,13 @@ export const ResourceData = {
     "maps/map_zone/preview/SPACE": { idLow: 12058476, path: "/0/267/377/154/1/", versionLow: 1 },
     "maps/map_zone/preview/SUMMER": { idLow: 7493659, path: "/0/162/130/33/1/", versionLow: 1 },
     "maps/map_zone/preview/WINTER": { idLow: 11622303, path: "/0/261/127/237/1/", versionLow: 1 },
+    "paint/green/preview": { idLow: 12394839, path: "/0/275/41/127/1/", versionLow: 1 },
+    "paint/green/texture": { idLow: 6161173, path: "/0/136/3/25/1/", versionLow: 1 },
+    "paint/holiday/preview": { idLow: 3253407, path: "/0/61/244/237/1/", versionLow: 1 },
+    "paint/holiday/texture": { idLow: 13797085, path: "/0/322/206/335/1/", versionLow: 1 },
     "sounds/notifications/battle_invite": { idLow: 14474621, path: "/0/334/335/175/1/", versionLow: 1 },
+    "turret/smoky/m3/model": { idLow: 3261656, path: "/0/61/304/330/1/", versionLow: 1 },
+    "turret/smoky/m3/preview": { idLow: 10241132, path: "/0/234/104/154/1/", versionLow: 1 },
     "ui/language_images": { idLow: 13660573, path: "/0/320/161/235/3/", versionLow: 3 },
     "ui/login_background": { idLow: 12669901, path: "/0/301/123/315/1/", versionLow: 1 },
     "ui/quests/icons/battle_score": { idLow: 1522770, path: "/0/27/74/122/1/", versionLow: 1 },
