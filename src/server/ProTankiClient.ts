@@ -7,6 +7,7 @@ import { IPacket } from "../packets/interfaces/IPacket";
 import Protection from "../packets/implementations/Protection";
 import logger from "../utils/Logger";
 import { UserDocument } from "../models/User";
+import Ping from "../packets/implementations/Ping";
 
 interface PacketQueueItem {
   packetId: number;
@@ -29,6 +30,8 @@ export class ProTankiClient {
   private packetQueue: PacketQueueItem[] = [];
   private isProcessingQueue: boolean = false;
   public subscriptions: Set<string> = new Set<string>();
+  public lastPingSentTimestamp: number = 0;
+  public pingHistory: number[] = [];
 
   public isInFlowMode: boolean = false;
   public flowTarget: string | null = null;
@@ -172,6 +175,9 @@ export class ProTankiClient {
   }
 
   public sendPacket(packet: IPacket, encrypt: boolean = true): void {
+    if (packet instanceof Ping) {
+      this.lastPingSentTimestamp = Date.now();
+    }
     try {
       const rawBuffer = packet.write();
       const packetId = packet.getId();
