@@ -12,4 +12,5 @@ export const DEFAULT_MAX_CLIENTS = 10;
 
 export const CALLBACK = {
   LOGIN_FORM: 3,
+  GARAGE_DATA: 4,
 };
