@@ -10,6 +10,11 @@ export default class InviteCodeHandler implements IPacketHandler<InviteCode> {
   public readonly packetId = InviteCode.getId();
 
   public async execute(client: ProTankiClient, server: ProTankiServer, packet: InviteCode): Promise<void> {
+    if (!packet.inviteCode) {
+      client.sendPacket(new InviteCodeInvalid());
+      return;
+    }
+
     const result = await server.validateInviteCode(packet.inviteCode);
 
     if (!result.isValid) {

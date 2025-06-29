@@ -11,6 +11,11 @@ export default class RecoveryAccountSendCodeHandler implements IPacketHandler<Re
   public readonly packetId = RecoveryAccountSendCode.getId();
 
   public async execute(client: ProTankiClient, server: ProTankiServer, packet: RecoveryAccountSendCode): Promise<void> {
+    if (!packet.email) {
+      client.sendPacket(new RecoveryEmailNotExists());
+      return;
+    }
+
     logger.info(`Recovery code requested for email: ${packet.email}`, {
       client: client.getRemoteAddress(),
     });

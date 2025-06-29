@@ -10,7 +10,7 @@ export default class CaptchaVerifyHandler implements IPacketHandler<CaptchaVerif
   public readonly packetId = CaptchaVerify.getId();
 
   public execute(client: ProTankiClient, server: ProTankiServer, packet: CaptchaVerify): void {
-    if (client.captchaSolution === packet.solution.toLowerCase()) {
+    if (packet.solution && client.captchaSolution === packet.solution.toLowerCase()) {
       client.sendPacket(new CaptchaIsValid(packet.view));
       return;
     }
