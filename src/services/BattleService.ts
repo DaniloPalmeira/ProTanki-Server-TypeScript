@@ -79,4 +79,16 @@ export class BattleService {
   public getBattleById(id: string): Battle | undefined {
     return this.activeBattles.get(id);
   }
+
+  public isUserInBattle(username: string): boolean {
+    const lowercasedUsername = username.toLowerCase();
+    for (const battle of this.activeBattles.values()) {
+      const isUserInBattle = battle.users.some((u) => u.username.toLowerCase() === lowercasedUsername) || battle.usersBlue.some((u) => u.username.toLowerCase() === lowercasedUsername) || battle.usersRed.some((u) => u.username.toLowerCase() === lowercasedUsername);
+
+      if (isUserInBattle) {
+        return true;
+      }
+    }
+    return false;
+  }
 }

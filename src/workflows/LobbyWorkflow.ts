@@ -28,6 +28,7 @@ import { battleDataObject } from "../config/BattleData";
 import { ResourceId } from "../types/resourceTypes";
 import BattleList from "../packets/implementations/BattleList";
 import { BattleMode, EquipmentConstraintsMode } from "../models/Battle";
+import UserNotInBattlePacket from "../packets/implementations/UserNotInBattlePacket";
 
 export class LobbyWorkflow {
   public static async enterLobby(client: ProTankiClient, server: ProTankiServer): Promise<void> {
@@ -247,5 +248,10 @@ export class LobbyWorkflow {
       premiumSecondsLeft = Math.round((targetUser.premiumExpiresAt.getTime() - Date.now()) / 1000);
     }
     client.sendPacket(new PremiumNotifierData(premiumSecondsLeft, targetUser.username));
+
+    const isInBattle = server.battleService.isUserInBattle(targetNickname);
+    if (!isInBattle) {
+      client.sendPacket(new UserNotInBattlePacket(targetNickname));
+    }
   }
 }
