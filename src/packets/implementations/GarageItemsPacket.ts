@@ -23,8 +23,7 @@ export default class GarageItemsPacket extends BasePacket implements IGarageItem
   }
 
   toString(): string {
-    const jsonSubstring = this.jsonData ? this.jsonData.substring(0, 70) + "..." : "null";
-    return `GarageItemsPacket(jsonData=${jsonSubstring})`;
+    return `GarageItemsPacket(jsonData=${this.jsonData})`;
   }
 
   static getId(): number {

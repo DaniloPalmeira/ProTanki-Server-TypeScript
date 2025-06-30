@@ -23,8 +23,7 @@ export default class ShopItemsPacket extends BasePacket implements IShopItems {
   }
 
   toString(): string {
-    const jsonSubstring = this.jsonData ? this.jsonData.substring(0, 70) + "..." : "null";
-    return `ShopItemsPacket(jsonData=${jsonSubstring})`;
+    return `ShopItemsPacket(jsonData=${this.jsonData})`;
   }
 
   static getId(): number {
