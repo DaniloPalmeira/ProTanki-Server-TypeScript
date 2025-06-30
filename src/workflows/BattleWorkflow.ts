@@ -1,5 +1,6 @@
-import { Battle } from "../models/Battle";
+import { Battle, MapTheme } from "../models/Battle";
 import BonusDataPacket from "../packets/implementations/BonusDataPacket";
+import InitMapPacket from "../packets/implementations/InitMapPacket";
 import LoadDependencies from "../packets/implementations/LoadDependencies";
 import SetLayout from "../packets/implementations/SetLayout";
 import UnloadBattleListPacket from "../packets/implementations/UnloadBattleListPacket";
@@ -55,7 +56,16 @@ export class BattleWorkflow {
     client.sendPacket(new LoadDependencies(dependencies, CALLBACK.BATTLE_MAP_GEOMETRY_LOADED));
   }
 
-  public static loadMapProps(client: ProTankiClient, server: ProTankiServer, battle: Battle): void {
+  public static loadGeneralBattleResources(client: ProTankiClient, server: ProTankiServer, battle: Battle): void {
+    logger.info(`User ${client.user?.username} is loading general battle resources for battle ${battle.battleId}.`);
+
+    const generalResources: ResourceId[] = ["sounds/maps/sandbox_ambient", "effects/dust"];
+
+    const dependencies = { resources: ResourceManager.getBulkResources(generalResources) };
+    client.sendPacket(new LoadDependencies(dependencies, CALLBACK.BATTLE_GENERAL_RESOURCES_LOADED));
+  }
+
+  public static loadPlayerEquipment(client: ProTankiClient, server: ProTankiServer, battle: Battle): void {
     logger.info(`User ${client.user?.username} is loading player equipment for battle ${battle.battleId}.`);
 
     const allPlayers = [...battle.users, ...battle.usersRed, ...battle.usersBlue];
@@ -75,11 +85,65 @@ export class BattleWorkflow {
     });
 
     const dependencies = { resources: ResourceManager.getBulkResources(Array.from(resourceSet)) };
-    client.sendPacket(new LoadDependencies(dependencies, CALLBACK.BATTLE_RESOURCES_LOADED));
+    client.sendPacket(new LoadDependencies(dependencies, CALLBACK.BATTLE_PLAYER_EQUIPMENT_LOADED));
   }
 
   public static initializeBattle(client: ProTankiClient, server: ProTankiServer, battle: Battle): void {
-    logger.info(`User ${client.user?.username} finished loading all battle resources for ${battle.battleId}.`);
-    // O cliente está pronto. Aqui enviaremos os dados finais para iniciar a batalha.
+    logger.info(`User ${client.user?.username} finished loading all battle resources for ${battle.battleId}. Initializing map...`);
+
+    const settings = battle.settings;
+    const mapId = settings.mapId;
+
+    const skyboxData = {
+      top: ResourceManager.getIdlowById("skybox/default/part1"),
+      front: ResourceManager.getIdlowById("skybox/default/part2"),
+      back: ResourceManager.getIdlowById("skybox/default/part3"),
+      bottom: ResourceManager.getIdlowById("skybox/default/part4"),
+      left: ResourceManager.getIdlowById("skybox/default/part5"),
+      right: ResourceManager.getIdlowById("skybox/default/part6"),
+    };
+
+    const mapGraphicData = {
+      mapId: mapId,
+      mapTheme: MapTheme[settings.mapTheme],
+      angleX: -0.85,
+      angleZ: 2.5,
+      lightColor: 13090219,
+      shadowColor: 5530735,
+      fogAlpha: 0.25,
+      fogColor: 10543615,
+      farLimit: 10000,
+      nearLimit: 5000,
+      gravity: 1000,
+      skyboxRevolutionSpeed: 0.0,
+      ssaoColor: 2045258,
+      dustAlpha: 0.75,
+      dustDensity: 0.15,
+      dustFarDistance: 7000,
+      dustNearDistance: 5000,
+      dustParticle: "summer",
+      dustSize: 200,
+    };
+
+    const mapInitData = {
+      kick_period_ms: 300000,
+      map_id: mapId,
+      mapId: ResourceManager.getIdlowById(`maps/${mapId}/xml` as ResourceId),
+      invisible_time: 3500,
+      spectator: false,
+      active: true,
+      dustParticle: ResourceManager.getIdlowById("effects/dust"),
+      battleId: battle.battleId,
+      minRank: settings.minRank,
+      maxRank: settings.maxRank,
+      skybox: JSON.stringify(skyboxData),
+      sound_id: ResourceManager.getIdlowById("sounds/maps/sandbox_ambient"),
+      map_graphic_data: JSON.stringify(mapGraphicData),
+      reArmorEnabled: settings.reArmorEnabled,
+      bonusLightIntensity: 0,
+      lighting: '{"ctfLighting":{"redColor":16711680,"redColorIntensity":1,"blueColor":26367,"blueColorIntensity":1,"attenuationBegin":100,"attenuationEnd":1000},"dominationLighting":{"redPointColor":16711680,"redPointIntensity":1,"bluePointColor":26367,"bluePointIntensity":1,"neutralPointColor":16777215,"neutralPointIntensity":0.7,"attenuationBegin":100,"attenuationEnd":1000}}',
+    };
+
+    client.sendPacket(new InitMapPacket(JSON.stringify(mapInitData)));
   }
 }
