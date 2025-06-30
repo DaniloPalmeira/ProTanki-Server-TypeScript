@@ -25,6 +25,7 @@ import InitBattleUsersDMPacket from "../packets/implementations/InitBattleUsersD
 import InitBattleUsersTeamPacket from "../packets/implementations/InitBattleUsersTeamPacket";
 import InitializeBattleStatisticsPacket from "../packets/implementations/InitializeBattleStatisticsPacket";
 import BattleMinesPropertiesPacket from "../packets/implementations/BattleMinesPropertiesPacket";
+import BattleConsumablesPacket from "../packets/implementations/BattleConsumablesPacket";
 
 export class BattleWorkflow {
   public static async enterBattle(client: ProTankiClient, server: ProTankiServer, battle: Battle): Promise<void> {
@@ -229,5 +230,17 @@ export class BattleWorkflow {
     };
 
     client.sendPacket(new BattleMinesPropertiesPacket(mineProps));
+
+    const consumablesData = {
+      items: [
+        { id: "armor", count: 5414, slotId: 2, itemEffectTime: 60, itemRestSec: 15 },
+        { id: "double_damage", count: 5372, slotId: 3, itemEffectTime: 60, itemRestSec: 15 },
+        { id: "n2o", count: 5347, slotId: 4, itemEffectTime: 60, itemRestSec: 15 },
+        { id: "health", count: 5259, slotId: 1, itemEffectTime: 0, itemRestSec: 30 },
+        { id: "mine", count: 3478, slotId: 5, itemEffectTime: 0, itemRestSec: 30 },
+      ],
+    };
+
+    client.sendPacket(new BattleConsumablesPacket(JSON.stringify(consumablesData)));
   }
 }
