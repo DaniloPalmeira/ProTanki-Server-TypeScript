@@ -1,5 +1,5 @@
 import { IPacket } from "./IPacket";
 
-export interface IConfirmBattleInfo extends IPacket {
+export interface ISelectBattle extends IPacket {
   battleId: string | null;
 }

@@ -29,11 +29,11 @@ import { ResourceId } from "../types/resourceTypes";
 import BattleList from "../packets/implementations/BattleList";
 import { Battle, BattleMode, EquipmentConstraintsMode } from "../models/Battle";
 import UserNotInBattlePacket from "../packets/implementations/UserNotInBattlePacket";
-import ConfirmBattleInfo from "../packets/implementations/ConfirmBattleInfo";
 import BattleDetails from "../packets/implementations/BattleDetails";
 import LoadDependencies from "../packets/implementations/LoadDependencies";
 import { CALLBACK } from "../config/constants";
 import UnloadGaragePacket from "../packets/implementations/UnloadGaragePacket";
+import SelectBattlePacket from "../packets/implementations/SelectBattlePacket";
 
 export class LobbyWorkflow {
   public static async enterLobby(client: ProTankiClient, server: ProTankiServer): Promise<void> {
@@ -276,7 +276,7 @@ export class LobbyWorkflow {
   }
 
   public static async sendBattleDetails(client: ProTankiClient, server: ProTankiServer, battle: Battle): Promise<void> {
-    client.sendPacket(new ConfirmBattleInfo(battle.battleId));
+    client.sendPacket(new SelectBattlePacket(battle.battleId));
 
     const mapInfo = battleDataObject.maps.find((m) => m.mapId === battle.settings.mapId);
     let preview = 0;

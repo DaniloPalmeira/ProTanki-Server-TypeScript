@@ -1,9 +1,9 @@
 import { BufferReader } from "../../utils/buffer/BufferReader";
 import { BufferWriter } from "../../utils/buffer/BufferWriter";
-import { IConfirmBattleInfo } from "../interfaces/IConfirmBattleInfo";
+import { ISelectBattle } from "../interfaces/ISelectBattle";
 import { BasePacket } from "./BasePacket";
 
-export default class ConfirmBattleInfo extends BasePacket implements IConfirmBattleInfo {
+export default class SelectBattlePacket extends BasePacket implements ISelectBattle {
   battleId: string | null = null;
 
   constructor(battleId?: string | null) {
@@ -15,7 +15,8 @@ export default class ConfirmBattleInfo extends BasePacket implements IConfirmBat
 
   read(buffer: Buffer): void {
     const reader = new BufferReader(buffer);
-    this.battleId = reader.readOptionalString();
+    const readId = reader.readOptionalString();
+    this.battleId = readId ? readId.trim() : null;
   }
 
   write(): Buffer {
@@ -25,7 +26,7 @@ export default class ConfirmBattleInfo extends BasePacket implements IConfirmBat
   }
 
   toString(): string {
-    return `ConfirmBattleInfo(battleId=${this.battleId})`;
+    return `SelectBattlePacket(battleId=${this.battleId})`;
   }
 
   static getId(): number {

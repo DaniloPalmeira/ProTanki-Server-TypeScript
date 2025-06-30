@@ -1,14 +1,14 @@
 import { ProTankiClient } from "../../server/ProTankiClient";
 import { ProTankiServer } from "../../server/ProTankiServer";
 import { IPacketHandler } from "../IPacketHandler";
-import RequestBattleInfo from "../../packets/implementations/RequestBattleInfo";
+import SelectBattlePacket from "../../packets/implementations/SelectBattlePacket";
 import logger from "../../utils/Logger";
 import { LobbyWorkflow } from "../../workflows/LobbyWorkflow";
 
-export default class RequestBattleInfoHandler implements IPacketHandler<RequestBattleInfo> {
-  public readonly packetId = RequestBattleInfo.getId();
+export default class SelectBattleHandler implements IPacketHandler<SelectBattlePacket> {
+  public readonly packetId = SelectBattlePacket.getId();
 
-  public async execute(client: ProTankiClient, server: ProTankiServer, packet: RequestBattleInfo): Promise<void> {
+  public async execute(client: ProTankiClient, server: ProTankiServer, packet: SelectBattlePacket): Promise<void> {
     const requestedId = packet.battleId;
     let battle = requestedId ? server.battleService.getBattleById(requestedId) : undefined;
 
