@@ -14,58 +14,82 @@ import logger from "../utils/Logger";
 import { ResourceManager } from "../utils/ResourceManager";
 
 export class GarageWorkflow {
-    public static async enterGarage(client: ProTankiClient, server: ProTankiServer): Promise<void> {
-        if (!client.user) {
-            logger.error("Attempted to enter garage without a user authenticated.", { client: client.getRemoteAddress() });
-            return;
-        }
-
-        client.setState("garage");
-        client.sendPacket(new SetLayout(1));
-        client.sendPacket(new RemoveBattleInfoPacket());
-
-        const resourceIds: ResourceId[] = [
-            "garage", "hull/wasp/m0/model", "hull/wasp/m0/preview", "hull/wasp/m1/model", "hull/wasp/m1/preview", "hull/wasp/m2/model", "hull/wasp/m2/preview", "hull/wasp/m3/model", "hull/wasp/m3/preview", "paint/green/preview", "paint/green/texture", "paint/holiday/preview", "paint/holiday/texture", "turret/smoky/m0/model", "turret/smoky/m0/preview", "turret/smoky/m1/model", "turret/smoky/m1/preview", "turret/smoky/m2/model", "turret/smoky/m2/preview", "turret/smoky/m3/model", "turret/smoky/m3/preview",
-        ];
-
-        const dependencies = {
-            resources: ResourceManager.getBulkResources(resourceIds),
-        };
-        client.sendPacket(new LoadDependencies(dependencies, CALLBACK.GARAGE_DATA));
-
-        logger.info(`User ${client.user.username} is loading garage resources.`);
+  public static async enterGarage(client: ProTankiClient, server: ProTankiServer): Promise<void> {
+    if (!client.user) {
+      logger.error("Attempted to enter garage without a user authenticated.", { client: client.getRemoteAddress() });
+      return;
     }
 
-    public static initializeGarage(client: ProTankiClient, server: ProTankiServer): void {
-        logger.info(`Initializing garage for ${client.user?.username}.`);
+    client.setState("garage");
+    client.sendPacket(new SetLayout(1));
+    client.sendPacket(new RemoveBattleInfoPacket());
 
-        // Simula o inventário do usuário. O próximo passo será ler isso do banco de dados.
-        const userInventory = {
-            smoky: 3,
-            wasp: 3,
-            paints: ["green", "holiday"],
-        };
+    const resourceIds: ResourceId[] = [
+      "garage",
+      "hull/wasp/m0/model",
+      "hull/wasp/m0/preview",
+      "hull/wasp/m1/model",
+      "hull/wasp/m1/preview",
+      "hull/wasp/m2/model",
+      "hull/wasp/m2/preview",
+      "hull/wasp/m3/model",
+      "hull/wasp/m3/preview",
+      "paint/green/preview",
+      "paint/green/texture",
+      "paint/holiday/preview",
+      "paint/holiday/texture",
+      "turret/smoky/m0/model",
+      "turret/smoky/m0/preview",
+      "turret/smoky/m1/model",
+      "turret/smoky/m1/preview",
+      "turret/smoky/m2/model",
+      "turret/smoky/m2/preview",
+      "turret/smoky/m3/model",
+      "turret/smoky/m3/preview",
+    ];
 
-        const { garageItems, shopItems } = buildGarageData(userInventory);
+    const dependencies = {
+      resources: ResourceManager.getBulkResources(resourceIds),
+    };
+    client.sendPacket(new LoadDependencies(dependencies, CALLBACK.GARAGE_DATA));
 
-        const garageData = {
-            items: garageItems,
-            garageBoxId: ResourceManager.getIdlowById("garage"),
-        };
-        client.sendPacket(new GarageItemsPacket(JSON.stringify(garageData)));
-        
-        const shopData = {
-            items: shopItems,
-            delayMountArmorInSec: 0,
-            delayMountWeaponInSec: 0,
-            delayMountColorInSec: 0,
-        };
-        client.sendPacket(new ShopItemsPacket(JSON.stringify(shopData)));
-        
-        client.sendPacket(new MountItemPacket("wasp_m3", true));
-        client.sendPacket(new MountItemPacket("smoky_m3", true));
-        client.sendPacket(new MountItemPacket("green_m0", true));
+    logger.info(`User ${client.user.username} is loading garage resources.`);
+  }
 
-        client.sendPacket(new ConfirmLayoutChange(1, 1));
+  public static initializeGarage(client: ProTankiClient, server: ProTankiServer): void {
+    if (!client.user) {
+      logger.error(`Cannot initialize garage for unauthenticated client.`);
+      return;
     }
+
+    logger.info(`Initializing garage for ${client.user.username}.`);
+
+    const userInventory = {
+      ...Object.fromEntries(client.user.turrets),
+      ...Object.fromEntries(client.user.hulls),
+      paints: client.user.paints,
+    };
+
+    const { garageItems, shopItems } = buildGarageData(userInventory);
+
+    const garageData = {
+      items: garageItems,
+      garageBoxId: ResourceManager.getIdlowById("garage"),
+    };
+    client.sendPacket(new GarageItemsPacket(JSON.stringify(garageData)));
+
+    const shopData = {
+      items: shopItems,
+      delayMountArmorInSec: 0,
+      delayMountWeaponInSec: 0,
+      delayMountColorInSec: 0,
+    };
+    client.sendPacket(new ShopItemsPacket(JSON.stringify(shopData)));
+
+    client.sendPacket(new MountItemPacket("wasp_m3", true));
+    client.sendPacket(new MountItemPacket("smoky_m3", true));
+    client.sendPacket(new MountItemPacket("green_m0", true));
+
+    client.sendPacket(new ConfirmLayoutChange(1, 1));
+  }
 }

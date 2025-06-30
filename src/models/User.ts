@@ -62,6 +62,9 @@ export interface UserAttributes {
   lastQuestCompletedDate: Date | null;
   lastQuestGeneratedDate: Date | null;
   loginToken: string | null;
+  hulls: Map<string, number>;
+  turrets: Map<string, number>;
+  paints: string[];
   createdAt?: Date;
   lastLogin?: Date | null;
 }
@@ -103,6 +106,9 @@ const UserSchema = new Schema<UserDocument>({
   lastQuestCompletedDate: { type: Date, default: null },
   lastQuestGeneratedDate: { type: Date, default: null },
   loginToken: { type: String, unique: true, sparse: true, default: null },
+  hulls: { type: Map, of: Number, default: {} },
+  turrets: { type: Map, of: Number, default: {} },
+  paints: { type: [String], default: [] },
   createdAt: { type: Date, default: Date.now },
   lastLogin: { type: Date, default: null },
 });

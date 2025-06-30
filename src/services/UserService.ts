@@ -139,6 +139,10 @@ export class UserService {
         referralHash: crypto.randomBytes(16).toString("hex"),
       });
 
+      user.turrets.set("smoky", 0);
+      user.hulls.set("wasp", 0);
+      user.paints.push("green");
+
       return await user.save();
     } catch (error) {
       logger.error(`Error creating user ${attributes.username}`, { error });
