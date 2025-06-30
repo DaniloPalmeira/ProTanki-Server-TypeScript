@@ -90,4 +90,30 @@ export class BattleService {
       return !settings.privateBattle && user.rank >= settings.minRank && user.rank <= settings.maxRank;
     });
   }
+
+  public addUserToBattle(user: UserDocument, battleId: string, teamIndex: number): Battle {
+    const battle = this.getBattleById(battleId);
+    if (!battle) throw new Error("A batalha selecionada não existe mais.");
+
+    const settings = battle.settings;
+    if (user.rank < settings.minRank || user.rank > settings.maxRank) {
+      throw new Error("Seu rank não é compatível com esta batalha.");
+    }
+
+    const totalPlayers = battle.users.length + battle.usersRed.length + battle.usersBlue.length;
+    if (totalPlayers >= settings.maxPeopleCount) {
+      throw new Error("Esta batalha está cheia.");
+    }
+
+    if (battle.isTeamMode()) {
+      if (teamIndex === 0) battle.usersRed.push(user);
+      else if (teamIndex === 1) battle.usersBlue.push(user);
+      else throw new Error("Time inválido selecionado.");
+    } else {
+      battle.users.push(user);
+    }
+
+    logger.info(`User ${user.username} added to battle ${battle.battleId}`);
+    return battle;
+  }
 }
