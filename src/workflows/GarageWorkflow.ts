@@ -4,9 +4,9 @@ import ConfirmLayoutChange from "../packets/implementations/ConfirmLayoutChange"
 import GarageItemsPacket from "../packets/implementations/GarageItemsPacket";
 import LoadDependencies from "../packets/implementations/LoadDependencies";
 import MountItemPacket from "../packets/implementations/MountItemPacket";
-import RemoveBattleInfoPacket from "../packets/implementations/RemoveBattleInfoPacket";
 import SetLayout from "../packets/implementations/SetLayout";
 import ShopItemsPacket from "../packets/implementations/ShopItemsPacket";
+import UnloadBattleListPacket from "../packets/implementations/UnloadBattleListPacket";
 import { ProTankiClient } from "../server/ProTankiClient";
 import { ProTankiServer } from "../server/ProTankiServer";
 import { ResourceId } from "../types/resourceTypes";
@@ -22,7 +22,7 @@ export class GarageWorkflow {
 
     client.setState("chat_garage");
     client.sendPacket(new SetLayout(1));
-    client.sendPacket(new RemoveBattleInfoPacket());
+    client.sendPacket(new UnloadBattleListPacket());
 
     const resourceIds: ResourceId[] = [
       "garage",

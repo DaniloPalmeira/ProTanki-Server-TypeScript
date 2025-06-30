@@ -1,8 +1,8 @@
 import { BufferWriter } from "../../utils/buffer/BufferWriter";
-import { IRemoveBattleInfo } from "../interfaces/IRemoveBattleInfo";
+import { IUnloadBattleList } from "../interfaces/IUnloadBattleList";
 import { BasePacket } from "./BasePacket";
 
-export default class RemoveBattleInfoPacket extends BasePacket implements IRemoveBattleInfo {
+export default class UnloadBattleListPacket extends BasePacket implements IUnloadBattleList {
   read(buffer: Buffer): void {}
 
   write(): Buffer {
@@ -10,7 +10,7 @@ export default class RemoveBattleInfoPacket extends BasePacket implements IRemov
   }
 
   toString(): string {
-    return "RemoveBattleInfoPacket()";
+    return "UnloadBattleListPacket()";
   }
 
   static getId(): number {
