@@ -134,3 +134,5 @@ teste.js
 .prettierrc
 .resource
 .vscode/settings.json
+teste.json
+rename_files.ps1
