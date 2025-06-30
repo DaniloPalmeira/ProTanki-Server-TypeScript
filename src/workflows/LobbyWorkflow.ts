@@ -63,7 +63,7 @@ export class LobbyWorkflow {
     client.sendPacket(new LoadDependencies(dependencies, CALLBACK.LOBBY_DATA));
   }
 
-  public static initializeLobby(client: ProTankiClient, server: ProTankiServer): void {
+  public static async initializeLobby(client: ProTankiClient, server: ProTankiServer): Promise<void> {
     this.sendBattleInfo(client);
     this.sendBattleList(client, server);
 
@@ -78,7 +78,7 @@ export class LobbyWorkflow {
     }
 
     if (targetBattle) {
-      client.sendPacket(new SelectBattlePacket(targetBattle.battleId));
+      await this.sendBattleDetails(client, server, targetBattle);
     }
 
     client.sendPacket(new ConfirmLayoutChange(0, 0));
