@@ -1,4 +1,4 @@
-import { Battle, BattleMode, MapTheme } from "../models/Battle";
+import { Battle, MapTheme } from "../models/Battle";
 import BonusDataPacket from "../packets/implementations/BonusDataPacket";
 import InitMapPacket from "../packets/implementations/InitMapPacket";
 import LoadDependencies from "../packets/implementations/LoadDependencies";
@@ -16,6 +16,7 @@ import { ResourceId } from "../types/resourceTypes";
 import logger from "../utils/Logger";
 import BattleStatsPacket from "../packets/implementations/BattleStatsPacket";
 import { battleDataObject } from "../config/BattleData";
+import { BattleMode } from "../models/Battle";
 
 export class BattleWorkflow {
   public static async enterBattle(client: ProTankiClient, server: ProTankiServer, battle: Battle): Promise<void> {
@@ -56,6 +57,15 @@ export class BattleWorkflow {
 
     const dependencies = { resources: ResourceManager.getBulkResources([mapResourceId]) };
     client.sendPacket(new LoadDependencies(dependencies, CALLBACK.BATTLE_MAP_GEOMETRY_LOADED));
+  }
+
+  public static loadGeneralBattleResources(client: ProTankiClient, server: ProTankiServer, battle: Battle): void {
+    logger.info(`User ${client.user?.username} is loading general battle resources for battle ${battle.battleId}.`);
+
+    const generalResources: ResourceId[] = ["sounds/maps/sandbox_ambient", "effects/dust"];
+
+    const dependencies = { resources: ResourceManager.getBulkResources(generalResources) };
+    client.sendPacket(new LoadDependencies(dependencies, CALLBACK.BATTLE_GENERAL_RESOURCES_LOADED));
   }
 
   public static loadPlayerEquipment(client: ProTankiClient, server: ProTankiServer, battle: Battle): void {
