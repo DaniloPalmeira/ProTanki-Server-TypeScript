@@ -137,14 +137,7 @@ export class UserService {
         nextRankScore: initialRankData.nextRankScore,
         isActive: true,
         referralHash: crypto.randomBytes(16).toString("hex"),
-        equippedTurret: "smoky",
-        equippedHull: "wasp",
-        equippedPaint: "green",
       });
-
-      user.turrets.set("smoky", 0);
-      user.hulls.set("wasp", 0);
-      user.paints.push("green");
 
       return await user.save();
     } catch (error) {
