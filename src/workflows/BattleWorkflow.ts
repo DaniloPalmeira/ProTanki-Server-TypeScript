@@ -26,6 +26,7 @@ import InitBattleUsersTeamPacket from "../packets/implementations/InitBattleUser
 import InitializeBattleStatisticsPacket from "../packets/implementations/InitializeBattleStatisticsPacket";
 import BattleMinesPropertiesPacket from "../packets/implementations/BattleMinesPropertiesPacket";
 import BattleConsumablesPacket from "../packets/implementations/BattleConsumablesPacket";
+import TankModelDataPacket from "../packets/implementations/TankModelDataPacket";
 
 export class BattleWorkflow {
   public static async enterBattle(client: ProTankiClient, server: ProTankiServer, battle: Battle): Promise<void> {
@@ -69,7 +70,31 @@ export class BattleWorkflow {
   public static loadGeneralBattleResources(client: ProTankiClient, server: ProTankiServer, battle: Battle): void {
     logger.info(`User ${client.user?.username} is loading general battle resources for battle ${battle.battleId}.`);
 
-    const generalResources: ResourceId[] = ["sounds/maps/sandbox_ambient", "effects/dust", "sounds/mine_activate", "effects/mine/blue_mine_texture", "sounds/mine_deactivate", "effects/mine/enemy_mine_texture", "effects/mine/explosion_mark_texture", "sounds/mine_explosion", "effects/mine/friendly_mine_texture", "effects/mine/idle_explosion_texture", "effects/mine/main_explosion_texture", "effects/mine/model", "effects/mine/red_mine_texture"];
+    const generalResources: ResourceId[] = [
+      "sounds/maps/sandbox_ambient",
+      "effects/dust",
+      "sounds/mine_activate",
+      "effects/mine/blue_mine_texture",
+      "sounds/mine_deactivate",
+      "effects/mine/enemy_mine_texture",
+      "effects/mine/explosion_mark_texture",
+      "sounds/mine_explosion",
+      "effects/mine/friendly_mine_texture",
+      "effects/mine/idle_explosion_texture",
+      "effects/mine/main_explosion_texture",
+      "effects/mine/model",
+      "effects/mine/red_mine_texture",
+      "sounds/hull/engine_idle",
+      "sounds/hull/engine_start",
+      "sounds/hull/engine_move",
+      "sounds/turret/turn",
+      "effects/smoky/critical_hit",
+      "effects/smoky/explosion_mark",
+      "sounds/smoky/explosion",
+      "effects/smoky/explosion",
+      "sounds/smoky/shot",
+      "effects/smoky/shot",
+    ];
 
     const dependencies = { resources: ResourceManager.getBulkResources(generalResources) };
     client.sendPacket(new LoadDependencies(dependencies, CALLBACK.BATTLE_GENERAL_RESOURCES_LOADED));
@@ -107,6 +132,93 @@ export class BattleWorkflow {
       score: 0,
       uid: user.username,
     };
+  }
+
+  private static _getTankModelDataJson(client: ProTankiClient, battle: Battle): string {
+    const user = client.user!;
+    const hullId = user.equippedHull;
+    const hullMod = user.hulls.get(hullId) ?? 0;
+    const turretId = user.equippedTurret;
+    const turretMod = user.turrets.get(turretId) ?? 0;
+    const paintId = user.equippedPaint;
+
+    let team_type = "NONE";
+    if (battle.isTeamMode()) {
+      if (battle.usersBlue.some((u) => u.id === user.id)) team_type = "BLUE";
+      if (battle.usersRed.some((u) => u.id === user.id)) team_type = "RED";
+    }
+
+    const partsObject = {
+      engineIdleSound: ResourceManager.getIdlowById("sounds/hull/engine_idle"),
+      engineStartMovingSound: ResourceManager.getIdlowById("sounds/hull/engine_start"),
+      engineMovingSound: ResourceManager.getIdlowById("sounds/hull/engine_move"),
+      turretSound: ResourceManager.getIdlowById("sounds/turret/turn"),
+    };
+
+    const sfxData = {
+      criticalHitSize: 375,
+      criticalHitTexture: ResourceManager.getIdlowById("effects/smoky/critical_hit"),
+      explosionMarkTexture: ResourceManager.getIdlowById("effects/smoky/explosion_mark"),
+      explosionSize: 300,
+      explosionSound: ResourceManager.getIdlowById("sounds/smoky/explosion"),
+      explosionTexture: ResourceManager.getIdlowById("effects/smoky/explosion"),
+      shotSound: ResourceManager.getIdlowById("sounds/smoky/shot"),
+      shotTexture: ResourceManager.getIdlowById("effects/smoky/shot"),
+      lighting: [
+        {
+          name: "shot",
+          light: [
+            { attenuationBegin: 150, attenuationEnd: 450, color: 16571766, intensity: 0.9, time: 0 },
+            { attenuationBegin: 1, attenuationEnd: 2, color: 16571766, intensity: 0, time: 300 },
+          ],
+        },
+        {
+          name: "hit",
+          light: [
+            { attenuationBegin: 100, attenuationEnd: 300, color: 16760576, intensity: 0.7, time: 0 },
+            { attenuationBegin: 100, attenuationEnd: 300, color: 16760576, intensity: 0, time: 400 },
+          ],
+        },
+      ],
+      bcsh: [],
+    };
+
+    const data = {
+      battleId: battle.battleId,
+      colormap_id: ResourceManager.getIdlowById(`paint/${paintId}/texture` as ResourceId),
+      hull_id: `${hullId}_m${hullMod}`,
+      turret_id: `${turretId}_m${turretMod}`,
+      team_type: team_type,
+      partsObject: JSON.stringify(partsObject),
+      hullResource: ResourceManager.getIdlowById(`hull/${hullId}/m${hullMod}/model` as ResourceId),
+      turretResource: ResourceManager.getIdlowById(`turret/${turretId}/m${turretMod}/model` as ResourceId),
+      sfxData: JSON.stringify(sfxData),
+      position: { x: 0, y: 0, z: 0 },
+      orientation: { x: 0, y: 0, z: 0 },
+      incarnation: 0,
+      tank_id: user.username,
+      nickname: user.username,
+      state: "newcome",
+      maxSpeed: 10,
+      maxTurnSpeed: 2.443460952792061,
+      acceleration: 14,
+      reverseAcceleration: 18,
+      sideAcceleration: 16,
+      turnAcceleration: 2.792526803190927,
+      reverseTurnAcceleration: 4.886921905584122,
+      mass: 3000,
+      power: 14,
+      dampingCoeff: 1500,
+      turret_turn_speed: 2.1399481958702475,
+      health: 100,
+      rank: user.rank,
+      kickback: 2.5,
+      turretTurnAcceleration: 3.4800119955514934,
+      impact_force: 3.3,
+      state_null: true,
+    };
+
+    return JSON.stringify(data);
   }
 
   public static initializeBattle(client: ProTankiClient, server: ProTankiServer, battle: Battle): void {
@@ -242,5 +354,8 @@ export class BattleWorkflow {
     };
 
     client.sendPacket(new BattleConsumablesPacket(JSON.stringify(consumablesData)));
+
+    const tankModelJson = this._getTankModelDataJson(client, battle);
+    client.sendPacket(new TankModelDataPacket(tankModelJson));
   }
 }
