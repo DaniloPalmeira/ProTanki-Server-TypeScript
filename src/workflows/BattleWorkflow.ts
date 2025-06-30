@@ -43,7 +43,17 @@ export class BattleWorkflow {
   }
 
   public static loadMapGeometry(client: ProTankiClient, server: ProTankiServer, battle: Battle): void {
-    logger.info(`User ${client.user?.username} finished loading skybox for battle ${battle.battleId}.`);
-    // O próximo estágio de carregamento (geometria do mapa) será implementado aqui.
+    logger.info(`User ${client.user?.username} is loading map geometry for battle ${battle.battleId}.`);
+
+    const mapId = battle.settings.mapId;
+    const mapResourceId = `maps/${mapId}/xml` as ResourceId;
+
+    const dependencies = { resources: ResourceManager.getBulkResources([mapResourceId]) };
+    client.sendPacket(new LoadDependencies(dependencies, CALLBACK.BATTLE_MAP_GEOMETRY_LOADED));
+  }
+
+  public static loadMapProps(client: ProTankiClient, server: ProTankiServer, battle: Battle): void {
+    logger.info(`User ${client.user?.username} finished loading map geometry for battle ${battle.battleId}.`);
+    // O próximo estágio de carregamento (props do mapa) será implementado aqui.
   }
 }

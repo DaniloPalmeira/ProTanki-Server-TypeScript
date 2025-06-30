@@ -252,6 +252,7 @@ export const ResourceData = {
     "maps/map_sandbox/preview/SUMMER": { idLow: 12019940, path: "/0/267/150/344/1/", versionLow: 1 },
     "maps/map_sandbox/preview/SUMMER_NIGHT": { idLow: 12876918, path: "/0/304/174/166/1/", versionLow: 1 },
     "maps/map_sandbox/preview/WINTER": { idLow: 7628640, path: "/0/164/147/140/1/", versionLow: 1 },
+    "maps/map_sandbox/xml": { idLow: 11325559, path: "/0/254/320/167/1/", versionLow: 1 },
     "maps/map_scope/preview/SPACE": { idLow: 12987007, path: "/0/306/52/177/1/", versionLow: 1 },
     "maps/map_scope/preview/SUMMER": { idLow: 5728272, path: "/0/127/150/20/1/", versionLow: 1 },
     "maps/map_scope/preview/WINTER": { idLow: 9725844, path: "/0/224/147/224/1/", versionLow: 1 },

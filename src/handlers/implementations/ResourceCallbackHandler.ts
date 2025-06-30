@@ -32,6 +32,11 @@ export default class ResourceCallbackHandler implements IPacketHandler<ResourceC
           BattleWorkflow.loadMapGeometry(client, server, client.currentBattle);
         }
         break;
+      case CALLBACK.BATTLE_MAP_GEOMETRY_LOADED:
+        if (client.currentBattle) {
+          BattleWorkflow.loadMapProps(client, server, client.currentBattle);
+        }
+        break;
     }
   }
 }
