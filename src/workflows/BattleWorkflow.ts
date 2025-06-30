@@ -1,4 +1,4 @@
-import { Battle, MapTheme } from "../models/Battle";
+import { Battle, BattleMode, MapTheme } from "../models/Battle";
 import BonusDataPacket from "../packets/implementations/BonusDataPacket";
 import InitMapPacket from "../packets/implementations/InitMapPacket";
 import LoadDependencies from "../packets/implementations/LoadDependencies";
@@ -14,6 +14,8 @@ import { weaponPhysicsData } from "../config/PhysicsData";
 import { ResourceManager } from "../utils/ResourceManager";
 import { ResourceId } from "../types/resourceTypes";
 import logger from "../utils/Logger";
+import BattleStatsPacket from "../packets/implementations/BattleStatsPacket";
+import { battleDataObject } from "../config/BattleData";
 
 export class BattleWorkflow {
   public static async enterBattle(client: ProTankiClient, server: ProTankiServer, battle: Battle): Promise<void> {
@@ -54,15 +56,6 @@ export class BattleWorkflow {
 
     const dependencies = { resources: ResourceManager.getBulkResources([mapResourceId]) };
     client.sendPacket(new LoadDependencies(dependencies, CALLBACK.BATTLE_MAP_GEOMETRY_LOADED));
-  }
-
-  public static loadGeneralBattleResources(client: ProTankiClient, server: ProTankiServer, battle: Battle): void {
-    logger.info(`User ${client.user?.username} is loading general battle resources for battle ${battle.battleId}.`);
-
-    const generalResources: ResourceId[] = ["sounds/maps/sandbox_ambient", "effects/dust"];
-
-    const dependencies = { resources: ResourceManager.getBulkResources(generalResources) };
-    client.sendPacket(new LoadDependencies(dependencies, CALLBACK.BATTLE_GENERAL_RESOURCES_LOADED));
   }
 
   public static loadPlayerEquipment(client: ProTankiClient, server: ProTankiServer, battle: Battle): void {
@@ -145,5 +138,26 @@ export class BattleWorkflow {
     };
 
     client.sendPacket(new InitMapPacket(JSON.stringify(mapInitData)));
+
+    const mapInfo = battleDataObject.maps.find((m) => m.mapId === settings.mapId);
+    const timeLeftInSec = settings.timeLimitInSec;
+
+    const battleStatsData = {
+      battleMode: settings.battleMode,
+      equipmentConstraintsMode: settings.equipmentConstraintsMode,
+      fund: 0,
+      scoreLimit: settings.scoreLimit,
+      timeLimitInSec: timeLeftInSec,
+      mapName: mapInfo ? `${mapInfo.mapName} ${BattleMode[settings.battleMode]}` : `${settings.mapId} ${BattleMode[settings.battleMode]}`,
+      maxPeopleCount: settings.maxPeopleCount,
+      parkourMode: settings.parkourMode,
+      premiumBonusInPercent: 100,
+      spectator: false,
+      suspiciousUserIds: [],
+      timeLeft: Math.floor(timeLeftInSec / 256),
+      valuableRound: timeLeftInSec % 256 > 128 ? (timeLeftInSec % 256) - 256 : timeLeftInSec % 256,
+    };
+
+    client.sendPacket(new BattleStatsPacket(battleStatsData));
   }
 }

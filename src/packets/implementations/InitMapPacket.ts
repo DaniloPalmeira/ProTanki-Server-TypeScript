@@ -23,7 +23,7 @@ export default class InitMapPacket extends BasePacket implements IInitMap {
   }
 
   toString(): string {
-    return `InitMapPacket(jsonData=...)`;
+    return `InitMapPacket(jsonData=${this.jsonData})`;
   }
 
   static getId(): number {
