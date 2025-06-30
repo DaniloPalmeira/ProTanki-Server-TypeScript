@@ -22,11 +22,11 @@ export default class EnterBattleHandler implements IPacketHandler<EnterBattlePac
 
       await BattleWorkflow.enterBattle(client, server, battle);
 
-      server.getClients().forEach((c) => {
-        if (c.lastViewedBattleId === battle.battleId) {
-          LobbyWorkflow.sendBattleDetails(c, server, battle);
-        }
-      });
+      const battleListWatchers = server.getClients().filter((c) => (c.getState() === "chat_lobby" || c.getState() === "battle_lobby") && c.lastViewedBattleId === battle.battleId);
+
+      for (const watcher of battleListWatchers) {
+        await LobbyWorkflow.sendBattleDetails(watcher, server, battle);
+      }
     } catch (error: any) {
       logger.warn(`User ${client.user.username} failed to enter battle ${client.lastViewedBattleId}`, {
         error: error.message,
