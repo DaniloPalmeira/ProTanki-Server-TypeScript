@@ -17,6 +17,7 @@ export class ResourceManager {
     "sound.mp3": 4,
     "map.xml": 6,
     "object.3ds": 17,
+    "library.tara": 8,
   };
 
   public static loadResources(): void {
