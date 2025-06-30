@@ -23,6 +23,7 @@ import { UserDocument } from "../models/User";
 import { IBattleUser } from "../packets/interfaces/IBattleUser";
 import InitBattleUsersDMPacket from "../packets/implementations/InitBattleUsersDMPacket";
 import InitBattleUsersTeamPacket from "../packets/implementations/InitBattleUsersTeamPacket";
+import InitializeBattleStatisticsPacket from "../packets/implementations/InitializeBattleStatisticsPacket";
 
 export class BattleWorkflow {
   public static async enterBattle(client: ProTankiClient, server: ProTankiServer, battle: Battle): Promise<void> {
@@ -202,5 +203,7 @@ export class BattleWorkflow {
       const users = battle.users.map(this.mapUserToBattleUser);
       client.sendPacket(new InitBattleUsersDMPacket(users));
     }
+
+    client.sendPacket(new InitializeBattleStatisticsPacket());
   }
 }
