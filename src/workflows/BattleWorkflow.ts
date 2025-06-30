@@ -27,6 +27,7 @@ import InitializeBattleStatisticsPacket from "../packets/implementations/Initial
 import BattleMinesPropertiesPacket from "../packets/implementations/BattleMinesPropertiesPacket";
 import BattleConsumablesPacket from "../packets/implementations/BattleConsumablesPacket";
 import TankModelDataPacket from "../packets/implementations/TankModelDataPacket";
+import UpdateBattleUserPacket from "../packets/implementations/UpdateBattleUserPacket";
 
 export class BattleWorkflow {
   public static async enterBattle(client: ProTankiClient, server: ProTankiServer, battle: Battle): Promise<void> {
@@ -357,5 +358,27 @@ export class BattleWorkflow {
 
     const tankModelJson = this._getTankModelDataJson(client, battle);
     client.sendPacket(new TankModelDataPacket(tankModelJson));
+
+    let teamId = 2;
+    if (battle.isTeamMode()) {
+      if (battle.usersBlue.some((u) => u.id === client.user!.id)) teamId = 1;
+      if (battle.usersRed.some((u) => u.id === client.user!.id)) teamId = 0;
+    }
+
+    const updatePacket = new UpdateBattleUserPacket({
+      deaths: 0,
+      kills: 0,
+      score: 0,
+      nickname: client.user!.username,
+      team: teamId,
+    });
+
+    const allPlayers = [...battle.users, ...battle.usersBlue, ...battle.usersRed];
+    for (const player of allPlayers) {
+      const playerClient = server.findClientByUsername(player.username);
+      if (playerClient && playerClient.currentBattle?.battleId === battle.battleId) {
+        playerClient.sendPacket(updatePacket);
+      }
+    }
   }
 }
