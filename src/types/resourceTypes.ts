@@ -1,6 +1,18 @@
 // Arquivo gerado automaticamente. Não edite manualmente.
 
 export const ResourceData = {
+    "bonuses/armor": { idLow: 8719479, path: "/0/205/14/167/1/", versionLow: 1 },
+    "bonuses/crystal": { idLow: 5134347, path: "/0/116/130/13/1/", versionLow: 1 },
+    "bonuses/damage": { idLow: 3648566, path: "/0/67/254/66/1/", versionLow: 1 },
+    "bonuses/gold": { idLow: 1119385, path: "/0/21/24/231/1/", versionLow: 1 },
+    "bonuses/health": { idLow: 2480969, path: "/0/45/333/111/1/", versionLow: 1 },
+    "bonuses/moon": { idLow: 5525024, path: "/0/124/116/40/1/", versionLow: 1 },
+    "bonuses/nitro": { idLow: 5296898, path: "/0/120/323/2/1/", versionLow: 1 },
+    "bonuses/parachute/cord": { idLow: 13757474, path: "/0/321/354/42/1/", versionLow: 1 },
+    "bonuses/parachute/inner": { idLow: 3177220, path: "/0/60/173/4/1/", versionLow: 1 },
+    "bonuses/parachute/main": { idLow: 7574687, path: "/0/163/224/237/1/", versionLow: 1 },
+    "bonuses/pumpkin": { idLow: 360229, path: "/0/5/177/45/1/", versionLow: 1 },
+    "bonuses/special": { idLow: 11499761, path: "/0/257/170/361/1/", versionLow: 1 },
     "garage": { idLow: 2515211, path: "/0/46/141/13/1/", versionLow: 1 },
     "hull/wasp/m0/model": { idLow: 11694388, path: "/0/262/161/64/1/", versionLow: 1 },
     "hull/wasp/m0/preview": { idLow: 6069516, path: "/0/134/235/14/1/", versionLow: 1 },
@@ -323,6 +335,7 @@ export const ResourceData = {
     "skybox/default/part4": { idLow: 7445307, path: "/0/161/233/73/1/", versionLow: 1 },
     "skybox/default/part5": { idLow: 7777197, path: "/0/166/253/255/1/", versionLow: 1 },
     "skybox/default/part6": { idLow: 8387095, path: "/0/177/372/27/1/", versionLow: 1 },
+    "sounds/bonus_pickup": { idLow: 16664198, path: "/0/376/106/206/1/", versionLow: 1 },
     "sounds/notifications/battle_invite": { idLow: 14474621, path: "/0/334/335/175/1/", versionLow: 1 },
     "turret/smoky/m0/model": { idLow: 14278213, path: "/0/331/336/105/1/", versionLow: 1 },
     "turret/smoky/m0/preview": { idLow: 1145001, path: "/0/21/170/251/1/", versionLow: 1 },

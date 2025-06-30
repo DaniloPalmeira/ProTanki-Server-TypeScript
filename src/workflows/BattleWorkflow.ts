@@ -1,4 +1,5 @@
 import { Battle } from "../models/Battle";
+import BonusDataPacket from "../packets/implementations/BonusDataPacket";
 import LoadDependencies from "../packets/implementations/LoadDependencies";
 import SetLayout from "../packets/implementations/SetLayout";
 import UnloadBattleListPacket from "../packets/implementations/UnloadBattleListPacket";
@@ -7,6 +8,7 @@ import WeaponPhysicsPacket from "../packets/implementations/WeaponPhysicsPacket"
 import { ProTankiClient } from "../server/ProTankiClient";
 import { ProTankiServer } from "../server/ProTankiServer";
 import { CALLBACK } from "../config/constants";
+import { getBonusData } from "../config/BonusData";
 import { weaponPhysicsData } from "../config/PhysicsData";
 import { ResourceManager } from "../utils/ResourceManager";
 import { ResourceId } from "../types/resourceTypes";
@@ -26,6 +28,7 @@ export class BattleWorkflow {
     client.sendPacket(new UnloadBattleListPacket());
     client.sendPacket(new UnloadLobbyChatPacket());
     client.sendPacket(new WeaponPhysicsPacket(JSON.stringify(weaponPhysicsData)));
+    client.sendPacket(new BonusDataPacket(JSON.stringify(getBonusData())));
 
     const libraryResourceIds: ResourceId[] = ["library/library1", "library/library2", "library/library3", "library/library4", "library/library5", "library/library6", "library/library7", "library/library8", "library/library9"];
 

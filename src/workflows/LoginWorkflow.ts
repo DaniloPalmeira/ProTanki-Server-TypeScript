@@ -329,6 +329,19 @@ export class LoginWorkflow {
       "maps/map_noise/preview/WINTER",
       "maps/map_noise/preview/SPACE",
       "maps/map_battlecity/preview/SUMMER",
+      "bonuses/nitro",
+      "bonuses/damage",
+      "bonuses/armor",
+      "bonuses/health",
+      "bonuses/crystal",
+      "bonuses/gold",
+      "bonuses/special",
+      "bonuses/moon",
+      "bonuses/pumpkin",
+      "bonuses/parachute/cord",
+      "bonuses/parachute/inner",
+      "bonuses/parachute/main",
+      "sounds/bonus_pickup",
     ];
 
     const dependencies = {
