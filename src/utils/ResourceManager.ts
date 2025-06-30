@@ -15,7 +15,7 @@ export class ResourceManager {
     "image.png": 10,
     "sound.swf": 4,
     "sound.mp3": 4,
-    "map.xml": 6,
+    "map.xml": 7,
     "object.3ds": 17,
     "library.tara": 8,
     "image.tara": 11,
