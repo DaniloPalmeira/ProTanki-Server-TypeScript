@@ -18,6 +18,7 @@ export default class EnterBattleHandler implements IPacketHandler<EnterBattlePac
 
     try {
       const battle = server.battleService.addUserToBattle(client.user, client.lastViewedBattleId, packet.battleTeam);
+      client.currentBattle = battle;
 
       await BattleWorkflow.enterBattle(client, server, battle);
 

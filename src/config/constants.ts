@@ -14,4 +14,5 @@ export const CALLBACK = {
   LOGIN_FORM: 3,
   GARAGE_DATA: 4,
   LOBBY_DATA: 5,
+  BATTLE_MAP_LIBS_LOADED: 6,
 };

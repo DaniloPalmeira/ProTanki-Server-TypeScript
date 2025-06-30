@@ -6,11 +6,12 @@ import { CALLBACK } from "../../config/constants";
 import { LoginWorkflow } from "../../workflows/LoginWorkflow";
 import { GarageWorkflow } from "../../workflows/GarageWorkflow";
 import { LobbyWorkflow } from "../../workflows/LobbyWorkflow";
+import { BattleWorkflow } from "../../workflows/BattleWorkflow";
 
 export default class ResourceCallbackHandler implements IPacketHandler<ResourceCallback> {
   public readonly packetId = ResourceCallback.getId();
 
-  public execute(client: ProTankiClient, server: ProTankiServer, packet: ResourceCallback): void {
+  public async execute(client: ProTankiClient, server: ProTankiServer, packet: ResourceCallback): Promise<void> {
     switch (packet.callbackId) {
       case CALLBACK.LOGIN_FORM:
         LoginWorkflow.initializeLoginForm(client, server);
@@ -19,7 +20,12 @@ export default class ResourceCallbackHandler implements IPacketHandler<ResourceC
         GarageWorkflow.initializeGarage(client, server);
         break;
       case CALLBACK.LOBBY_DATA:
-        LobbyWorkflow.initializeLobby(client, server);
+        await LobbyWorkflow.initializeLobby(client, server);
+        break;
+      case CALLBACK.BATTLE_MAP_LIBS_LOADED:
+        if (client.currentBattle) {
+          BattleWorkflow.loadMapResources(client, server, client.currentBattle);
+        }
         break;
     }
   }

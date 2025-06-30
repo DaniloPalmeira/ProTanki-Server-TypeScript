@@ -8,6 +8,7 @@ import Protection from "../packets/implementations/Protection";
 import logger from "../utils/Logger";
 import { UserDocument } from "../models/User";
 import Ping from "../packets/implementations/Ping";
+import { Battle } from "../models/Battle";
 
 interface PacketQueueItem {
   packetId: number;
@@ -33,6 +34,7 @@ export class ProTankiClient {
   public lastPingSentTimestamp: number = 0;
   public pingHistory: number[] = [];
   public lastViewedBattleId: string | null = null;
+  public currentBattle: Battle | null = null;
 
   public isInFlowMode: boolean = false;
   public flowTarget: string | null = null;
