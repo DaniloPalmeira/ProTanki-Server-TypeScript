@@ -31,6 +31,9 @@ import { Battle, BattleMode, EquipmentConstraintsMode } from "../models/Battle";
 import UserNotInBattlePacket from "../packets/implementations/UserNotInBattlePacket";
 import ConfirmBattleInfo from "../packets/implementations/ConfirmBattleInfo";
 import BattleDetails from "../packets/implementations/BattleDetails";
+import LoadDependencies from "../packets/implementations/LoadDependencies";
+import { CALLBACK } from "../config/constants";
+import UnloadGaragePacket from "../packets/implementations/UnloadGaragePacket";
 
 export class LobbyWorkflow {
   public static async enterLobby(client: ProTankiClient, server: ProTankiServer): Promise<void> {
@@ -39,18 +42,30 @@ export class LobbyWorkflow {
       return;
     }
 
-    this.sendLayoutAndState(client);
     this.sendPlayerVitals(client.user, client, server);
     this.sendInitialSettings(client, server);
     this.sendAchievementTips(client.user, client);
     await this.sendChatSetup(client.user, client, server);
-    this.sendBattleInfo(client);
-    this.sendBattleList(client, server);
+
+    this.returnToLobby(client, server, false);
   }
 
-  private static sendLayoutAndState(client: ProTankiClient): void {
+  public static returnToLobby(client: ProTankiClient, server: ProTankiServer, fromGarage: boolean = true): void {
+    if (fromGarage) {
+      client.sendPacket(new UnloadGaragePacket());
+    }
+
     client.setState("chat_lobby");
     client.sendPacket(new SetLayout(0));
+
+    const resourceIds: ResourceId[] = [];
+    const dependencies = { resources: ResourceManager.getBulkResources(resourceIds) };
+    client.sendPacket(new LoadDependencies(dependencies, CALLBACK.LOBBY_DATA));
+  }
+
+  public static initializeLobby(client: ProTankiClient, server: ProTankiServer): void {
+    this.sendBattleInfo(client);
+    this.sendBattleList(client, server);
     client.sendPacket(new ConfirmLayoutChange(0, 0));
   }
 

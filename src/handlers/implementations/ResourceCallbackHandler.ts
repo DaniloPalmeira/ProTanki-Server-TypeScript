@@ -5,6 +5,7 @@ import ResourceCallback from "../../packets/implementations/ResourceCallback";
 import { CALLBACK } from "../../config/constants";
 import { LoginWorkflow } from "../../workflows/LoginWorkflow";
 import { GarageWorkflow } from "../../workflows/GarageWorkflow";
+import { LobbyWorkflow } from "../../workflows/LobbyWorkflow";
 
 export default class ResourceCallbackHandler implements IPacketHandler<ResourceCallback> {
   public readonly packetId = ResourceCallback.getId();
@@ -16,6 +17,9 @@ export default class ResourceCallbackHandler implements IPacketHandler<ResourceC
         break;
       case CALLBACK.GARAGE_DATA:
         GarageWorkflow.initializeGarage(client, server);
+        break;
+      case CALLBACK.LOBBY_DATA:
+        LobbyWorkflow.initializeLobby(client, server);
         break;
     }
   }
