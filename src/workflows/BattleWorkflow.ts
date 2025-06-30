@@ -28,6 +28,7 @@ import BattleMinesPropertiesPacket from "../packets/implementations/BattleMinesP
 import BattleConsumablesPacket from "../packets/implementations/BattleConsumablesPacket";
 import TankModelDataPacket from "../packets/implementations/TankModelDataPacket";
 import UpdateBattleUserPacket from "../packets/implementations/UpdateBattleUserPacket";
+import BattleUserEffectsPacket from "../packets/implementations/BattleUserEffectsPacket";
 
 export class BattleWorkflow {
   public static async enterBattle(client: ProTankiClient, server: ProTankiServer, battle: Battle): Promise<void> {
@@ -380,5 +381,10 @@ export class BattleWorkflow {
         playerClient.sendPacket(updatePacket);
       }
     }
+
+    const effectsData = {
+      effects: [],
+    };
+    client.sendPacket(new BattleUserEffectsPacket(JSON.stringify(effectsData)));
   }
 }
