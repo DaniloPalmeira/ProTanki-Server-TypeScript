@@ -1,9 +1,11 @@
 import { Battle } from "../models/Battle";
-import UnloadBattleListPacket from "../packets/implementations/UnloadBattleListPacket";
 import SetLayout from "../packets/implementations/SetLayout";
+import UnloadBattleListPacket from "../packets/implementations/UnloadBattleListPacket";
 import UnloadLobbyChatPacket from "../packets/implementations/UnloadLobbyChatPacket";
+import WeaponPhysicsPacket from "../packets/implementations/WeaponPhysicsPacket";
 import { ProTankiClient } from "../server/ProTankiClient";
 import { ProTankiServer } from "../server/ProTankiServer";
+import { weaponPhysicsData } from "../config/PhysicsData";
 import logger from "../utils/Logger";
 
 export class BattleWorkflow {
@@ -19,5 +21,6 @@ export class BattleWorkflow {
     client.sendPacket(new SetLayout(3));
     client.sendPacket(new UnloadBattleListPacket());
     client.sendPacket(new UnloadLobbyChatPacket());
+    client.sendPacket(new WeaponPhysicsPacket(JSON.stringify(weaponPhysicsData)));
   }
 }
