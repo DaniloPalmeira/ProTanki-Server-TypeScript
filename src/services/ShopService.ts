@@ -1,4 +1,6 @@
+import { itemBlueprints } from "../config/ItemData";
 import { UserDocument } from "../models/User";
+import logger from "../utils/Logger";
 
 type PriceInfo = { price: number; currency: string };
 type PricingData = Record<string, Record<string, PriceInfo>>;
@@ -39,11 +41,20 @@ export class ShopService {
   public getShopData(user: UserDocument, countryCode: string): string {
     const baseShopStructure = {
       categories: [
-        { category_id: "crystalls", header_text: { RU: "Кристаллы", EN: "Crystals", pt_BR: "Cristais", UA: "Кристали" }, description: { RU: "Здесь вы можете купить кристаллы, чтобы использовать их для приобретения нужных вам вещей в гараже", EN: "This is where you can buy Crystals. They are to buy equipment in your garage.", pt_BR: "Aqui que você pode comprar Cristais. Eles são para comprar equipamentos em sua garagem.", UA: "Тут ви можете купити кристали, щоб використовувати їх для придбання потрібних вам речей у гаражі." } },
+        {
+          category_id: "crystalls",
+          header_text: { RU: "Кристаллы", EN: "Crystals", pt_BR: "Cristais", UA: "Кристали" },
+          description: { RU: "Здесь вы можете купить кристаллы, чтобы использовать их для приобретения нужных вам вещей в гараже", EN: "This is where you can buy Crystals. They are to buy equipment in your garage.", pt_BR: "Aqui que você pode comprar Cristais. Eles são para comprar equipamentos em sua garagem.", UA: "Тут ви можете купити кристали, щоб використовувати їх для придбання потрібних вам речей у гаражі." },
+        },
         {
           category_id: "premium",
           header_text: { RU: "Премиум аккаунт", EN: "Premuim Account", pt_BR: "Conta Premium", UA: "Преміум аккаунт" },
-          description: { RU: "Приобретая премиум аккаунт, вы получаете целый ряд приемуществ - на 100 % больше кристаллов и на 50 % больше опыта за каждый бой, уникальную премиум краску, возможность создавать PRO битвы и принимать в них участие.", EN: "Purchase as Premuim Account to unlock, a whole range of advantages. With Premuim, every battle will bring you double the crystals, and 50% more experience point. You'll also receive a unique Premium paint!", pt_BR: "Compre Conta Premuim para desbloquear, toda uma gama de vantagens. Com o Premuim, cada batalha trará o dobro de cristais e 50% a mais de pontos de experiência. Você também receberá uma pintura Premium exclusiva!", UA: "Придбаючи преміум аккаунт, ви отримуєте цілий ряд переваг - на 100% більше кристалів і на 50% більше досвіду за кожний бій, унікальну преміум фарбу, можливість створювати PRO битви та брати в них участь." },
+          description: {
+            RU: "Приобретая премиум аккаунт, вы получаете целый ряд приемуществ - на 100 % больше кристаллов и на 50 % больше опыта за каждый бой, уникальную премиум краску, возможность создавать PRO битвы и принимать в них участие.",
+            EN: "Purchase as Premuim Account to unlock, a whole range of advantages. With Premuim, every battle will bring you double the crystals, and 50% more experience point. You'll also receive a unique Premium paint!",
+            pt_BR: "Compre Conta Premuim para desbloquear, toda uma gama de vantagens. Com o Premuim, cada batalha trará o dobro de cristais e 50% a mais de pontos de experiência. Você também receberá uma pintura Premium exclusiva!",
+            UA: "Придбаючи преміум аккаунт, ви отримуєте цілий ряд переваг - на 100% більше кристалів і на 50% більше досвіду за кожний бій, унікальну преміум фарбу, можливість створювати PRO битви та брати в них участь.",
+          },
         },
         { category_id: "other", header_text: { RU: "Другое", EN: "Others", pt_BR: "Outros", UA: "Інше" }, description: { RU: "Прочие товары", EN: "Miscellaneous staff", pt_BR: "Pessoal diverso", UA: "Інші товари" } },
       ],
@@ -80,5 +91,81 @@ export class ShopService {
     };
 
     return JSON.stringify(payload);
+  }
+
+  private parseItemId(fullItemId: string): { baseId: string; modification: number } {
+    const parts = fullItemId.split("_m");
+    const baseId = parts[0];
+    const modification = parts.length > 1 ? parseInt(parts[1], 10) : 0;
+    if (isNaN(modification)) {
+      throw new Error(`Formato de ID de item inválido: ${fullItemId}`);
+    }
+    return { baseId, modification };
+  }
+
+  private findItemBlueprint(baseId: string): any | undefined {
+    const turret = itemBlueprints.turrets.find((i) => i.id === baseId);
+    if (turret) return turret;
+
+    const hull = itemBlueprints.hulls.find((i) => i.id === baseId);
+    if (hull) return hull;
+
+    const paint = itemBlueprints.paints.find((i) => i.id === baseId);
+    if (paint) return paint;
+
+    return undefined;
+  }
+
+  public async purchaseItem(user: UserDocument, fullItemId: string, quantity: number, expectedPrice: number): Promise<void> {
+    const { baseId, modification } = this.parseItemId(fullItemId);
+    const itemBlueprint = this.findItemBlueprint(baseId);
+
+    if (!itemBlueprint) throw new Error("Item não encontrado.");
+
+    let effectivePrice: number;
+
+    switch (itemBlueprint.category) {
+      case "weapon":
+      case "armor": {
+        if (quantity !== 1) throw new Error("Equipamentos só podem ser comprados em quantidade de 1.");
+
+        const modData = itemBlueprint.modifications.find((m: any) => m.modificationID === modification);
+        if (!modData) throw new Error("Modificação do item não encontrada.");
+
+        if (user.rank < modData.rank) throw new Error("Rank insuficiente para comprar este item.");
+
+        effectivePrice = modData.price;
+        if (effectivePrice !== expectedPrice) throw new Error("O preço do item não confere. Tente novamente.");
+        if (user.crystals < effectivePrice) throw new Error("Cristais insuficientes.");
+
+        const inventoryMap = itemBlueprint.category === "weapon" ? user.turrets : user.hulls;
+        if ((inventoryMap.get(baseId) ?? -1) >= modification) {
+          throw new Error("Você já possui esta modificação ou uma superior.");
+        }
+
+        user.crystals -= effectivePrice;
+        inventoryMap.set(baseId, modification);
+        break;
+      }
+      case "paint": {
+        if (quantity !== 1) throw new Error("Pinturas só podem ser compradas em quantidade de 1.");
+        if (user.rank < itemBlueprint.rank) throw new Error("Rank insuficiente para comprar este item.");
+
+        effectivePrice = itemBlueprint.price;
+        if (effectivePrice !== expectedPrice) throw new Error("O preço do item não confere. Tente novamente.");
+        if (user.crystals < effectivePrice) throw new Error("Cristais insuficientes.");
+
+        if (user.paints.includes(baseId)) throw new Error("Você já possui esta pintura.");
+
+        user.crystals -= effectivePrice;
+        user.paints.push(baseId);
+        break;
+      }
+      default:
+        throw new Error("Tipo de item desconhecido ou não comprável.");
+    }
+
+    await user.save();
+    logger.info(`User ${user.username} purchased ${fullItemId} for ${effectivePrice} crystals.`);
   }
 }
