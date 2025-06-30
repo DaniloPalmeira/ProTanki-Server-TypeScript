@@ -32,6 +32,7 @@ import BattleUserEffectsPacket from "../packets/implementations/BattleUserEffect
 import BonusRegionsPacket from "../packets/implementations/BonusRegionsPacket";
 import { BonusType } from "../packets/interfaces/IBonusRegion";
 import ConfirmLayoutChange from "../packets/implementations/ConfirmLayoutChange";
+import TimeCheckerPacket from "../packets/implementations/TimeCheckerPacket";
 
 export class BattleWorkflow {
   public static async enterBattle(client: ProTankiClient, server: ProTankiServer, battle: Battle): Promise<void> {
@@ -46,6 +47,7 @@ export class BattleWorkflow {
     client.sendPacket(new SetLayout(3));
     client.sendPacket(new UnloadBattleListPacket());
     client.sendPacket(new UnloadLobbyChatPacket());
+    client.sendPacket(new TimeCheckerPacket(0, 0));
     client.sendPacket(new WeaponPhysicsPacket(JSON.stringify(weaponPhysicsData)));
     client.sendPacket(new BonusDataPacket(JSON.stringify(getBonusData())));
 
@@ -401,7 +403,7 @@ export class BattleWorkflow {
       ],
       bonusRegionData: [],
     });
-    client.sendPacket(bonusRegionsPacket);
+    client.sendPacket(new BonusRegionsPacket(bonusRegionsPacket));
 
     client.sendPacket(new ConfirmLayoutChange(3, 3));
   }
