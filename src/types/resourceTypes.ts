@@ -13,6 +13,7 @@ export const ResourceData = {
     "bonuses/parachute/main": { idLow: 7574687, path: "/0/163/224/237/1/", versionLow: 1 },
     "bonuses/pumpkin": { idLow: 360229, path: "/0/5/177/45/1/", versionLow: 1 },
     "bonuses/special": { idLow: 11499761, path: "/0/257/170/361/1/", versionLow: 1 },
+    "effects/bonus/drop_location_marker": { idLow: 1356707, path: "/0/24/263/243/1/", versionLow: 1 },
     "effects/dust": { idLow: 2683125, path: "/0/50/360/365/1/", versionLow: 1 },
     "effects/mine/blue_mine_texture": { idLow: 13633477, path: "/0/320/7/305/1/", versionLow: 1 },
     "effects/mine/enemy_mine_texture": { idLow: 14213341, path: "/0/330/340/335/1/", versionLow: 1 },

@@ -1,8 +1,4 @@
-export interface IVector3 {
-  x: number;
-  y: number;
-  z: number;
-}
+import { IVector3 } from "./geom/IVector3";
 
 export interface IBattleMine {
   activated: boolean;

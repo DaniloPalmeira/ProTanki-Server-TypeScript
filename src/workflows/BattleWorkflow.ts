@@ -29,6 +29,8 @@ import BattleConsumablesPacket from "../packets/implementations/BattleConsumable
 import TankModelDataPacket from "../packets/implementations/TankModelDataPacket";
 import UpdateBattleUserPacket from "../packets/implementations/UpdateBattleUserPacket";
 import BattleUserEffectsPacket from "../packets/implementations/BattleUserEffectsPacket";
+import BonusRegionsPacket from "../packets/implementations/BonusRegionsPacket";
+import { BonusType } from "../packets/interfaces/IBonusRegion";
 
 export class BattleWorkflow {
   public static async enterBattle(client: ProTankiClient, server: ProTankiServer, battle: Battle): Promise<void> {
@@ -96,6 +98,7 @@ export class BattleWorkflow {
       "effects/smoky/explosion",
       "sounds/smoky/shot",
       "effects/smoky/shot",
+      "effects/bonus/drop_location_marker",
     ];
 
     const dependencies = { resources: ResourceManager.getBulkResources(generalResources) };
@@ -386,5 +389,17 @@ export class BattleWorkflow {
       effects: [],
     };
     client.sendPacket(new BattleUserEffectsPacket(JSON.stringify(effectsData)));
+
+    const bonusMarkerResource = ResourceManager.getIdlowById("effects/bonus/drop_location_marker");
+    const bonusRegionsPacket = new BonusRegionsPacket({
+      bonusRegionResources: [
+        { bonusResource: bonusMarkerResource, bonusType: BonusType.GOLD },
+        { bonusResource: bonusMarkerResource, bonusType: BonusType.MOON },
+        { bonusResource: bonusMarkerResource, bonusType: BonusType.PUMPKIN },
+        { bonusResource: bonusMarkerResource, bonusType: BonusType.SPECIAL },
+      ],
+      bonusRegionData: [],
+    });
+    client.sendPacket(bonusRegionsPacket);
   }
 }
