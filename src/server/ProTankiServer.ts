@@ -179,8 +179,12 @@ export class ProTankiServer {
     this.clientManager.getClients().forEach((client) => client.sendPacket(packet));
   }
 
-  public broadcastToLobby(packet: IPacket): void {
-    this.clientManager.sendToLobbyClients(packet);
+  public broadcastToLobbyChat(packet: IPacket): void {
+    this.clientManager.sendToLobbyChatListeners(packet);
+  }
+
+  public broadcastToBattleList(packet: IPacket): void {
+    this.clientManager.sendToBattleListWatchers(packet);
   }
 
   public notifySubscribersOfStatusChange(username: string, isOnline: boolean, serverNumber: number = 1): void {

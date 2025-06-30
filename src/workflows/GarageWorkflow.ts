@@ -20,7 +20,7 @@ export class GarageWorkflow {
       return;
     }
 
-    client.setState("garage");
+    client.setState("chat_garage");
     client.sendPacket(new SetLayout(1));
     client.sendPacket(new RemoveBattleInfoPacket());
 

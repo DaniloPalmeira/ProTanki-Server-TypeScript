@@ -33,7 +33,7 @@ export default class SendPacketCommand implements ICommand {
     const packet = new RawPacket(packetId, payload);
 
     if (targetIdentifier.toLowerCase() === "all") {
-      context.server.broadcastToLobby(packet);
+      context.server.broadcastToBattleList(packet);
       context.reply(`Pacote ${packetId} enviado para todos os clientes no lobby.`);
       return;
     }

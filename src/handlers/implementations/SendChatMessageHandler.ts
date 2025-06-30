@@ -118,6 +118,6 @@ export default class SendChatMessageHandler implements IPacketHandler<SendChatMe
     };
 
     const packetToSend = new ChatHistory([messageData]);
-    server.broadcastToLobby(packetToSend);
+    server.broadcastToLobbyChat(packetToSend);
   }
 }

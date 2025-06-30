@@ -49,7 +49,7 @@ export class LobbyWorkflow {
   }
 
   private static sendLayoutAndState(client: ProTankiClient): void {
-    client.setState("lobby");
+    client.setState("chat_lobby");
     client.sendPacket(new SetLayout(0));
     client.sendPacket(new ConfirmLayoutChange(0, 0));
   }

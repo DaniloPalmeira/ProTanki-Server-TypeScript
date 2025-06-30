@@ -1,4 +1,5 @@
 import { IPacket } from "../packets/interfaces/IPacket";
+import { ClientState } from "../types/ClientState";
 import { ProTankiClient } from "./ProTankiClient";
 
 export class ClientManager {
@@ -29,9 +30,19 @@ export class ClientManager {
     return this.clients.find((c) => c.user?.username.toLowerCase() === lowerCaseUsername);
   }
 
-  public sendToLobbyClients(packet: IPacket): void {
+  public sendToLobbyChatListeners(packet: IPacket): void {
+    const lobbyChatStates: ClientState[] = ["chat_lobby", "chat_garage"];
     this.clients.forEach((client) => {
-      if (client.getState() === "lobby") {
+      if (lobbyChatStates.includes(client.getState())) {
+        client.sendPacket(packet);
+      }
+    });
+  }
+
+  public sendToBattleListWatchers(packet: IPacket): void {
+    const battleListStates: ClientState[] = ["chat_lobby", "battle_lobby"];
+    this.clients.forEach((client) => {
+      if (battleListStates.includes(client.getState())) {
         client.sendPacket(packet);
       }
     });
