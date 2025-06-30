@@ -1,5 +1,5 @@
 import { CALLBACK } from "../config/constants";
-import { getGarageItemsData, getShopItemsData } from "../config/GarageData";
+import { buildGarageData } from "../config/ItemData";
 import ConfirmLayoutChange from "../packets/implementations/ConfirmLayoutChange";
 import GarageItemsPacket from "../packets/implementations/GarageItemsPacket";
 import LoadDependencies from "../packets/implementations/LoadDependencies";
@@ -14,61 +14,58 @@ import logger from "../utils/Logger";
 import { ResourceManager } from "../utils/ResourceManager";
 
 export class GarageWorkflow {
-  public static async enterGarage(client: ProTankiClient, server: ProTankiServer): Promise<void> {
-    if (!client.user) {
-      logger.error("Attempted to enter garage without a user authenticated.", { client: client.getRemoteAddress() });
-      return;
+    public static async enterGarage(client: ProTankiClient, server: ProTankiServer): Promise<void> {
+        if (!client.user) {
+            logger.error("Attempted to enter garage without a user authenticated.", { client: client.getRemoteAddress() });
+            return;
+        }
+
+        client.setState("garage");
+        client.sendPacket(new SetLayout(1));
+        client.sendPacket(new RemoveBattleInfoPacket());
+
+        const resourceIds: ResourceId[] = [
+            "garage", "hull/wasp/m0/model", "hull/wasp/m0/preview", "hull/wasp/m1/model", "hull/wasp/m1/preview", "hull/wasp/m2/model", "hull/wasp/m2/preview", "hull/wasp/m3/model", "hull/wasp/m3/preview", "paint/green/preview", "paint/green/texture", "paint/holiday/preview", "paint/holiday/texture", "turret/smoky/m0/model", "turret/smoky/m0/preview", "turret/smoky/m1/model", "turret/smoky/m1/preview", "turret/smoky/m2/model", "turret/smoky/m2/preview", "turret/smoky/m3/model", "turret/smoky/m3/preview",
+        ];
+
+        const dependencies = {
+            resources: ResourceManager.getBulkResources(resourceIds),
+        };
+        client.sendPacket(new LoadDependencies(dependencies, CALLBACK.GARAGE_DATA));
+
+        logger.info(`User ${client.user.username} is loading garage resources.`);
     }
 
-    client.setState("garage");
-    client.sendPacket(new SetLayout(1));
-    client.sendPacket(new RemoveBattleInfoPacket());
+    public static initializeGarage(client: ProTankiClient, server: ProTankiServer): void {
+        logger.info(`Initializing garage for ${client.user?.username}.`);
 
-    const resourceIds: ResourceId[] = [
-      "garage",
-      "hull/wasp/m0/model",
-      "hull/wasp/m0/preview",
-      "hull/wasp/m1/model",
-      "hull/wasp/m1/preview",
-      "hull/wasp/m2/model",
-      "hull/wasp/m2/preview",
-      "hull/wasp/m3/model",
-      "hull/wasp/m3/preview",
-      "paint/green/preview",
-      "paint/green/texture",
-      "paint/holiday/preview",
-      "paint/holiday/texture",
-      "turret/smoky/m0/model",
-      "turret/smoky/m0/preview",
-      "turret/smoky/m1/model",
-      "turret/smoky/m1/preview",
-      "turret/smoky/m2/model",
-      "turret/smoky/m2/preview",
-      "turret/smoky/m3/model",
-      "turret/smoky/m3/preview",
-    ];
+        // Simula o inventário do usuário. O próximo passo será ler isso do banco de dados.
+        const userInventory = {
+            smoky: 3,
+            wasp: 3,
+            paints: ["green", "holiday"],
+        };
 
-    const dependencies = {
-      resources: ResourceManager.getBulkResources(resourceIds),
-    };
-    client.sendPacket(new LoadDependencies(dependencies, CALLBACK.GARAGE_DATA));
+        const { garageItems, shopItems } = buildGarageData(userInventory);
 
-    logger.info(`User ${client.user.username} is loading garage resources.`);
-  }
+        const garageData = {
+            items: garageItems,
+            garageBoxId: ResourceManager.getIdlowById("garage"),
+        };
+        client.sendPacket(new GarageItemsPacket(JSON.stringify(garageData)));
+        
+        const shopData = {
+            items: shopItems,
+            delayMountArmorInSec: 0,
+            delayMountWeaponInSec: 0,
+            delayMountColorInSec: 0,
+        };
+        client.sendPacket(new ShopItemsPacket(JSON.stringify(shopData)));
+        
+        client.sendPacket(new MountItemPacket("wasp_m3", true));
+        client.sendPacket(new MountItemPacket("smoky_m3", true));
+        client.sendPacket(new MountItemPacket("green_m0", true));
 
-  public static initializeGarage(client: ProTankiClient, server: ProTankiServer): void {
-    logger.info(`Initializing garage for ${client.user?.username}.`);
-
-    const garageItemsData = getGarageItemsData();
-    client.sendPacket(new GarageItemsPacket(JSON.stringify(garageItemsData)));
-
-    client.sendPacket(new MountItemPacket("wasp_m3", true));
-    client.sendPacket(new MountItemPacket("smoky_m3", true));
-    client.sendPacket(new MountItemPacket("green_m0", true));
-
-    const shopItemsData = getShopItemsData();
-    client.sendPacket(new ShopItemsPacket(JSON.stringify(shopItemsData)));
-
-    client.sendPacket(new ConfirmLayoutChange(1, 1));
-  }
+        client.sendPacket(new ConfirmLayoutChange(1, 1));
+    }
 }
