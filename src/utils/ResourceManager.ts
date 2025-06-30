@@ -4,6 +4,7 @@ import { IDependency } from "../packets/interfaces/ILoadDependencies";
 import { ResourceId, ResourceData } from "../types/resourceTypes";
 import logger from "./Logger";
 import { ResourcePathUtils } from "./ResourcePathUtils";
+import { mapDependencies } from "../types/mapDependencies";
 
 export class ResourceManager {
   private static dependencies: Map<ResourceId, IDependency> = new Map();
@@ -114,5 +115,16 @@ export class ResourceManager {
       throw new Error(`Resource idLow with ID '${id}' not found.`);
     }
     return resourceInfo.idLow;
+  }
+
+  private static _getMapLibsByIdLow(mapIdLow: number): ResourceId[] {
+    return mapDependencies[mapIdLow] || [];
+  }
+
+  public static getMapResourcesByMapId(mapId: string): IDependency[] {
+    const mapXmlResourceId = `maps/${mapId}/xml` as ResourceId;
+    const mapResource = this.getResourceById(mapXmlResourceId);
+    const libraryResourceIds = this._getMapLibsByIdLow(mapResource.idlow);
+    return this.getBulkResources(libraryResourceIds);
   }
 }

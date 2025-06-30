@@ -4,6 +4,8 @@ import fse from "fs-extra";
 import { rimraf } from "rimraf";
 import crc32 from "crc-32";
 import { ResourcePathUtils } from "../src/utils/ResourcePathUtils";
+import { parseStringPromise } from "xml2js";
+import { create } from "xmlbuilder2";
 
 const ROOT_DIR = path.join(__dirname, "..");
 const RESOURCES_DIR = path.join(ROOT_DIR, "resources");
@@ -33,6 +35,7 @@ async function findResources(dir: string, parentPath: string = ""): Promise<Reso
       const versionDirs = (await fs.promises.readdir(fullPath, { withFileTypes: true }))
         .filter((d) => d.isDirectory() && d.name.startsWith("v"))
         .map((d) => parseInt(d.name.substring(1), 10))
+        .filter((version) => !isNaN(version))
         .sort((a, b) => b - a);
 
       if (versionDirs.length > 0) {
@@ -76,6 +79,105 @@ function generateResourceTypesFileContent(resources: ResourceDefinition[]): stri
   return content;
 }
 
+function friendlyNameToResourceId(name: string): string {
+  return `library/${name.toLowerCase().replace(/\s+/g, "_")}`;
+}
+
+async function generatePropLibsXmls(resources: ResourceDefinition[]): Promise<void> {
+  console.log("Generating proplibs.xml for maps...");
+
+  const resourceMap = new Map<string, ResourceDefinition>(resources.map((r) => [r.id, r]));
+  const mapResources = resources.filter((r) => r.id.startsWith("maps/") && r.id.endsWith("/xml"));
+
+  for (const mapResource of mapResources) {
+    const mapXmlPath = path.join(mapResource.sourcePath, "map.xml");
+    if (!fs.existsSync(mapXmlPath)) continue;
+
+    try {
+      const mapXmlContent = await fs.promises.readFile(mapXmlPath, "utf8");
+      const parsedMap = await parseStringPromise(mapXmlContent);
+
+      const propLibs = new Set<string>();
+      if (parsedMap.map && parsedMap.map["static-geometry"] && parsedMap.map["static-geometry"][0] && parsedMap.map["static-geometry"][0].prop) {
+        parsedMap.map["static-geometry"][0].prop.forEach((prop: any) => {
+          if (prop.$ && prop.$["library-name"]) {
+            propLibs.add(prop.$["library-name"]);
+          }
+        });
+      }
+
+      const root = create({ version: "1.0", encoding: "UTF-8" }).ele("proplibs");
+      for (const libName of propLibs) {
+        const resourceId = friendlyNameToResourceId(libName);
+        const libResource = resourceMap.get(resourceId);
+
+        if (libResource) {
+          root.ele("library", {
+            name: libName,
+            "resource-id": libResource.idLow.toString(16),
+            version: libResource.versionLow,
+          });
+        } else {
+          console.warn(`Warning: Library "${libName}" referenced in map "${mapResource.id}" not found.`);
+        }
+      }
+
+      const propLibsXmlContent = root.end({ prettyPrint: true });
+      const destPath = path.join(RESOURCE_BUILD_DIR, mapResource.buildPath, "proplibs.xml");
+      await fs.promises.writeFile(destPath, propLibsXmlContent);
+      console.log(`Generated proplibs.xml for ${mapResource.id}`);
+    } catch (error) {
+      console.error(`Failed to process map ${mapResource.id}:`, error);
+    }
+  }
+}
+
+async function generateMapDependenciesFile(resources: ResourceDefinition[]): Promise<void> {
+  console.log("Generating mapDependencies.ts...");
+  const resourceMap = new Map<string, ResourceDefinition>(resources.map((r) => [r.id, r]));
+  const mapResources = resources.filter((r) => r.id.startsWith("maps/") && r.id.endsWith("/xml"));
+
+  let content = `// Arquivo gerado automaticamente. Não edite manualmente.\n\n`;
+  content += `import { ResourceId } from "./resourceTypes";\n\n`;
+  content += `export const mapDependencies: { [key: number]: ResourceId[] } = {\n`;
+
+  for (const mapResource of mapResources) {
+    const mapXmlPath = path.join(mapResource.sourcePath, "map.xml");
+    if (!fs.existsSync(mapXmlPath)) continue;
+
+    try {
+      const mapXmlContent = await fs.promises.readFile(mapXmlPath, "utf8");
+      const parsedMap = await parseStringPromise(mapXmlContent);
+
+      const propLibs = new Set<string>();
+      if (parsedMap.map && parsedMap.map["static-geometry"] && parsedMap.map["static-geometry"][0] && parsedMap.map["static-geometry"][0].prop) {
+        parsedMap.map["static-geometry"][0].prop.forEach((prop: any) => {
+          if (prop.$ && prop.$["library-name"]) {
+            propLibs.add(prop.$["library-name"]);
+          }
+        });
+      }
+
+      const libResourceIds: string[] = [];
+      for (const libName of propLibs) {
+        const resourceId = friendlyNameToResourceId(libName);
+        if (resourceMap.has(resourceId)) {
+          libResourceIds.push(resourceId);
+        }
+      }
+
+      content += `    ${mapResource.idLow}: [${libResourceIds.map((id) => `"${id}"`).join(", ")}],\n`;
+    } catch (error) {
+      console.error(`Failed to generate dependencies for map ${mapResource.id}:`, error);
+    }
+  }
+
+  content += `};\n`;
+
+  await fs.promises.writeFile(path.join(TYPES_DIR, "mapDependencies.ts"), content);
+  console.log("Generated mapDependencies.ts successfully.");
+}
+
 async function build() {
   console.log("Starting resource build process...");
 
@@ -98,11 +200,15 @@ async function build() {
   const typesContent = generateResourceTypesFileContent(resources);
   await fs.promises.writeFile(path.join(TYPES_DIR, "resourceTypes.ts"), typesContent);
 
+  await generateMapDependenciesFile(resources);
+
   console.log("Copying categorized resource files to '.resource' directory...");
   for (const res of resources) {
     const destPath = path.join(RESOURCE_BUILD_DIR, res.buildPath);
     await fse.copy(res.sourcePath, destPath);
   }
+
+  await generatePropLibsXmls(resources);
 
   await copyRootFiles();
   console.log("Resource build process completed successfully!");

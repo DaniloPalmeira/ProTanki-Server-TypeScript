@@ -34,9 +34,7 @@ export class BattleWorkflow {
     client.sendPacket(new WeaponPhysicsPacket(JSON.stringify(weaponPhysicsData)));
     client.sendPacket(new BonusDataPacket(JSON.stringify(getBonusData())));
 
-    const libraryResourceIds: ResourceId[] = ["library/library1", "library/library2", "library/library3", "library/library4", "library/library5", "library/library6", "library/library7", "library/library8", "library/library9"];
-
-    const dependencies = { resources: ResourceManager.getBulkResources(libraryResourceIds) };
+    const dependencies = { resources: ResourceManager.getMapResourcesByMapId(battle.settings.mapId) };
     client.sendPacket(new LoadDependencies(dependencies, CALLBACK.BATTLE_MAP_LIBS_LOADED));
   }
 

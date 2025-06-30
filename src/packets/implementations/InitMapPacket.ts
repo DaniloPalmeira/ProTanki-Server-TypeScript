@@ -19,6 +19,7 @@ export default class InitMapPacket extends BasePacket implements IInitMap {
   write(): Buffer {
     const writer = new BufferWriter();
     writer.writeOptionalString(this.jsonData);
+    console.log(writer.getBuffer().toString("hex"));
     return writer.getBuffer();
   }
 

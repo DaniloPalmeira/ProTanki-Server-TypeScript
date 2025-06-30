@@ -26,7 +26,7 @@ export class BattleService {
       friendlyFire: false,
       parkourMode: false,
       equipmentConstraintsMode: EquipmentConstraintsMode.NONE,
-      reArmorEnabled: false,
+      reArmorEnabled: true,
       mapTheme: MapTheme.SUMMER,
       withoutBonuses: false,
       withoutCrystals: false,
