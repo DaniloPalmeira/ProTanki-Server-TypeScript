@@ -24,6 +24,7 @@ import { IBattleUser } from "../packets/interfaces/IBattleUser";
 import InitBattleUsersDMPacket from "../packets/implementations/InitBattleUsersDMPacket";
 import InitBattleUsersTeamPacket from "../packets/implementations/InitBattleUsersTeamPacket";
 import InitializeBattleStatisticsPacket from "../packets/implementations/InitializeBattleStatisticsPacket";
+import BattleMinesPropertiesPacket from "../packets/implementations/BattleMinesPropertiesPacket";
 
 export class BattleWorkflow {
   public static async enterBattle(client: ProTankiClient, server: ProTankiServer, battle: Battle): Promise<void> {
@@ -67,7 +68,7 @@ export class BattleWorkflow {
   public static loadGeneralBattleResources(client: ProTankiClient, server: ProTankiServer, battle: Battle): void {
     logger.info(`User ${client.user?.username} is loading general battle resources for battle ${battle.battleId}.`);
 
-    const generalResources: ResourceId[] = ["sounds/maps/sandbox_ambient", "effects/dust"];
+    const generalResources: ResourceId[] = ["sounds/maps/sandbox_ambient", "effects/dust", "sounds/mine_activate", "effects/mine/blue_mine_texture", "sounds/mine_deactivate", "effects/mine/enemy_mine_texture", "effects/mine/explosion_mark_texture", "sounds/mine_explosion", "effects/mine/friendly_mine_texture", "effects/mine/idle_explosion_texture", "effects/mine/main_explosion_texture", "effects/mine/model", "effects/mine/red_mine_texture"];
 
     const dependencies = { resources: ResourceManager.getBulkResources(generalResources) };
     client.sendPacket(new LoadDependencies(dependencies, CALLBACK.BATTLE_GENERAL_RESOURCES_LOADED));
@@ -205,5 +206,28 @@ export class BattleWorkflow {
     }
 
     client.sendPacket(new InitializeBattleStatisticsPacket());
+
+    const mineProps = {
+      activateSound: ResourceManager.getIdlowById("sounds/mine_activate"),
+      activateTimeMsec: 1000,
+      battleMines: [],
+      blueMineTexture: ResourceManager.getIdlowById("effects/mine/blue_mine_texture"),
+      deactivateSound: ResourceManager.getIdlowById("sounds/mine_deactivate"),
+      enemyMineTexture: ResourceManager.getIdlowById("effects/mine/enemy_mine_texture"),
+      explosionMarkTexture: ResourceManager.getIdlowById("effects/mine/explosion_mark_texture"),
+      explosionSound: ResourceManager.getIdlowById("sounds/mine_explosion"),
+      farVisibilityRadius: 10,
+      friendlyMineTexture: ResourceManager.getIdlowById("effects/mine/friendly_mine_texture"),
+      idleExplosionTexture: ResourceManager.getIdlowById("effects/mine/idle_explosion_texture"),
+      impactForce: 3,
+      mainExplosionTexture: ResourceManager.getIdlowById("effects/mine/main_explosion_texture"),
+      minDistanceFromBase: 5,
+      model3ds: ResourceManager.getIdlowById("effects/mine/model"),
+      nearVisibilityRadius: 7,
+      radius: 0.5,
+      redMineTexture: ResourceManager.getIdlowById("effects/mine/red_mine_texture"),
+    };
+
+    client.sendPacket(new BattleMinesPropertiesPacket(mineProps));
   }
 }
