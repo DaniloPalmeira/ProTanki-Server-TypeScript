@@ -117,34 +117,41 @@ export class ShopService {
   }
 
   public async purchaseItem(user: UserDocument, fullItemId: string, quantity: number, expectedPrice: number): Promise<void> {
-    const { baseId, modification } = this.parseItemId(fullItemId);
+    const { baseId, modification: clientRefMod } = this.parseItemId(fullItemId);
     const itemBlueprint = this.findItemBlueprint(baseId);
 
     if (!itemBlueprint) throw new Error("Item não encontrado.");
 
     let effectivePrice: number;
+    let finalModId: number = 0;
 
     switch (itemBlueprint.category) {
       case "weapon":
       case "armor": {
         if (quantity !== 1) throw new Error("Equipamentos só podem ser comprados em quantidade de 1.");
 
-        const modData = itemBlueprint.modifications.find((m: any) => m.modificationID === modification);
-        if (!modData) throw new Error("Modificação do item não encontrada.");
+        const inventoryMap = itemBlueprint.category === "weapon" ? user.turrets : user.hulls;
+        const currentUserMod = inventoryMap.get(baseId);
 
-        if (user.rank < modData.rank) throw new Error("Rank insuficiente para comprar este item.");
+        if (currentUserMod === undefined) {
+          if (clientRefMod !== 0) throw new Error("A primeira compra de um item deve ser a modificação M0.");
+          finalModId = 0;
+        } else {
+          if (clientRefMod !== currentUserMod) throw new Error("Tentativa de upgrade para um item que não corresponde à sua modificação atual.");
+          finalModId = currentUserMod + 1;
+        }
 
-        effectivePrice = modData.price;
+        const targetModData = itemBlueprint.modifications.find((m: any) => m.modificationID === finalModId);
+        if (!targetModData) throw new Error("A próxima modificação para este item não está disponível.");
+
+        if (user.rank < targetModData.rank) throw new Error("Rank insuficiente para comprar esta atualização.");
+
+        effectivePrice = targetModData.price;
         if (effectivePrice !== expectedPrice) throw new Error("O preço do item não confere. Tente novamente.");
         if (user.crystals < effectivePrice) throw new Error("Cristais insuficientes.");
 
-        const inventoryMap = itemBlueprint.category === "weapon" ? user.turrets : user.hulls;
-        if ((inventoryMap.get(baseId) ?? -1) >= modification) {
-          throw new Error("Você já possui esta modificação ou uma superior.");
-        }
-
         user.crystals -= effectivePrice;
-        inventoryMap.set(baseId, modification);
+        inventoryMap.set(baseId, finalModId);
         break;
       }
       case "paint": {
@@ -166,6 +173,6 @@ export class ShopService {
     }
 
     await user.save();
-    logger.info(`User ${user.username} purchased ${fullItemId} for ${effectivePrice} crystals.`);
+    logger.info(`User ${user.username} processed purchase for ${fullItemId}, resulting in M${finalModId} of ${baseId}.`);
   }
 }
