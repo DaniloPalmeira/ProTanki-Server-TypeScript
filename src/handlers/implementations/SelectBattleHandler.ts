@@ -21,6 +21,7 @@ export default class SelectBattleHandler implements IPacketHandler<SelectBattleP
       battle = allBattles[0];
     }
 
+    client.lastViewedBattleId = battle.battleId;
     await LobbyWorkflow.sendBattleDetails(client, server, battle);
   }
 }

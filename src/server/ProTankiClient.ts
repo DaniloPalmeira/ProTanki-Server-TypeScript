@@ -32,6 +32,7 @@ export class ProTankiClient {
   public subscriptions: Set<string> = new Set<string>();
   public lastPingSentTimestamp: number = 0;
   public pingHistory: number[] = [];
+  public lastViewedBattleId: string | null = null;
 
   public isInFlowMode: boolean = false;
   public flowTarget: string | null = null;

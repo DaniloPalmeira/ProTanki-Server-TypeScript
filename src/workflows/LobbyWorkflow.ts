@@ -66,6 +66,21 @@ export class LobbyWorkflow {
   public static initializeLobby(client: ProTankiClient, server: ProTankiServer): void {
     this.sendBattleInfo(client);
     this.sendBattleList(client, server);
+
+    let targetBattle: Battle | undefined;
+
+    if (client.lastViewedBattleId) {
+      targetBattle = server.battleService.getBattleById(client.lastViewedBattleId);
+    }
+
+    if (!targetBattle && client.user) {
+      targetBattle = server.battleService.findBattleForPlayer(client.user);
+    }
+
+    if (targetBattle) {
+      client.sendPacket(new SelectBattlePacket(targetBattle.battleId));
+    }
+
     client.sendPacket(new ConfirmLayoutChange(0, 0));
   }
 

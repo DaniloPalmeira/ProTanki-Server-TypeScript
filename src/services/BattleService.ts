@@ -83,4 +83,11 @@ export class BattleService {
     }
     return false;
   }
+
+  public findBattleForPlayer(user: UserDocument): Battle | undefined {
+    return this.getBattles().find((battle) => {
+      const settings = battle.settings;
+      return !settings.privateBattle && user.rank >= settings.minRank && user.rank <= settings.maxRank;
+    });
+  }
 }
