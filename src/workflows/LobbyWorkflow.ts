@@ -35,6 +35,13 @@ import { CALLBACK } from "../config/constants";
 import UnloadGaragePacket from "../packets/implementations/UnloadGaragePacket";
 import SelectBattlePacket from "../packets/implementations/SelectBattlePacket";
 
+const mapUserToObject = (user: UserDocument) => ({
+  kills: 0,
+  score: 0,
+  suspicious: false,
+  user: user.username,
+});
+
 export class LobbyWorkflow {
   public static async enterLobby(client: ProTankiClient, server: ProTankiServer): Promise<void> {
     if (!client.user) {
@@ -241,13 +248,13 @@ export class LobbyWorkflow {
       if (battle.isTeamMode()) {
         return {
           ...basePayload,
-          usersBlue: battle.usersBlue.map((u) => u.username),
-          usersRed: battle.usersRed.map((u) => u.username),
+          usersBlue: battle.usersBlue.map(mapUserToObject),
+          usersRed: battle.usersRed.map(mapUserToObject),
         };
       } else {
         return {
           ...basePayload,
-          users: battle.users.map((u) => u.username),
+          users: battle.users.map(mapUserToObject),
         };
       }
     });
@@ -342,8 +349,8 @@ export class LobbyWorkflow {
     if (battle.isTeamMode()) {
       finalPayload = {
         ...baseDetailsPayload,
-        usersBlue: battle.usersBlue.map((user) => ({ kills: 0, score: user.experience, suspicious: false, user: user.username })),
-        usersRed: battle.usersRed.map((user) => ({ kills: 0, score: user.experience, suspicious: false, user: user.username })),
+        usersBlue: battle.usersBlue.map(mapUserToObject),
+        usersRed: battle.usersRed.map(mapUserToObject),
         scoreRed: battle.scoreRed,
         scoreBlue: battle.scoreBlue,
         autoBalance: battle.settings.autoBalance,
@@ -352,7 +359,7 @@ export class LobbyWorkflow {
     } else {
       finalPayload = {
         ...baseDetailsPayload,
-        users: battle.users.map((user) => user.username),
+        users: battle.users.map(mapUserToObject),
       };
     }
 
