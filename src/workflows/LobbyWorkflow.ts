@@ -78,6 +78,7 @@ export class LobbyWorkflow {
     }
 
     if (targetBattle) {
+      client.lastViewedBattleId = targetBattle.battleId;
       await this.sendBattleDetails(client, server, targetBattle);
     }
 
