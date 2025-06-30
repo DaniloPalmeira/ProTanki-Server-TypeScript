@@ -53,7 +53,30 @@ export class BattleWorkflow {
   }
 
   public static loadMapProps(client: ProTankiClient, server: ProTankiServer, battle: Battle): void {
-    logger.info(`User ${client.user?.username} finished loading map geometry for battle ${battle.battleId}.`);
-    // O próximo estágio de carregamento (props do mapa) será implementado aqui.
+    logger.info(`User ${client.user?.username} is loading player equipment for battle ${battle.battleId}.`);
+
+    const allPlayers = [...battle.users, ...battle.usersRed, ...battle.usersBlue];
+    const resourceSet = new Set<ResourceId>();
+
+    allPlayers.forEach((player) => {
+      const turretId = player.equippedTurret;
+      const turretMod = player.turrets.get(turretId) ?? 0;
+      resourceSet.add(`turret/${turretId}/m${turretMod}/model` as ResourceId);
+
+      const hullId = player.equippedHull;
+      const hullMod = player.hulls.get(hullId) ?? 0;
+      resourceSet.add(`hull/${hullId}/m${hullMod}/model` as ResourceId);
+
+      const paintId = player.equippedPaint;
+      resourceSet.add(`paint/${paintId}/texture` as ResourceId);
+    });
+
+    const dependencies = { resources: ResourceManager.getBulkResources(Array.from(resourceSet)) };
+    client.sendPacket(new LoadDependencies(dependencies, CALLBACK.BATTLE_RESOURCES_LOADED));
+  }
+
+  public static initializeBattle(client: ProTankiClient, server: ProTankiServer, battle: Battle): void {
+    logger.info(`User ${client.user?.username} finished loading all battle resources for ${battle.battleId}.`);
+    // O cliente está pronto. Aqui enviaremos os dados finais para iniciar a batalha.
   }
 }

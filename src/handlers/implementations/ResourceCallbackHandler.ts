@@ -37,6 +37,11 @@ export default class ResourceCallbackHandler implements IPacketHandler<ResourceC
           BattleWorkflow.loadMapProps(client, server, client.currentBattle);
         }
         break;
+      case CALLBACK.BATTLE_RESOURCES_LOADED:
+        if (client.currentBattle) {
+          BattleWorkflow.initializeBattle(client, server, client.currentBattle);
+        }
+        break;
     }
   }
 }
