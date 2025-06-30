@@ -15,7 +15,7 @@ export default class EquipItemRequestHandler implements IPacketHandler<EquipItem
     }
 
     try {
-      await server.userService.equipItem(client.user, packet.itemId);
+      await server.garageService.equipItem(client.user, packet.itemId);
       client.sendPacket(new MountItemPacket(packet.itemId, true));
     } catch (error: any) {
       logger.warn(`Failed to equip item ${packet.itemId} for user ${client.user.username}`, {

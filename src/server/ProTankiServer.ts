@@ -19,6 +19,7 @@ import { RankService } from "../services/RankService";
 import { QuestService } from "../services/QuestService";
 import { BattleService } from "../services/BattleService";
 import OnlineNotifierData from "../packets/implementations/OnlineNotifierData";
+import { GarageService } from "../services/GarageService";
 
 export interface IServerServices {
   configService: ConfigService;
@@ -32,6 +33,7 @@ export interface IServerServices {
   rankService: RankService;
   questService: QuestService;
   battleService: BattleService;
+  garageService: GarageService;
 }
 
 export class ProTankiServer {
@@ -54,6 +56,7 @@ export class ProTankiServer {
   public readonly rankService: RankService;
   public readonly questService: QuestService;
   public readonly battleService: BattleService;
+  public readonly garageService: GarageService;
 
   constructor(options: IServerOptions, services: IServerServices) {
     this.validateOptions(options);
@@ -74,6 +77,7 @@ export class ProTankiServer {
     this.rankService = services.rankService;
     this.questService = services.questService;
     this.battleService = services.battleService;
+    this.garageService = services.garageService;
 
     this.server = net.createServer(this.handleConnection.bind(this));
     this.clientManager = new ClientManager();

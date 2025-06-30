@@ -14,8 +14,7 @@ export default class BuyItemHandler implements IPacketHandler<BuyItemPacket> {
     }
 
     try {
-      await server.shopService.purchaseItem(client.user, packet.itemId, packet.quantity, packet.price);
-      // Nenhum pacote de sucesso é enviado, conforme solicitado.
+      await server.garageService.purchaseItem(client.user, packet.itemId, packet.quantity, packet.price);
     } catch (error: any) {
       logger.warn(`Failed to purchase item ${packet.itemId} for user ${client.user.username}`, {
         error: error.message,

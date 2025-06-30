@@ -5,7 +5,6 @@ import { IFriendsListProps } from "../packets/interfaces/IFriendsList";
 import crypto from "crypto";
 import mongoose from "mongoose";
 import { RankService } from "./RankService";
-import { itemBlueprints } from "../config/ItemData";
 
 export interface UserCreationAttributes {
   username: string;
@@ -20,61 +19,6 @@ export class UserService {
 
   constructor(rankService: RankService) {
     this.rankService = rankService;
-  }
-
-  private _parseItemId(fullItemId: string): { baseId: string; modification: number } {
-    const parts = fullItemId.split("_m");
-    const baseId = parts[0];
-    const modification = parts.length > 1 ? parseInt(parts[1], 10) : 0;
-    if (isNaN(modification)) {
-      throw new Error(`Formato de ID de item inválido: ${fullItemId}`);
-    }
-    return { baseId, modification };
-  }
-
-  private _findItemBlueprint(baseId: string): any | undefined {
-    const turret = itemBlueprints.turrets.find((i) => i.id === baseId);
-    if (turret) return turret;
-
-    const hull = itemBlueprints.hulls.find((i) => i.id === baseId);
-    if (hull) return hull;
-
-    const paint = itemBlueprints.paints.find((i) => i.id === baseId);
-    if (paint) return paint;
-
-    return undefined;
-  }
-
-  public async equipItem(user: UserDocument, fullItemId: string): Promise<UserDocument> {
-    const { baseId, modification } = this._parseItemId(fullItemId);
-    const itemBlueprint = this._findItemBlueprint(baseId);
-
-    if (!itemBlueprint) throw new Error("Item não encontrado.");
-
-    switch (itemBlueprint.category) {
-      case "weapon": {
-        const userMod = user.turrets.get(baseId);
-        if (userMod !== modification) throw new Error("Você não possui esta modificação para equipar.");
-        user.equippedTurret = baseId;
-        break;
-      }
-      case "armor": {
-        const userMod = user.hulls.get(baseId);
-        if (userMod !== modification) throw new Error("Você não possui esta modificação para equipar.");
-        user.equippedHull = baseId;
-        break;
-      }
-      case "paint": {
-        if (!user.paints.includes(baseId)) throw new Error("Você não possui esta pintura.");
-        user.equippedPaint = baseId;
-        break;
-      }
-      default:
-        throw new Error("Este item não pode ser equipado.");
-    }
-
-    logger.info(`User ${user.username} equipped ${fullItemId}`);
-    return await user.save();
   }
 
   public async findUserByLoginToken(token: string): Promise<UserDocument | null> {
