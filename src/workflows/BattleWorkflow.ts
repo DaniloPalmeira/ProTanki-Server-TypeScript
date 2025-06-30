@@ -34,7 +34,16 @@ export class BattleWorkflow {
   }
 
   public static loadMapResources(client: ProTankiClient, server: ProTankiServer, battle: Battle): void {
-    logger.info(`User ${client.user?.username} finished loading map libraries for battle ${battle.battleId}.`);
-    // O próximo estágio de carregamento (recursos do mapa) será implementado aqui.
+    logger.info(`User ${client.user?.username} is loading skybox for battle ${battle.battleId}.`);
+
+    const skyboxResourceIds: ResourceId[] = ["skybox/default/part1", "skybox/default/part2", "skybox/default/part3", "skybox/default/part4", "skybox/default/part5", "skybox/default/part6"];
+
+    const dependencies = { resources: ResourceManager.getBulkResources(skyboxResourceIds) };
+    client.sendPacket(new LoadDependencies(dependencies, CALLBACK.BATTLE_SKYBOX_LOADED));
+  }
+
+  public static loadMapGeometry(client: ProTankiClient, server: ProTankiServer, battle: Battle): void {
+    logger.info(`User ${client.user?.username} finished loading skybox for battle ${battle.battleId}.`);
+    // O próximo estágio de carregamento (geometria do mapa) será implementado aqui.
   }
 }

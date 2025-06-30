@@ -27,6 +27,11 @@ export default class ResourceCallbackHandler implements IPacketHandler<ResourceC
           BattleWorkflow.loadMapResources(client, server, client.currentBattle);
         }
         break;
+      case CALLBACK.BATTLE_SKYBOX_LOADED:
+        if (client.currentBattle) {
+          BattleWorkflow.loadMapGeometry(client, server, client.currentBattle);
+        }
+        break;
     }
   }
 }
