@@ -1,4 +1,7 @@
 import { Battle } from "../models/Battle";
+import RemoveBattleInfoPacket from "../packets/implementations/RemoveBattleInfoPacket";
+import SetLayout from "../packets/implementations/SetLayout";
+import UnloadLobbyChatPacket from "../packets/implementations/UnloadLobbyChatPacket";
 import { ProTankiClient } from "../server/ProTankiClient";
 import { ProTankiServer } from "../server/ProTankiServer";
 import logger from "../utils/Logger";
@@ -13,6 +16,8 @@ export class BattleWorkflow {
     client.setState("battle");
     logger.info(`User ${client.user.username} is entering battle ${battle.battleId}`);
 
-    // TODO: Enviar a sequência de pacotes para carregar o mapa e a batalha no cliente.
+    client.sendPacket(new SetLayout(3));
+    client.sendPacket(new RemoveBattleInfoPacket());
+    client.sendPacket(new UnloadLobbyChatPacket());
   }
 }
