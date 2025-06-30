@@ -9,6 +9,10 @@ export interface IDependency {
   fileNames?: string[];
   alpha?: boolean;
   type: number;
+  width?: number;
+  height?: number;
+  numFrames?: number;
+  fps?: number;
 }
 
 export interface ILoadDependencies extends IPacket {

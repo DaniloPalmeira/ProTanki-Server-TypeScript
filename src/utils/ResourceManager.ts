@@ -18,6 +18,7 @@ export class ResourceManager {
     "map.xml": 6,
     "object.3ds": 17,
     "library.tara": 8,
+    "image.tara": 11,
   };
 
   public static loadResources(): void {
@@ -65,6 +66,21 @@ export class ResourceManager {
 
     if (resourceType === 13) {
       dependency.fileNames = files.filter((file) => file.endsWith(".jpg") || file.endsWith(".png"));
+    }
+
+    if (resourceType === 11) {
+      const propsPath = path.join(fullResourcePath, "properties.json");
+      if (fs.existsSync(propsPath)) {
+        try {
+          const props = JSON.parse(fs.readFileSync(propsPath, "utf8"));
+          dependency.width = props.weight;
+          dependency.height = props.height;
+          dependency.numFrames = props.numFrames;
+          dependency.fps = props.fps;
+        } catch (e) {
+          logger.error(`Failed to parse properties.json for resource ${id}`, { error: e });
+        }
+      }
     }
 
     return dependency;
