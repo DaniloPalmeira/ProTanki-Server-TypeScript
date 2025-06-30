@@ -86,9 +86,15 @@ export class GarageWorkflow {
     };
     client.sendPacket(new ShopItemsPacket(JSON.stringify(shopData)));
 
-    client.sendPacket(new MountItemPacket("wasp_m3", true));
-    client.sendPacket(new MountItemPacket("smoky_m3", true));
-    client.sendPacket(new MountItemPacket("green_m0", true));
+    const turretId = client.user.equippedTurret;
+    const turretMod = client.user.turrets.get(turretId) ?? 0;
+    const hullId = client.user.equippedHull;
+    const hullMod = client.user.hulls.get(hullId) ?? 0;
+    const paintId = client.user.equippedPaint;
+
+    client.sendPacket(new MountItemPacket(`${hullId}_m${hullMod}`, true));
+    client.sendPacket(new MountItemPacket(`${turretId}_m${turretMod}`, true));
+    client.sendPacket(new MountItemPacket(`${paintId}_m0`, true));
 
     client.sendPacket(new ConfirmLayoutChange(1, 1));
   }

@@ -65,6 +65,9 @@ export interface UserAttributes {
   hulls: Map<string, number>;
   turrets: Map<string, number>;
   paints: string[];
+  equippedTurret: string;
+  equippedHull: string;
+  equippedPaint: string;
   createdAt?: Date;
   lastLogin?: Date | null;
 }
@@ -109,6 +112,9 @@ const UserSchema = new Schema<UserDocument>({
   hulls: { type: Map, of: Number, default: {} },
   turrets: { type: Map, of: Number, default: {} },
   paints: { type: [String], default: [] },
+  equippedTurret: { type: String, default: "smoky" },
+  equippedHull: { type: String, default: "wasp" },
+  equippedPaint: { type: String, default: "green" },
   createdAt: { type: Date, default: Date.now },
   lastLogin: { type: Date, default: null },
 });

@@ -137,6 +137,9 @@ export class UserService {
         nextRankScore: initialRankData.nextRankScore,
         isActive: true,
         referralHash: crypto.randomBytes(16).toString("hex"),
+        equippedTurret: "smoky",
+        equippedHull: "wasp",
+        equippedPaint: "green",
       });
 
       user.turrets.set("smoky", 0);
