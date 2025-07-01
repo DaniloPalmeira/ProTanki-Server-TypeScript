@@ -384,28 +384,7 @@ export class BattleWorkflow {
       client.sendPacket(new BattleConsumablesPacket(JSON.stringify(consumablesData)));
     }
 
-    const tankModelJson = this._getTankModelDataJson(client, battle);
-    client.sendPacket(new TankModelDataPacket(tankModelJson));
-
-    const effectsData = {
-      effects: [],
-    };
-    client.sendPacket(new BattleUserEffectsPacket(JSON.stringify(effectsData)));
-
-    const bonusMarkerResource = ResourceManager.getIdlowById("effects/bonus/drop_location_marker");
-    const bonusRegionsPacket = new BonusRegionsPacket({
-      bonusRegionResources: [
-        { bonusResource: bonusMarkerResource, bonusType: BonusType.GOLD },
-        { bonusResource: bonusMarkerResource, bonusType: BonusType.MOON },
-        { bonusResource: bonusMarkerResource, bonusType: BonusType.PUMPKIN },
-        { bonusResource: bonusMarkerResource, bonusType: BonusType.SPECIAL },
-      ],
-      bonusRegionData: [],
-    });
-    client.sendPacket(new BonusRegionsPacket(bonusRegionsPacket));
-
     const allPlayersInBattle = [...battle.users, ...battle.usersBlue, ...battle.usersRed];
-
     const usersInfoForPacket: IBattleUserInfo[] = allPlayersInBattle.map((p) => ({
       ChatModeratorLevel: p.chatModeratorLevel,
       deaths: 0,
@@ -427,6 +406,33 @@ export class BattleWorkflow {
         otherClient.sendPacket(userConnectPacket);
       }
     }
+
+    const tankModelJson = this._getTankModelDataJson(client, battle);
+    const tankModelPacket = new TankModelDataPacket(tankModelJson);
+
+    for (const player of allPlayersInBattle) {
+      const playerClient = server.findClientByUsername(player.username);
+      if (playerClient && playerClient.currentBattle?.battleId === battle.battleId) {
+        playerClient.sendPacket(tankModelPacket);
+      }
+    }
+
+    const effectsData = {
+      effects: [],
+    };
+    client.sendPacket(new BattleUserEffectsPacket(JSON.stringify(effectsData)));
+
+    const bonusMarkerResource = ResourceManager.getIdlowById("effects/bonus/drop_location_marker");
+    const bonusRegionsPacket = new BonusRegionsPacket({
+      bonusRegionResources: [
+        { bonusResource: bonusMarkerResource, bonusType: BonusType.GOLD },
+        { bonusResource: bonusMarkerResource, bonusType: BonusType.MOON },
+        { bonusResource: bonusMarkerResource, bonusType: BonusType.PUMPKIN },
+        { bonusResource: bonusMarkerResource, bonusType: BonusType.SPECIAL },
+      ],
+      bonusRegionData: [],
+    });
+    client.sendPacket(new BonusRegionsPacket(bonusRegionsPacket));
 
     client.sendPacket(new ConfirmLayoutChange(3, 3));
   }
