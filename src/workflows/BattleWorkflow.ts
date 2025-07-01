@@ -49,6 +49,7 @@ export class BattleWorkflow {
     client.sendPacket(new UnloadLobbyChatPacket());
     client.sendPacket(new TimeCheckerPacket(0, 0));
     client.sendPacket(new WeaponPhysicsPacket(JSON.stringify(weaponPhysicsData)));
+    client.sendPacket(new BonusDataPacket(JSON.stringify(getBonusData())));
 
     const dependencies = { resources: ResourceManager.getMapResourcesByMapId(battle.settings.mapId) };
     client.sendPacket(new LoadDependencies(dependencies, CALLBACK.BATTLE_MAP_LIBS_LOADED));
@@ -101,6 +102,10 @@ export class BattleWorkflow {
       "sounds/smoky/shot",
       "effects/smoky/shot",
       "effects/bonus/drop_location_marker",
+      "effects/explosions/fire",
+      "effects/explosions/shockwave",
+      "effects/explosions/smoke",
+      "paint/destroyed/texture",
     ];
 
     const dependencies = { resources: ResourceManager.getBulkResources(generalResources) };
@@ -159,7 +164,6 @@ export class BattleWorkflow {
       engineIdleSound: ResourceManager.getIdlowById("sounds/hull/engine_idle"),
       engineStartMovingSound: ResourceManager.getIdlowById("sounds/hull/engine_start"),
       engineMovingSound: ResourceManager.getIdlowById("sounds/hull/engine_move"),
-      turretSound: ResourceManager.getIdlowById("sounds/turret/turn"),
     };
 
     const sfxData = {
@@ -231,9 +235,6 @@ export class BattleWorkflow {
   public static initializeBattle(client: ProTankiClient, server: ProTankiServer, battle: Battle): void {
     logger.info(`User ${client.user?.username} finished loading all battle resources for ${battle.battleId}. Initializing map...`);
 
-    
-    client.sendPacket(new BonusDataPacket(JSON.stringify(getBonusData())));
-    
     const settings = battle.settings;
     const mapId = settings.mapId;
 
@@ -258,7 +259,7 @@ export class BattleWorkflow {
       farLimit: 10000,
       nearLimit: 5000,
       gravity: 1000,
-      skyboxRevolutionSpeed: 0.1,
+      skyboxRevolutionSpeed: 0.0,
       ssaoColor: 2045258,
       dustAlpha: 0.75,
       dustDensity: 0.15,
@@ -266,7 +267,6 @@ export class BattleWorkflow {
       dustNearDistance: 5000,
       dustParticle: "summer",
       dustSize: 200,
-      skyBoxRevolutionAxis: { x: 0.0, y: 0.0, z: 1.0 }
     };
 
     const lightingData = {
@@ -294,8 +294,6 @@ export class BattleWorkflow {
     };
 
     client.sendPacket(new InitMapPacket(JSON.stringify(mapInitData)));
-
-    return;
 
     const mapInfo = battleDataObject.maps.find((m) => m.mapId === settings.mapId);
     const timeLeftInSec = settings.timeLimitInSec;
