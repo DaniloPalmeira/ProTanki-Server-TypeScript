@@ -147,8 +147,7 @@ export class BattleWorkflow {
     };
   }
 
-  private static _getTankModelDataJson(client: ProTankiClient, battle: Battle): string {
-    const user = client.user!;
+  private static _getTankModelDataJson(user: UserDocument, battle: Battle): string {
     const hullId = user.equippedHull;
     const hullMod = user.hulls.get(hullId) ?? 0;
     const turretId = user.equippedTurret;
@@ -385,6 +384,7 @@ export class BattleWorkflow {
     }
 
     const allPlayersInBattle = [...battle.users, ...battle.usersBlue, ...battle.usersRed];
+
     const usersInfoForPacket: IBattleUserInfo[] = allPlayersInBattle.map((p) => ({
       ChatModeratorLevel: p.chatModeratorLevel,
       deaths: 0,
@@ -407,13 +407,22 @@ export class BattleWorkflow {
       }
     }
 
-    const tankModelJson = this._getTankModelDataJson(client, battle);
-    const tankModelPacket = new TankModelDataPacket(tankModelJson);
+    for (const player of allPlayersInBattle) {
+      if (player.id === client.user!.id) {
+        continue;
+      }
+      const existingTankJson = this._getTankModelDataJson(player, battle);
+      const existingTankPacket = new TankModelDataPacket(existingTankJson);
+      client.sendPacket(existingTankPacket);
+    }
+
+    const joiningUserTankJson = this._getTankModelDataJson(client.user!, battle);
+    const joiningUserTankPacket = new TankModelDataPacket(joiningUserTankJson);
 
     for (const player of allPlayersInBattle) {
       const playerClient = server.findClientByUsername(player.username);
       if (playerClient && playerClient.currentBattle?.battleId === battle.battleId) {
-        playerClient.sendPacket(tankModelPacket);
+        playerClient.sendPacket(joiningUserTankPacket);
       }
     }
 
