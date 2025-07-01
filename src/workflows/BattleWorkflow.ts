@@ -356,19 +356,23 @@ export class BattleWorkflow {
 
     client.sendPacket(new BattleMinesPropertiesPacket(mineProps));
 
-    const userSupplies = client.user!.supplies;
-    const consumableItems = suppliesData.map((supplyInfo) => ({
-      id: supplyInfo.id,
-      count: userSupplies.get(supplyInfo.id) || 0,
-      slotId: supplyInfo.slotId,
-      itemEffectTime: supplyInfo.itemEffectTime,
-      itemRestSec: supplyInfo.itemRestSec,
-    }));
+    const withoutSupplies = battle.settings.withoutSupplies;
+    const userHasNoSupplies = Array.from(client.user!.supplies.values()).every((count) => count === 0);
 
-    const consumablesData = {
-      items: consumableItems,
-    };
-    client.sendPacket(new BattleConsumablesPacket(JSON.stringify(consumablesData)));
+    if (!withoutSupplies && !userHasNoSupplies) {
+      const userSupplies = client.user!.supplies;
+      const consumableItems = suppliesData.map((supplyInfo) => ({
+        id: supplyInfo.id,
+        count: userSupplies.get(supplyInfo.id) || 0,
+        slotId: supplyInfo.slotId,
+        itemEffectTime: supplyInfo.itemEffectTime,
+        itemRestSec: supplyInfo.itemRestSec,
+      }));
+      const consumablesData = {
+        items: consumableItems,
+      };
+      client.sendPacket(new BattleConsumablesPacket(JSON.stringify(consumablesData)));
+    }
 
     const tankModelJson = this._getTankModelDataJson(client, battle);
     client.sendPacket(new TankModelDataPacket(tankModelJson));
