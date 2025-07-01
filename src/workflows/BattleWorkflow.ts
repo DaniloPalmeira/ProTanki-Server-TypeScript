@@ -35,6 +35,8 @@ import ConfirmLayoutChange from "../packets/implementations/ConfirmLayoutChange"
 import { BasePacket } from "../packets/implementations/BasePacket";
 import UpdateBattleUserDMPacket from "../packets/implementations/UpdateBattleUserDMPacket";
 import { suppliesData } from "../config/SuppliesData";
+import UserConnectDMPacket from "../packets/implementations/UserConnectDMPacket";
+import { IBattleUserInfo } from "../packets/interfaces/IUserConnectDM";
 
 export class BattleWorkflow {
   public static async enterBattle(client: ProTankiClient, server: ProTankiServer, battle: Battle): Promise<void> {
@@ -435,6 +437,32 @@ export class BattleWorkflow {
       bonusRegionData: [],
     });
     client.sendPacket(new BonusRegionsPacket(bonusRegionsPacket));
+
+    const allPlayersInBattle = [...battle.users, ...battle.usersBlue, ...battle.usersRed];
+
+    const usersInfoForPacket: IBattleUserInfo[] = allPlayersInBattle.map((p) => ({
+      ChatModeratorLevel: p.chatModeratorLevel,
+      deaths: 0,
+      kills: 0,
+      rank: p.rank,
+      score: 0,
+      nickname: p.username,
+    }));
+
+    console.log({ usersInfoForPacket });
+
+    const userConnectPacket = new UserConnectDMPacket(client.user!.username, usersInfoForPacket);
+
+    for (const player of allPlayersInBattle) {
+      if (player.id === client.user!.id) {
+        continue;
+      }
+
+      const otherClient = server.findClientByUsername(player.username);
+      if (otherClient && otherClient.currentBattle?.battleId === battle.battleId) {
+        otherClient.sendPacket(userConnectPacket);
+      }
+    }
 
     client.sendPacket(new ConfirmLayoutChange(3, 3));
   }
