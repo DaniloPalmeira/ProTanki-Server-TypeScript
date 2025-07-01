@@ -65,6 +65,7 @@ export interface UserAttributes {
   hulls: Map<string, number>;
   turrets: Map<string, number>;
   paints: string[];
+  supplies: Map<string, number>;
   equippedTurret: string;
   equippedHull: string;
   equippedPaint: string;
@@ -112,6 +113,18 @@ const UserSchema = new Schema<UserDocument>({
   hulls: { type: Map, of: Number, default: () => new Map([["wasp", 0]]) },
   turrets: { type: Map, of: Number, default: () => new Map([["smoky", 0]]) },
   paints: { type: [String], default: ["green"] },
+  supplies: {
+    type: Map,
+    of: Number,
+    default: () =>
+      new Map([
+        ["health", 0],
+        ["armor", 0],
+        ["double_damage", 0],
+        ["n2o", 0],
+        ["mine", 0],
+      ]),
+  },
   equippedTurret: { type: String, default: "smoky" },
   equippedHull: { type: String, default: "wasp" },
   equippedPaint: { type: String, default: "green" },

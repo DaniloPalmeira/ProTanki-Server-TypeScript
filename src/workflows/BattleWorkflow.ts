@@ -32,9 +32,9 @@ import BattleUserEffectsPacket from "../packets/implementations/BattleUserEffect
 import BonusRegionsPacket from "../packets/implementations/BonusRegionsPacket";
 import { BonusType } from "../packets/interfaces/IBonusRegion";
 import ConfirmLayoutChange from "../packets/implementations/ConfirmLayoutChange";
-import TimeCheckerPacket from "../packets/implementations/TimeCheckerPacket";
 import { BasePacket } from "../packets/implementations/BasePacket";
 import UpdateBattleUserDMPacket from "../packets/implementations/UpdateBattleUserDMPacket";
+import { suppliesData } from "../config/SuppliesData";
 
 export class BattleWorkflow {
   public static async enterBattle(client: ProTankiClient, server: ProTankiServer, battle: Battle): Promise<void> {
@@ -356,16 +356,18 @@ export class BattleWorkflow {
 
     client.sendPacket(new BattleMinesPropertiesPacket(mineProps));
 
-    const consumablesData = {
-      items: [
-        { id: "armor", count: 5414, slotId: 2, itemEffectTime: 60, itemRestSec: 15 },
-        { id: "double_damage", count: 5372, slotId: 3, itemEffectTime: 60, itemRestSec: 15 },
-        { id: "n2o", count: 5347, slotId: 4, itemEffectTime: 60, itemRestSec: 15 },
-        { id: "health", count: 5259, slotId: 1, itemEffectTime: 0, itemRestSec: 30 },
-        { id: "mine", count: 3478, slotId: 5, itemEffectTime: 0, itemRestSec: 30 },
-      ],
-    };
+    const userSupplies = client.user!.supplies;
+    const consumableItems = suppliesData.map((supplyInfo) => ({
+      id: supplyInfo.id,
+      count: userSupplies.get(supplyInfo.id) || 0,
+      slotId: supplyInfo.slotId,
+      itemEffectTime: supplyInfo.itemEffectTime,
+      itemRestSec: supplyInfo.itemRestSec,
+    }));
 
+    const consumablesData = {
+      items: consumableItems,
+    };
     client.sendPacket(new BattleConsumablesPacket(JSON.stringify(consumablesData)));
 
     const tankModelJson = this._getTankModelDataJson(client, battle);
