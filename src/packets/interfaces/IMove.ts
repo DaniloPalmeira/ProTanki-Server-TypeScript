@@ -18,3 +18,9 @@ export interface IMoveCommand extends IPacket, IMovePhysics {
   clientTime: number;
   incarnation: number;
 }
+
+export interface IMovePacketData extends IMovePhysics {
+  nickname: string | null;
+}
+
+export interface IMovePacket extends IPacket, IMovePacketData {}
