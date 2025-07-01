@@ -11,6 +11,7 @@ export default class FullMoveCommandPacket extends BasePacket implements IFullMo
   public linearVelocity: IVector3 | null = null;
   public orientation: IVector3 | null = null;
   public position: IVector3 | null = null;
+  public direction: number = 0;
 
   public read(buffer: Buffer): void {
     const reader = new BufferReader(buffer);
@@ -21,6 +22,7 @@ export default class FullMoveCommandPacket extends BasePacket implements IFullMo
     this.linearVelocity = reader.readOptionalVector3();
     this.orientation = reader.readOptionalVector3();
     this.position = reader.readOptionalVector3();
+    this.direction = reader.readFloatBE();
   }
 
   public write(): Buffer {

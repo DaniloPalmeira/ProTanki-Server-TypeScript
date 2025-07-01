@@ -12,6 +12,7 @@ export interface IMovePhysics {
 export interface IFullMoveCommand extends IPacket, IMovePhysics {
   clientTime: number;
   incarnation: number;
+  direction: number;
 }
 
 export interface IMoveCommand extends IPacket, IMovePhysics {
@@ -24,3 +25,10 @@ export interface IMovePacketData extends IMovePhysics {
 }
 
 export interface IMovePacket extends IPacket, IMovePacketData {}
+
+export interface IFullMovePacketData extends IMovePhysics {
+  nickname: string | null;
+  direction: number;
+}
+
+export interface IFullMovePacket extends IPacket, IFullMovePacketData {}
