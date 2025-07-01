@@ -27,13 +27,10 @@ import InitializeBattleStatisticsPacket from "../packets/implementations/Initial
 import BattleMinesPropertiesPacket from "../packets/implementations/BattleMinesPropertiesPacket";
 import BattleConsumablesPacket from "../packets/implementations/BattleConsumablesPacket";
 import TankModelDataPacket from "../packets/implementations/TankModelDataPacket";
-import UpdateBattleUserTeamPacket from "../packets/implementations/UpdateBattleUserTeamPacket";
 import BattleUserEffectsPacket from "../packets/implementations/BattleUserEffectsPacket";
 import BonusRegionsPacket from "../packets/implementations/BonusRegionsPacket";
 import { BonusType } from "../packets/interfaces/IBonusRegion";
 import ConfirmLayoutChange from "../packets/implementations/ConfirmLayoutChange";
-import { BasePacket } from "../packets/implementations/BasePacket";
-import UpdateBattleUserDMPacket from "../packets/implementations/UpdateBattleUserDMPacket";
 import { suppliesData } from "../config/SuppliesData";
 import UserConnectDMPacket from "../packets/implementations/UserConnectDMPacket";
 import { IBattleUserInfo } from "../packets/interfaces/IUserConnectDM";
@@ -390,37 +387,6 @@ export class BattleWorkflow {
     const tankModelJson = this._getTankModelDataJson(client, battle);
     client.sendPacket(new TankModelDataPacket(tankModelJson));
 
-    const allPlayers = [...battle.users, ...battle.usersBlue, ...battle.usersRed];
-    let packetToSend: BasePacket;
-
-    if (battle.isTeamMode()) {
-      let teamId = 2;
-      if (battle.usersBlue.some((u) => u.id === client.user!.id)) teamId = 1;
-      if (battle.usersRed.some((u) => u.id === client.user!.id)) teamId = 0;
-
-      packetToSend = new UpdateBattleUserTeamPacket({
-        deaths: 0,
-        kills: 0,
-        score: 0,
-        nickname: client.user!.username,
-        team: teamId,
-      });
-    } else {
-      packetToSend = new UpdateBattleUserDMPacket({
-        deaths: 0,
-        kills: 0,
-        score: 0,
-        nickname: client.user!.username,
-      });
-    }
-
-    for (const player of allPlayers) {
-      const playerClient = server.findClientByUsername(player.username);
-      if (playerClient && playerClient.currentBattle?.battleId === battle.battleId) {
-        playerClient.sendPacket(packetToSend);
-      }
-    }
-
     const effectsData = {
       effects: [],
     };
@@ -448,8 +414,6 @@ export class BattleWorkflow {
       score: 0,
       nickname: p.username,
     }));
-
-    console.log({ usersInfoForPacket });
 
     const userConnectPacket = new UserConnectDMPacket(client.user!.username, usersInfoForPacket);
 
