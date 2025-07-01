@@ -60,7 +60,7 @@ export class ResourceManager {
       idlow: idLow,
       versionhigh: versionHigh.toString(),
       versionlow: versionLow,
-      lazy: files.includes("lazy.jpg"),
+      lazy: id.includes("preview"),
       alpha: files.includes("alpha.jpg"),
       type: resourceType,
     };
