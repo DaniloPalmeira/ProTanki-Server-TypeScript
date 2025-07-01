@@ -9,6 +9,7 @@ import logger from "../utils/Logger";
 import { UserDocument } from "../models/User";
 import Ping from "../packets/implementations/Ping";
 import { Battle } from "../models/Battle";
+import TimeCheckerPacket from "../packets/implementations/TimeCheckerPacket";
 
 interface PacketQueueItem {
   packetId: number;
@@ -39,6 +40,12 @@ export class ProTankiClient {
   public isInFlowMode: boolean = false;
   public flowTarget: string | null = null;
   public flowPayloadHex: string | null = null;
+
+  private timeCheckerStartTime: number = 0;
+  private initialClientTime: number = 0;
+  private timeCheckSentTimestamp: number = 0;
+  private lastTimeCheckPing: number = 0;
+  private timeCheckTimeout: NodeJS.Timeout | null = null;
 
   constructor({ socket, server }: IClientOptions) {
     this.socket = socket;
@@ -165,6 +172,7 @@ export class ProTankiClient {
 
   private handleClose(): void {
     logger.info(`Connection closed`, { client: this.getRemoteAddress() });
+    this.stopTimeChecker();
     if (this.user) {
       this.server.notifySubscribersOfStatusChange(this.user.username, false);
     }
@@ -209,5 +217,49 @@ export class ProTankiClient {
     packetBuffer.writeInt32BE(packetId, 4);
     data.copy(packetBuffer, ProTankiClient.HEADER_SIZE);
     return packetBuffer;
+  }
+
+  public startTimeChecker(): void {
+    if (this.timeCheckerStartTime > 0) return;
+
+    this.timeCheckerStartTime = Date.now();
+    this.sendTimeCheckerPacket();
+  }
+
+  public stopTimeChecker(): void {
+    if (this.timeCheckTimeout) {
+      clearTimeout(this.timeCheckTimeout);
+      this.timeCheckTimeout = null;
+    }
+    this.timeCheckerStartTime = 0;
+    this.initialClientTime = 0;
+  }
+
+  public sendTimeCheckerPacket(): void {
+    if (this.timeCheckerStartTime === 0) return;
+
+    const serverTime = Date.now() - this.timeCheckerStartTime;
+    this.timeCheckSentTimestamp = Date.now();
+    this.sendPacket(new TimeCheckerPacket(serverTime, this.lastTimeCheckPing));
+  }
+
+  public handleTimeCheckerResponse(clientTime: number, serverTime: number): void {
+    this.lastTimeCheckPing = Date.now() - this.timeCheckSentTimestamp;
+
+    if (this.initialClientTime === 0) {
+      this.initialClientTime = clientTime;
+    } else {
+      const deltaServer = serverTime;
+      const deltaClient = clientTime - this.initialClientTime;
+      const diff = Math.abs(deltaServer - deltaClient);
+
+      logger.info(`TimeChecker for ${this.user?.username}: deltaServer=${deltaServer}, deltaClient=${deltaClient}, diff=${diff}ms, ping=${this.lastTimeCheckPing}ms`);
+
+      if (diff > 100) {
+        logger.warn(`Potential speed hack detected for user ${this.user?.username}. Time difference: ${diff}ms`);
+      }
+    }
+
+    this.timeCheckTimeout = setTimeout(() => this.sendTimeCheckerPacket(), 2000);
   }
 }
