@@ -361,13 +361,24 @@ export class BattleWorkflow {
 
     if (!withoutSupplies && !userHasNoSupplies) {
       const userSupplies = client.user!.supplies;
-      const consumableItems = suppliesData.map((supplyInfo) => ({
+      let availableSupplies = suppliesData;
+
+      if (battle.settings.withoutMines) {
+        availableSupplies = availableSupplies.filter((supply) => supply.id !== "mine");
+      }
+
+      if (battle.settings.withoutMedkit) {
+        availableSupplies = availableSupplies.filter((supply) => supply.id !== "health");
+      }
+
+      const consumableItems = availableSupplies.map((supplyInfo) => ({
         id: supplyInfo.id,
         count: userSupplies.get(supplyInfo.id) || 0,
         slotId: supplyInfo.slotId,
         itemEffectTime: supplyInfo.itemEffectTime,
         itemRestSec: supplyInfo.itemRestSec,
       }));
+
       const consumablesData = {
         items: consumableItems,
       };
