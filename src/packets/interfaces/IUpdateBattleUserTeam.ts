@@ -1,6 +1,6 @@
 import { IPacket } from "./IPacket";
 
-export interface IUpdateBattleUserData {
+export interface IUpdateBattleUserTeamData {
   deaths: number;
   kills: number;
   score: number;
@@ -8,4 +8,4 @@ export interface IUpdateBattleUserData {
   team: number;
 }
 
-export interface IUpdateBattleUser extends IPacket, IUpdateBattleUserData {}
+export interface IUpdateBattleUserTeam extends IPacket, IUpdateBattleUserTeamData {}
