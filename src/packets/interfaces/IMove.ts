@@ -14,9 +14,7 @@ export interface IFullMoveCommand extends IPacket, IMovePhysics {
   incarnation: number;
 }
 
-export interface IMovePacketData extends IMovePhysics {
-  nickname: string | null;
+export interface IMoveCommand extends IPacket, IMovePhysics {
+  clientTime: number;
   incarnation: number;
 }
-
-export interface IMovePacket extends IPacket, IMovePacketData {}
