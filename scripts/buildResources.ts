@@ -41,7 +41,23 @@ async function findResources(dir: string, parentPath: string = ""): Promise<Reso
       if (versionDirs.length > 0) {
         const latestVersion = versionDirs[0];
         const id = relativePath.replace(/\\/g, "/");
-        const idLow = generateResourceId(id);
+        const sourcePath = path.join(fullPath, `v${latestVersion}`);
+        let idLow: number;
+
+        const idFilePath = path.join(sourcePath, "id.json");
+
+        if (fs.existsSync(idFilePath)) {
+          const idFileContent = await fs.promises.readFile(idFilePath, "utf8");
+          const idData = JSON.parse(idFileContent);
+          if (typeof idData.idlow !== "number") {
+            throw new Error(`"idlow" inválido ou ausente em ${idFilePath}`);
+          }
+          idLow = idData.idlow;
+          console.log(`ID Fixo encontrado para "${id}": ${idLow}`);
+        } else {
+          idLow = generateResourceId(id);
+        }
+
         const buildPath = ResourcePathUtils.getResourcePath({ idLow, versionLow: latestVersion });
 
         resources.push({ id, idLow, versionLow: latestVersion, sourcePath: path.join(fullPath, `v${latestVersion}`), buildPath });
