@@ -100,8 +100,14 @@ export class BattleService {
       throw new Error("Seu rank não é compatível com esta batalha.");
     }
 
-    const totalPlayers = battle.users.length + battle.usersRed.length + battle.usersBlue.length;
-    if (totalPlayers >= settings.maxPeopleCount) {
+    const allPlayers = [...battle.users, ...battle.usersRed, ...battle.usersBlue];
+    const isAlreadyInBattle = allPlayers.some((p) => p.id === user.id);
+
+    if (isAlreadyInBattle) {
+      throw new Error("Você já está nesta batalha.");
+    }
+
+    if (allPlayers.length >= settings.maxPeopleCount) {
       throw new Error("Esta batalha está cheia.");
     }
 
