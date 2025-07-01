@@ -1,3 +1,5 @@
+import { IVector3 } from "../../packets/interfaces/geom/IVector3";
+
 export class BufferWriter {
   private chunks: Buffer[] = [];
   private totalLength: number = 0;
@@ -69,6 +71,17 @@ export class BufferWriter {
   public writeBuffer(buffer: Buffer): this {
     this.chunks.push(buffer);
     this.totalLength += buffer.length;
+    return this;
+  }
+
+  public writeOptionalVector3(vector: IVector3 | null): this {
+    const isNull = !vector;
+    this.writeUInt8(isNull ? 1 : 0);
+    if (!isNull) {
+      this.writeFloatBE(vector!.x);
+      this.writeFloatBE(vector!.y);
+      this.writeFloatBE(vector!.z);
+    }
     return this;
   }
 

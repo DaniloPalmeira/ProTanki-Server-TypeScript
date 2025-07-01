@@ -1,3 +1,5 @@
+import { IVector3 } from "../../packets/interfaces/geom/IVector3";
+
 export class BufferReader {
   private buffer: Buffer;
   private offset: number = 0;
@@ -90,5 +92,17 @@ export class BufferReader {
     const value = this.buffer.subarray(this.offset, this.offset + length);
     this.offset += length;
     return value;
+  }
+
+  public readOptionalVector3(): IVector3 | null {
+    const isNull = this.readUInt8() === 1;
+    if (isNull) {
+      return null;
+    }
+    return {
+      x: this.readFloatBE(),
+      y: this.readFloatBE(),
+      z: this.readFloatBE(),
+    };
   }
 }

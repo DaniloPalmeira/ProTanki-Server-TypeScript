@@ -3,9 +3,10 @@ import ReadyToSpawnPacket from "../../packets/implementations/ReadyToSpawnPacket
 import { ProTankiClient } from "../../server/ProTankiClient";
 import { ProTankiServer } from "../../server/ProTankiServer";
 import logger from "../../utils/Logger";
+import TankSpecificationPacket from "../../packets/implementations/TankSpecificationPacket";
 import { itemBlueprints } from "../../config/ItemData";
 import { UserDocument } from "../../models/User";
-import TankSpecificationPacket from "../../packets/implementations/TankSpecificationPacket";
+import PrepareToSpawnPacket from "../../packets/implementations/PrepareToSpawnPacket";
 
 const getPhysicsValue = (props: any[], propertyName: string, subPropName?: string): number => {
   const prop = props.find((p) => p.property === propertyName);
@@ -52,21 +53,10 @@ export default class ReadyToSpawnHandler implements IPacketHandler<ReadyToSpawnP
 
     logger.info(`Client ${client.user.username} is ready to spawn in battle ${client.currentBattle.battleId}.`);
 
-    try {
-      const specs = getTankSpecifications(client.user);
+    // Placeholder for spawn point logic. Using hardcoded values for now.
+    const spawnPosition = { x: 5232.58984375, y: -2677.427978515625, z: 200 };
+    const spawnRotation = { x: 0, y: 0, z: 1.309000015258789 };
 
-      client.sendPacket(
-        new TankSpecificationPacket({
-          nickname: client.user.username,
-          speed: specs.speed,
-          maxTurnSpeed: specs.maxTurnSpeed,
-          turretTurnSpeed: specs.turretTurnSpeed,
-          acceleration: specs.acceleration,
-          isPro: true,
-        })
-      );
-    } catch (error: any) {
-      logger.error(`Failed to get tank specifications for user ${client.user.username}`, { error });
-    }
+    client.sendPacket(new PrepareToSpawnPacket(spawnPosition, spawnRotation));
   }
 }
