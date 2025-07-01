@@ -21,6 +21,15 @@ export class LoginWorkflow {
     client.sendPacket(new SocialNetwork(server.getSocialNetworks()));
     client.sendPacket(new CaptchaLocation(server.configService.getCaptchaLocations()));
 
+    const tipResourceIds: ResourceId[] = ["tips/tip_1", "tips/tip_2", "tips/tip_3"];
+
+    const dependencies = {
+      resources: ResourceManager.getBulkResources(tipResourceIds),
+    };
+    client.sendPacket(new LoadDependencies(dependencies, CALLBACK.TIPS_LOADED));
+  }
+
+  public static async sendMainLoginResources(client: ProTankiClient, server: ProTankiServer): Promise<void> {
     const resourceIds: ResourceId[] = [
       "ui/language_images",
       "ui/login_background",

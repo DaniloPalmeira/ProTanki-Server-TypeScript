@@ -47,6 +47,9 @@ export default class ResourceCallbackHandler implements IPacketHandler<ResourceC
           BattleWorkflow.initializeBattle(client, server, client.currentBattle);
         }
         break;
+      case CALLBACK.TIPS_LOADED:
+        LoginWorkflow.sendMainLoginResources(client, server);
+        break;
     }
   }
 }
