@@ -14,7 +14,6 @@ import { ResourceId } from "../types/resourceTypes";
 import generateCaptcha from "../utils/GenerateCaptcha";
 import logger from "../utils/Logger";
 import { ResourceManager } from "../utils/ResourceManager";
-import { hardcodedTestResources } from "../config/HardcodedResources";
 
 export class LoginWorkflow {
   public static async sendLoginScreenData(client: ProTankiClient, server: ProTankiServer): Promise<void> {
@@ -355,11 +354,8 @@ export class LoginWorkflow {
       "sounds/battle/tank_explosion",
     ];
 
-    const existingResources = ResourceManager.getBulkResources(resourceIds);
-    const allResources = existingResources.concat(hardcodedTestResources);
-
     const dependencies = {
-      resources: allResources,
+      resources: ResourceManager.getBulkResources(resourceIds),
     };
     client.sendPacket(new LoadDependencies(dependencies, CALLBACK.LOGIN_FORM));
   }
