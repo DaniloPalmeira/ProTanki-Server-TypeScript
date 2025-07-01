@@ -9,7 +9,7 @@ export interface IDependency {
   fileNames?: string[];
   alpha?: boolean;
   type: number;
-  width?: number;
+  weight?: number;
   height?: number;
   numFrames?: number;
   fps?: number;

@@ -74,7 +74,7 @@ export class ResourceManager {
       if (fs.existsSync(propsPath)) {
         try {
           const props = JSON.parse(fs.readFileSync(propsPath, "utf8"));
-          dependency.width = props.weight;
+          dependency.weight = props.weight;
           dependency.height = props.height;
           dependency.numFrames = props.numFrames;
           dependency.fps = props.fps;
