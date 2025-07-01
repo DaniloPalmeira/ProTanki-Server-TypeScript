@@ -1,3 +1,5 @@
+import { ResourceManager } from "../utils/ResourceManager";
+
 export const weaponPhysicsData = {
   weapons: [
     { auto_aiming_down: 0, auto_aiming_up: 0, num_rays_down: 0, num_rays_up: 0, reload: 2000, id: "artillery_m0", has_wwd: false, special_entity: { chargingTime: 1, initialTurretAngle: 30, maxShellSpeed: 65, minShellSpeed: 25, shellGravityCoef: 5, shellRadius: 1, speedsCount: 20, impactForce: 5, minSplashDamagePercent: 25, radiusOfMaxSplashDamage: 0, splashDamageRadius: 15 } },
@@ -84,7 +86,7 @@ export const weaponPhysicsData = {
         rotationCoeffT2: 0.95,
         targetingAcceleration: 0.47123889803846897,
         targetingTransitionTime: 500,
-        reticleImageId: 339826,
+        reticleImageId: ResourceManager.getIdlowById("turret/shaft/m0/reticle"),
         weakeningCoeff: 0.36,
         fadeInTimeMs: 3000,
         laserPointerBlueColor: 48127,
@@ -124,7 +126,7 @@ export const weaponPhysicsData = {
         rotationCoeffT2: 0.95,
         targetingAcceleration: 0.47123889803846897,
         targetingTransitionTime: 500,
-        reticleImageId: 213432,
+        reticleImageId: ResourceManager.getIdlowById("turret/shaft/m1/reticle"),
         weakeningCoeff: 0.46,
         fadeInTimeMs: 3000,
         laserPointerBlueColor: 48127,
@@ -164,7 +166,7 @@ export const weaponPhysicsData = {
         rotationCoeffT2: 0.95,
         targetingAcceleration: 0.47123889803846897,
         targetingTransitionTime: 500,
-        reticleImageId: 575434,
+        reticleImageId: ResourceManager.getIdlowById("turret/shaft/m2/reticle"),
         weakeningCoeff: 0.56,
         fadeInTimeMs: 3000,
         laserPointerBlueColor: 48127,
@@ -204,7 +206,7 @@ export const weaponPhysicsData = {
         rotationCoeffT2: 0.95,
         targetingAcceleration: 0.47123889803846897,
         targetingTransitionTime: 500,
-        reticleImageId: 213443,
+        reticleImageId: ResourceManager.getIdlowById("turret/shaft/m3/reticle"),
         weakeningCoeff: 0.6,
         fadeInTimeMs: 3000,
         laserPointerBlueColor: 48127,

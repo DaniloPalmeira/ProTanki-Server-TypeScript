@@ -1,6 +1,6 @@
 {
-  "weight": 32,
-  "height": 32,
-  "numFrames": 30,
+  "weight": 64,
+  "height": 64,
+  "numFrames": 16,
   "fps": 30
 }

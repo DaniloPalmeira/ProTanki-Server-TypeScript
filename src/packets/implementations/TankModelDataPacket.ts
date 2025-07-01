@@ -24,7 +24,7 @@ export default class TankModelDataPacket extends BasePacket implements ITankMode
   }
 
   toString(): string {
-    return `TankModelDataPacket()`;
+    return `TankModelDataPacket(jsonData=${this.jsonData})`;
   }
 
   static getId(): number {
