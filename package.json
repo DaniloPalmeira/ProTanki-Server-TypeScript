@@ -10,7 +10,8 @@
     "start": "node dist/server.js",
     "dev": "npm run build:resources && ts-node-dev --respawn --transpile-only server.ts",
     "dev:tools": "ts-node-dev --respawn --transpile-only scripts/web-dev-tools.ts",
-    "test:packet": "ts-node scripts/packet-tester.ts"
+    "test:packet": "ts-node scripts/packet-tester.ts",
+    "parse:log": "ts-node scripts/log-parser.ts"
   },
   "devDependencies": {
     "@types/bcrypt": "^5.0.2",

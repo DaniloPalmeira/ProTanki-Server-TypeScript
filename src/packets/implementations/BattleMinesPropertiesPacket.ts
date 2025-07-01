@@ -1,6 +1,7 @@
 import { BufferReader } from "../../utils/buffer/BufferReader";
 import { BufferWriter } from "../../utils/buffer/BufferWriter";
-import { IBattleMine, IVector3 } from "../interfaces/IBattleMine";
+import { IVector3 } from "../interfaces/geom/IVector3";
+import { IBattleMine } from "../interfaces/IBattleMine";
 import { IBattleMinesProperties, IBattleMinesPropertiesData } from "../interfaces/IBattleMinesProperties";
 import { BasePacket } from "./BasePacket";
 
