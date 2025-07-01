@@ -18,6 +18,14 @@ export class BufferWriter {
     return this;
   }
 
+  public writeInt16BE(value: number): this {
+    const buffer = Buffer.alloc(2);
+    buffer.writeInt16BE(value, 0);
+    this.chunks.push(buffer);
+    this.totalLength += 2;
+    return this;
+  }
+
   public writeInt32BE(value: number): this {
     const buffer = Buffer.alloc(4);
     buffer.writeInt32BE(value, 0);

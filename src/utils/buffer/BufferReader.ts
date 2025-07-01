@@ -30,6 +30,13 @@ export class BufferReader {
     return value;
   }
 
+  public readInt16BE(): number {
+    this.checkCanRead(2);
+    const value = this.buffer.readInt16BE(this.offset);
+    this.offset += 2;
+    return value;
+  }
+
   public readInt32BE(): number {
     this.checkCanRead(4);
     const value = this.buffer.readInt32BE(this.offset);
