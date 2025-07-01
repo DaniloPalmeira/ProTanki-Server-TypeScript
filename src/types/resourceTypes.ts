@@ -349,6 +349,7 @@ export const ResourceData = {
     "skybox/default/part4": { idLow: 7445307, path: "/0/161/233/73/1/", versionLow: 1 },
     "skybox/default/part5": { idLow: 7777197, path: "/0/166/253/255/1/", versionLow: 1 },
     "skybox/default/part6": { idLow: 8387095, path: "/0/177/372/27/1/", versionLow: 1 },
+    "sounds/battle/tank_explosion": { idLow: 878808, path: "/0/15/150/330/1/", versionLow: 1 },
     "sounds/bonus_pickup": { idLow: 16664198, path: "/0/376/106/206/1/", versionLow: 1 },
     "sounds/hull/engine_idle": { idLow: 12530521, path: "/0/277/63/131/1/", versionLow: 1 },
     "sounds/hull/engine_move": { idLow: 10858804, path: "/0/245/261/64/1/", versionLow: 1 },

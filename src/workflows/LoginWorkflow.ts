@@ -351,6 +351,7 @@ export class LoginWorkflow {
       "bonuses/parachute/inner",
       "bonuses/parachute/main",
       "sounds/bonus_pickup",
+      "sounds/battle/tank_explosion",
     ];
 
     const dependencies = {
