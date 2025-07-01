@@ -147,7 +147,8 @@ export class BattleWorkflow {
     };
   }
 
-  private static _getTankModelDataJson(user: UserDocument, battle: Battle): string {
+  private static _getTankModelDataJson(client: ProTankiClient, battle: Battle): string {
+    const user = client.user!;
     const hullId = user.equippedHull;
     const hullMod = user.hulls.get(hullId) ?? 0;
     const turretId = user.equippedTurret;
@@ -194,7 +195,9 @@ export class BattleWorkflow {
       bcsh: [],
     };
 
-    const data = {
+    const stateIsNull = client.battleState === "newcome";
+
+    const data: any = {
       battleId: battle.battleId,
       colormap_id: ResourceManager.getIdlowById(`paint/${paintId}/texture` as ResourceId),
       hull_id: `${hullId}_m${hullMod}`,
@@ -204,12 +207,11 @@ export class BattleWorkflow {
       hullResource: ResourceManager.getIdlowById(`hull/${hullId}/m${hullMod}/model` as ResourceId),
       turretResource: ResourceManager.getIdlowById(`turret/${turretId}/m${turretMod}/model` as ResourceId),
       sfxData: JSON.stringify(sfxData),
-      position: { x: 0, y: 0, z: 0 },
-      orientation: { x: 0, y: 0, z: 0 },
-      incarnation: 0,
       tank_id: user.username,
       nickname: user.username,
-      state: "newcome",
+      state: client.battleState,
+      incarnation: client.battleIncarnation,
+      state_null: stateIsNull,
       maxSpeed: 10,
       maxTurnSpeed: 2.443460952792061,
       acceleration: 14,
@@ -226,8 +228,14 @@ export class BattleWorkflow {
       kickback: 2.5,
       turretTurnAcceleration: 3.4800119955514934,
       impact_force: 3.3,
-      state_null: true,
     };
+
+    if (!stateIsNull) {
+      data.position = client.battlePosition;
+      data.orientation = client.battleOrientation;
+      data.turretAngle = client.turretAngle;
+      data.turretControl = client.turretControl;
+    }
 
     return JSON.stringify(data);
   }
@@ -411,12 +419,15 @@ export class BattleWorkflow {
       if (player.id === client.user!.id) {
         continue;
       }
-      const existingTankJson = this._getTankModelDataJson(player, battle);
-      const existingTankPacket = new TankModelDataPacket(existingTankJson);
-      client.sendPacket(existingTankPacket);
+      const existingClient = server.findClientByUsername(player.username);
+      if (existingClient) {
+        const existingTankJson = this._getTankModelDataJson(existingClient, battle);
+        const existingTankPacket = new TankModelDataPacket(existingTankJson);
+        client.sendPacket(existingTankPacket);
+      }
     }
 
-    const joiningUserTankJson = this._getTankModelDataJson(client.user!, battle);
+    const joiningUserTankJson = this._getTankModelDataJson(client, battle);
     const joiningUserTankPacket = new TankModelDataPacket(joiningUserTankJson);
 
     for (const player of allPlayersInBattle) {

@@ -12,6 +12,9 @@ export default class RotateTurretCommandHandler implements IPacketHandler<Rotate
       return;
     }
 
+    client.turretAngle = packet.angle;
+    client.turretControl = packet.control;
+
     const battle = client.currentBattle;
 
     const turretRotationPacket = new TurretRotationPacket({

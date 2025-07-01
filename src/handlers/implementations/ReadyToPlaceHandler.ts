@@ -36,17 +36,18 @@ export default class ReadyToPlaceHandler implements IPacketHandler<ReadyToPlaceP
       const battle = client.currentBattle;
       const user = client.user;
 
-      // Valor real da vida para lógica do servidor (ex: cálculo de dano)
-      const maxHealth = getHullHealth(user);
+      client.battleState = "active";
 
-      // Valor normalizado para a UI do cliente
+      const maxHealth = getHullHealth(user);
       const clientHealth = 10000;
 
       client.sendPacket(new SetHealthPacket({ nickname: user.username, health: clientHealth }));
 
       const spawnPosition = { x: 1010.1729736328125, y: -4518.43994140625, z: 200 };
       const spawnRotation = { x: 0, y: 0, z: -6.894000053405762 };
-      const incarnation = 1;
+
+      client.battlePosition = spawnPosition;
+      client.battleOrientation = spawnRotation;
 
       let teamId = 2; // NONE
       if (battle.isTeamMode()) {
@@ -60,7 +61,7 @@ export default class ReadyToPlaceHandler implements IPacketHandler<ReadyToPlaceP
         position: spawnPosition,
         orientation: spawnRotation,
         health: clientHealth,
-        incarnation: incarnation,
+        incarnation: client.battleIncarnation,
       });
 
       const allPlayers = [...battle.users, ...battle.usersBlue, ...battle.usersRed];

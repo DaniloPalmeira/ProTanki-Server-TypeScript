@@ -10,6 +10,7 @@ import { UserDocument } from "../models/User";
 import Ping from "../packets/implementations/Ping";
 import { Battle } from "../models/Battle";
 import TimeCheckerPacket from "../packets/implementations/TimeCheckerPacket";
+import { IVector3 } from "../packets/interfaces/geom/IVector3";
 
 interface PacketQueueItem {
   packetId: number;
@@ -46,6 +47,13 @@ export class ProTankiClient {
   private timeCheckSentTimestamp: number = 0;
   private lastTimeCheckPing: number = 0;
   private timeCheckTimeout: NodeJS.Timeout | null = null;
+
+  public battleState: "newcome" | "active" | "suicide" = "newcome";
+  public battleIncarnation: number = 1;
+  public battlePosition: IVector3 | null = null;
+  public battleOrientation: IVector3 | null = null;
+  public turretAngle: number = 0;
+  public turretControl: number = 0;
 
   constructor({ socket, server }: IClientOptions) {
     this.socket = socket;

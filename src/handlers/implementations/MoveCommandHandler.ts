@@ -12,6 +12,10 @@ export default class MoveCommandHandler implements IPacketHandler<MoveCommandPac
       return;
     }
 
+    client.battlePosition = packet.position;
+    client.battleOrientation = packet.orientation;
+    client.turretControl = packet.control;
+
     const battle = client.currentBattle;
 
     const movePacket = new MovePacket({

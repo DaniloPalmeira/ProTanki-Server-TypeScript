@@ -12,6 +12,10 @@ export default class FullMoveCommandHandler implements IPacketHandler<FullMoveCo
       return;
     }
 
+    client.battlePosition = packet.position;
+    client.battleOrientation = packet.orientation;
+    client.turretControl = packet.control;
+
     const battle = client.currentBattle;
 
     const fullMovePacket = new FullMovePacket({
