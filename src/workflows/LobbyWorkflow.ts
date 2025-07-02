@@ -1,6 +1,6 @@
 import { Achievement } from "../models/enums/Achievement";
 import { ChatModeratorLevel } from "../models/enums/ChatModeratorLevel";
-import User, { UserDocument, UserDocumentWithFriends } from "../models/User";
+import { UserDocument, UserDocumentWithFriends } from "../models/User";
 import AchievementTips from "../packets/implementations/AchievementTips";
 import AntifloodSettings from "../packets/implementations/AntifloodSettings";
 import ChatHistory from "../packets/implementations/ChatHistory";
@@ -56,14 +56,17 @@ export class LobbyWorkflow {
     this.sendPlayerVitals(client.user, client, server);
     this.sendInitialSettings(client, server);
     this.sendAchievementTips(client.user, client);
-    await this.sendChatSetup(client.user, client, server);
 
-    this.returnToLobby(client, server, false);
+    await this.returnToLobby(client, server, false);
   }
 
-  public static returnToLobby(client: ProTankiClient, server: ProTankiServer, fromGarage: boolean = true): void {
+  public static async returnToLobby(client: ProTankiClient, server: ProTankiServer, fromGarage: boolean = true): Promise<void> {
     if (fromGarage) {
       client.sendPacket(new UnloadGaragePacket());
+    }
+
+    if (client.user && !client.isChatLoaded) {
+      await this.sendChatSetup(client.user, client, server);
     }
 
     client.setState("chat_lobby");
@@ -154,7 +157,7 @@ export class LobbyWorkflow {
     client.sendPacket(new AchievementTips(tipsToSend));
   }
 
-  private static async sendChatSetup(user: UserDocument, client: ProTankiClient, server: ProTankiServer): Promise<void> {
+  public static async sendChatSetup(user: UserDocument, client: ProTankiClient, server: ProTankiServer): Promise<void> {
     const configService = server.configService;
 
     client.sendPacket(
@@ -199,6 +202,8 @@ export class LobbyWorkflow {
         : null,
     }));
     client.sendPacket(new ChatHistory(messageData));
+
+    client.isChatLoaded = true;
   }
 
   private static sendBattleInfo(client: ProTankiClient): void {

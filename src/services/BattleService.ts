@@ -122,4 +122,14 @@ export class BattleService {
     logger.info(`User ${user.username} added to battle ${battle.battleId}`);
     return battle;
   }
+
+  public removeUserFromBattle(user: UserDocument, battle: Battle): void {
+    const userId = user.id;
+
+    battle.users = battle.users.filter((u) => u.id !== userId);
+    battle.usersBlue = battle.usersBlue.filter((u) => u.id !== userId);
+    battle.usersRed = battle.usersRed.filter((u) => u.id !== userId);
+
+    logger.info(`User ${user.username} removed from battle ${battle.battleId}`);
+  }
 }

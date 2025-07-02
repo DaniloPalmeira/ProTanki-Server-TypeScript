@@ -12,12 +12,17 @@ import { ProTankiServer } from "../server/ProTankiServer";
 import { ResourceId } from "../types/resourceTypes";
 import logger from "../utils/Logger";
 import { ResourceManager } from "../utils/ResourceManager";
+import { LobbyWorkflow } from "./LobbyWorkflow";
 
 export class GarageWorkflow {
   public static async enterGarage(client: ProTankiClient, server: ProTankiServer): Promise<void> {
     if (!client.user) {
       logger.error("Attempted to enter garage without a user authenticated.", { client: client.getRemoteAddress() });
       return;
+    }
+
+    if (!client.isChatLoaded) {
+      await LobbyWorkflow.sendChatSetup(client.user, client, server);
     }
 
     client.setState("chat_garage");

@@ -30,6 +30,7 @@ export class ProTankiClient {
   public recoveryEmail: string | null = null;
   public user: UserDocument | null = null;
   public friendsCache: string[] = [];
+  public isChatLoaded: boolean = false;
   public shopCountryCode: string = "BR";
   private packetQueue: PacketQueueItem[] = [];
   private isProcessingQueue: boolean = false;

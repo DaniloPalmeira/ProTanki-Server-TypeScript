@@ -48,6 +48,7 @@ export class BattleWorkflow {
     client.sendPacket(new SetLayout(3));
     client.sendPacket(new UnloadBattleListPacket());
     client.sendPacket(new UnloadLobbyChatPacket());
+    client.isChatLoaded = false;
     client.startTimeChecker();
     client.sendPacket(new WeaponPhysicsPacket(JSON.stringify(weaponPhysicsData)));
     client.sendPacket(new BonusDataPacket(JSON.stringify(getBonusData())));
