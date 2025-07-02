@@ -1,8 +1,11 @@
 import { BattleMode } from "../../models/Battle";
 import ExitFromBattlePacket from "../../packets/implementations/ExitFromBattlePacket";
+import ReleasePlayerSlotDmPacket from "../../packets/implementations/ReleasePlayerSlotDmPacket";
 import RemoveTankPacket from "../../packets/implementations/RemoveTankPacket";
+import RemoveUserFromBattleLobbyPacket from "../../packets/implementations/RemoveUserFromBattleLobbyPacket";
 import UnloadSpaceBattlePacket from "../../packets/implementations/UnloadSpaceBattlePacket";
 import UserDisconnectedDmPacket from "../../packets/implementations/UserDisconnectedDmPacket";
+import UserNotInBattlePacket from "../../packets/implementations/UserNotInBattlePacket";
 import { ProTankiClient } from "../../server/ProTankiClient";
 import { ProTankiServer } from "../../server/ProTankiServer";
 import { GarageWorkflow } from "../../workflows/GarageWorkflow";
@@ -38,6 +41,29 @@ export default class ExitFromBattleHandler implements IPacketHandler<ExitFromBat
         const playerClient = server.findClientByUsername(player.username);
         if (playerClient) {
           playerClient.sendPacket(disconnectPacket);
+        }
+      }
+    }
+
+    const battleDetailWatchers = server.getClients().filter((c) => (c.getState() === "chat_lobby" || c.getState() === "battle_lobby") && c.lastViewedBattleId === battle.battleId);
+    if (battleDetailWatchers.length > 0) {
+      const removeUserPacket = new RemoveUserFromBattleLobbyPacket({ battleId: battle.battleId, nickname: user.username });
+      for (const watcher of battleDetailWatchers) {
+        watcher.sendPacket(removeUserPacket);
+      }
+    }
+
+    if (battle.settings.battleMode === BattleMode.DM) {
+      const releaseSlotPacket = new ReleasePlayerSlotDmPacket({ battleId: battle.battleId, nickname: user.username });
+      server.broadcastToBattleList(releaseSlotPacket);
+    }
+
+    if (client.friendsCache.length > 0) {
+      const userNotInBattlePacket = new UserNotInBattlePacket(user.username);
+      for (const friendUsername of client.friendsCache) {
+        const friendClient = server.findClientByUsername(friendUsername);
+        if (friendClient) {
+          friendClient.sendPacket(userNotInBattlePacket);
         }
       }
     }
