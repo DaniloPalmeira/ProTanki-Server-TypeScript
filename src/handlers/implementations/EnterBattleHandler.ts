@@ -1,11 +1,13 @@
 import EnterBattlePacket from "../../packets/implementations/EnterBattlePacket";
 import SystemMessage from "../../packets/implementations/SystemMessage";
 import { BattleWorkflow } from "../../workflows/BattleWorkflow";
-import { LobbyWorkflow } from "../../workflows/LobbyWorkflow";
 import { ProTankiClient } from "../../server/ProTankiClient";
 import { ProTankiServer } from "../../server/ProTankiServer";
 import logger from "../../utils/Logger";
 import { IPacketHandler } from "../IPacketHandler";
+import { BattleMode } from "../../models/Battle";
+import ReservePlayerSlotDmPacket from "../../packets/implementations/ReservePlayerSlotDmPacket";
+import AddUserToBattleDmPacket from "../../packets/implementations/AddUserToBattleDmPacket";
 
 export default class EnterBattleHandler implements IPacketHandler<EnterBattlePacket> {
   public readonly packetId = EnterBattlePacket.getId();
@@ -22,10 +24,23 @@ export default class EnterBattleHandler implements IPacketHandler<EnterBattlePac
 
       await BattleWorkflow.enterBattle(client, server, battle);
 
-      const battleListWatchers = server.getClients().filter((c) => (c.getState() === "chat_lobby" || c.getState() === "battle_lobby") && c.lastViewedBattleId === battle.battleId);
+      if (battle.settings.battleMode === BattleMode.DM) {
+        const reserveSlotPacket = new ReservePlayerSlotDmPacket(battle.battleId, client.user.username);
+        server.broadcastToBattleList(reserveSlotPacket);
 
-      for (const watcher of battleListWatchers) {
-        await LobbyWorkflow.sendBattleDetails(watcher, server, battle);
+        const addUserPacket = new AddUserToBattleDmPacket({
+          battleId: battle.battleId,
+          nickname: client.user.username,
+          kills: 0,
+          score: 0,
+          suspicious: false,
+        });
+
+        const battleDetailWatchers = server.getClients().filter((c) => (c.getState() === "chat_lobby" || c.getState() === "battle_lobby") && c.lastViewedBattleId === battle.battleId);
+
+        for (const watcher of battleDetailWatchers) {
+          watcher.sendPacket(addUserPacket);
+        }
       }
     } catch (error: any) {
       logger.warn(`User ${client.user.username} failed to enter battle ${client.lastViewedBattleId}`, {
