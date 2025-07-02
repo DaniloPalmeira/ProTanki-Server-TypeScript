@@ -1,4 +1,5 @@
 import { BufferReader } from "../../utils/buffer/BufferReader";
+import { BufferWriter } from "../../utils/buffer/BufferWriter";
 import { ICreateBattleRequest } from "../interfaces/ICreateBattle";
 import { BasePacket } from "./BasePacket";
 import { BattleMode, EquipmentConstraintsMode, MapTheme } from "../../models/Battle";
@@ -69,7 +70,37 @@ export default class CreateBattleRequest extends BasePacket implements ICreateBa
   }
 
   write(): Buffer {
-    throw new Error("Method not implemented.");
+    const writer = new BufferWriter();
+    writer.writeUInt8(this.autoBalance ? 1 : 0);
+    writer.writeInt32BE(this.battleMode);
+    writer.writeInt32BE(this.equipmentConstraintsMode);
+    writer.writeUInt8(this.friendlyFire ? 1 : 0);
+    writer.writeInt32BE(this.scoreLimit);
+    writer.writeInt32BE(this.timeLimitInSec);
+    writer.writeOptionalString(this.mapId);
+    writer.writeInt32BE(this.maxPeopleCount);
+    writer.writeOptionalString(this.name);
+    writer.writeUInt8(this.parkourMode ? 1 : 0);
+    writer.writeUInt8(this.privateBattle ? 1 : 0);
+    writer.writeUInt8(this.proBattle ? 1 : 0);
+    writer.writeInt32BE(this.maxRank);
+    writer.writeInt32BE(this.minRank);
+    writer.writeUInt8(this.reArmorEnabled ? 1 : 0);
+    writer.writeInt32BE(this.mapTheme);
+    writer.writeUInt8(this.withoutBonuses ? 1 : 0);
+    writer.writeUInt8(this.withoutCrystals ? 1 : 0);
+    writer.writeUInt8(this.withoutSupplies ? 1 : 0);
+    writer.writeUInt8(this.withoutUpgrades ? 1 : 0);
+    writer.writeUInt8(this.reducedResistances ? 1 : 0);
+    writer.writeUInt8(this.esportDropTiming ? 1 : 0);
+    writer.writeUInt8(this.withoutGoldBoxes ? 1 : 0);
+    writer.writeUInt8(this.withoutGoldSiren ? 1 : 0);
+    writer.writeUInt8(this.withoutGoldZone ? 1 : 0);
+    writer.writeUInt8(this.withoutMedkit ? 1 : 0);
+    writer.writeUInt8(this.withoutMines ? 1 : 0);
+    writer.writeUInt8(this.randomGold ? 1 : 0);
+    writer.writeUInt8(this.dependentCooldownEnabled ? 1 : 0);
+    return writer.getBuffer();
   }
 
   toString(): string {

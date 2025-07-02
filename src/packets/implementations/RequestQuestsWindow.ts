@@ -1,3 +1,4 @@
+import { BufferWriter } from "../../utils/buffer/BufferWriter";
 import { BasePacket } from "./BasePacket";
 import { IRequestQuestsWindow } from "../interfaces/IRequestQuestsWindow";
 
@@ -5,7 +6,7 @@ export default class RequestQuestsWindow extends BasePacket implements IRequestQ
   read(buffer: Buffer): void {}
 
   write(): Buffer {
-    throw new Error("Method not implemented.");
+    return new BufferWriter().getBuffer();
   }
 
   toString(): string {

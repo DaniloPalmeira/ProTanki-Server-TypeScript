@@ -1,3 +1,4 @@
+import { BufferReader } from "../../utils/buffer/BufferReader";
 import { BufferWriter } from "../../utils/buffer/BufferWriter";
 import { IBattleUserInfo, IUserConnectDM } from "../interfaces/IUserConnectDM";
 import { BasePacket } from "./BasePacket";
@@ -13,7 +14,20 @@ export default class UserConnectDMPacket extends BasePacket implements IUserConn
   }
 
   public read(buffer: Buffer): void {
-    throw new Error("Method not implemented.");
+    const reader = new BufferReader(buffer);
+    this.nickname = reader.readOptionalString();
+    const count = reader.readInt32BE();
+    this.usersInfo = [];
+    for (let i = 0; i < count; i++) {
+      this.usersInfo.push({
+        ChatModeratorLevel: reader.readInt32BE(),
+        deaths: reader.readInt32BE(),
+        kills: reader.readInt32BE(),
+        rank: reader.readUInt8(),
+        score: reader.readInt32BE(),
+        nickname: reader.readOptionalString(),
+      });
+    }
   }
 
   public write(): Buffer {
@@ -34,7 +48,7 @@ export default class UserConnectDMPacket extends BasePacket implements IUserConn
   }
 
   public toString(): string {
-    return `UserConnectDMPacket(nickname=${this.nickname}, usersCount=${this.usersInfo.length})`;
+    return `UserConnectDMPacket(nickname=${this.nickname}, usersInfo=${JSON.stringify(this.usersInfo)})`;
   }
 
   public static getId(): number {

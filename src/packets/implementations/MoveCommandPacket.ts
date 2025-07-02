@@ -1,4 +1,5 @@
 import { BufferReader } from "../../utils/buffer/BufferReader";
+import { BufferWriter } from "../../utils/buffer/BufferWriter";
 import { IMoveCommand } from "../interfaces/IMove";
 import { IVector3 } from "../interfaces/geom/IVector3";
 import { BasePacket } from "./BasePacket";
@@ -24,11 +25,19 @@ export default class MoveCommandPacket extends BasePacket implements IMoveComman
   }
 
   public write(): Buffer {
-    throw new Error("Method not implemented.");
+    const writer = new BufferWriter();
+    writer.writeInt32BE(this.clientTime);
+    writer.writeInt16BE(this.incarnation);
+    writer.writeOptionalVector3(this.angularVelocity);
+    writer.writeInt8(this.control);
+    writer.writeOptionalVector3(this.linearVelocity);
+    writer.writeOptionalVector3(this.orientation);
+    writer.writeOptionalVector3(this.position);
+    return writer.getBuffer();
   }
 
   public toString(): string {
-    return `MoveCommandPacket(clientTime=${this.clientTime}, incarnation=${this.incarnation})`;
+    return `MoveCommandPacket(\n` + `  clientTime=${this.clientTime},\n` + `  incarnation=${this.incarnation},\n` + `  angularVelocity=${JSON.stringify(this.angularVelocity)},\n` + `  control=${this.control},\n` + `  linearVelocity=${JSON.stringify(this.linearVelocity)},\n` + `  orientation=${JSON.stringify(this.orientation)},\n` + `  position=${JSON.stringify(this.position)}\n` + `)`;
   }
 
   public static getId(): number {

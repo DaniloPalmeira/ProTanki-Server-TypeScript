@@ -1,4 +1,5 @@
 import { BufferReader } from "../../utils/buffer/BufferReader";
+import { BufferWriter } from "../../utils/buffer/BufferWriter";
 import { IExitFromBattle } from "../interfaces/IExitFromBattle";
 import { BasePacket } from "./BasePacket";
 
@@ -11,7 +12,9 @@ export default class ExitFromBattlePacket extends BasePacket implements IExitFro
   }
 
   write(): Buffer {
-    throw new Error("Method not implemented.");
+    const writer = new BufferWriter();
+    writer.writeInt32BE(this.layout);
+    return writer.getBuffer();
   }
 
   toString(): string {

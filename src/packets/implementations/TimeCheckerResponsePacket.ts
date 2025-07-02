@@ -20,7 +20,10 @@ export default class TimeCheckerResponsePacket extends BasePacket implements ITi
   }
 
   write(): Buffer {
-    throw new Error("Method not implemented.");
+    const writer = new BufferWriter();
+    writer.writeInt32BE(this.clientTime);
+    writer.writeInt32BE(this.serverTime);
+    return writer.getBuffer();
   }
 
   toString(): string {

@@ -1,3 +1,4 @@
+import { BufferWriter } from "../../utils/buffer/BufferWriter";
 import { BasePacket } from "./BasePacket";
 import { IDeclineAllFriendRequests } from "../interfaces/IDeclineAllFriendRequests";
 
@@ -5,7 +6,7 @@ export default class DeclineAllFriendRequests extends BasePacket implements IDec
   read(buffer: Buffer): void {}
 
   write(): Buffer {
-    throw new Error("Method not implemented.");
+    return new BufferWriter().getBuffer();
   }
 
   toString(): string {

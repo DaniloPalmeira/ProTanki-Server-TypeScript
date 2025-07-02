@@ -1,4 +1,5 @@
 import { BufferReader } from "../../utils/buffer/BufferReader";
+import { BufferWriter } from "../../utils/buffer/BufferWriter";
 import { IEquipItemRequest } from "../interfaces/IEquipItemRequest";
 import { BasePacket } from "./BasePacket";
 
@@ -11,7 +12,9 @@ export default class EquipItemRequestPacket extends BasePacket implements IEquip
   }
 
   write(): Buffer {
-    throw new Error("Method not implemented.");
+    const writer = new BufferWriter();
+    writer.writeOptionalString(this.itemId);
+    return writer.getBuffer();
   }
 
   toString(): string {

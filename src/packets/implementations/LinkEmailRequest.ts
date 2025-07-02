@@ -1,4 +1,5 @@
 import { BufferReader } from "../../utils/buffer/BufferReader";
+import { BufferWriter } from "../../utils/buffer/BufferWriter";
 import { BasePacket } from "./BasePacket";
 import { ILinkEmailRequest } from "../interfaces/ILinkEmailRequest";
 
@@ -11,7 +12,9 @@ export default class LinkEmailRequest extends BasePacket implements ILinkEmailRe
   }
 
   write(): Buffer {
-    throw new Error("Method not implemented.");
+    const writer = new BufferWriter();
+    writer.writeOptionalString(this.email);
+    return writer.getBuffer();
   }
 
   toString(): string {

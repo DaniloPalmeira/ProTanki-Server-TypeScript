@@ -1,4 +1,5 @@
 import { BattleMode, EquipmentConstraintsMode } from "../../models/Battle";
+import { BufferReader } from "../../utils/buffer/BufferReader";
 import { BufferWriter } from "../../utils/buffer/BufferWriter";
 import { IBattleStats, IBattleStatsData } from "../interfaces/IBattleStats";
 import { BasePacket } from "./BasePacket";
@@ -36,7 +37,20 @@ export default class BattleStatsPacket extends BasePacket implements IBattleStat
   }
 
   read(buffer: Buffer): void {
-    throw new Error("Method not implemented.");
+    const reader = new BufferReader(buffer);
+    this.battleMode = reader.readInt32BE();
+    this.equipmentConstraintsMode = reader.readInt32BE();
+    this.fund = reader.readInt32BE();
+    this.scoreLimit = reader.readInt32BE();
+    this.timeLimitInSec = reader.readInt32BE();
+    this.mapName = reader.readOptionalString();
+    this.maxPeopleCount = reader.readInt32BE();
+    this.parkourMode = reader.readUInt8() === 1;
+    this.premiumBonusInPercent = reader.readInt32BE();
+    this.spectator = reader.readUInt8() === 1;
+    this.suspiciousUserIds = reader.readStringArray();
+    this.timeLeft = reader.readInt32BE();
+    this.valuableRound = reader.readInt8();
   }
 
   write(): Buffer {

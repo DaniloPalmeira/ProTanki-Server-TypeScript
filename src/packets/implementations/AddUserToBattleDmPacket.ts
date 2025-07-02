@@ -39,7 +39,7 @@ export default class AddUserToBattleDmPacket extends BasePacket implements IAddU
   }
 
   toString(): string {
-    return `AddUserToBattleDmPacket(battleId=${this.battleId}, nickname=${this.nickname}, kills=${this.kills}, score=${this.score})`;
+    return `AddUserToBattleDmPacket(battleId=${this.battleId}, nickname=${this.nickname}, kills=${this.kills}, score=${this.score}, suspicious=${this.suspicious})`;
   }
 
   static getId(): number {

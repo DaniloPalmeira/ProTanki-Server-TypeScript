@@ -1,3 +1,4 @@
+import { BufferReader } from "../../utils/buffer/BufferReader";
 import { BufferWriter } from "../../utils/buffer/BufferWriter";
 import { IMovePacket, IMovePacketData } from "../interfaces/IMove";
 import { IVector3 } from "../interfaces/geom/IVector3";
@@ -22,7 +23,13 @@ export default class MovePacket extends BasePacket implements IMovePacket {
   }
 
   public read(buffer: Buffer): void {
-    throw new Error("Method not implemented.");
+    const reader = new BufferReader(buffer);
+    this.nickname = reader.readOptionalString();
+    this.angularVelocity = reader.readOptionalVector3();
+    this.control = reader.readInt8();
+    this.linearVelocity = reader.readOptionalVector3();
+    this.orientation = reader.readOptionalVector3();
+    this.position = reader.readOptionalVector3();
   }
 
   public write(): Buffer {
@@ -37,7 +44,7 @@ export default class MovePacket extends BasePacket implements IMovePacket {
   }
 
   public toString(): string {
-    return `MovePacket(nickname=${this.nickname})`;
+    return `MovePacket(\n` + `  nickname=${this.nickname},\n` + `  angularVelocity=${JSON.stringify(this.angularVelocity)},\n` + `  control=${this.control},\n` + `  linearVelocity=${JSON.stringify(this.linearVelocity)},\n` + `  orientation=${JSON.stringify(this.orientation)},\n` + `  position=${JSON.stringify(this.position)}\n` + `)`;
   }
 
   public static getId(): number {

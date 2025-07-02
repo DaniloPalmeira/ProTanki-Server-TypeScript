@@ -1,4 +1,5 @@
 import { BufferReader } from "../../utils/buffer/BufferReader";
+import { BufferWriter } from "../../utils/buffer/BufferWriter";
 import { IBuyItem } from "../interfaces/IBuyItem";
 import { BasePacket } from "./BasePacket";
 
@@ -15,7 +16,11 @@ export default class BuyItemPacket extends BasePacket implements IBuyItem {
   }
 
   write(): Buffer {
-    throw new Error("Method not implemented.");
+    const writer = new BufferWriter();
+    writer.writeOptionalString(this.itemId);
+    writer.writeInt32BE(this.quantity);
+    writer.writeInt32BE(this.price);
+    return writer.getBuffer();
   }
 
   toString(): string {

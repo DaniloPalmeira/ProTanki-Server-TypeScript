@@ -1,4 +1,5 @@
 import { BufferReader } from "../../utils/buffer/BufferReader";
+import { BufferWriter } from "../../utils/buffer/BufferWriter";
 import { BasePacket } from "./BasePacket";
 import { ISendChatMessage } from "../interfaces/ISendChatMessage";
 
@@ -19,7 +20,10 @@ export default class SendChatMessage extends BasePacket implements ISendChatMess
   }
 
   write(): Buffer {
-    throw new Error("Method not implemented.");
+    const writer = new BufferWriter();
+    writer.writeOptionalString(this.targetNickname);
+    writer.writeOptionalString(this.message);
+    return writer.getBuffer();
   }
 
   toString(): string {

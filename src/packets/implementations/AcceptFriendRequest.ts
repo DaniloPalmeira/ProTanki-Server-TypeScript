@@ -1,4 +1,5 @@
 import { BufferReader } from "../../utils/buffer/BufferReader";
+import { BufferWriter } from "../../utils/buffer/BufferWriter";
 import { BasePacket } from "./BasePacket";
 import { IAcceptFriendRequest } from "../interfaces/IAcceptFriendRequest";
 
@@ -11,7 +12,9 @@ export default class AcceptFriendRequest extends BasePacket implements IAcceptFr
   }
 
   write(): Buffer {
-    throw new Error("Method not implemented.");
+    const writer = new BufferWriter();
+    writer.writeOptionalString(this.nickname);
+    return writer.getBuffer();
   }
 
   toString(): string {

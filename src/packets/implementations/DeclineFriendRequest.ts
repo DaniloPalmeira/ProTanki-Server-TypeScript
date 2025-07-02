@@ -1,4 +1,5 @@
 import { BufferReader } from "../../utils/buffer/BufferReader";
+import { BufferWriter } from "../../utils/buffer/BufferWriter";
 import { BasePacket } from "./BasePacket";
 import { IDeclineFriendRequest } from "../interfaces/IDeclineFriendRequest";
 
@@ -11,7 +12,9 @@ export default class DeclineFriendRequest extends BasePacket implements IDecline
   }
 
   write(): Buffer {
-    throw new Error("Method not implemented.");
+    const writer = new BufferWriter();
+    writer.writeOptionalString(this.nickname);
+    return writer.getBuffer();
   }
 
   toString(): string {

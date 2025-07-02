@@ -54,7 +54,7 @@ export default class InitBattleUsersDMPacket extends BasePacket implements IInit
   }
 
   toString(): string {
-    return `InitBattleUsersDMPacket(userCount=${this.users.length})`;
+    return `InitBattleUsersDMPacket(users=${JSON.stringify(this.users)})`;
   }
 
   static getId(): number {

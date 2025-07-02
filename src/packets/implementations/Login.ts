@@ -1,4 +1,5 @@
 import { BufferReader } from "../../utils/buffer/BufferReader";
+import { BufferWriter } from "../../utils/buffer/BufferWriter";
 import { ILogin } from "../interfaces/ILogin";
 import { BasePacket } from "./BasePacket";
 
@@ -15,7 +16,11 @@ export default class Login extends BasePacket implements ILogin {
   }
 
   write(): Buffer {
-    throw new Error("Method not implemented.");
+    const writer = new BufferWriter();
+    writer.writeOptionalString(this.username);
+    writer.writeOptionalString(this.password);
+    writer.writeUInt8(this.rememberMe ? 1 : 0);
+    return writer.getBuffer();
   }
 
   toString(): string {

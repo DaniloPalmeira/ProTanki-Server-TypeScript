@@ -1,4 +1,5 @@
 import { BufferReader } from "../../utils/buffer/BufferReader";
+import { BufferWriter } from "../../utils/buffer/BufferWriter";
 import { IEnterBattle } from "../interfaces/IEnterBattle";
 import { BasePacket } from "./BasePacket";
 
@@ -11,7 +12,9 @@ export default class EnterBattlePacket extends BasePacket implements IEnterBattl
   }
 
   write(): Buffer {
-    throw new Error("Method not implemented.");
+    const writer = new BufferWriter();
+    writer.writeInt32BE(this.battleTeam);
+    return writer.getBuffer();
   }
 
   toString(): string {

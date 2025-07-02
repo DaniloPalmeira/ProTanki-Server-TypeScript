@@ -1,4 +1,5 @@
 import { BufferReader } from "../../utils/buffer/BufferReader";
+import { BufferWriter } from "../../utils/buffer/BufferWriter";
 import { ICheckUserExistsForFriend } from "../interfaces/ICheckUserExistsForFriend";
 import { BasePacket } from "./BasePacket";
 
@@ -11,7 +12,9 @@ export default class CheckUserExistsForFriend extends BasePacket implements IChe
   }
 
   write(): Buffer {
-    throw new Error("Method not implemented.");
+    const writer = new BufferWriter();
+    writer.writeOptionalString(this.nickname);
+    return writer.getBuffer();
   }
 
   toString(): string {

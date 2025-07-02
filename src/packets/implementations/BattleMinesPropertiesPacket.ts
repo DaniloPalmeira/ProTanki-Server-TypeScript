@@ -122,7 +122,28 @@ export default class BattleMinesPropertiesPacket extends BasePacket implements I
   }
 
   toString(): string {
-    return `BattleMinesPropertiesPacket(mines=${this.battleMines.length})`;
+    return (
+      `BattleMinesPropertiesPacket(\n` +
+      `  activateSound=${this.activateSound},\n` +
+      `  activateTimeMsec=${this.activateTimeMsec},\n` +
+      `  battleMines=${JSON.stringify(this.battleMines)},\n` +
+      `  blueMineTexture=${this.blueMineTexture},\n` +
+      `  deactivateSound=${this.deactivateSound},\n` +
+      `  enemyMineTexture=${this.enemyMineTexture},\n` +
+      `  explosionMarkTexture=${this.explosionMarkTexture},\n` +
+      `  explosionSound=${this.explosionSound},\n` +
+      `  farVisibilityRadius=${this.farVisibilityRadius},\n` +
+      `  friendlyMineTexture=${this.friendlyMineTexture},\n` +
+      `  idleExplosionTexture=${this.idleExplosionTexture},\n` +
+      `  impactForce=${this.impactForce},\n` +
+      `  mainExplosionTexture=${this.mainExplosionTexture},\n` +
+      `  minDistanceFromBase=${this.minDistanceFromBase},\n` +
+      `  model3ds=${this.model3ds},\n` +
+      `  nearVisibilityRadius=${this.nearVisibilityRadius},\n` +
+      `  radius=${this.radius},\n` +
+      `  redMineTexture=${this.redMineTexture}\n` +
+      `)`
+    );
   }
 
   static getId(): number {

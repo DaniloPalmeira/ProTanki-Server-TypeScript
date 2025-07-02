@@ -69,7 +69,7 @@ export default class BonusRegionsPacket extends BasePacket implements IBonusRegi
   }
 
   toString(): string {
-    return `BonusRegionsPacket(resources=${this.bonusRegionResources.length}, dataPoints=${this.bonusRegionData.length})`;
+    return `BonusRegionsPacket(resources=${JSON.stringify(this.bonusRegionResources)}, dataPoints=${JSON.stringify(this.bonusRegionData)})`;
   }
 
   static getId(): number {

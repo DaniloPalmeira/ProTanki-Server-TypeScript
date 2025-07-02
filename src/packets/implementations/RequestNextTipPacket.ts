@@ -1,3 +1,4 @@
+import { BufferWriter } from "../../utils/buffer/BufferWriter";
 import { IRequestNextTip } from "../interfaces/IRequestNextTip";
 import { BasePacket } from "./BasePacket";
 
@@ -5,7 +6,7 @@ export default class RequestNextTipPacket extends BasePacket implements IRequest
   read(buffer: Buffer): void {}
 
   write(): Buffer {
-    throw new Error("Method not implemented.");
+    return new BufferWriter().getBuffer();
   }
 
   toString(): string {

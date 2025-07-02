@@ -1,4 +1,5 @@
 import { BufferReader } from "../../utils/buffer/BufferReader";
+import { BufferWriter } from "../../utils/buffer/BufferWriter";
 import { BasePacket } from "./BasePacket";
 import { ISetShopCountry } from "../interfaces/ISetShopCountry";
 
@@ -11,7 +12,9 @@ export default class SetShopCountry extends BasePacket implements ISetShopCountr
   }
 
   write(): Buffer {
-    throw new Error("Method not implemented.");
+    const writer = new BufferWriter();
+    writer.writeOptionalString(this.countryCode);
+    return writer.getBuffer();
   }
 
   toString(): string {

@@ -44,7 +44,7 @@ export default class SpawnPacket extends BasePacket implements ISpawn {
   }
 
   toString(): string {
-    return `SpawnPacket(nickname=${this.nickname}, team=${this.team}, health=${this.health})`;
+    return `SpawnPacket(\n` + `  nickname=${this.nickname},\n` + `  team=${this.team},\n` + `  position=${JSON.stringify(this.position)},\n` + `  orientation=${JSON.stringify(this.orientation)},\n` + `  health=${this.health},\n` + `  incarnation=${this.incarnation}\n` + `)`;
   }
 
   static getId(): number {

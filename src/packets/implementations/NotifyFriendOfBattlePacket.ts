@@ -56,7 +56,7 @@ export default class NotifyFriendOfBattlePacket extends BasePacket implements IN
   }
 
   toString(): string {
-    return `NotifyFriendOfBattlePacket(nickname=${this.nickname}, battleId=${this.battleId})`;
+    return `NotifyFriendOfBattlePacket(\n` + `  battleId=${this.battleId},\n` + `  mapName=${this.mapName},\n` + `  mode=${this.mode},\n` + `  privateBattle=${this.privateBattle},\n` + `  probattle=${this.probattle},\n` + `  maxRank=${this.maxRank},\n` + `  minRank=${this.minRank},\n` + `  serverNumber=${this.serverNumber},\n` + `  nickname=${this.nickname}\n` + `)`;
   }
 
   static getId(): number {

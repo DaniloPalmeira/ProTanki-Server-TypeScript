@@ -1,4 +1,5 @@
 import { BufferReader } from "../../utils/buffer/BufferReader";
+import { BufferWriter } from "../../utils/buffer/BufferWriter";
 import { IUpdatePassword } from "../interfaces/IUpdatePassword";
 import { BasePacket } from "./BasePacket";
 
@@ -13,7 +14,10 @@ export default class UpdatePassword extends BasePacket implements IUpdatePasswor
   }
 
   write(): Buffer {
-    throw new Error("Method not implemented.");
+    const writer = new BufferWriter();
+    writer.writeOptionalString(this.password);
+    writer.writeOptionalString(this.email);
+    return writer.getBuffer();
   }
 
   toString(): string {

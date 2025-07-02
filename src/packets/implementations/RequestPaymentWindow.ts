@@ -1,3 +1,4 @@
+import { BufferWriter } from "../../utils/buffer/BufferWriter";
 import { BasePacket } from "./BasePacket";
 import { IRequestPaymentWindow } from "../interfaces/IRequestPaymentWindow";
 
@@ -5,7 +6,7 @@ export default class RequestPaymentWindow extends BasePacket implements IRequest
   read(buffer: Buffer): void {}
 
   write(): Buffer {
-    throw new Error("Method not implemented.");
+    return new BufferWriter().getBuffer();
   }
 
   toString(): string {

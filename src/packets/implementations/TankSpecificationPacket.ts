@@ -43,7 +43,7 @@ export default class TankSpecificationPacket extends BasePacket implements ITank
   }
 
   toString(): string {
-    return `TankSpecificationPacket(nickname=${this.nickname}, speed=${this.speed})`;
+    return `TankSpecificationPacket(\n` + `  nickname=${this.nickname},\n` + `  speed=${this.speed},\n` + `  maxTurnSpeed=${this.maxTurnSpeed},\n` + `  turretTurnSpeed=${this.turretTurnSpeed},\n` + `  acceleration=${this.acceleration},\n` + `  isPro=${this.isPro}\n` + `)`;
   }
 
   static getId(): number {

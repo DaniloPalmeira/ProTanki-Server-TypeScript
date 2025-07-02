@@ -64,7 +64,7 @@ export default class InitBattleUsersTeamPacket extends BasePacket implements IIn
   }
 
   toString(): string {
-    return `InitBattleUsersTeamPacket(scoreBlue=${this.scoreBlue}, scoreRed=${this.scoreRed}, blueCount=${this.usersBlue.length}, redCount=${this.usersRed.length})`;
+    return `InitBattleUsersTeamPacket(scoreBlue=${this.scoreBlue}, scoreRed=${this.scoreRed}, usersBlue=${JSON.stringify(this.usersBlue)}, usersRed=${JSON.stringify(this.usersRed)})`;
   }
 
   static getId(): number {

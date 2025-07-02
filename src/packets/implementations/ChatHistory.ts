@@ -68,8 +68,7 @@ export default class ChatHistory extends BasePacket implements IChatHistory {
   }
 
   toString(): string {
-    const messageSummaries = this.messages.map((m) => `{${m.source?.uid ?? "SYS"}->${m.target?.uid ?? "ALL"}: "${m.message}"}`).join(", ");
-    return `ChatHistory(count=${this.messages.length}, messages=[${messageSummaries}])`;
+    return `ChatHistory(messages=${JSON.stringify(this.messages)})`;
   }
 
   static getId(): number {

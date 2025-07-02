@@ -1,3 +1,4 @@
+import { BufferWriter } from "../../utils/buffer/BufferWriter";
 import { IReadyToActivate } from "../interfaces/IReadyToActivate";
 import { BasePacket } from "./BasePacket";
 
@@ -5,7 +6,7 @@ export default class ReadyToActivatePacket extends BasePacket implements IReadyT
   read(buffer: Buffer): void {}
 
   write(): Buffer {
-    throw new Error("Method not implemented.");
+    return new BufferWriter().getBuffer();
   }
 
   toString(): string {

@@ -1,3 +1,4 @@
+import { BufferWriter } from "../../utils/buffer/BufferWriter";
 import { BasePacket } from "./BasePacket";
 import { IRequestShopData } from "../interfaces/IRequestShopData";
 
@@ -5,7 +6,7 @@ export default class RequestShopData extends BasePacket implements IRequestShopD
   read(buffer: Buffer): void {}
 
   write(): Buffer {
-    throw new Error("Method not implemented.");
+    return new BufferWriter().getBuffer();
   }
 
   toString(): string {

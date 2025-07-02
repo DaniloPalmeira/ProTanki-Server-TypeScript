@@ -1,3 +1,4 @@
+import { BufferReader } from "../../utils/buffer/BufferReader";
 import { BufferWriter } from "../../utils/buffer/BufferWriter";
 import { IRotateTurretPacket, IRotateTurretPacketData } from "../interfaces/IRotateTurret";
 import { BasePacket } from "./BasePacket";
@@ -15,7 +16,10 @@ export default class TurretRotationPacket extends BasePacket implements IRotateT
   }
 
   public read(buffer: Buffer): void {
-    throw new Error("Method not implemented.");
+    const reader = new BufferReader(buffer);
+    this.nickname = reader.readOptionalString();
+    this.angle = reader.readFloatBE();
+    this.control = reader.readInt8();
   }
 
   public write(): Buffer {

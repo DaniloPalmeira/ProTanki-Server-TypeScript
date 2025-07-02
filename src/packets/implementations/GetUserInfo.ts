@@ -1,4 +1,5 @@
 import { BufferReader } from "../../utils/buffer/BufferReader";
+import { BufferWriter } from "../../utils/buffer/BufferWriter";
 import { IGetUserInfo } from "../interfaces/IGetUserInfo";
 import { BasePacket } from "./BasePacket";
 
@@ -16,7 +17,9 @@ export default class GetUserInfo extends BasePacket implements IGetUserInfo {
   }
 
   write(): Buffer {
-    throw new Error("Method not implemented.");
+    const writer = new BufferWriter();
+    writer.writeOptionalString(this.nickname);
+    return writer.getBuffer();
   }
 
   toString(): string {

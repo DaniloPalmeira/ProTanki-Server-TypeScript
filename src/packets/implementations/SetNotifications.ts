@@ -1,4 +1,5 @@
 import { BufferReader } from "../../utils/buffer/BufferReader";
+import { BufferWriter } from "../../utils/buffer/BufferWriter";
 import { BasePacket } from "./BasePacket";
 import { ISetNotifications } from "../interfaces/ISetNotifications";
 
@@ -11,7 +12,9 @@ export default class SetNotifications extends BasePacket implements ISetNotifica
   }
 
   write(): Buffer {
-    throw new Error("Method not implemented.");
+    const writer = new BufferWriter();
+    writer.writeUInt8(this.enabled ? 1 : 0);
+    return writer.getBuffer();
   }
 
   toString(): string {
