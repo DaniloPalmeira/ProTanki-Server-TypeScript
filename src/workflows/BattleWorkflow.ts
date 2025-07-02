@@ -42,6 +42,7 @@ export class BattleWorkflow {
       return;
     }
 
+    client.isJoiningBattle = true;
     client.setState("battle");
     logger.info(`User ${client.user.username} is entering battle ${battle.battleId}`);
 
@@ -381,24 +382,23 @@ export class BattleWorkflow {
       newPlayerClient.sendPacket(new BattleConsumablesPacket(JSON.stringify({ items: consumableItems })));
     }
 
-    const allPlayersInBattle = [...battle.users, ...battle.usersBlue, ...battle.usersRed];
-    const existingPlayerDocs = allPlayersInBattle.filter((p) => p.id !== user.id);
+    const allOtherClientsInBattle = server.getClients().filter((c) => c.currentBattle?.battleId === battle.battleId && c.user && c.user.id !== user.id);
 
-    for (const existingPlayer of existingPlayerDocs) {
-      const existingClient = server.findClientByUsername(existingPlayer.username);
-      if (existingClient) {
-        const existingTankJson = this._getTankModelDataJson(existingClient, battle);
-        newPlayerClient.sendPacket(new TankModelDataPacket(existingTankJson));
-      }
+    const establishedClients = allOtherClientsInBattle.filter((c) => !c.isJoiningBattle);
+    const establishedPlayerDocs = establishedClients.map((c) => c.user!);
+
+    for (const existingClient of establishedClients) {
+      const existingTankJson = this._getTankModelDataJson(existingClient, battle);
+      newPlayerClient.sendPacket(new TankModelDataPacket(existingTankJson));
     }
 
-    if (existingPlayerDocs.length === 0) {
-      logger.info(`Battle is empty. Spawning ${user.username} immediately.`);
+    if (establishedClients.length === 0) {
+      logger.info(`Battle has no established players. Spawning ${user.username} immediately.`);
       const joiningUserTankJson = this._getTankModelDataJson(newPlayerClient, battle);
       newPlayerClient.sendPacket(new TankModelDataPacket(joiningUserTankJson));
     } else {
-      logger.info(`Waiting for ${existingPlayerDocs.length} players to load resources for ${user.username}.`);
-      newPlayerClient.pendingResourceAcks = new Set(existingPlayerDocs.map((p) => p.username));
+      logger.info(`Waiting for ${establishedClients.length} established players to load resources for ${user.username}.`);
+      newPlayerClient.pendingResourceAcks = new Set(establishedPlayerDocs.map((p) => p.username));
       let spawnTriggered = false;
 
       const triggerSpawn = (timedOut: boolean) => {
@@ -411,18 +411,15 @@ export class BattleWorkflow {
         if (timedOut) {
           logger.warn(`Spawning ${user.username} after timeout. The following players did not acknowledge:`, [...newPlayerClient.pendingResourceAcks]);
         } else {
-          logger.info(`All players loaded resources for ${user.username}. Spawning tank.`);
+          logger.info(`All established players loaded resources for ${user.username}. Spawning tank.`);
         }
 
         const joiningUserTankJson = this._getTankModelDataJson(newPlayerClient, battle);
         const joiningUserTankPacket = new TankModelDataPacket(joiningUserTankJson);
 
-        const allCurrentPlayers = [...battle.users, ...battle.usersBlue, ...battle.usersRed];
-        for (const player of allCurrentPlayers) {
-          const playerClient = server.findClientByUsername(player.username);
-          if (playerClient && playerClient.currentBattle?.battleId === battle.battleId) {
-            playerClient.sendPacket(joiningUserTankPacket);
-          }
+        const allCurrentPlayersInBattle = server.getClients().filter((c) => c.currentBattle?.battleId === battle.battleId);
+        for (const playerClient of allCurrentPlayersInBattle) {
+          playerClient.sendPacket(joiningUserTankPacket);
         }
       };
 
@@ -453,7 +450,8 @@ export class BattleWorkflow {
       const resourcesToLoad: ResourceId[] = [`turret/${turretId}/m${turretMod}/model` as ResourceId, `hull/${hullId}/m${hullMod}/model` as ResourceId, `paint/${paintId}/texture` as ResourceId];
       const depsPacket = new LoadDependencies({ resources: ResourceManager.getBulkResources(resourcesToLoad) }, callbackId);
 
-      const usersInfoForPacket: IBattleUserInfo[] = allPlayersInBattle.map((p) => ({
+      const allPlayersInBattleForConnectPacket = [...battle.users, ...battle.usersBlue, ...battle.usersRed];
+      const usersInfoForPacket: IBattleUserInfo[] = allPlayersInBattleForConnectPacket.map((p) => ({
         ChatModeratorLevel: p.chatModeratorLevel,
         deaths: 0,
         kills: 0,
@@ -463,12 +461,9 @@ export class BattleWorkflow {
       }));
       const userConnectPacket = new UserConnectDMPacket(user.username, usersInfoForPacket);
 
-      for (const existingPlayer of existingPlayerDocs) {
-        const existingClient = server.findClientByUsername(existingPlayer.username);
-        if (existingClient) {
-          existingClient.sendPacket(depsPacket);
-          existingClient.sendPacket(userConnectPacket);
-        }
+      for (const existingClient of establishedClients) {
+        existingClient.sendPacket(depsPacket);
+        existingClient.sendPacket(userConnectPacket);
       }
     }
 
@@ -487,5 +482,6 @@ export class BattleWorkflow {
     });
     newPlayerClient.sendPacket(bonusRegionsPacket);
     newPlayerClient.sendPacket(new ConfirmLayoutChange(3, 3));
+    client.isJoiningBattle = false;
   }
 }

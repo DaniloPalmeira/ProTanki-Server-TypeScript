@@ -57,6 +57,7 @@ export class ProTankiClient {
   public battleOrientation: IVector3 | null = null;
   public turretAngle: number = 0;
   public turretControl: number = 0;
+  public isJoiningBattle: boolean = false;
 
   constructor({ socket, server }: IClientOptions) {
     this.socket = socket;
@@ -212,6 +213,7 @@ export class ProTankiClient {
         size: packetBuffer.length,
         encrypted: encrypt,
         client: this.getRemoteAddress(),
+        userTarget: this.user?.username || "unknown",
       });
       this.socket.write(packetBuffer);
     } catch (error) {
