@@ -247,7 +247,9 @@ export class BattleWorkflow {
   }
 
   public static initializeBattle(client: ProTankiClient, server: ProTankiServer, battle: Battle): void {
-    logger.info(`User ${client.user?.username} finished loading all battle resources for ${battle.battleId}. Initializing map...`);
+    const newPlayerClient = client;
+    const user = newPlayerClient.user!;
+    logger.info(`User ${user.username} finished loading all battle resources for ${battle.battleId}. Initializing map...`);
 
     const settings = battle.settings;
     const mapId = settings.mapId;
@@ -307,7 +309,7 @@ export class BattleWorkflow {
       lighting: JSON.stringify(lightingData),
     };
 
-    client.sendPacket(new InitMapPacket(JSON.stringify(mapInitData)));
+    newPlayerClient.sendPacket(new InitMapPacket(JSON.stringify(mapInitData)));
 
     const mapInfo = battleDataObject.maps.find((m) => m.mapId === settings.mapId);
     const timeLeftInSec = settings.timeLimitInSec;
@@ -328,22 +330,21 @@ export class BattleWorkflow {
       valuableRound: timeLeftInSec % 256 > 128 ? (timeLeftInSec % 256) - 256 : timeLeftInSec % 256,
     };
 
-    client.sendPacket(new BattleStatsPacket(battleStatsData));
-
-    client.sendPacket(new LoadBattleChatPacket());
+    newPlayerClient.sendPacket(new BattleStatsPacket(battleStatsData));
+    newPlayerClient.sendPacket(new LoadBattleChatPacket());
 
     if (battle.isTeamMode()) {
-      client.sendPacket(new InitBattleTeamPacket());
+      newPlayerClient.sendPacket(new InitBattleTeamPacket());
       const usersBlue = battle.usersBlue.map(this.mapUserToBattleUser);
       const usersRed = battle.usersRed.map(this.mapUserToBattleUser);
-      client.sendPacket(new InitBattleUsersTeamPacket(battle.scoreBlue, battle.scoreRed, usersBlue, usersRed));
+      newPlayerClient.sendPacket(new InitBattleUsersTeamPacket(battle.scoreBlue, battle.scoreRed, usersBlue, usersRed));
     } else {
-      client.sendPacket(new InitBattleDMPacket());
+      newPlayerClient.sendPacket(new InitBattleDMPacket());
       const users = battle.users.map(this.mapUserToBattleUser);
-      client.sendPacket(new InitBattleUsersDMPacket(users));
+      newPlayerClient.sendPacket(new InitBattleUsersDMPacket(users));
     }
 
-    client.sendPacket(new InitializeBattleStatisticsPacket());
+    newPlayerClient.sendPacket(new InitializeBattleStatisticsPacket());
 
     const mineProps = {
       activateSound: ResourceManager.getIdlowById("sounds/mine_activate"),
@@ -366,87 +367,113 @@ export class BattleWorkflow {
       redMineTexture: ResourceManager.getIdlowById("effects/mine/red_mine_texture"),
     };
 
-    client.sendPacket(new BattleMinesPropertiesPacket(mineProps));
+    newPlayerClient.sendPacket(new BattleMinesPropertiesPacket(mineProps));
 
     const withoutSupplies = battle.settings.withoutSupplies;
-    const userHasNoSupplies = Array.from(client.user!.supplies.values()).every((count) => count === 0);
+    const userHasNoSupplies = Array.from(user.supplies.values()).every((count) => count === 0);
 
     if (!withoutSupplies && !userHasNoSupplies) {
-      const userSupplies = client.user!.supplies;
+      const userSupplies = user.supplies;
       let availableSupplies = suppliesData;
-
-      if (battle.settings.withoutMines) {
-        availableSupplies = availableSupplies.filter((supply) => supply.id !== "mine");
-      }
-
-      if (battle.settings.withoutMedkit) {
-        availableSupplies = availableSupplies.filter((supply) => supply.id !== "health");
-      }
-
-      const consumableItems = availableSupplies.map((supplyInfo) => ({
-        id: supplyInfo.id,
-        count: userSupplies.get(supplyInfo.id) || 0,
-        slotId: supplyInfo.slotId,
-        itemEffectTime: supplyInfo.itemEffectTime,
-        itemRestSec: supplyInfo.itemRestSec,
-      }));
-
-      const consumablesData = {
-        items: consumableItems,
-      };
-      client.sendPacket(new BattleConsumablesPacket(JSON.stringify(consumablesData)));
+      if (battle.settings.withoutMines) availableSupplies = availableSupplies.filter((s) => s.id !== "mine");
+      if (battle.settings.withoutMedkit) availableSupplies = availableSupplies.filter((s) => s.id !== "health");
+      const consumableItems = availableSupplies.map((si) => ({ id: si.id, count: userSupplies.get(si.id) || 0, slotId: si.slotId, itemEffectTime: si.itemEffectTime, itemRestSec: si.itemRestSec }));
+      newPlayerClient.sendPacket(new BattleConsumablesPacket(JSON.stringify({ items: consumableItems })));
     }
 
     const allPlayersInBattle = [...battle.users, ...battle.usersBlue, ...battle.usersRed];
+    const existingPlayerDocs = allPlayersInBattle.filter((p) => p.id !== user.id);
 
-    const usersInfoForPacket: IBattleUserInfo[] = allPlayersInBattle.map((p) => ({
-      ChatModeratorLevel: p.chatModeratorLevel,
-      deaths: 0,
-      kills: 0,
-      rank: p.rank,
-      score: 0,
-      nickname: p.username,
-    }));
-
-    const userConnectPacket = new UserConnectDMPacket(client.user!.username, usersInfoForPacket);
-
-    for (const player of allPlayersInBattle) {
-      if (player.id === client.user!.id) {
-        continue;
-      }
-
-      const otherClient = server.findClientByUsername(player.username);
-      if (otherClient && otherClient.currentBattle?.battleId === battle.battleId) {
-        otherClient.sendPacket(userConnectPacket);
-      }
-    }
-
-    for (const player of allPlayersInBattle) {
-      if (player.id === client.user!.id) {
-        continue;
-      }
-      const existingClient = server.findClientByUsername(player.username);
+    for (const existingPlayer of existingPlayerDocs) {
+      const existingClient = server.findClientByUsername(existingPlayer.username);
       if (existingClient) {
         const existingTankJson = this._getTankModelDataJson(existingClient, battle);
-        const existingTankPacket = new TankModelDataPacket(existingTankJson);
-        client.sendPacket(existingTankPacket);
+        newPlayerClient.sendPacket(new TankModelDataPacket(existingTankJson));
       }
     }
 
-    const joiningUserTankJson = this._getTankModelDataJson(client, battle);
-    const joiningUserTankPacket = new TankModelDataPacket(joiningUserTankJson);
+    if (existingPlayerDocs.length === 0) {
+      logger.info(`Battle is empty. Spawning ${user.username} immediately.`);
+      const joiningUserTankJson = this._getTankModelDataJson(newPlayerClient, battle);
+      newPlayerClient.sendPacket(new TankModelDataPacket(joiningUserTankJson));
+    } else {
+      logger.info(`Waiting for ${existingPlayerDocs.length} players to load resources for ${user.username}.`);
+      newPlayerClient.pendingResourceAcks = new Set(existingPlayerDocs.map((p) => p.username));
+      let spawnTriggered = false;
 
-    for (const player of allPlayersInBattle) {
-      const playerClient = server.findClientByUsername(player.username);
-      if (playerClient && playerClient.currentBattle?.battleId === battle.battleId) {
-        playerClient.sendPacket(joiningUserTankPacket);
+      const triggerSpawn = (timedOut: boolean) => {
+        if (spawnTriggered) return;
+        spawnTriggered = true;
+
+        clearTimeout(spawnTimeout);
+        server.removeDynamicCallback(callbackId);
+
+        if (timedOut) {
+          logger.warn(`Spawning ${user.username} after timeout. The following players did not acknowledge:`, [...newPlayerClient.pendingResourceAcks]);
+        } else {
+          logger.info(`All players loaded resources for ${user.username}. Spawning tank.`);
+        }
+
+        const joiningUserTankJson = this._getTankModelDataJson(newPlayerClient, battle);
+        const joiningUserTankPacket = new TankModelDataPacket(joiningUserTankJson);
+
+        const allCurrentPlayers = [...battle.users, ...battle.usersBlue, ...battle.usersRed];
+        for (const player of allCurrentPlayers) {
+          const playerClient = server.findClientByUsername(player.username);
+          if (playerClient && playerClient.currentBattle?.battleId === battle.battleId) {
+            playerClient.sendPacket(joiningUserTankPacket);
+          }
+        }
+      };
+
+      const spawnTimeout = setTimeout(() => triggerSpawn(true), 10000);
+
+      const onResourcesLoadedCallback = (acknowledgingClient: ProTankiClient) => {
+        if (spawnTriggered) return;
+
+        const ackUsername = acknowledgingClient.user!.username;
+        logger.info(`${ackUsername} has loaded resources for ${user.username}.`);
+
+        if (newPlayerClient.pendingResourceAcks.has(ackUsername)) {
+          newPlayerClient.pendingResourceAcks.delete(ackUsername);
+        }
+
+        if (newPlayerClient.pendingResourceAcks.size === 0) {
+          triggerSpawn(false);
+        }
+      };
+
+      var callbackId = server.registerDynamicCallback(onResourcesLoadedCallback);
+
+      const hullId = user.equippedHull,
+        hullMod = user.hulls.get(hullId) ?? 0;
+      const turretId = user.equippedTurret,
+        turretMod = user.turrets.get(turretId) ?? 0;
+      const paintId = user.equippedPaint;
+      const resourcesToLoad: ResourceId[] = [`turret/${turretId}/m${turretMod}/model` as ResourceId, `hull/${hullId}/m${hullMod}/model` as ResourceId, `paint/${paintId}/texture` as ResourceId];
+      const depsPacket = new LoadDependencies({ resources: ResourceManager.getBulkResources(resourcesToLoad) }, callbackId);
+
+      const usersInfoForPacket: IBattleUserInfo[] = allPlayersInBattle.map((p) => ({
+        ChatModeratorLevel: p.chatModeratorLevel,
+        deaths: 0,
+        kills: 0,
+        rank: p.rank,
+        score: 0,
+        nickname: p.username,
+      }));
+      const userConnectPacket = new UserConnectDMPacket(user.username, usersInfoForPacket);
+
+      for (const existingPlayer of existingPlayerDocs) {
+        const existingClient = server.findClientByUsername(existingPlayer.username);
+        if (existingClient) {
+          existingClient.sendPacket(depsPacket);
+          existingClient.sendPacket(userConnectPacket);
+        }
       }
     }
 
-    const effectsData = {
-      effects: [],
-    };
-    client.sendPacket(new BattleUserEffectsPacket(JSON.stringify(effectsData)));
+    const effectsData = { effects: [] };
+    newPlayerClient.sendPacket(new BattleUserEffectsPacket(JSON.stringify(effectsData)));
 
     const bonusMarkerResource = ResourceManager.getIdlowById("effects/bonus/drop_location_marker");
     const bonusRegionsPacket = new BonusRegionsPacket({
@@ -458,8 +485,7 @@ export class BattleWorkflow {
       ],
       bonusRegionData: [],
     });
-    client.sendPacket(new BonusRegionsPacket(bonusRegionsPacket));
-
-    client.sendPacket(new ConfirmLayoutChange(3, 3));
+    newPlayerClient.sendPacket(bonusRegionsPacket);
+    newPlayerClient.sendPacket(new ConfirmLayoutChange(3, 3));
   }
 }

@@ -51,6 +51,7 @@ export class ProTankiClient {
   private timeCheckTimeout: NodeJS.Timeout | null = null;
 
   public battleState: "newcome" | "active" | "suicide" = "suicide";
+  public pendingResourceAcks: Set<string> = new Set<string>();
   public battleIncarnation: number = 1;
   public battlePosition: IVector3 | null = null;
   public battleOrientation: IVector3 | null = null;

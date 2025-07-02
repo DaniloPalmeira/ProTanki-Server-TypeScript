@@ -45,6 +45,9 @@ export class ProTankiServer {
   private socialNetworks: Array<string[]>;
   private loginForm: IRegistrationForm;
 
+  private dynamicCallbacks: Map<number, (client: ProTankiClient) => void> = new Map();
+  private nextCallbackId: number = 1000;
+
   public readonly configService: ConfigService;
   public readonly userService: UserService;
   public readonly inviteService: InviteService;
@@ -200,5 +203,24 @@ export class ProTankiServer {
         client.sendPacket(new OnlineNotifierData(isOnline, serverNumber, username));
       }
     });
+  }
+
+  public registerDynamicCallback(callback: (client: ProTankiClient) => void): number {
+    const id = this.nextCallbackId++;
+    this.dynamicCallbacks.set(id, callback);
+    return id;
+  }
+
+  public executeDynamicCallback(id: number, client: ProTankiClient): boolean {
+    const cb = this.dynamicCallbacks.get(id);
+    if (cb) {
+      cb(client);
+      return true;
+    }
+    return false;
+  }
+
+  public removeDynamicCallback(id: number): void {
+    this.dynamicCallbacks.delete(id);
   }
 }

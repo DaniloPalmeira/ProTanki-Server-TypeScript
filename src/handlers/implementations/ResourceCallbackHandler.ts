@@ -12,6 +12,10 @@ export default class ResourceCallbackHandler implements IPacketHandler<ResourceC
   public readonly packetId = ResourceCallback.getId();
 
   public async execute(client: ProTankiClient, server: ProTankiServer, packet: ResourceCallback): Promise<void> {
+    if (server.executeDynamicCallback(packet.callbackId, client)) {
+      return;
+    }
+
     switch (packet.callbackId) {
       case CALLBACK.LOGIN_FORM:
         LoginWorkflow.initializeLoginForm(client, server);
