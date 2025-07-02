@@ -109,7 +109,7 @@ const UserSchema = new Schema<UserDocument>({
   questStreak: { type: Number, default: 0 },
   lastQuestCompletedDate: { type: Date, default: null },
   lastQuestGeneratedDate: { type: Date, default: null },
-  loginToken: { type: String, unique: true, sparse: true, default: null },
+  loginToken: { type: String, default: null },
   hulls: { type: Map, of: Number, default: () => new Map([["wasp", 0]]) },
   turrets: { type: Map, of: Number, default: () => new Map([["smoky", 0]]) },
   paints: { type: [String], default: ["green"] },
@@ -133,6 +133,7 @@ const UserSchema = new Schema<UserDocument>({
 });
 
 UserSchema.index({ email: 1 }, { unique: true, partialFilterExpression: { email: { $type: "string" } } });
+UserSchema.index({ loginToken: 1 }, { unique: true, partialFilterExpression: { loginToken: { $type: "string" } } });
 
 UserSchema.pre<UserDocument>("save", function (next: (error?: Error) => void) {
   if (!this.isModified("password")) {
