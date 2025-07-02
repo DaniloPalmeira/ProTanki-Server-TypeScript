@@ -154,4 +154,8 @@ UserSchema.methods.verifyPassword = function (password: string, callback: (error
 
 const User = model<UserDocument>("User", UserSchema);
 
+export type UserDocumentWithFriends = Omit<UserDocument, "friends"> & {
+  friends: UserDocument[];
+};
+
 export default User;

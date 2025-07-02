@@ -1,6 +1,6 @@
 import { Achievement } from "../models/enums/Achievement";
 import { ChatModeratorLevel } from "../models/enums/ChatModeratorLevel";
-import { UserDocument } from "../models/User";
+import User, { UserDocument, UserDocumentWithFriends } from "../models/User";
 import AchievementTips from "../packets/implementations/AchievementTips";
 import AntifloodSettings from "../packets/implementations/AntifloodSettings";
 import ChatHistory from "../packets/implementations/ChatHistory";
@@ -48,6 +48,10 @@ export class LobbyWorkflow {
       logger.error("Attempted to enter lobby without a user authenticated.", { client: client.getRemoteAddress() });
       return;
     }
+
+    const populatedUser = (await client.user.populate("friends", "username")) as UserDocumentWithFriends;
+    client.friendsCache = populatedUser.friends.map((friend) => friend.username);
+    logger.info(`Friends list for ${client.user.username} cached with ${client.friendsCache.length} friends.`);
 
     this.sendPlayerVitals(client.user, client, server);
     this.sendInitialSettings(client, server);

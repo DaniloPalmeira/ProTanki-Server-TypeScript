@@ -23,11 +23,13 @@ export default class RemoveFriendHandler implements IPacketHandler<RemoveFriend>
         client.user = updatedUser;
       }
       client.sendPacket(new FriendRemoved(removedFriend.username));
+      client.friendsCache = client.friendsCache.filter((friend) => friend !== removedFriend.username);
 
       const removedFriendClient = server.findClientByUsername(removedFriend.username);
       if (removedFriendClient) {
         removedFriendClient.user = removedFriend;
         removedFriendClient.sendPacket(new FriendRemoved(currentUser.username));
+        removedFriendClient.friendsCache = removedFriendClient.friendsCache.filter((friend) => friend !== currentUser.username);
       }
     } catch (error: any) {
       logger.error(`Failed to remove friend for ${currentUser.username}`, {

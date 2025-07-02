@@ -29,6 +29,14 @@ export default class AcceptFriendRequestHandler implements IPacketHandler<Accept
       if (senderClient) {
         senderClient.user = senderUser;
         senderClient.sendPacket(new FriendRequestAccepted(currentUser.username));
+
+        if (!senderClient.friendsCache.includes(currentUser.username)) {
+          senderClient.friendsCache.push(currentUser.username);
+        }
+      }
+
+      if (!client.friendsCache.includes(senderUser.username)) {
+        client.friendsCache.push(senderUser.username);
       }
     } catch (error: any) {
       logger.error(`Failed to accept friend request for ${currentUser.username} from ${packet.nickname}`, {

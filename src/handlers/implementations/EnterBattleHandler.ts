@@ -8,6 +8,8 @@ import { IPacketHandler } from "../IPacketHandler";
 import { BattleMode } from "../../models/Battle";
 import ReservePlayerSlotDmPacket from "../../packets/implementations/ReservePlayerSlotDmPacket";
 import AddUserToBattleDmPacket from "../../packets/implementations/AddUserToBattleDmPacket";
+import NotifyFriendOfBattlePacket from "../../packets/implementations/NotifyFriendOfBattlePacket";
+import { battleDataObject } from "../../config/BattleData";
 
 export default class EnterBattleHandler implements IPacketHandler<EnterBattlePacket> {
   public readonly packetId = EnterBattlePacket.getId();
@@ -40,6 +42,31 @@ export default class EnterBattleHandler implements IPacketHandler<EnterBattlePac
 
         for (const watcher of battleDetailWatchers) {
           watcher.sendPacket(addUserPacket);
+        }
+      }
+
+      const joiningUser = client.user;
+      if (client.friendsCache.length > 0) {
+        const mapInfo = battleDataObject.maps.find((m) => m.mapId === battle.settings.mapId);
+        const mapName = mapInfo ? mapInfo.mapName : battle.settings.mapId;
+
+        const notifyFriendsPacket = new NotifyFriendOfBattlePacket({
+          battleId: battle.battleId,
+          mapName: mapName,
+          mode: battle.settings.battleMode,
+          privateBattle: battle.settings.privateBattle,
+          probattle: battle.settings.proBattle,
+          maxRank: battle.settings.maxRank,
+          minRank: battle.settings.minRank,
+          serverNumber: 1,
+          nickname: joiningUser.username,
+        });
+
+        for (const friendUsername of client.friendsCache) {
+          const friendClient = server.findClientByUsername(friendUsername);
+          if (friendClient) {
+            friendClient.sendPacket(notifyFriendsPacket);
+          }
         }
       }
     } catch (error: any) {
