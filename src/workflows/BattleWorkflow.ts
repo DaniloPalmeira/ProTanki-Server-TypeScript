@@ -196,7 +196,7 @@ export class BattleWorkflow {
       bcsh: [],
     };
 
-    const stateIsNull = client.battleState === "newcome";
+    const isSpawningOrDead = client.battleState === "suicide";
 
     const data: any = {
       battleId: battle.battleId,
@@ -212,7 +212,7 @@ export class BattleWorkflow {
       nickname: user.username,
       state: client.battleState,
       incarnation: client.battleIncarnation,
-      state_null: stateIsNull,
+      state_null: isSpawningOrDead,
       maxSpeed: 10,
       maxTurnSpeed: 2.443460952792061,
       acceleration: 14,
@@ -224,14 +224,19 @@ export class BattleWorkflow {
       power: 14,
       dampingCoeff: 1500,
       turret_turn_speed: 2.1399481958702475,
-      health: 100,
+      health: isSpawningOrDead ? 0 : 10000,
       rank: user.rank,
       kickback: 2.5,
       turretTurnAcceleration: 3.4800119955514934,
       impact_force: 3.3,
     };
 
-    if (!stateIsNull) {
+    if (isSpawningOrDead) {
+      data.position = { x: 0, y: 0, z: 0 };
+      data.orientation = { x: 0, y: 0, z: 0 };
+      data.turretAngle = 0;
+      data.turretControl = 0;
+    } else {
       data.position = client.battlePosition;
       data.orientation = client.battleOrientation;
       data.turretAngle = client.turretAngle;

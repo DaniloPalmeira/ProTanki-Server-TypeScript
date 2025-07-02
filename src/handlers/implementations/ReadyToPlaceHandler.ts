@@ -36,7 +36,7 @@ export default class ReadyToPlaceHandler implements IPacketHandler<ReadyToPlaceP
       const battle = client.currentBattle;
       const user = client.user;
 
-      client.battleState = "active";
+      client.battleState = "newcome";
 
       const maxHealth = getHullHealth(user);
       const clientHealth = 10000;

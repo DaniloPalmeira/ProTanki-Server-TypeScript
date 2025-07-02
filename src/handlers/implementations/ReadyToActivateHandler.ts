@@ -15,6 +15,8 @@ export default class ReadyToActivateHandler implements IPacketHandler<ReadyToAct
 
     logger.info(`Activating tank for user ${client.user.username} in battle ${client.currentBattle.battleId}.`);
 
+    client.battleState = "active";
+
     const battle = client.currentBattle;
     const activationPacket = new ActivateTankPacket(client.user.username);
 
