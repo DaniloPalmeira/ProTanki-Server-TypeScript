@@ -336,12 +336,15 @@ export class BattleWorkflow {
 
     if (battle.isTeamMode()) {
       newPlayerClient.sendPacket(new InitBattleTeamPacket());
-      const usersBlue = battle.usersBlue.map(this.mapUserToBattleUser);
-      const usersRed = battle.usersRed.map(this.mapUserToBattleUser);
+      const onlineUsersBlue = battle.usersBlue.filter((u) => server.findClientByUsername(u.username));
+      const onlineUsersRed = battle.usersRed.filter((u) => server.findClientByUsername(u.username));
+      const usersBlue = onlineUsersBlue.map(this.mapUserToBattleUser);
+      const usersRed = onlineUsersRed.map(this.mapUserToBattleUser);
       newPlayerClient.sendPacket(new InitBattleUsersTeamPacket(battle.scoreBlue, battle.scoreRed, usersBlue, usersRed));
     } else {
       newPlayerClient.sendPacket(new InitBattleDMPacket());
-      const users = battle.users.map(this.mapUserToBattleUser);
+      const onlineUsers = battle.users.filter((u) => server.findClientByUsername(u.username));
+      const users = onlineUsers.map(this.mapUserToBattleUser);
       newPlayerClient.sendPacket(new InitBattleUsersDMPacket(users));
     }
 
