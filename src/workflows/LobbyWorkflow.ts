@@ -378,24 +378,30 @@ export class LobbyWorkflow {
       }
     }
 
+    let timeLeftInSec = battle.settings.timeLimitInSec;
+    if (battle.roundStarted && battle.roundStartTime) {
+      const elapsedSeconds = Math.floor((Date.now() - battle.roundStartTime) / 1000);
+      timeLeftInSec = Math.max(0, battle.settings.timeLimitInSec - elapsedSeconds);
+    }
+
     const baseDetailsPayload = {
       battleMode: BattleMode[battle.settings.battleMode],
       itemId: battle.battleId,
       scoreLimit: battle.settings.scoreLimit,
-      timeLimitInSec: battle.settings.timeLimitInSec,
+      timeLimitInSec: timeLeftInSec,
       preview: preview,
       maxPeopleCount: battle.settings.maxPeopleCount,
       name: battle.settings.name,
       proBattle: battle.settings.proBattle,
       minRank: battle.settings.minRank,
       maxRank: battle.settings.maxRank,
-      roundStarted: true,
+      roundStarted: battle.roundStarted,
       spectator: false,
       withoutBonuses: battle.settings.withoutBonuses,
       withoutCrystals: battle.settings.withoutCrystals,
       withoutSupplies: battle.settings.withoutSupplies,
       proBattleEnterPrice: 150,
-      timeLeftInSec: battle.settings.timeLimitInSec,
+      timeLeftInSec: battle.settings.timeLimitInSec, // This seems to be the total time limit
       userPaidNoSuppliesBattle: true,
       proBattleTimeLeftInSec: 1,
       parkourMode: battle.settings.parkourMode,

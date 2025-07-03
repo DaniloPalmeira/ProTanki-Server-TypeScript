@@ -213,6 +213,12 @@ export class BattleService {
       battle.users.push(user);
     }
 
+    if ([...battle.users, ...battle.usersBlue, ...battle.usersRed].length === 1 && !battle.roundStarted) {
+      battle.roundStarted = true;
+      battle.roundStartTime = Date.now();
+      logger.info(`Round started for battle ${battle.battleId}.`);
+    }
+
     logger.info(`User ${user.username} added to battle ${battle.battleId}`);
     return battle;
   }
@@ -223,6 +229,12 @@ export class BattleService {
     battle.users = battle.users.filter((u) => u.id !== userId);
     battle.usersBlue = battle.usersBlue.filter((u) => u.id !== userId);
     battle.usersRed = battle.usersRed.filter((u) => u.id !== userId);
+
+    if ([...battle.users, ...battle.usersBlue, ...battle.usersRed].length === 0) {
+      battle.roundStarted = false;
+      battle.roundStartTime = null;
+      logger.info(`Battle ${battle.battleId} is now empty. Round stopped and timer reset.`);
+    }
 
     logger.info(`User ${user.username} removed from battle ${battle.battleId}`);
   }

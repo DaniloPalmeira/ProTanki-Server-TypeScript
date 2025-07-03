@@ -66,6 +66,8 @@ export class Battle {
   public usersRed: UserDocument[] = [];
   public scoreBlue: number = 0;
   public scoreRed: number = 0;
+  public roundStarted: boolean = false;
+  public roundStartTime: number | null = null;
 
   constructor(settings: IBattleCreationSettings) {
     this.battleId = crypto.randomBytes(8).toString("hex");

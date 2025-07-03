@@ -43,8 +43,12 @@ export default class ReadyToPlaceHandler implements IPacketHandler<ReadyToPlaceP
 
       client.sendPacket(new SetHealthPacket({ nickname: user.username, health: clientHealth }));
 
-      const spawnPosition = { x: 1010.1729736328125, y: -4518.43994140625, z: 200 };
-      const spawnRotation = { x: 0, y: 0, z: -6.894000053405762 };
+      // const spawnPosition = { x: 1010.1729736328125, y: -4518.43994140625, z: 200 };
+      // const spawnRotation = { x: 0, y: 0, z: -6.894000053405762 };
+
+      // Placeholder for spawn point logic. Using hardcoded values for now.
+      const spawnPosition = { x: 5232.58984375, y: -2677.427978515625, z: 200 };
+      const spawnRotation = { x: 0, y: 0, z: 1.309000015258789 };
 
       client.battlePosition = spawnPosition;
       client.battleOrientation = spawnRotation;
