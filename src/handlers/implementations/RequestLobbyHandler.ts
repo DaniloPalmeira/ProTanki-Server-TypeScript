@@ -8,7 +8,20 @@ export default class RequestLobbyHandler implements IPacketHandler<RequestLobbyP
   public readonly packetId = RequestLobbyPacket.getId();
 
   public async execute(client: ProTankiClient, server: ProTankiServer, packet: RequestLobbyPacket): Promise<void> {
-    client.stopTimeChecker();
-    LobbyWorkflow.returnToLobby(client, server);
+    const state = client.getState();
+
+    if (client.currentBattle) {
+      if (state === "battle") {
+        LobbyWorkflow.enterBattleLobbyView(client, server);
+      } else if (state === "battle_lobby") {
+        LobbyWorkflow.returnToBattleView(client, server);
+      } else if (state === "battle_garage") {
+        LobbyWorkflow.transitionFromGarageToLobby(client, server);
+      }
+    } else {
+      if (state === "chat_garage") {
+        await LobbyWorkflow.returnToLobby(client, server, true);
+      }
+    }
   }
 }

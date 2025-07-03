@@ -37,6 +37,7 @@ import { CALLBACK } from "../config/constants";
 import { battleDataObject } from "../config/BattleData";
 import { ResourceId } from "../types/resourceTypes";
 import HideLoginForm from "../packets/implementations/HideLoginForm";
+import UnloadBattleListPacket from "../packets/implementations/UnloadBattleListPacket";
 
 const mapUserToObject = (user: UserDocument) => ({
   kills: 0,
@@ -113,6 +114,25 @@ export class LobbyWorkflow {
     const resourceIds: ResourceId[] = [];
     const dependencies = { resources: ResourceManager.getBulkResources(resourceIds) };
     client.sendPacket(new LoadDependencies(dependencies, CALLBACK.LOBBY_DATA));
+  }
+
+  public static enterBattleLobbyView(client: ProTankiClient, server: ProTankiServer): void {
+    client.setState("battle_lobby");
+    client.sendPacket(new SetLayout(0));
+    client.sendPacket(new LoadDependencies({ resources: [] }, CALLBACK.LOBBY_DATA));
+    client.sendPacket(new ConfirmLayoutChange(3, 0));
+  }
+
+  public static transitionFromGarageToLobby(client: ProTankiClient, server: ProTankiServer): void {
+    client.sendPacket(new UnloadGaragePacket());
+    this.enterBattleLobbyView(client, server);
+  }
+
+  public static returnToBattleView(client: ProTankiClient, server: ProTankiServer): void {
+    client.setState("battle");
+    client.sendPacket(new SetLayout(3));
+    client.sendPacket(new UnloadBattleListPacket());
+    client.sendPacket(new ConfirmLayoutChange(3, 3));
   }
 
   public static async initializeLobby(client: ProTankiClient, server: ProTankiServer): Promise<void> {

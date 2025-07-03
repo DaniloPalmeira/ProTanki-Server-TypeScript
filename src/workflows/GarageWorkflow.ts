@@ -7,6 +7,7 @@ import MountItemPacket from "../packets/implementations/MountItemPacket";
 import SetLayout from "../packets/implementations/SetLayout";
 import ShopItemsPacket from "../packets/implementations/ShopItemsPacket";
 import UnloadBattleListPacket from "../packets/implementations/UnloadBattleListPacket";
+import UnloadGaragePacket from "../packets/implementations/UnloadGaragePacket";
 import { ProTankiClient } from "../server/ProTankiClient";
 import { ProTankiServer } from "../server/ProTankiServer";
 import { ResourceId } from "../types/resourceTypes";
@@ -15,20 +16,7 @@ import { ResourceManager } from "../utils/ResourceManager";
 import { LobbyWorkflow } from "./LobbyWorkflow";
 
 export class GarageWorkflow {
-  public static async enterGarage(client: ProTankiClient, server: ProTankiServer): Promise<void> {
-    if (!client.user) {
-      logger.error("Attempted to enter garage without a user authenticated.", { client: client.getRemoteAddress() });
-      return;
-    }
-
-    if (!client.isChatLoaded) {
-      await LobbyWorkflow.sendChatSetup(client.user, client, server);
-    }
-
-    client.setState("chat_garage");
-    client.sendPacket(new SetLayout(1));
-    client.sendPacket(new UnloadBattleListPacket());
-
+  private static _loadGarageDependencies(client: ProTankiClient): void {
     const resourceIds: ResourceId[] = ["garage"];
 
     itemBlueprints.turrets.forEach((turret) => {
@@ -57,7 +45,42 @@ export class GarageWorkflow {
     };
     client.sendPacket(new LoadDependencies(dependencies, CALLBACK.GARAGE_DATA));
 
-    logger.info(`User ${client.user.username} is loading garage resources.`);
+    logger.info(`User ${client.user!.username} is loading garage resources.`);
+  }
+
+  public static async enterGarage(client: ProTankiClient, server: ProTankiServer): Promise<void> {
+    if (!client.user) {
+      logger.error("Attempted to enter garage without a user authenticated.", { client: client.getRemoteAddress() });
+      return;
+    }
+
+    if (!client.isChatLoaded) {
+      await LobbyWorkflow.sendChatSetup(client.user, client, server);
+    }
+
+    client.setState("chat_garage");
+    client.sendPacket(new SetLayout(1));
+    client.sendPacket(new UnloadBattleListPacket());
+
+    this._loadGarageDependencies(client);
+  }
+
+  public static enterBattleGarageView(client: ProTankiClient, server: ProTankiServer): void {
+    client.setState("battle_garage");
+    client.sendPacket(new SetLayout(1));
+    this._loadGarageDependencies(client);
+  }
+
+  public static transitionFromLobbyToGarage(client: ProTankiClient, server: ProTankiServer): void {
+    client.sendPacket(new UnloadBattleListPacket());
+    this.enterBattleGarageView(client, server);
+  }
+
+  public static returnToBattleView(client: ProTankiClient, server: ProTankiServer): void {
+    client.setState("battle");
+    client.sendPacket(new SetLayout(3));
+    client.sendPacket(new UnloadGaragePacket());
+    client.sendPacket(new ConfirmLayoutChange(3, 3));
   }
 
   public static initializeGarage(client: ProTankiClient, server: ProTankiServer): void {
@@ -100,6 +123,10 @@ export class GarageWorkflow {
     client.sendPacket(new MountItemPacket(`${turretId}_m${turretMod}`, true));
     client.sendPacket(new MountItemPacket(`${paintId}_m0`, true));
 
-    client.sendPacket(new ConfirmLayoutChange(1, 1));
+    if (client.getState() === "battle_garage") {
+      client.sendPacket(new ConfirmLayoutChange(3, 1));
+    } else {
+      client.sendPacket(new ConfirmLayoutChange(1, 1));
+    }
   }
 }
