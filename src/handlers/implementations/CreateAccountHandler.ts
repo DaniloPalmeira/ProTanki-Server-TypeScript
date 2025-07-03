@@ -8,6 +8,7 @@ import InvalidNickname from "../../packets/implementations/InvalidNickname";
 import logger from "../../utils/Logger";
 import NicknameUnavailable from "../../packets/implementations/NicknameUnavailable";
 import LoginTokenPacket from "../../packets/implementations/LoginTokenPacket";
+import { LobbyWorkflow } from "../../workflows/LobbyWorkflow";
 
 export default class CreateAccountHandler implements IPacketHandler<CreateAccount> {
   public readonly packetId = CreateAccount.getId();
@@ -29,16 +30,18 @@ export default class CreateAccountHandler implements IPacketHandler<CreateAccoun
         password: packet.password,
       });
 
-      if (packet.rememberMe) {
-        const token = await server.userService.generateAndSetLoginToken(user);
-        client.sendPacket(new LoginTokenPacket(token));
-      }
+      client.user = user;
 
-      logger.info(`Account created successfully for ${packet.nickname}`, {
+      logger.info(`Account created and auto-logged in for ${packet.nickname}`, {
         client: client.getRemoteAddress(),
       });
 
-      client.sendPacket(new SystemMessage("Conta criada com sucesso!\nVocê já pode fazer o login."));
+      const flowHandled = await LobbyWorkflow.postAuthenticationFlow(client, server);
+
+      if (flowHandled && packet.rememberMe) {
+        const token = await server.userService.generateAndSetLoginToken(user);
+        client.sendPacket(new LoginTokenPacket(token));
+      }
     } catch (error: any) {
       logger.warn(`Failed to create account for ${packet.nickname}`, {
         error: error.message,
