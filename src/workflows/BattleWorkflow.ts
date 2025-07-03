@@ -321,7 +321,7 @@ export class BattleWorkflow {
       fund: 0,
       scoreLimit: settings.scoreLimit,
       timeLimitInSec: timeLeftInSec,
-      mapName: mapInfo ? `${mapInfo.mapName} ${BattleMode[settings.battleMode]}` : `${settings.mapId} ${BattleMode[settings.battleMode]}`,
+      mapName: settings.name,
       maxPeopleCount: settings.maxPeopleCount,
       parkourMode: settings.parkourMode,
       premiumBonusInPercent: 100,
