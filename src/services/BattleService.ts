@@ -115,7 +115,6 @@ export class BattleService {
     }
 
     this.server.broadcastToBattleList(new UserNotInBattlePacket(user.username));
-    this.server.notifySubscribersOfStatusChange(user.username, false);
   }
 
   public validateName(name: string): string {
