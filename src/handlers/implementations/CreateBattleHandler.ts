@@ -20,6 +20,8 @@ export default class CreateBattleHandler implements IPacketHandler<CreateBattleR
 
     const battle = server.battleService.createBattle(packet, client.user);
 
+    client.lastViewedBattleId = battle.battleId;
+
     const battleModeStr = BattleMode[packet.battleMode];
     const equipmentConstraintsModeStr = EquipmentConstraintsMode[packet.equipmentConstraintsMode];
 
