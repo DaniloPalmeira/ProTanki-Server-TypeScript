@@ -4,6 +4,8 @@ import { IPacketHandler } from "../IPacketHandler";
 import SendBattleChatMessagePacket from "../../packets/implementations/SendBattleChatMessagePacket";
 import BattleChatMessagePacket from "../../packets/implementations/BattleChatMessagePacket";
 import { UserDocument } from "../../models/User";
+import { IPacket } from "../../packets/interfaces/IPacket";
+import BattleChatTeamMessagePacket from "../../packets/implementations/BattleChatTeamMessagePacket";
 
 export default class SendBattleChatMessageHandler implements IPacketHandler<SendBattleChatMessagePacket> {
   public readonly packetId = SendBattleChatMessagePacket.getId();
@@ -29,17 +31,20 @@ export default class SendBattleChatMessageHandler implements IPacketHandler<Send
       }
     }
 
-    const messagePacket = new BattleChatMessagePacket({
+    const messageData = {
       nickname: user.username,
       message: packet.message,
       team: senderTeamId,
-    });
+    };
 
+    let messagePacket: IPacket;
     let recipients: UserDocument[];
 
     if (packet.team && battle.isTeamMode()) {
+      messagePacket = new BattleChatTeamMessagePacket(messageData);
       recipients = teammates;
     } else {
+      messagePacket = new BattleChatMessagePacket(messageData);
       recipients = [...battle.users, ...battle.usersBlue, ...battle.usersRed];
     }
 
