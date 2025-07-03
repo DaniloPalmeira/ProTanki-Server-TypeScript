@@ -14,7 +14,6 @@ export interface IBattleStatsData {
   spectator: boolean;
   suspiciousUserIds: string[];
   timeLeft: number;
-  valuableRound: number;
 }
 
 export interface IBattleStats extends IBattleStatsData, IPacket {}

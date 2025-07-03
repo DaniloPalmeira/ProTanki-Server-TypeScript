@@ -17,7 +17,6 @@ export default class BattleStatsPacket extends BasePacket implements IBattleStat
   spectator: boolean;
   suspiciousUserIds: string[];
   timeLeft: number;
-  valuableRound: number;
 
   constructor(data: IBattleStatsData) {
     super();
@@ -33,7 +32,6 @@ export default class BattleStatsPacket extends BasePacket implements IBattleStat
     this.spectator = data.spectator;
     this.suspiciousUserIds = data.suspiciousUserIds;
     this.timeLeft = data.timeLeft;
-    this.valuableRound = data.valuableRound;
   }
 
   read(buffer: Buffer): void {
@@ -50,7 +48,6 @@ export default class BattleStatsPacket extends BasePacket implements IBattleStat
     this.spectator = reader.readUInt8() === 1;
     this.suspiciousUserIds = reader.readStringArray();
     this.timeLeft = reader.readInt32BE();
-    this.valuableRound = reader.readInt8();
   }
 
   write(): Buffer {
@@ -67,7 +64,6 @@ export default class BattleStatsPacket extends BasePacket implements IBattleStat
     writer.writeUInt8(this.spectator ? 1 : 0);
     writer.writeStringArray(this.suspiciousUserIds);
     writer.writeInt32BE(this.timeLeft);
-    writer.writeInt8(this.valuableRound);
     return writer.getBuffer();
   }
 
@@ -85,8 +81,7 @@ export default class BattleStatsPacket extends BasePacket implements IBattleStat
       `  premiumBonusInPercent=${this.premiumBonusInPercent},\n` +
       `  spectator=${this.spectator},\n` +
       `  suspiciousUserIds=[${this.suspiciousUserIds.join(",")}],\n` +
-      `  timeLeft=${this.timeLeft},\n` +
-      `  valuableRound=${this.valuableRound}\n` +
+      `  timeLeft=${this.timeLeft}\n` +
       `)`
     );
   }

@@ -312,23 +312,25 @@ export class BattleWorkflow {
 
     newPlayerClient.sendPacket(new InitMapPacket(JSON.stringify(mapInitData)));
 
-    const mapInfo = battleDataObject.maps.find((m) => m.mapId === settings.mapId);
-    const timeLeftInSec = settings.timeLimitInSec;
+    let timeLeftInSec = battle.settings.timeLimitInSec;
+    if (battle.roundStarted && battle.roundStartTime) {
+      const elapsedSeconds = Math.floor((Date.now() - battle.roundStartTime) / 1000);
+      timeLeftInSec = Math.max(0, battle.settings.timeLimitInSec - elapsedSeconds);
+    }
 
     const battleStatsData = {
       battleMode: settings.battleMode,
       equipmentConstraintsMode: settings.equipmentConstraintsMode,
       fund: 0,
       scoreLimit: settings.scoreLimit,
-      timeLimitInSec: timeLeftInSec,
+      timeLimitInSec: settings.timeLimitInSec,
       mapName: settings.name,
       maxPeopleCount: settings.maxPeopleCount,
       parkourMode: settings.parkourMode,
       premiumBonusInPercent: 100,
       spectator: false,
       suspiciousUserIds: [],
-      timeLeft: Math.floor(timeLeftInSec / 256),
-      valuableRound: timeLeftInSec % 256 > 128 ? (timeLeftInSec % 256) - 256 : timeLeftInSec % 256,
+      timeLeft: timeLeftInSec,
     };
 
     newPlayerClient.sendPacket(new BattleStatsPacket(battleStatsData));
