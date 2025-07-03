@@ -3,37 +3,40 @@ import { ChatModeratorLevel } from "../models/enums/ChatModeratorLevel";
 import { UserDocument, UserDocumentWithFriends } from "../models/User";
 import AchievementTips from "../packets/implementations/AchievementTips";
 import AntifloodSettings from "../packets/implementations/AntifloodSettings";
+import BattleInfo from "../packets/implementations/BattleInfo";
+import BattleList from "../packets/implementations/BattleList";
 import ChatHistory from "../packets/implementations/ChatHistory";
 import ChatProperties from "../packets/implementations/ChatProperties";
 import ConfirmLayoutChange from "../packets/implementations/ConfirmLayoutChange";
 import EmailInfo from "../packets/implementations/EmailInfo";
 import FriendsList from "../packets/implementations/FriendsList";
-import LocalizationInfo from "../packets/implementations/LocalizationInfo";
+import LoadDependencies from "../packets/implementations/LoadDependencies";
 import LobbyData from "../packets/implementations/LobbyData";
+import LocalizationInfo from "../packets/implementations/LocalizationInfo";
 import OnlineNotifierData from "../packets/implementations/OnlineNotifierData";
 import PremiumInfo from "../packets/implementations/PremiumInfo";
 import PremiumNotifierData from "../packets/implementations/PremiumNotifierData";
+import Punishment from "../packets/implementations/Punishment";
 import RankNotifierData from "../packets/implementations/RankNotifierData";
 import ReferralInfo from "../packets/implementations/ReferralInfo";
+import SelectBattlePacket from "../packets/implementations/SelectBattlePacket";
 import SetBattleInviteSound from "../packets/implementations/SetBattleInviteSound";
 import SetLayout from "../packets/implementations/SetLayout";
+import UnloadGaragePacket from "../packets/implementations/UnloadGaragePacket";
+import UserNotInBattlePacket from "../packets/implementations/UserNotInBattlePacket";
 import { IChatMessageData } from "../packets/interfaces/IChatHistory";
 import { ProTankiClient } from "../server/ProTankiClient";
 import { ProTankiServer } from "../server/ProTankiServer";
 import { FormatUtils } from "../utils/FormatUtils";
 import logger from "../utils/Logger";
 import { ResourceManager } from "../utils/ResourceManager";
-import BattleInfo from "../packets/implementations/BattleInfo";
+import { BattleWorkflow } from "./BattleWorkflow";
+import { Battle, BattleMode, EquipmentConstraintsMode } from "../models/Battle";
+import BattleDetails from "../packets/implementations/BattleDetails";
+import { CALLBACK } from "../config/constants";
 import { battleDataObject } from "../config/BattleData";
 import { ResourceId } from "../types/resourceTypes";
-import BattleList from "../packets/implementations/BattleList";
-import { Battle, BattleMode, EquipmentConstraintsMode } from "../models/Battle";
-import UserNotInBattlePacket from "../packets/implementations/UserNotInBattlePacket";
-import BattleDetails from "../packets/implementations/BattleDetails";
-import LoadDependencies from "../packets/implementations/LoadDependencies";
-import { CALLBACK } from "../config/constants";
-import UnloadGaragePacket from "../packets/implementations/UnloadGaragePacket";
-import SelectBattlePacket from "../packets/implementations/SelectBattlePacket";
+import HideLoginForm from "../packets/implementations/HideLoginForm";
 
 const mapUserToObject = (user: UserDocument) => ({
   kills: 0,
@@ -53,11 +56,46 @@ export class LobbyWorkflow {
     client.friendsCache = populatedUser.friends.map((friend) => friend.username);
     logger.info(`Friends list for ${client.user.username} cached with ${client.friendsCache.length} friends.`);
 
-    this.sendPlayerVitals(client.user, client, server);
-    this.sendInitialSettings(client, server);
-    this.sendAchievementTips(client.user, client);
-
     await this.returnToLobby(client, server, false);
+  }
+
+  public static async postAuthenticationFlow(client: ProTankiClient, server: ProTankiServer): Promise<boolean> {
+    const user = client.user!;
+
+    if (user.isPunished && user.punishmentExpiresAt && user.punishmentExpiresAt > new Date()) {
+      const now = new Date();
+      const timeLeftMs = user.punishmentExpiresAt.getTime() - now.getTime();
+      const days = Math.floor(timeLeftMs / (1000 * 60 * 60 * 24));
+      const hours = Math.floor((timeLeftMs % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+      const minutes = Math.floor((timeLeftMs % (1000 * 60 * 60)) / (1000 * 60));
+
+      client.sendPacket(new Punishment(user.punishmentReason, days, hours, minutes));
+      logger.info(`Punished user ${user.username} attempted to login`, { client: client.getRemoteAddress() });
+      return false;
+    }
+
+    client.sendPacket(new HideLoginForm());
+    this.sendPlayerVitals(user, client, server);
+    this.sendInitialSettings(client, server);
+    this.sendAchievementTips(user, client);
+
+    const reconnectData = server.battleService.handlePlayerReconnection(user);
+    if (reconnectData) {
+      const battle = server.battleService.getBattleById(reconnectData.battleId);
+      if (battle) {
+        logger.info(`User ${user.username} is reconnecting to battle ${battle.battleId}`);
+        client.currentBattle = battle;
+
+        server.notifySubscribersOfStatusChange(user.username, true);
+        await BattleWorkflow.enterBattle(client, server, battle);
+        return true;
+      }
+    }
+
+    await LobbyWorkflow.enterLobby(client, server);
+    server.notifySubscribersOfStatusChange(user.username, true);
+
+    return true;
   }
 
   public static async returnToLobby(client: ProTankiClient, server: ProTankiServer, fromGarage: boolean = true): Promise<void> {

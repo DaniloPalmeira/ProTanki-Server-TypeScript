@@ -38,8 +38,8 @@ async function bootstrap() {
   const packetService = new PacketService();
   const shopService = new ShopService();
   const questService = new QuestService();
-  const battleService = new BattleService();
   const garageService = new GarageService();
+  let battleService: BattleService;
 
   ResourceManager.loadResources();
   logger.info("Resource configurations loaded");
@@ -66,6 +66,7 @@ async function bootstrap() {
         minPasswordLength: 3,
       },
     },
+    () => battleService, // Pass a getter for battleService
     {
       commandService,
       configService,
@@ -77,10 +78,11 @@ async function bootstrap() {
       shopService,
       rankService,
       questService,
-      battleService,
       garageService,
     }
   );
+
+  battleService = new BattleService(server);
 
   const resourceServer = new ResourceServer();
   const debugConsole = new DebugConsole(server, userService);

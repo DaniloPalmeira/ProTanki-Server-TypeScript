@@ -32,7 +32,6 @@ export interface IServerServices {
   shopService: ShopService;
   rankService: RankService;
   questService: QuestService;
-  battleService: BattleService;
   garageService: GarageService;
 }
 
@@ -58,10 +57,14 @@ export class ProTankiServer {
   public readonly shopService: ShopService;
   public readonly rankService: RankService;
   public readonly questService: QuestService;
-  public readonly battleService: BattleService;
+  public get battleService(): BattleService {
+    return this._getBattleService();
+  }
   public readonly garageService: GarageService;
 
-  constructor(options: IServerOptions, services: IServerServices) {
+  private _getBattleService: () => BattleService;
+
+  constructor(options: IServerOptions, getBattleService: () => BattleService, services: IServerServices) {
     this.validateOptions(options);
     this.port = options.port;
     this.maxClients = options.maxClients;
@@ -69,6 +72,7 @@ export class ProTankiServer {
     this.socialNetworks = options.socialNetworks;
     this.loginForm = options.loginForm;
 
+    this._getBattleService = getBattleService;
     this.configService = services.configService;
     this.userService = services.userService;
     this.inviteService = services.inviteService;
@@ -79,7 +83,6 @@ export class ProTankiServer {
     this.shopService = services.shopService;
     this.rankService = services.rankService;
     this.questService = services.questService;
-    this.battleService = services.battleService;
     this.garageService = services.garageService;
 
     this.server = net.createServer(this.handleConnection.bind(this));
@@ -178,7 +181,7 @@ export class ProTankiServer {
       return await this.inviteService.validateInviteCode(code);
     } catch (error) {
       logger.error(`Error validating invite code ${code}`, { error });
-      return { isValid: false };
+      throw error;
     }
   }
 

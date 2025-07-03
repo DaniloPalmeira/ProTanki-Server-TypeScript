@@ -186,9 +186,13 @@ export class ProTankiClient {
   private handleClose(): void {
     logger.info(`Connection closed`, { client: this.getRemoteAddress() });
     this.stopTimeChecker();
-    if (this.user) {
+
+    if (this.user && this.currentBattle) {
+      this.server.battleService.handlePlayerDisconnection(this.user, this.currentBattle);
+    } else if (this.user) {
       this.server.notifySubscribersOfStatusChange(this.user.username, false);
     }
+
     this.server.removeClient(this);
     this.socket.destroy();
   }

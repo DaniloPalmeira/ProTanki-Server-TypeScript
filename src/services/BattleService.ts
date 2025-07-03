@@ -2,11 +2,25 @@ import { UserDocument } from "../models/User";
 import { Battle, BattleMode, EquipmentConstraintsMode, IBattleCreationSettings, MapTheme } from "../models/Battle";
 import { ValidationUtils } from "../utils/ValidationUtils";
 import logger from "../utils/Logger";
+import { ProTankiServer } from "../server/ProTankiServer";
+import RemoveTankPacket from "../packets/implementations/RemoveTankPacket";
+import UserDisconnectedDmPacket from "../packets/implementations/UserDisconnectedDmPacket";
+import RemoveUserFromBattleLobbyPacket from "../packets/implementations/RemoveUserFromBattleLobbyPacket";
+import ReleasePlayerSlotDmPacket from "../packets/implementations/ReleasePlayerSlotDmPacket";
+import UserNotInBattlePacket from "../packets/implementations/UserNotInBattlePacket";
+
+interface IDisconnectedPlayerInfo {
+  battleId: string;
+  timeoutId: NodeJS.Timeout;
+}
 
 export class BattleService {
   private activeBattles: Map<string, Battle> = new Map();
+  private disconnectedPlayers = new Map<string, IDisconnectedPlayerInfo>();
+  private server: ProTankiServer;
 
-  constructor() {
+  constructor(server: ProTankiServer) {
+    this.server = server;
     this.createDefaultBattle();
   }
 
@@ -43,6 +57,65 @@ export class BattleService {
       dependentCooldownEnabled: false,
     };
     this.createBattle(defaultBattleSettings);
+  }
+
+  public handlePlayerDisconnection(user: UserDocument, battle: Battle): void {
+    logger.info(`Player ${user.username} disconnected from battle ${battle.battleId}. Starting 1-minute reconnect timer.`);
+
+    const remainingPlayers = [...battle.users, ...battle.usersBlue, ...battle.usersRed].filter((p) => p.id !== user.id);
+
+    const removeTankPacket = new RemoveTankPacket(user.username);
+    remainingPlayers.forEach((player) => {
+      const client = this.server.findClientByUsername(player.username);
+      if (client) client.sendPacket(removeTankPacket);
+    });
+
+    if (battle.settings.battleMode === BattleMode.DM) {
+      const disconnectPacket = new UserDisconnectedDmPacket(user.username);
+      remainingPlayers.forEach((player) => {
+        const client = this.server.findClientByUsername(player.username);
+        if (client) client.sendPacket(disconnectPacket);
+      });
+    }
+
+    const timeoutId = setTimeout(() => {
+      logger.info(`Reconnect timer for ${user.username} expired. Finalizing disconnection.`);
+      this.disconnectedPlayers.delete(user.id);
+      this.finalizeDisconnection(user, battle);
+    }, 60000);
+
+    this.disconnectedPlayers.set(user.id, { battleId: battle.battleId, timeoutId });
+  }
+
+  public handlePlayerReconnection(user: UserDocument): { battleId: string } | null {
+    const disconnectedInfo = this.disconnectedPlayers.get(user.id);
+    if (disconnectedInfo) {
+      logger.info(`Player ${user.username} reconnected in time.`);
+      clearTimeout(disconnectedInfo.timeoutId);
+      this.disconnectedPlayers.delete(user.id);
+      return { battleId: disconnectedInfo.battleId };
+    }
+    return null;
+  }
+
+  private finalizeDisconnection(user: UserDocument, battle: Battle): void {
+    this.removeUserFromBattle(user, battle);
+
+    const battleDetailWatchers = this.server.getClients().filter((c) => (c.getState() === "chat_lobby" || c.getState() === "battle_lobby") && c.lastViewedBattleId === battle.battleId);
+    if (battleDetailWatchers.length > 0) {
+      const removeUserPacket = new RemoveUserFromBattleLobbyPacket({ battleId: battle.battleId, nickname: user.username });
+      for (const watcher of battleDetailWatchers) {
+        watcher.sendPacket(removeUserPacket);
+      }
+    }
+
+    if (battle.settings.battleMode === BattleMode.DM) {
+      const releaseSlotPacket = new ReleasePlayerSlotDmPacket({ battleId: battle.battleId, nickname: user.username });
+      this.server.broadcastToBattleList(releaseSlotPacket);
+    }
+
+    this.server.broadcastToBattleList(new UserNotInBattlePacket(user.username));
+    this.server.notifySubscribersOfStatusChange(user.username, false);
   }
 
   public validateName(name: string): string {
