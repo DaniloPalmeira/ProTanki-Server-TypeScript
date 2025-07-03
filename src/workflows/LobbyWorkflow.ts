@@ -388,7 +388,7 @@ export class LobbyWorkflow {
       battleMode: BattleMode[battle.settings.battleMode],
       itemId: battle.battleId,
       scoreLimit: battle.settings.scoreLimit,
-      timeLimitInSec: timeLeftInSec,
+      timeLimitInSec: battle.settings.timeLimitInSec,
       preview: preview,
       maxPeopleCount: battle.settings.maxPeopleCount,
       name: battle.settings.name,
@@ -401,7 +401,7 @@ export class LobbyWorkflow {
       withoutCrystals: battle.settings.withoutCrystals,
       withoutSupplies: battle.settings.withoutSupplies,
       proBattleEnterPrice: 150,
-      timeLeftInSec: battle.settings.timeLimitInSec, // This seems to be the total time limit
+      timeLeftInSec: timeLeftInSec,
       userPaidNoSuppliesBattle: true,
       proBattleTimeLeftInSec: 1,
       parkourMode: battle.settings.parkourMode,
