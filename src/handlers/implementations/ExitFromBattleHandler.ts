@@ -23,50 +23,8 @@ export default class ExitFromBattleHandler implements IPacketHandler<ExitFromBat
       return;
     }
 
-    const remainingPlayers = [...battle.users, ...battle.usersBlue, ...battle.usersRed].filter((p) => p.id !== user.id);
-
-    server.battleService.removeUserFromBattle(user, battle);
-
-    const removeTankPacket = new RemoveTankPacket(user.username);
-    for (const player of remainingPlayers) {
-      const playerClient = server.findClientByUsername(player.username);
-      if (playerClient) {
-        playerClient.sendPacket(removeTankPacket);
-      }
-    }
-
-    if (battle.settings.battleMode === BattleMode.DM) {
-      const disconnectPacket = new UserDisconnectedDmPacket(user.username);
-      for (const player of remainingPlayers) {
-        const playerClient = server.findClientByUsername(player.username);
-        if (playerClient) {
-          playerClient.sendPacket(disconnectPacket);
-        }
-      }
-    }
-
-    const battleDetailWatchers = server.getClients().filter((c) => (c.getState() === "chat_lobby" || c.getState() === "battle_lobby") && c.lastViewedBattleId === battle.battleId);
-    if (battleDetailWatchers.length > 0) {
-      const removeUserPacket = new RemoveUserFromBattleLobbyPacket({ battleId: battle.battleId, nickname: user.username });
-      for (const watcher of battleDetailWatchers) {
-        watcher.sendPacket(removeUserPacket);
-      }
-    }
-
-    if (battle.settings.battleMode === BattleMode.DM) {
-      const releaseSlotPacket = new ReleasePlayerSlotDmPacket({ battleId: battle.battleId, nickname: user.username });
-      server.broadcastToBattleList(releaseSlotPacket);
-    }
-
-    if (client.friendsCache.length > 0) {
-      const userNotInBattlePacket = new UserNotInBattlePacket(user.username);
-      for (const friendUsername of client.friendsCache) {
-        const friendClient = server.findClientByUsername(friendUsername);
-        if (friendClient) {
-          friendClient.sendPacket(userNotInBattlePacket);
-        }
-      }
-    }
+    server.battleService.announceTankRemoval(user, battle);
+    await server.battleService.finalizeBattleExit(user, battle, client.friendsCache);
 
     client.sendPacket(new UnloadSpaceBattlePacket());
 

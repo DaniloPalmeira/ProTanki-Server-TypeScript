@@ -59,9 +59,7 @@ export class BattleService {
     this.createBattle(defaultBattleSettings);
   }
 
-  public handlePlayerDisconnection(user: UserDocument, battle: Battle): void {
-    logger.info(`Player ${user.username} disconnected from battle ${battle.battleId}. Starting 1-minute reconnect timer.`);
-
+  public announceTankRemoval(user: UserDocument, battle: Battle): void {
     const remainingPlayers = [...battle.users, ...battle.usersBlue, ...battle.usersRed].filter((p) => p.id !== user.id);
 
     const removeTankPacket = new RemoveTankPacket(user.username);
@@ -77,6 +75,45 @@ export class BattleService {
         if (client) client.sendPacket(disconnectPacket);
       });
     }
+  }
+
+  public async finalizeBattleExit(user: UserDocument, battle: Battle, friendsToNotify?: string[]): Promise<void> {
+    const battleDetailWatchers = this.server.getClients().filter((c) => (c.getState() === "chat_lobby" || c.getState() === "battle_lobby") && c.lastViewedBattleId === battle.battleId);
+    if (battleDetailWatchers.length > 0) {
+      const removeUserPacket = new RemoveUserFromBattleLobbyPacket({ battleId: battle.battleId, nickname: user.username });
+      for (const watcher of battleDetailWatchers) {
+        watcher.sendPacket(removeUserPacket);
+      }
+    }
+
+    if (battle.settings.battleMode === BattleMode.DM) {
+      const releaseSlotPacket = new ReleasePlayerSlotDmPacket({ battleId: battle.battleId, nickname: user.username });
+      this.server.broadcastToBattleList(releaseSlotPacket);
+    }
+
+    let friends: string[] = friendsToNotify || [];
+    if (!friendsToNotify) {
+      const populatedUser = await user.populate<{ friends: UserDocument[] }>("friends");
+      friends = populatedUser.friends.map((f) => f.username);
+    }
+
+    if (friends.length > 0) {
+      const userNotInBattlePacket = new UserNotInBattlePacket(user.username);
+      for (const friendUsername of friends) {
+        const friendClient = this.server.findClientByUsername(friendUsername);
+        if (friendClient) {
+          friendClient.sendPacket(userNotInBattlePacket);
+        }
+      }
+    }
+
+    this.removeUserFromBattle(user, battle);
+  }
+
+  public handlePlayerDisconnection(user: UserDocument, battle: Battle): void {
+    logger.info(`Player ${user.username} disconnected from battle ${battle.battleId}. Starting 1-minute reconnect timer.`);
+
+    this.announceTankRemoval(user, battle);
 
     const timeoutId = setTimeout(() => {
       logger.info(`Reconnect timer for ${user.username} expired. Finalizing disconnection.`);
@@ -98,23 +135,8 @@ export class BattleService {
     return null;
   }
 
-  private finalizeDisconnection(user: UserDocument, battle: Battle): void {
-    this.removeUserFromBattle(user, battle);
-
-    const battleDetailWatchers = this.server.getClients().filter((c) => (c.getState() === "chat_lobby" || c.getState() === "battle_lobby") && c.lastViewedBattleId === battle.battleId);
-    if (battleDetailWatchers.length > 0) {
-      const removeUserPacket = new RemoveUserFromBattleLobbyPacket({ battleId: battle.battleId, nickname: user.username });
-      for (const watcher of battleDetailWatchers) {
-        watcher.sendPacket(removeUserPacket);
-      }
-    }
-
-    if (battle.settings.battleMode === BattleMode.DM) {
-      const releaseSlotPacket = new ReleasePlayerSlotDmPacket({ battleId: battle.battleId, nickname: user.username });
-      this.server.broadcastToBattleList(releaseSlotPacket);
-    }
-
-    this.server.broadcastToBattleList(new UserNotInBattlePacket(user.username));
+  private async finalizeDisconnection(user: UserDocument, battle: Battle): Promise<void> {
+    await this.finalizeBattleExit(user, battle);
   }
 
   public validateName(name: string): string {
