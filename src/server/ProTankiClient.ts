@@ -49,6 +49,7 @@ export class ProTankiClient {
   private timeCheckSentTimestamp: number = 0;
   private lastTimeCheckPing: number = 0;
   private timeCheckTimeout: NodeJS.Timeout | null = null;
+  private timeCheckerPingHistory: number[] = [];
 
   public battleState: "newcome" | "active" | "suicide" = "suicide";
   public pendingResourceAcks: Set<string> = new Set<string>();
@@ -253,11 +254,21 @@ export class ProTankiClient {
 
     const serverTime = Date.now() - this.timeCheckerStartTime;
     this.timeCheckSentTimestamp = Date.now();
-    this.sendPacket(new TimeCheckerPacket(serverTime, this.lastTimeCheckPing));
+
+    let bestPing = this.lastTimeCheckPing;
+    if (this.timeCheckerPingHistory.length > 0) {
+      bestPing = Math.min(...this.timeCheckerPingHistory);
+    }
+
+    this.sendPacket(new TimeCheckerPacket(serverTime, bestPing));
   }
 
   public handleTimeCheckerResponse(clientTime: number, serverTime: number): void {
     this.lastTimeCheckPing = Date.now() - this.timeCheckSentTimestamp;
+    this.timeCheckerPingHistory.push(this.lastTimeCheckPing);
+    if (this.timeCheckerPingHistory.length > 2) {
+      this.timeCheckerPingHistory.shift();
+    }
 
     if (this.initialClientTime === 0) {
       this.initialClientTime = clientTime;
