@@ -1,5 +1,5 @@
 import { CALLBACK } from "../config/constants";
-import { buildGarageData } from "../config/ItemData";
+import { buildGarageData, itemBlueprints } from "../config/ItemData";
 import ConfirmLayoutChange from "../packets/implementations/ConfirmLayoutChange";
 import GarageItemsPacket from "../packets/implementations/GarageItemsPacket";
 import LoadDependencies from "../packets/implementations/LoadDependencies";
@@ -29,32 +29,31 @@ export class GarageWorkflow {
     client.sendPacket(new SetLayout(1));
     client.sendPacket(new UnloadBattleListPacket());
 
-    const resourceIds: ResourceId[] = [
-      "garage",
-      "hull/wasp/m0/model",
-      "hull/wasp/m0/preview",
-      "hull/wasp/m1/model",
-      "hull/wasp/m1/preview",
-      "hull/wasp/m2/model",
-      "hull/wasp/m2/preview",
-      "hull/wasp/m3/model",
-      "hull/wasp/m3/preview",
-      "paint/green/preview",
-      "paint/green/texture",
-      "paint/holiday/preview",
-      "paint/holiday/texture",
-      "turret/smoky/m0/model",
-      "turret/smoky/m0/preview",
-      "turret/smoky/m1/model",
-      "turret/smoky/m1/preview",
-      "turret/smoky/m2/model",
-      "turret/smoky/m2/preview",
-      "turret/smoky/m3/model",
-      "turret/smoky/m3/preview",
-    ];
+    const resourceIds: ResourceId[] = ["garage"];
+
+    itemBlueprints.turrets.forEach((turret) => {
+      turret.modifications.forEach((mod) => {
+        resourceIds.push(`turret/${turret.id}/m${mod.modificationID}/model` as ResourceId);
+        resourceIds.push(`turret/${turret.id}/m${mod.modificationID}/preview` as ResourceId);
+      });
+    });
+
+    itemBlueprints.hulls.forEach((hull) => {
+      hull.modifications.forEach((mod) => {
+        resourceIds.push(`hull/${hull.id}/m${mod.modificationID}/model` as ResourceId);
+        resourceIds.push(`hull/${hull.id}/m${mod.modificationID}/preview` as ResourceId);
+      });
+    });
+
+    itemBlueprints.paints.forEach((paint) => {
+      resourceIds.push(`paint/${paint.id}/texture` as ResourceId);
+      resourceIds.push(`paint/${paint.id}/preview` as ResourceId);
+    });
+
+    const uniqueResourceIds = [...new Set(resourceIds)];
 
     const dependencies = {
-      resources: ResourceManager.getBulkResources(resourceIds),
+      resources: ResourceManager.getBulkResources(uniqueResourceIds),
     };
     client.sendPacket(new LoadDependencies(dependencies, CALLBACK.GARAGE_DATA));
 
