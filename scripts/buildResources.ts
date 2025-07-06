@@ -86,7 +86,7 @@ function generateResourceTypesFileContent(resources: ResourceDefinition[]): stri
 
   content += `export const ResourceData = {\n`;
   resources.forEach((res) => {
-    content += `    "${res.id}": { idLow: ${res.idLow}, path: "${res.buildPath}", versionLow: ${res.versionLow} },\n`;
+    content += `    "${res.id}": { idLow: ${res.idLow}, path: "${res.buildPath}", versionLow: ${res.versionLow} },\n`;
   });
   content += `} as const;\n\n`;
 
@@ -103,7 +103,7 @@ async function generatePropLibsXmls(resources: ResourceDefinition[]): Promise<vo
   console.log("Generating proplibs.xml for maps...");
 
   const resourceMap = new Map<string, ResourceDefinition>(resources.map((r) => [r.id, r]));
-  const mapResources = resources.filter((r) => r.id.startsWith("maps/") && r.id.endsWith("/xml"));
+  const mapResources = resources.filter((r) => r.id.startsWith("map/") && r.id.endsWith("/xml"));
 
   for (const mapResource of mapResources) {
     const mapXmlPath = path.join(mapResource.sourcePath, "map.xml");
@@ -151,7 +151,7 @@ async function generatePropLibsXmls(resources: ResourceDefinition[]): Promise<vo
 async function generateMapDependenciesFile(resources: ResourceDefinition[]): Promise<void> {
   console.log("Generating mapDependencies.ts...");
   const resourceMap = new Map<string, ResourceDefinition>(resources.map((r) => [r.id, r]));
-  const mapResources = resources.filter((r) => r.id.startsWith("maps/") && r.id.endsWith("/xml"));
+  const mapResources = resources.filter((r) => r.id.startsWith("map/") && r.id.endsWith("/xml"));
 
   let content = `// Arquivo gerado automaticamente. Não edite manualmente.\n\n`;
   content += `import { ResourceId } from "./resourceTypes";\n\n`;
@@ -182,7 +182,7 @@ async function generateMapDependenciesFile(resources: ResourceDefinition[]): Pro
         }
       }
 
-      content += `    ${mapResource.idLow}: [${libResourceIds.map((id) => `"${id}"`).join(", ")}],\n`;
+      content += `    ${mapResource.idLow}: [${libResourceIds.map((id) => `"${id}"`).join(", ")}],\n`;
     } catch (error) {
       console.error(`Failed to generate dependencies for map ${mapResource.id}:`, error);
     }

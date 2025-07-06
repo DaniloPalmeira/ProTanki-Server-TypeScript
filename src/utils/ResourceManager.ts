@@ -121,8 +121,9 @@ export class ResourceManager {
     return mapDependencies[mapIdLow] || [];
   }
 
-  public static getMapResourcesByMapId(mapId: string): IDependency[] {
-    const mapXmlResourceId = `maps/${mapId}/xml` as ResourceId;
+  public static getMapResources(mapId: string, theme: string): IDependency[] {
+    const themePath = theme.toLowerCase();
+    const mapXmlResourceId = `map/${mapId}/${themePath}/xml` as ResourceId;
     const mapResource = this.getResourceById(mapXmlResourceId);
     const libraryResourceIds = this._getMapLibsByIdLow(mapResource.idlow);
     return this.getBulkResources(libraryResourceIds);

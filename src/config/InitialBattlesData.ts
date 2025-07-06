@@ -1,5 +1,0 @@
-export const initialBattlesData = [
-  { battleId: "29ccb85a559fa3fe", battleMode: "DM", map: "map_sandal", maxPeople: 12, name: "For newbies", privateBattle: false, proBattle: true, minRank: 1, maxRank: 5, parkourMode: false, equipmentConstraintsMode: "NONE", suspicionLevel: "NONE", users: ["126", "Ch.S4ntos_Youtube"] },
-  { battleId: "66b5174747d555fb", battleMode: "CTF", map: "map_sandbox", maxPeople: 4, name: "Sandbox CTF", privateBattle: false, proBattle: true, minRank: 23, maxRank: 30, parkourMode: false, equipmentConstraintsMode: "HORNET_WASP_RAILGUN", suspicionLevel: "NONE", usersBlue: ["Mohammedx", "El_Retorno2.0", "Wskelly", "nozzey"], usersRed: ["BepTyxau", "infront", "Ferxxo", "blacknoir"] },
-  { battleId: "297c7c564b5cd28b", battleMode: "CTF", map: "map_serpuhov", maxPeople: 10, name: "Serpuhov CTF", privateBattle: false, proBattle: true, minRank: 1, maxRank: 8, parkourMode: false, equipmentConstraintsMode: "NONE", suspicionLevel: "NONE", usersBlue: ["CM_IL-MITO"], usersRed: [] },
-];

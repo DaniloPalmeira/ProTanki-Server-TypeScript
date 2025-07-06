@@ -54,7 +54,8 @@ export class BattleWorkflow {
     client.sendPacket(new WeaponPhysicsPacket(JSON.stringify(weaponPhysicsData)));
     client.sendPacket(new BonusDataPacket(JSON.stringify(getBonusData())));
 
-    const dependencies = { resources: ResourceManager.getMapResourcesByMapId(battle.settings.mapId) };
+    const mapIdWithoutPrefix = battle.settings.mapId.replace("map_", "");
+    const dependencies = { resources: ResourceManager.getMapResources(mapIdWithoutPrefix, MapTheme[battle.settings.mapTheme]) };
     client.sendPacket(new LoadDependencies(dependencies, CALLBACK.BATTLE_MAP_LIBS_LOADED));
   }
 
@@ -70,8 +71,9 @@ export class BattleWorkflow {
   public static loadMapGeometry(client: ProTankiClient, server: ProTankiServer, battle: Battle): void {
     logger.info(`User ${client.user?.username} is loading map geometry for battle ${battle.battleId}.`);
 
-    const mapId = battle.settings.mapId;
-    const mapResourceId = `maps/${mapId}/xml` as ResourceId;
+    const mapId = battle.settings.mapId.replace("map_", "");
+    const themeStr = MapTheme[battle.settings.mapTheme].toLowerCase();
+    const mapResourceId = `map/${mapId}/${themeStr}/xml` as ResourceId;
 
     const dependencies = { resources: ResourceManager.getBulkResources([mapResourceId]) };
     client.sendPacket(new LoadDependencies(dependencies, CALLBACK.BATTLE_MAP_GEOMETRY_LOADED));
@@ -253,7 +255,9 @@ export class BattleWorkflow {
     logger.info(`User ${user.username} finished loading all battle resources for ${battle.battleId}. Initializing map...`);
 
     const settings = battle.settings;
-    const mapId = settings.mapId;
+    const mapIdWithPrefix = settings.mapId;
+    const mapIdWithoutPrefix = mapIdWithPrefix.replace("map_", "");
+    const themeStr = MapTheme[battle.settings.mapTheme].toLowerCase();
 
     const skyboxData = {
       top: ResourceManager.getIdlowById("skybox/default/part1"),
@@ -265,7 +269,7 @@ export class BattleWorkflow {
     };
 
     const mapGraphicData = {
-      mapId: mapId,
+      mapId: mapIdWithPrefix,
       mapTheme: MapTheme[settings.mapTheme],
       angleX: -0.85,
       angleZ: 2.5,
@@ -293,8 +297,8 @@ export class BattleWorkflow {
 
     const mapInitData = {
       kick_period_ms: 300000,
-      map_id: mapId,
-      mapId: ResourceManager.getIdlowById(`maps/${mapId}/xml` as ResourceId),
+      map_id: mapIdWithPrefix,
+      mapId: ResourceManager.getIdlowById(`map/${mapIdWithoutPrefix}/${themeStr}/xml` as ResourceId),
       invisible_time: 3500,
       spectator: false,
       active: true,
