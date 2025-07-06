@@ -137,3 +137,5 @@ teste.js
 teste.json
 rename_files.ps1
 resources/Prelauncher-2.swf
+src/types/resourceTypes.ts
+src/types/mapDependencies.ts

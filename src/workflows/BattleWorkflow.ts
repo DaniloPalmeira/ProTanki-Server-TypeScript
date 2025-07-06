@@ -1,4 +1,4 @@
-import { Battle, BattleMode, MapTheme } from "../models/Battle";
+import { Battle, BattleMode, EquipmentConstraintsMode, MapTheme } from "../models/Battle";
 import BonusDataPacket from "../packets/implementations/BonusDataPacket";
 import InitMapPacket from "../packets/implementations/InitMapPacket";
 import LoadDependencies from "../packets/implementations/LoadDependencies";
@@ -61,10 +61,9 @@ export class BattleWorkflow {
 
   public static loadMapResources(client: ProTankiClient, server: ProTankiServer, battle: Battle): void {
     logger.info(`User ${client.user?.username} is loading skybox for battle ${battle.battleId}.`);
-
-    const skyboxResourceIds: ResourceId[] = ["skybox/default/part1", "skybox/default/part2", "skybox/default/part3", "skybox/default/part4", "skybox/default/part5", "skybox/default/part6"];
-
-    const dependencies = { resources: ResourceManager.getBulkResources(skyboxResourceIds) };
+    const mapIdWithoutPrefix = battle.settings.mapId.replace("map_", "");
+    const skyboxDependencies = ResourceManager.getSkyboxResources(mapIdWithoutPrefix, battle.settings.mapTheme);
+    const dependencies = { resources: skyboxDependencies };
     client.sendPacket(new LoadDependencies(dependencies, CALLBACK.BATTLE_SKYBOX_LOADED));
   }
 
@@ -259,13 +258,14 @@ export class BattleWorkflow {
     const mapIdWithoutPrefix = mapIdWithPrefix.replace("map_", "");
     const themeStr = MapTheme[battle.settings.mapTheme].toLowerCase();
 
+    const skyboxResourceIds = ResourceManager.getSkyboxResourceIds(mapIdWithoutPrefix, settings.mapTheme);
     const skyboxData = {
-      top: ResourceManager.getIdlowById("skybox/default/part1"),
-      front: ResourceManager.getIdlowById("skybox/default/part2"),
-      back: ResourceManager.getIdlowById("skybox/default/part3"),
-      bottom: ResourceManager.getIdlowById("skybox/default/part4"),
-      left: ResourceManager.getIdlowById("skybox/default/part5"),
-      right: ResourceManager.getIdlowById("skybox/default/part6"),
+      top: ResourceManager.getIdlowById(skyboxResourceIds[4]),
+      front: ResourceManager.getIdlowById(skyboxResourceIds[0]),
+      back: ResourceManager.getIdlowById(skyboxResourceIds[1]),
+      bottom: ResourceManager.getIdlowById(skyboxResourceIds[5]),
+      left: ResourceManager.getIdlowById(skyboxResourceIds[2]),
+      right: ResourceManager.getIdlowById(skyboxResourceIds[3]),
     };
 
     const mapGraphicData = {

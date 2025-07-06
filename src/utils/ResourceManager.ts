@@ -5,6 +5,7 @@ import { ResourceId, ResourceData } from "../types/resourceTypes";
 import logger from "./Logger";
 import { ResourcePathUtils } from "./ResourcePathUtils";
 import { mapDependencies } from "../types/mapDependencies";
+import { MapTheme } from "../models/Battle";
 
 export class ResourceManager {
   private static dependencies: Map<ResourceId, IDependency> = new Map();
@@ -119,6 +120,37 @@ export class ResourceManager {
 
   private static _getMapLibsByIdLow(mapIdLow: number): ResourceId[] {
     return mapDependencies[mapIdLow] || [];
+  }
+
+  public static getSkyboxResourceIds(mapIdWithoutPrefix: string, theme: MapTheme): ResourceId[] {
+    const themeStr = MapTheme[theme].toLowerCase();
+    const skyboxParts = ["front", "back", "left", "right", "top", "bottom"];
+
+    const specificPathPrefix = `skybox/${mapIdWithoutPrefix}/${themeStr}`;
+    const specificSkyboxTestResource = `${specificPathPrefix}/${skyboxParts[0]}` as ResourceId;
+
+    let basePath = `skybox/default/${themeStr}`;
+
+    if (ResourceData[specificSkyboxTestResource]) {
+      basePath = specificPathPrefix;
+      logger.info(`Using specific skybox path for map: ${mapIdWithoutPrefix}, theme: ${themeStr}`);
+    } else {
+      logger.info(`Using default skybox path for map: ${mapIdWithoutPrefix}, theme: ${themeStr}`);
+    }
+
+    return skyboxParts.map((part) => `${basePath}/${part}` as ResourceId);
+  }
+
+  public static getSkyboxResources(mapIdWithoutPrefix: string, theme: MapTheme): IDependency[] {
+    const skyboxResourceIds = this.getSkyboxResourceIds(mapIdWithoutPrefix, theme);
+
+    try {
+      return this.getBulkResources(skyboxResourceIds);
+    } catch (error) {
+      const basePath = skyboxResourceIds.length > 0 ? skyboxResourceIds[0].substring(0, skyboxResourceIds[0].lastIndexOf("/")) : "unknown";
+      logger.error(`Failed to get skybox resources. This likely means the resources for the path "${basePath}" are missing.`, { error });
+      return [];
+    }
   }
 
   public static getMapResources(mapId: string, theme: string): IDependency[] {

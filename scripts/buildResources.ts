@@ -86,7 +86,7 @@ function generateResourceTypesFileContent(resources: ResourceDefinition[]): stri
 
   content += `export const ResourceData = {\n`;
   resources.forEach((res) => {
-    content += `    "${res.id}": { idLow: ${res.idLow}, path: "${res.buildPath}", versionLow: ${res.versionLow} },\n`;
+    content += `    "${res.id}": { idLow: ${res.idLow}, path: "${res.buildPath}", versionLow: ${res.versionLow} },\n`;
   });
   content += `} as const;\n\n`;
 
@@ -182,7 +182,7 @@ async function generateMapDependenciesFile(resources: ResourceDefinition[]): Pro
         }
       }
 
-      content += `    ${mapResource.idLow}: [${libResourceIds.map((id) => `"${id}"`).join(", ")}],\n`;
+      content += `    ${mapResource.idLow}: [${libResourceIds.map((id) => `"${id}"`).join(", ")}],\n`;
     } catch (error) {
       console.error(`Failed to generate dependencies for map ${mapResource.id}:`, error);
     }
@@ -192,6 +192,34 @@ async function generateMapDependenciesFile(resources: ResourceDefinition[]): Pro
 
   await fs.promises.writeFile(path.join(TYPES_DIR, "mapDependencies.ts"), content);
   console.log("Generated mapDependencies.ts successfully.");
+}
+
+async function validateSkyboxDirectories(resources: ResourceDefinition[]): Promise<void> {
+  console.log("Validating skybox directories...");
+  const skyboxSourceDir = path.join(RESOURCES_DIR, "skybox");
+  if (!fs.existsSync(skyboxSourceDir)) {
+    console.log("No skybox directory found, skipping validation.");
+    return;
+  }
+
+  const mapNames = new Set<string>();
+  resources.forEach((res) => {
+    if (res.id.startsWith("map/")) {
+      const parts = res.id.split("/");
+      if (parts.length > 1) {
+        mapNames.add(parts[1]);
+      }
+    }
+  });
+
+  const skyboxDirs = await fs.promises.readdir(skyboxSourceDir, { withFileTypes: true });
+  for (const dir of skyboxDirs) {
+    if (dir.isDirectory() && dir.name !== "default") {
+      if (!mapNames.has(dir.name)) {
+        console.warn(`Warning: Skybox directory "/skybox/${dir.name}/" does not correspond to any known map.`);
+      }
+    }
+  }
 }
 
 async function build() {
@@ -211,6 +239,8 @@ async function build() {
     idMap.set(res.idLow, res.id);
   }
   console.log(`Found ${resources.length} resources. No collisions detected.`);
+
+  await validateSkyboxDirectories(resources);
 
   console.log("Generating 'resourceTypes.ts'...");
   const typesContent = generateResourceTypesFileContent(resources);
