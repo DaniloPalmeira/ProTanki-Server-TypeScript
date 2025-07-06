@@ -112,7 +112,7 @@ const UserSchema = new Schema<UserDocument>({
   loginToken: { type: String, default: null },
   hulls: { type: Map, of: Number, default: () => new Map([["wasp", 0]]) },
   turrets: { type: Map, of: Number, default: () => new Map([["smoky", 0]]) },
-  paints: { type: [String], default: ["green"] },
+  paints: { type: [String], default: ["green", "holiday"] },
   supplies: {
     type: Map,
     of: Number,
@@ -127,7 +127,7 @@ const UserSchema = new Schema<UserDocument>({
   },
   equippedTurret: { type: String, default: "smoky" },
   equippedHull: { type: String, default: "wasp" },
-  equippedPaint: { type: String, default: "green" },
+  equippedPaint: { type: String, default: "holiday" },
   createdAt: { type: Date, default: Date.now },
   lastLogin: { type: Date, default: null },
 });
