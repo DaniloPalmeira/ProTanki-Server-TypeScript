@@ -1,0 +1,5 @@
+<images>
+	<image name='details.png' new-name='details.jpg' alpha='details_alpha.jpg'/>
+	<image name='lightmap.jpg' new-name='lightmap.jpg'/>
+	<image name='details.jpg' new-name='details.jpg'/>
+</images>
