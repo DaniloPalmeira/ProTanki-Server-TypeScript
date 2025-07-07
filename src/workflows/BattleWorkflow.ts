@@ -34,6 +34,7 @@ import ConfirmLayoutChange from "../packets/implementations/ConfirmLayoutChange"
 import { suppliesData } from "../config/SuppliesData";
 import UserConnectDMPacket from "../packets/implementations/UserConnectDMPacket";
 import { IBattleUserInfo } from "../packets/interfaces/IUserConnectDM";
+import { ItemUtils } from "../utils/ItemUtils";
 
 export class BattleWorkflow {
   public static async enterBattle(client: ProTankiClient, server: ProTankiServer, battle: Battle): Promise<void> {
@@ -152,17 +153,17 @@ export class BattleWorkflow {
 
   private static _getTankModelDataJson(client: ProTankiClient, battle: Battle): string {
     const user = client.user!;
-    const hullId = user.equippedHull;
-    const hullMod = user.hulls.get(hullId) ?? 0;
-    const turretId = user.equippedTurret;
-    const turretMod = user.turrets.get(turretId) ?? 0;
-    const paintId = user.equippedPaint;
+    const hullMod = ItemUtils.getItemModification(user, "hull");
+    const turretMod = ItemUtils.getItemModification(user, "turret");
 
-    let team_type = "NONE";
-    if (battle.isTeamMode()) {
-      if (battle.usersBlue.some((u) => u.id === user.id)) team_type = "BLUE";
-      if (battle.usersRed.some((u) => u.id === user.id)) team_type = "RED";
-    }
+    const toRadians = (degrees: number) => degrees * (Math.PI / 180);
+
+    const hullTurnSpeed = ItemUtils.getPropertyValue(hullMod, "HULL_TURN_SPEED") ?? 0;
+    const turretTurnSpeed = ItemUtils.getPropertyValue(turretMod, "TURRET_TURN_SPEED") ?? 0;
+    const maxArmor = ItemUtils.getHullArmor(user);
+    const clientHealth = (client.currentHealth / maxArmor) * 10000;
+
+    const team_type = battle.isTeamMode() ? (battle.usersBlue.some((u) => u.id === user.id) ? "BLUE" : "RED") : "NONE";
 
     const partsObject = {
       engineIdleSound: ResourceManager.getIdlowById("sounds/hull/engine_idle"),
@@ -179,22 +180,7 @@ export class BattleWorkflow {
       explosionTexture: ResourceManager.getIdlowById("effects/smoky/explosion"),
       shotSound: ResourceManager.getIdlowById("sounds/smoky/shot"),
       shotTexture: ResourceManager.getIdlowById("effects/smoky/shot"),
-      lighting: [
-        {
-          name: "shot",
-          light: [
-            { attenuationBegin: 150, attenuationEnd: 450, color: 16571766, intensity: 0.9, time: 0 },
-            { attenuationBegin: 1, attenuationEnd: 2, color: 16571766, intensity: 0, time: 300 },
-          ],
-        },
-        {
-          name: "hit",
-          light: [
-            { attenuationBegin: 100, attenuationEnd: 300, color: 16760576, intensity: 0.7, time: 0 },
-            { attenuationBegin: 100, attenuationEnd: 300, color: 16760576, intensity: 0, time: 400 },
-          ],
-        },
-      ],
+      lighting: [],
       bcsh: [],
     };
 
@@ -202,35 +188,35 @@ export class BattleWorkflow {
 
     const data: any = {
       battleId: battle.battleId,
-      colormap_id: ResourceManager.getIdlowById(`paint/${paintId}/texture` as ResourceId),
-      hull_id: `${hullId}_m${hullMod}`,
-      turret_id: `${turretId}_m${turretMod}`,
+      colormap_id: ResourceManager.getIdlowById(`paint/${user.equippedPaint}/texture` as ResourceId),
+      hull_id: `${user.equippedHull}_m${user.hulls.get(user.equippedHull) ?? 0}`,
+      turret_id: `${user.equippedTurret}_m${user.turrets.get(user.equippedTurret) ?? 0}`,
       team_type: team_type,
       partsObject: JSON.stringify(partsObject),
-      hullResource: ResourceManager.getIdlowById(`hull/${hullId}/m${hullMod}/model` as ResourceId),
-      turretResource: ResourceManager.getIdlowById(`turret/${turretId}/m${turretMod}/model` as ResourceId),
+      hullResource: ResourceManager.getIdlowById(`hull/${user.equippedHull}/m${user.hulls.get(user.equippedHull) ?? 0}/model` as ResourceId),
+      turretResource: ResourceManager.getIdlowById(`turret/${user.equippedTurret}/m${user.turrets.get(user.equippedTurret) ?? 0}/model` as ResourceId),
       sfxData: JSON.stringify(sfxData),
       tank_id: user.username,
       nickname: user.username,
       state: client.battleState,
       incarnation: client.battleIncarnation,
       state_null: isSpawningOrDead,
-      maxSpeed: 10,
-      maxTurnSpeed: 2.443460952792061,
-      acceleration: 14,
+      maxSpeed: ItemUtils.getPropertyValue(hullMod, "HULL_SPEED") ?? 10,
+      maxTurnSpeed: toRadians(hullTurnSpeed),
+      acceleration: ItemUtils.getPropertyValue(hullMod, "HULL_POWER", "HULL_ACCELERATION") ?? 14,
       reverseAcceleration: 18,
       sideAcceleration: 16,
-      turnAcceleration: 2.792526803190927,
-      reverseTurnAcceleration: 4.886921905584122,
-      mass: 3000,
-      power: 14,
+      turnAcceleration: toRadians(hullTurnSpeed) * 1.15,
+      reverseTurnAcceleration: toRadians(hullTurnSpeed) * 2.0,
+      mass: ItemUtils.getPropertyValue(hullMod, "HULL_MASS") ?? 2000,
+      power: ItemUtils.getPropertyValue(hullMod, "HULL_POWER", "HULL_ACCELERATION") ?? 14,
       dampingCoeff: 1500,
-      turret_turn_speed: 2.1399481958702475,
-      health: isSpawningOrDead ? 0 : 10000,
+      turret_turn_speed: toRadians(turretTurnSpeed),
+      health: isSpawningOrDead ? 0 : clientHealth,
       rank: user.rank,
       kickback: 2.5,
-      turretTurnAcceleration: 3.4800119955514934,
-      impact_force: 3.3,
+      turretTurnAcceleration: toRadians(turretTurnSpeed) * 1.6,
+      impact_force: ItemUtils.getPropertyValue(turretMod, "IMPACT_FORCE") ?? 3.3,
     };
 
     if (isSpawningOrDead) {

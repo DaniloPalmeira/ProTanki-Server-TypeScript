@@ -3,24 +3,9 @@ import ReadyToPlacePacket from "../../packets/implementations/ReadyToPlacePacket
 import { ProTankiClient } from "../../server/ProTankiClient";
 import { ProTankiServer } from "../../server/ProTankiServer";
 import logger from "../../utils/Logger";
-import { UserDocument } from "../../models/User";
-import { itemBlueprints } from "../../config/ItemData";
 import SetHealthPacket from "../../packets/implementations/SetHealthPacket";
 import SpawnPacket from "../../packets/implementations/SpawnPacket";
-
-const getHullHealth = (user: UserDocument): number => {
-  const hullId = user.equippedHull;
-  const hullModId = user.hulls.get(hullId) ?? 0;
-  const hullBlueprint = itemBlueprints.hulls.find((h) => h.id === hullId);
-  const hullMod = hullBlueprint?.modifications.find((m) => m.modificationID === hullModId);
-
-  if (!hullMod) {
-    throw new Error(`Could not find hull blueprint for ${hullId}_m${hullModId}`);
-  }
-
-  const healthProp = hullMod.properts.find((p) => p.property === "HULL_ARMOR");
-  return healthProp && healthProp.value ? parseInt(healthProp.value, 10) : 100;
-};
+import { ItemUtils } from "../../utils/ItemUtils";
 
 export default class ReadyToPlaceHandler implements IPacketHandler<ReadyToPlacePacket> {
   public readonly packetId = ReadyToPlacePacket.getId();
@@ -37,16 +22,12 @@ export default class ReadyToPlaceHandler implements IPacketHandler<ReadyToPlaceP
       const user = client.user;
 
       client.battleState = "newcome";
+      client.currentHealth = ItemUtils.getHullArmor(user);
 
-      const maxHealth = getHullHealth(user);
       const clientHealth = 10000;
 
       client.sendPacket(new SetHealthPacket({ nickname: user.username, health: clientHealth }));
 
-      // const spawnPosition = { x: 1010.1729736328125, y: -4518.43994140625, z: 200 };
-      // const spawnRotation = { x: 0, y: 0, z: -6.894000053405762 };
-
-      // Placeholder for spawn point logic. Using hardcoded values for now.
       const spawnPosition = { x: 5232.58984375, y: -2677.427978515625, z: 200 };
       const spawnRotation = { x: 0, y: 0, z: 1.309000015258789 };
 
