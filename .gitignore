@@ -139,3 +139,9 @@ rename_files.ps1
 resources/Prelauncher-2.swf
 src/types/resourceTypes.ts
 src/types/mapDependencies.ts
+scripts/convertResourcePath.ts
+scripts/garagedown.ts
+scripts/packet-tester.ts
+scripts/web-dev-tools.ts
+scripts/processMaps.ts
+scripts/log-parser.ts
