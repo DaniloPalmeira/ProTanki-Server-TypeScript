@@ -145,3 +145,8 @@ scripts/packet-tester.ts
 scripts/web-dev-tools.ts
 scripts/processMaps.ts
 scripts/log-parser.ts
+scripts/sfx.ts
+scripts/sfx_unique.json
+scripts/sfx.json
+scripts/sfx_unique_sorted.json
+scripts/sfx_transformed.json
