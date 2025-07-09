@@ -32,7 +32,8 @@ export default class AddScoreCommand implements ICommand {
     let newScore = currentScore + amount;
 
     const MIN_SCORE = 0;
-    newScore = Math.max(MIN_SCORE, newScore);
+    const MAX_SCORE = 2147483647;
+    newScore = Math.max(MIN_SCORE, Math.min(newScore, MAX_SCORE));
 
     try {
       const updatedUser = await context.server.userService.updateResources(user.id, {
