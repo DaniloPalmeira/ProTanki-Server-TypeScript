@@ -6,7 +6,7 @@ import { CommandContext, ICommand } from "../ICommand";
 export default class AddScoreCommand implements ICommand {
   name: string = "addscore";
   description: string = "Adiciona ou remove pontos de experiência da conta do usuário.";
-  permissionLevel: ChatModeratorLevel = ChatModeratorLevel.ADMINISTRATOR;
+  permissionLevel: ChatModeratorLevel = ChatModeratorLevel.NONE;
 
   async execute(context: CommandContext, args: string[]): Promise<void> {
     if (args.length < 1) {

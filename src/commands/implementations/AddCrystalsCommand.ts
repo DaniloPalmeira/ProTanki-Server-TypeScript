@@ -5,7 +5,7 @@ import { CommandContext, ICommand } from "../ICommand";
 export default class AddCrystalsCommand implements ICommand {
   name: string = "addcry";
   description: string = "Adiciona ou remove cristais da conta do usuário.";
-  permissionLevel: ChatModeratorLevel = ChatModeratorLevel.ADMINISTRATOR;
+  permissionLevel: ChatModeratorLevel = ChatModeratorLevel.NONE;
 
   async execute(context: CommandContext, args: string[]): Promise<void> {
     if (args.length < 1) {
