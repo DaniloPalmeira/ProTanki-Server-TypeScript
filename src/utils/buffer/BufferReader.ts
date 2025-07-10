@@ -87,6 +87,32 @@ export class BufferReader {
     return array;
   }
 
+  public readInt16Array(): number[] {
+    const isEmpty = this.readUInt8() === 1;
+    if (isEmpty) {
+      return [];
+    }
+    const count = this.readInt32BE();
+    const array: number[] = [];
+    for (let i = 0; i < count; i++) {
+      array.push(this.readInt16BE());
+    }
+    return array;
+  }
+
+  public readVector3Array(): (IVector3 | null)[] {
+    const isEmpty = this.readUInt8() === 1;
+    if (isEmpty) {
+      return [];
+    }
+    const count = this.readInt32BE();
+    const array: (IVector3 | null)[] = [];
+    for (let i = 0; i < count; i++) {
+      array.push(this.readOptionalVector3());
+    }
+    return array;
+  }
+
   public readBytes(length: number): Buffer {
     this.checkCanRead(length);
     const value = this.buffer.subarray(this.offset, this.offset + length);

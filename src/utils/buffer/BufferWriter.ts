@@ -68,6 +68,32 @@ export class BufferWriter {
     return this;
   }
 
+  public writeInt16Array(array: number[] | null): this {
+    const isEmpty = !array || array.length === 0;
+    this.writeUInt8(isEmpty ? 1 : 0);
+
+    if (!isEmpty) {
+      this.writeInt32BE(array.length);
+      for (const item of array) {
+        this.writeInt16BE(item);
+      }
+    }
+    return this;
+  }
+
+  public writeVector3Array(array: (IVector3 | null)[] | null): this {
+    const isEmpty = !array || array.length === 0;
+    this.writeUInt8(isEmpty ? 1 : 0);
+
+    if (!isEmpty) {
+      this.writeInt32BE(array.length);
+      for (const item of array) {
+        this.writeOptionalVector3(item);
+      }
+    }
+    return this;
+  }
+
   public writeBuffer(buffer: Buffer): this {
     this.chunks.push(buffer);
     this.totalLength += buffer.length;
