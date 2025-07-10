@@ -91,26 +91,6 @@ Siga estes passos para configurar o ProTanki Server localmente:
 -   **Servidor de Recursos**: Os recursos estáticos do jogo são servidos a partir do diretório `.resource` (que é gerado automaticamente) na `RESOURCE_PORT` configurada (padrão: `9999`).
 -   **Logs**: Acompanhe a atividade do servidor em tempo real diretamente no console.
 
-## 🧰 Ferramentas de Desenvolvimento
-
-O projeto inclui vários scripts para auxiliar no desenvolvimento:
-
--   **Interface Web de Ferramentas**: Inicie uma interface web para construir, decodificar e testar pacotes em tempo real.
-    ```sh
-    npm run dev:tools
-    ```
-    Acesse em `http://localhost:8081`.
-
--   **Testador de Pacotes**: Decodifique rapidamente um payload de pacote hexadecimal via linha de comando.
-    ```sh
-    npm run test:packet -- <packetId> <payloadHex>
-    ```
-
--   **Conversor de Caminho de Recurso**: Converta um `idLow` de recurso para seu caminho ou vice-versa.
-    ```sh
-    npm run convert-path -- <to-path|to-idlow> <valor> [versão]
-    ```
-
 ## 🤝 Contribuindo
 
 Agradecemos contribuições para tornar o ProTanki Server ainda melhor! Para contribuir:
