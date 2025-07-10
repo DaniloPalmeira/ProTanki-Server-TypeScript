@@ -38,7 +38,7 @@ Siga estes passos para configurar o ProTanki Server localmente:
 
 1.  **Clone o repositório**:
     ```sh
-    git clone [https://github.com/danilopalmeira/ProTanki-Server-TypeScript.git](https://github.com/danilopalmeira/ProTanki-Server-TypeScript.git)
+    git clone https://github.com/danilopalmeira/ProTanki-Server-TypeScript.git
     cd ProTanki-Server-TypeScript
     ```
 
