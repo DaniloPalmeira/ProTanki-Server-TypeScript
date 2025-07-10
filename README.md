@@ -38,7 +38,7 @@ Siga estes passos para configurar o LeTanki Server localmente:
 1.  **Clone o repositório**:
 
     ```sh
-    git clone https://github.com/LeTanki/server.git
+    git clone https://github.com/letanki/server.git
     cd server
     ```
 
@@ -57,7 +57,7 @@ Siga estes passos para configurar o LeTanki Server localmente:
     RESOURCE_PORT=9999
 
     # Configurações do Banco de Dados (MongoDB)
-    MONGODB_URI=mongodb://localhost:27017/protanki_db
+    MONGODB_URI=mongodb://localhost:27017/letanki
 
     # Configurações de Log
     ENABLE_CONSOLE_LOGGING=true
