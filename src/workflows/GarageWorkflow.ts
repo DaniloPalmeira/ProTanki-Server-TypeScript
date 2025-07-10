@@ -78,6 +78,38 @@ export class GarageWorkflow {
     this.enterBattleGarageView(client, server);
   }
 
+  private static _triggerSelfDestructForRespawn(client: ProTankiClient, server: ProTankiServer): void {
+    if (client.battleState === "suicide") {
+      return;
+    }
+
+    const selfDestructTime = 3000;
+    client.sendPacket(new SelfDestructScheduledPacket(selfDestructTime));
+
+    setTimeout(() => {
+      if (client.isDestroyed || !client.currentBattle) {
+        return;
+      }
+
+      if (client.battleState === "suicide") {
+        return;
+      }
+
+      client.battleState = "suicide";
+      client.battleIncarnation++;
+
+      const destructionPacket = new ConfirmDestructionPacket(client.user!.username, 3000);
+      const battle = client.currentBattle;
+      const allPlayers = [...battle.users, ...battle.usersBlue, ...battle.usersRed];
+      allPlayers.forEach((player) => {
+        const playerClient = server.findClientByUsername(player.username);
+        if (playerClient && playerClient.currentBattle?.battleId === battle.battleId) {
+          playerClient.sendPacket(destructionPacket);
+        }
+      });
+    }, selfDestructTime);
+  }
+
   public static returnToBattleView(client: ProTankiClient, server: ProTankiServer): void {
     client.setState("battle");
     client.sendPacket(new SetLayout(3));
@@ -87,32 +119,36 @@ export class GarageWorkflow {
       client.equipmentChangedInGarage = false;
       client.pendingEquipmentRespawn = true;
 
-      if (client.battleState !== "suicide") {
-        const selfDestructTime = 3000;
-        client.sendPacket(new SelfDestructScheduledPacket(selfDestructTime));
+      const otherClientsInBattle = server.getClients().filter((c) => c !== client && c.currentBattle?.battleId === client.currentBattle?.battleId);
 
-        setTimeout(() => {
-          if (client.isDestroyed || !client.currentBattle) {
-            return;
+      if (otherClientsInBattle.length > 0) {
+        const user = client.user!;
+        const hullId = user.equippedHull;
+        const hullMod = user.hulls.get(hullId) ?? 0;
+        const turretId = user.equippedTurret;
+        const turretMod = user.turrets.get(turretId) ?? 0;
+        const paintId = user.equippedPaint;
+
+        const resourcesToLoad: ResourceId[] = [`hull/${hullId}/m${hullMod}/model` as ResourceId, `turret/${turretId}/m${turretMod}/model` as ResourceId, `paint/${paintId}/texture` as ResourceId];
+
+        const acknowledgements = new Set(otherClientsInBattle.map((c) => c.user!.username));
+
+        const onResourcesLoadedCallback = (acknowledgingClient: ProTankiClient) => {
+          acknowledgements.delete(acknowledgingClient.user!.username);
+          if (acknowledgements.size === 0) {
+            server.removeDynamicCallback(callbackId);
+            this._triggerSelfDestructForRespawn(client, server);
           }
+        };
 
-          if (client.battleState === "suicide") {
-            return;
-          }
+        const callbackId = server.registerDynamicCallback(onResourcesLoadedCallback);
+        const depsPacket = new LoadDependencies({ resources: ResourceManager.getBulkResources(resourcesToLoad) }, callbackId);
 
-          client.battleState = "suicide";
-          client.battleIncarnation++;
-
-          const destructionPacket = new ConfirmDestructionPacket(client.user!.username, 3000);
-          const battle = client.currentBattle;
-          const allPlayers = [...battle.users, ...battle.usersBlue, ...battle.usersRed];
-          allPlayers.forEach((player) => {
-            const playerClient = server.findClientByUsername(player.username);
-            if (playerClient && playerClient.currentBattle?.battleId === battle.battleId) {
-              playerClient.sendPacket(destructionPacket);
-            }
-          });
-        }, selfDestructTime);
+        otherClientsInBattle.forEach((otherClient) => {
+          otherClient.sendPacket(depsPacket);
+        });
+      } else {
+        this._triggerSelfDestructForRespawn(client, server);
       }
     }
 
