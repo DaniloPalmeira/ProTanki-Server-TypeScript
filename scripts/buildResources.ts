@@ -222,6 +222,19 @@ async function validateSkyboxDirectories(resources: ResourceDefinition[]): Promi
   }
 }
 
+async function validateTaraResources(resources: ResourceDefinition[]): Promise<void> {
+  console.log("Validating .tara resources...");
+  for (const resource of resources) {
+    const sourceFiles = await fs.promises.readdir(resource.sourcePath);
+    const isImageTara = sourceFiles.includes("image.tara");
+    const hasProperties = sourceFiles.includes("properties.json");
+
+    if (isImageTara && !hasProperties) {
+      throw new Error(`Resource "${resource.id}" is an image.tara resource but is missing the required "properties.json" file in its source directory: ${resource.sourcePath}`);
+    }
+  }
+}
+
 async function build() {
   console.log("Starting resource build process...");
 
@@ -241,6 +254,7 @@ async function build() {
   console.log(`Found ${resources.length} resources. No collisions detected.`);
 
   await validateSkyboxDirectories(resources);
+  await validateTaraResources(resources);
 
   console.log("Generating 'resourceTypes.ts'...");
   const typesContent = generateResourceTypesFileContent(resources);
