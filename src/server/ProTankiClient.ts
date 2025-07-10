@@ -60,6 +60,8 @@ export class ProTankiClient {
   public turretControl: number = 0;
   public isJoiningBattle: boolean = false;
   public currentHealth: number = 0;
+  public equipmentChangedInGarage: boolean = false;
+  public pendingEquipmentRespawn: boolean = false;
 
   constructor({ socket, server }: IClientOptions) {
     this.socket = socket;
@@ -69,6 +71,10 @@ export class ProTankiClient {
     this.setupSocket();
     this.server.addClient(this);
     this.sendPacket(new Protection(this.encryptionService.obtainKeys()), false);
+  }
+
+  public get isDestroyed(): boolean {
+    return this.socket.destroyed;
   }
 
   public getState(): ClientState {

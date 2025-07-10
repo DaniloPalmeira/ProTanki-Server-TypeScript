@@ -1,9 +1,11 @@
 import { CALLBACK } from "../config/constants";
 import { buildGarageData, itemBlueprints } from "../config/ItemData";
 import ConfirmLayoutChange from "../packets/implementations/ConfirmLayoutChange";
+import ConfirmDestructionPacket from "../packets/implementations/ConfirmDestructionPacket";
 import GarageItemsPacket from "../packets/implementations/GarageItemsPacket";
 import LoadDependencies from "../packets/implementations/LoadDependencies";
 import MountItemPacket from "../packets/implementations/MountItemPacket";
+import SelfDestructScheduledPacket from "../packets/implementations/SelfDestructScheduledPacket";
 import SetLayout from "../packets/implementations/SetLayout";
 import ShopItemsPacket from "../packets/implementations/ShopItemsPacket";
 import UnloadBattleListPacket from "../packets/implementations/UnloadBattleListPacket";
@@ -80,6 +82,40 @@ export class GarageWorkflow {
     client.setState("battle");
     client.sendPacket(new SetLayout(3));
     client.sendPacket(new UnloadGaragePacket());
+
+    if (client.equipmentChangedInGarage) {
+      client.equipmentChangedInGarage = false;
+      client.pendingEquipmentRespawn = true;
+
+      if (client.battleState !== "suicide") {
+        const selfDestructTime = 3000;
+        client.sendPacket(new SelfDestructScheduledPacket(selfDestructTime));
+
+        setTimeout(() => {
+          if (client.isDestroyed || !client.currentBattle) {
+            return;
+          }
+
+          if (client.battleState === "suicide") {
+            return;
+          }
+
+          client.battleState = "suicide";
+          client.battleIncarnation++;
+
+          const destructionPacket = new ConfirmDestructionPacket(client.user!.username, 3000);
+          const battle = client.currentBattle;
+          const allPlayers = [...battle.users, ...battle.usersBlue, ...battle.usersRed];
+          allPlayers.forEach((player) => {
+            const playerClient = server.findClientByUsername(player.username);
+            if (playerClient && playerClient.currentBattle?.battleId === battle.battleId) {
+              playerClient.sendPacket(destructionPacket);
+            }
+          });
+        }, selfDestructTime);
+      }
+    }
+
     client.sendPacket(new ConfirmLayoutChange(3, 3));
   }
 

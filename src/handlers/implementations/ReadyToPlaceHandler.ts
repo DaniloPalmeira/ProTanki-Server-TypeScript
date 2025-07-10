@@ -6,6 +6,10 @@ import logger from "../../utils/Logger";
 import SetHealthPacket from "../../packets/implementations/SetHealthPacket";
 import SpawnPacket from "../../packets/implementations/SpawnPacket";
 import { ItemUtils } from "../../utils/ItemUtils";
+import { BattleWorkflow } from "../../workflows/BattleWorkflow";
+import TankModelDataPacket from "../../packets/implementations/TankModelDataPacket";
+import EquipmentChangedPacket from "../../packets/implementations/EquipmentChangedPacket";
+import RemoveTankPacket from "../../packets/implementations/RemoveTankPacket";
 
 export default class ReadyToPlaceHandler implements IPacketHandler<ReadyToPlacePacket> {
   public readonly packetId = ReadyToPlacePacket.getId();
@@ -20,6 +24,27 @@ export default class ReadyToPlaceHandler implements IPacketHandler<ReadyToPlaceP
     try {
       const battle = client.currentBattle;
       const user = client.user;
+
+      const broadcastToBattle = (packetToBroadcast: any) => {
+        const allPlayers = [...battle.users, ...battle.usersBlue, ...battle.usersRed];
+        allPlayers.forEach((player) => {
+          const playerClient = server.findClientByUsername(player.username);
+          if (playerClient && playerClient.currentBattle?.battleId === battle.battleId) {
+            playerClient.sendPacket(packetToBroadcast);
+          }
+        });
+      };
+
+      if (client.pendingEquipmentRespawn) {
+        client.pendingEquipmentRespawn = false;
+
+        broadcastToBattle(new RemoveTankPacket(user.username));
+
+        const tankModelJson = BattleWorkflow.getTankModelDataJson(client, battle);
+        broadcastToBattle(new TankModelDataPacket(tankModelJson));
+
+        client.sendPacket(new EquipmentChangedPacket(user.username));
+      }
 
       client.battleState = "newcome";
       client.currentHealth = ItemUtils.getHullArmor(user);
@@ -49,13 +74,7 @@ export default class ReadyToPlaceHandler implements IPacketHandler<ReadyToPlaceP
         incarnation: client.battleIncarnation,
       });
 
-      const allPlayers = [...battle.users, ...battle.usersBlue, ...battle.usersRed];
-      for (const player of allPlayers) {
-        const playerClient = server.findClientByUsername(player.username);
-        if (playerClient && playerClient.currentBattle?.battleId === battle.battleId) {
-          playerClient.sendPacket(spawnPacket);
-        }
-      }
+      broadcastToBattle(spawnPacket);
     } catch (error: any) {
       logger.error(`Failed to execute spawn logic for user ${client.user.username}`, { error });
     }

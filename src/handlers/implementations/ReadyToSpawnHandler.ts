@@ -53,7 +53,9 @@ export default class ReadyToSpawnHandler implements IPacketHandler<ReadyToSpawnP
 
     logger.info(`Client ${client.user.username} is ready to spawn in battle ${client.currentBattle.battleId}.`);
 
-    // Placeholder for spawn point logic. Using hardcoded values for now.
+    const specs = getTankSpecifications(client.user);
+    client.sendPacket(new TankSpecificationPacket({ ...specs, nickname: client.user.username, isPro: false }));
+
     const spawnPosition = { x: 5232.58984375, y: -2677.427978515625, z: 200 };
     const spawnRotation = { x: 0, y: 0, z: 1.309000015258789 };
 

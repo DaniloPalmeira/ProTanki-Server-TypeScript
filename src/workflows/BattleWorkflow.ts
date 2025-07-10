@@ -242,7 +242,7 @@ export class BattleWorkflow {
     };
   }
 
-  private static _getTankModelDataJson(client: ProTankiClient, battle: Battle): string {
+  public static getTankModelDataJson(client: ProTankiClient, battle: Battle): string {
     const user = client.user!;
     const hullMod = ItemUtils.getItemModification(user, "hull");
     const turretMod = ItemUtils.getItemModification(user, "turret");
@@ -254,7 +254,7 @@ export class BattleWorkflow {
     const maxArmor = ItemUtils.getHullArmor(user);
     const clientHealth = (client.currentHealth / maxArmor) * 10000;
     const baseImpactForce = ItemUtils.getPropertyValue(turretMod, "IMPACT_FORCE") ?? 0;
-    const finalImpactForce = baseImpactForce/100;
+    const finalImpactForce = baseImpactForce / 100;
 
     const team_type = battle.isTeamMode() ? (battle.usersBlue.some((u) => u.id === user.id) ? "BLUE" : "RED") : "NONE";
 
@@ -486,13 +486,13 @@ export class BattleWorkflow {
       const establishedPlayerDocs = establishedClients.map((c) => c.user!);
 
       for (const existingClient of establishedClients) {
-        const existingTankJson = this._getTankModelDataJson(existingClient, battle);
+        const existingTankJson = this.getTankModelDataJson(existingClient, battle);
         newPlayerClient.sendPacket(new TankModelDataPacket(existingTankJson));
       }
 
       if (establishedClients.length === 0) {
         logger.info(`Battle has no established players. Spawning ${user.username} immediately.`);
-        const joiningUserTankJson = this._getTankModelDataJson(newPlayerClient, battle);
+        const joiningUserTankJson = this.getTankModelDataJson(newPlayerClient, battle);
         newPlayerClient.sendPacket(new TankModelDataPacket(joiningUserTankJson));
       } else {
         logger.info(`Waiting for ${establishedClients.length} established players to load resources for ${user.username}.`);
@@ -512,7 +512,7 @@ export class BattleWorkflow {
             logger.info(`All established players loaded resources for ${user.username}. Spawning tank.`);
           }
 
-          const joiningUserTankJson = this._getTankModelDataJson(newPlayerClient, battle);
+          const joiningUserTankJson = this.getTankModelDataJson(newPlayerClient, battle);
           const joiningUserTankPacket = new TankModelDataPacket(joiningUserTankJson);
 
           const allCurrentPlayersInBattle = server.getClients().filter((c) => c.currentBattle?.battleId === battle.battleId);
