@@ -249,6 +249,8 @@ export class BattleWorkflow {
     const turretTurnSpeed = ItemUtils.getPropertyValue(turretMod, "TURRET_TURN_SPEED") ?? 0;
     const maxArmor = ItemUtils.getHullArmor(user);
     const clientHealth = (client.currentHealth / maxArmor) * 10000;
+    const baseImpactForce = ItemUtils.getPropertyValue(turretMod, "IMPACT_FORCE") ?? 0;
+    const finalImpactForce = baseImpactForce/100;
 
     const team_type = battle.isTeamMode() ? (battle.usersBlue.some((u) => u.id === user.id) ? "BLUE" : "RED") : "NONE";
 
@@ -312,7 +314,7 @@ export class BattleWorkflow {
       rank: user.rank,
       kickback: 2.5,
       turretTurnAcceleration: toRadians(turretTurnSpeed) * 1.6,
-      impact_force: ItemUtils.getPropertyValue(turretMod, "IMPACT_FORCE") ?? 3.3,
+      impact_force: finalImpactForce,
     };
 
     if (isSpawningOrDead) {

@@ -40,9 +40,6 @@ export default class SmokyTargetShotCommandHandler implements IPacketHandler<Smo
       } else if (distance >= maxRange) {
         impactForceRatio = 0;
       }
-
-      console.log({ impactForceRatio });
-      console.log({ distance });
     }
 
     const finalImpactForce = Math.max(0.01, impactForceRatio);
