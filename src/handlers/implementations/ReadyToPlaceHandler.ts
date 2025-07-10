@@ -43,7 +43,7 @@ export default class ReadyToPlaceHandler implements IPacketHandler<ReadyToPlaceP
         const tankModelJson = BattleWorkflow.getTankModelDataJson(client, battle);
         broadcastToBattle(new TankModelDataPacket(tankModelJson));
 
-        client.sendPacket(new EquipmentChangedPacket(user.username));
+        broadcastToBattle(new EquipmentChangedPacket(user.username));
       }
 
       client.battleState = "newcome";

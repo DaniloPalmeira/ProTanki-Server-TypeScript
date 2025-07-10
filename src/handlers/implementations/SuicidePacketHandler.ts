@@ -52,7 +52,7 @@ export default class SuicidePacketHandler implements IPacketHandler<SuicidePacke
       });
 
       client.battleIncarnation++;
-      client.battleState = "newcome";
+      client.battleState = "suicide";
     }, 10000);
   }
 }
