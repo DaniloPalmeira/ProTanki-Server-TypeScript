@@ -1,15 +1,15 @@
 import { BufferReader } from "../../utils/buffer/BufferReader";
 import { BufferWriter } from "../../utils/buffer/BufferWriter";
 import { IVector3 } from "../interfaces/geom/IVector3";
-import { IShotPacket, IShotPacketData } from "../interfaces/IShot";
+import { IRailgunShotPacket, IRailgunShotPacketData } from "../interfaces/IRailgunShot";
 import { BasePacket } from "./BasePacket";
 
-export default class ShotPacket extends BasePacket implements IShotPacket {
+export default class RailgunShotPacket extends BasePacket implements IRailgunShotPacket {
   public shooterNickname: string | null;
   public hitPosition: IVector3 | null;
   public targets: { nickname: string; position: IVector3 }[];
 
-  constructor(data?: IShotPacketData) {
+  constructor(data?: IRailgunShotPacketData) {
     super();
     this.shooterNickname = data?.shooterNickname ?? null;
     this.hitPosition = data?.hitPosition ?? null;
@@ -51,7 +51,7 @@ export default class ShotPacket extends BasePacket implements IShotPacket {
   }
 
   public toString(): string {
-    return `ShotPacket(shooter=${this.shooterNickname}, hitPosition=${JSON.stringify(this.hitPosition)}, targetsCount=${this.targets.length})`;
+    return `RailgunShotPacket(shooter=${this.shooterNickname}, hitPosition=${JSON.stringify(this.hitPosition)}, targetsCount=${this.targets.length})`;
   }
 
   public static getId(): number {

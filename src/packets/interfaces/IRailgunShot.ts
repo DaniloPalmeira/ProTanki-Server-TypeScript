@@ -1,7 +1,7 @@
 import { IPacket } from "./IPacket";
 import { IVector3 } from "./geom/IVector3";
 
-export interface IShotTargetData {
+export interface IRailgunShotTargetData {
   nickname: string;
   position: IVector3;
   incarnation: number;
@@ -9,13 +9,13 @@ export interface IShotTargetData {
   orientation: IVector3;
 }
 
-export interface IShotCommand extends IPacket {
+export interface IRailgunShotCommand extends IPacket {
   clientTime: number;
   position: IVector3 | null;
-  targets: IShotTargetData[];
+  targets: IRailgunShotTargetData[];
 }
 
-export interface IShotPacketData {
+export interface IRailgunShotPacketData {
   shooterNickname: string | null;
   hitPosition: IVector3 | null;
   targets: {
@@ -24,4 +24,4 @@ export interface IShotPacketData {
   }[];
 }
 
-export interface IShotPacket extends IPacket, IShotPacketData {}
+export interface IRailgunShotPacket extends IPacket, IRailgunShotPacketData {}

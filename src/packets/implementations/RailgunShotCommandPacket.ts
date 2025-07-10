@@ -1,13 +1,12 @@
 import { BufferReader } from "../../utils/buffer/BufferReader";
-import { BufferWriter } from "../../utils/buffer/BufferWriter";
 import { IVector3 } from "../interfaces/geom/IVector3";
-import { IShotCommand, IShotTargetData } from "../interfaces/IShot";
+import { IRailgunShotCommand, IRailgunShotTargetData } from "../interfaces/IRailgunShot";
 import { BasePacket } from "./BasePacket";
 
-export default class ShotCommandPacket extends BasePacket implements IShotCommand {
+export default class RailgunShotCommandPacket extends BasePacket implements IRailgunShotCommand {
   public clientTime: number = 0;
   public position: IVector3 | null = null;
-  public targets: IShotTargetData[] = [];
+  public targets: IRailgunShotTargetData[] = [];
 
   public read(buffer: Buffer): void {
     const reader = new BufferReader(buffer);
@@ -47,11 +46,11 @@ export default class ShotCommandPacket extends BasePacket implements IShotComman
   }
 
   public write(): Buffer {
-    throw new Error("ShotCommandPacket is a client-to-server packet only and should not be written.");
+    throw new Error("RailgunShotCommandPacket is a client-to-server packet only and should not be written.");
   }
 
   public toString(): string {
-    return `ShotCommandPacket(clientTime=${this.clientTime}, targets=${this.targets.length})`;
+    return `RailgunShotCommandPacket(clientTime=${this.clientTime}, targets=${this.targets.length})`;
   }
 
   public static getId(): number {
