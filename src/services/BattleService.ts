@@ -8,6 +8,8 @@ import UserDisconnectedDmPacket from "../packets/implementations/UserDisconnecte
 import RemoveUserFromBattleLobbyPacket from "../packets/implementations/RemoveUserFromBattleLobbyPacket";
 import ReleasePlayerSlotDmPacket from "../packets/implementations/ReleasePlayerSlotDmPacket";
 import UserNotInBattlePacket from "../packets/implementations/UserNotInBattlePacket";
+import UpdateSpectatorListPacket from "../packets/implementations/UpdateSpectatorListPacket";
+import { ProTankiClient } from "../server/ProTankiClient";
 
 interface IDisconnectedPlayerInfo {
   battleId: string;
@@ -22,6 +24,23 @@ export class BattleService {
   constructor(server: ProTankiServer) {
     this.server = server;
     this.createDefaultBattle();
+  }
+
+  public broadcastSpectatorListUpdate(battle: Battle, excludeClient?: ProTankiClient): void {
+    const spectatorNames = battle.spectators.map((s) => s.username);
+    const spectatorListString = spectatorNames.join("\n");
+    const packet = new UpdateSpectatorListPacket(spectatorListString);
+
+    for (const spectator of battle.spectators) {
+      if (excludeClient && spectator.id === excludeClient.user?.id) {
+        continue;
+      }
+      const spectatorClient = this.server.findClientByUsername(spectator.username);
+      if (spectatorClient && spectatorClient.isSpectator) {
+        spectatorClient.sendPacket(packet);
+      }
+    }
+    logger.info(`Broadcasted spectator list update for battle ${battle.battleId}`);
   }
 
   private createDefaultBattle(): void {
@@ -200,14 +219,15 @@ export class BattleService {
       throw new Error("Seu rank não é compatível com esta batalha.");
     }
 
-    const allPlayers = [...battle.users, ...battle.usersRed, ...battle.usersBlue];
-    const isAlreadyInBattle = allPlayers.some((p) => p.id === user.id);
+    const allParticipants = battle.getAllParticipants();
+    const isAlreadyInBattle = allParticipants.some((p) => p.id === user.id);
 
     if (isAlreadyInBattle) {
       throw new Error("Você já está nesta batalha.");
     }
 
-    if (allPlayers.length >= settings.maxPeopleCount) {
+    const activePlayersCount = battle.users.length + battle.usersBlue.length + battle.usersRed.length;
+    if (activePlayersCount >= settings.maxPeopleCount) {
       throw new Error("Esta batalha está cheia.");
     }
 
@@ -233,7 +253,7 @@ export class BattleService {
     const battle = this.getBattleById(battleId);
     if (!battle) throw new Error("A batalha selecionada não existe mais.");
 
-    const allParticipants = [...battle.users, ...battle.usersRed, ...battle.usersBlue, ...battle.spectators];
+    const allParticipants = battle.getAllParticipants();
     const isAlreadyInBattle = allParticipants.some((p) => p.id === user.id);
 
     if (isAlreadyInBattle) {
@@ -242,16 +262,23 @@ export class BattleService {
 
     battle.spectators.push(user);
     logger.info(`User ${user.username} added to battle ${battle.battleId} as a spectator`);
+
     return battle;
   }
 
   public removeUserFromBattle(user: UserDocument, battle: Battle): void {
     const userId = user.id;
 
+    const wasSpectator = battle.spectators.some((s) => s.id === userId);
+
     battle.users = battle.users.filter((u) => u.id !== userId);
     battle.usersBlue = battle.usersBlue.filter((u) => u.id !== userId);
     battle.usersRed = battle.usersRed.filter((u) => u.id !== userId);
     battle.spectators = battle.spectators.filter((u) => u.id !== userId);
+
+    if (wasSpectator) {
+      this.broadcastSpectatorListUpdate(battle);
+    }
 
     if ([...battle.users, ...battle.usersBlue, ...battle.usersRed].length === 0) {
       battle.roundStarted = false;

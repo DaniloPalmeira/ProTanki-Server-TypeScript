@@ -5,6 +5,7 @@ import LoadDependencies from "../packets/implementations/LoadDependencies";
 import SetLayout from "../packets/implementations/SetLayout";
 import UnloadBattleListPacket from "../packets/implementations/UnloadBattleListPacket";
 import UnloadLobbyChatPacket from "../packets/implementations/UnloadLobbyChatPacket";
+import UpdateSpectatorListPacket from "../packets/implementations/UpdateSpectatorListPacket";
 import WeaponPhysicsPacket from "../packets/implementations/WeaponPhysicsPacket";
 import { ProTankiClient } from "../server/ProTankiClient";
 import { ProTankiServer } from "../server/ProTankiServer";
@@ -380,6 +381,10 @@ export class BattleWorkflow {
       const user = client.user!;
       logger.info(`Spectator ${user.username} finished loading resources for ${battle.battleId}. Initializing map view...`);
       this._sendCommonBattleData(client, server, battle);
+
+      const spectatorNames = battle.spectators.map((s) => s.username);
+      const spectatorListString = spectatorNames.join("\n");
+      client.sendPacket(new UpdateSpectatorListPacket(spectatorListString));
 
       const allActivePlayers = [...battle.users, ...battle.usersBlue, ...battle.usersRed];
       for (const player of allActivePlayers) {

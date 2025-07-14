@@ -20,6 +20,8 @@ export default class EnterBattleAsSpectatorHandler implements IPacketHandler<Ent
       client.currentBattle = battle;
       client.isSpectator = true;
 
+      server.battleService.broadcastSpectatorListUpdate(battle, client);
+
       await BattleWorkflow.enterBattle(client, server, battle);
     } catch (error: any) {
       logger.warn(`User ${client.user.username} failed to enter battle ${client.lastViewedBattleId} as spectator`, {
