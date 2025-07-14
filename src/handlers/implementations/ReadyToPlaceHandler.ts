@@ -15,7 +15,7 @@ export default class ReadyToPlaceHandler implements IPacketHandler<ReadyToPlaceP
   public readonly packetId = ReadyToPlacePacket.getId();
 
   public execute(client: ProTankiClient, server: ProTankiServer, packet: ReadyToPlacePacket): void {
-    if (!client.user || !client.currentBattle) {
+    if (!client.user || !client.currentBattle || client.isSpectator) {
       return;
     }
 
@@ -26,11 +26,11 @@ export default class ReadyToPlaceHandler implements IPacketHandler<ReadyToPlaceP
       const user = client.user;
 
       const broadcastToBattle = (packetToBroadcast: any) => {
-        const allPlayers = [...battle.users, ...battle.usersBlue, ...battle.usersRed];
-        allPlayers.forEach((player) => {
-          const playerClient = server.findClientByUsername(player.username);
-          if (playerClient && playerClient.currentBattle?.battleId === battle.battleId) {
-            playerClient.sendPacket(packetToBroadcast);
+        const allParticipants = battle.getAllParticipants();
+        allParticipants.forEach((participant) => {
+          const participantClient = server.findClientByUsername(participant.username);
+          if (participantClient && participantClient.currentBattle?.battleId === battle.battleId) {
+            participantClient.sendPacket(packetToBroadcast);
           }
         });
       };

@@ -396,7 +396,7 @@ export class LobbyWorkflow {
       minRank: battle.settings.minRank,
       maxRank: battle.settings.maxRank,
       roundStarted: battle.roundStarted,
-      spectator: false,
+      spectator: true,
       withoutBonuses: battle.settings.withoutBonuses,
       withoutCrystals: battle.settings.withoutCrystals,
       withoutSupplies: battle.settings.withoutSupplies,

@@ -60,35 +60,37 @@ export class BattleService {
   }
 
   public announceTankRemoval(user: UserDocument, battle: Battle): void {
-    const remainingPlayers = [...battle.users, ...battle.usersBlue, ...battle.usersRed].filter((p) => p.id !== user.id);
+    const remainingParticipants = battle.getAllParticipants().filter((p) => p.id !== user.id);
 
     const removeTankPacket = new RemoveTankPacket(user.username);
-    remainingPlayers.forEach((player) => {
-      const client = this.server.findClientByUsername(player.username);
+    remainingParticipants.forEach((participant) => {
+      const client = this.server.findClientByUsername(participant.username);
       if (client) client.sendPacket(removeTankPacket);
     });
 
     if (battle.settings.battleMode === BattleMode.DM) {
       const disconnectPacket = new UserDisconnectedDmPacket(user.username);
-      remainingPlayers.forEach((player) => {
-        const client = this.server.findClientByUsername(player.username);
+      remainingParticipants.forEach((participant) => {
+        const client = this.server.findClientByUsername(participant.username);
         if (client) client.sendPacket(disconnectPacket);
       });
     }
   }
 
-  public async finalizeBattleExit(user: UserDocument, battle: Battle, friendsToNotify?: string[]): Promise<void> {
-    const battleDetailWatchers = this.server.getClients().filter((c) => (c.getState() === "chat_lobby" || c.getState() === "battle_lobby") && c.lastViewedBattleId === battle.battleId);
-    if (battleDetailWatchers.length > 0) {
-      const removeUserPacket = new RemoveUserFromBattleLobbyPacket({ battleId: battle.battleId, nickname: user.username });
-      for (const watcher of battleDetailWatchers) {
-        watcher.sendPacket(removeUserPacket);
+  public async finalizeBattleExit(user: UserDocument, battle: Battle, friendsToNotify?: string[], isSpectator: boolean = false): Promise<void> {
+    if (!isSpectator) {
+      const battleDetailWatchers = this.server.getClients().filter((c) => (c.getState() === "chat_lobby" || c.getState() === "battle_lobby") && c.lastViewedBattleId === battle.battleId);
+      if (battleDetailWatchers.length > 0) {
+        const removeUserPacket = new RemoveUserFromBattleLobbyPacket({ battleId: battle.battleId, nickname: user.username });
+        for (const watcher of battleDetailWatchers) {
+          watcher.sendPacket(removeUserPacket);
+        }
       }
-    }
 
-    if (battle.settings.battleMode === BattleMode.DM) {
-      const releaseSlotPacket = new ReleasePlayerSlotDmPacket({ battleId: battle.battleId, nickname: user.username });
-      this.server.broadcastToBattleList(releaseSlotPacket);
+      if (battle.settings.battleMode === BattleMode.DM) {
+        const releaseSlotPacket = new ReleasePlayerSlotDmPacket({ battleId: battle.battleId, nickname: user.username });
+        this.server.broadcastToBattleList(releaseSlotPacket);
+      }
     }
 
     let friends: string[] = friendsToNotify || [];
@@ -110,15 +112,17 @@ export class BattleService {
     this.removeUserFromBattle(user, battle);
   }
 
-  public handlePlayerDisconnection(user: UserDocument, battle: Battle): void {
+  public handlePlayerDisconnection(user: UserDocument, battle: Battle, isSpectator: boolean): void {
     logger.info(`Player ${user.username} disconnected from battle ${battle.battleId}. Starting 1-minute reconnect timer.`);
 
-    this.announceTankRemoval(user, battle);
+    if (!isSpectator) {
+      this.announceTankRemoval(user, battle);
+    }
 
     const timeoutId = setTimeout(() => {
       logger.info(`Reconnect timer for ${user.username} expired. Finalizing disconnection.`);
       this.disconnectedPlayers.delete(user.id);
-      this.finalizeDisconnection(user, battle);
+      this.finalizeDisconnection(user, battle, isSpectator);
     }, 60000);
 
     this.disconnectedPlayers.set(user.id, { battleId: battle.battleId, timeoutId });
@@ -135,8 +139,8 @@ export class BattleService {
     return null;
   }
 
-  private async finalizeDisconnection(user: UserDocument, battle: Battle): Promise<void> {
-    await this.finalizeBattleExit(user, battle);
+  private async finalizeDisconnection(user: UserDocument, battle: Battle, isSpectator: boolean): Promise<void> {
+    await this.finalizeBattleExit(user, battle, undefined, isSpectator);
   }
 
   public validateName(name: string): string {
@@ -169,7 +173,7 @@ export class BattleService {
   public isUserInBattle(username: string): boolean {
     const lowercasedUsername = username.toLowerCase();
     for (const battle of this.activeBattles.values()) {
-      const isUserInBattle = battle.users.some((u) => u.username.toLowerCase() === lowercasedUsername) || battle.usersBlue.some((u) => u.username.toLowerCase() === lowercasedUsername) || battle.usersRed.some((u) => u.username.toLowerCase() === lowercasedUsername);
+      const isUserInBattle = battle.users.some((u) => u.username.toLowerCase() === lowercasedUsername) || battle.usersBlue.some((u) => u.username.toLowerCase() === lowercasedUsername) || battle.usersRed.some((u) => u.username.toLowerCase() === lowercasedUsername) || battle.spectators.some((u) => u.username.toLowerCase() === lowercasedUsername);
 
       if (isUserInBattle) {
         return true;
@@ -223,12 +227,29 @@ export class BattleService {
     return battle;
   }
 
+  public addSpectatorToBattle(user: UserDocument, battleId: string): Battle {
+    const battle = this.getBattleById(battleId);
+    if (!battle) throw new Error("A batalha selecionada não existe mais.");
+
+    const allParticipants = [...battle.users, ...battle.usersRed, ...battle.usersBlue, ...battle.spectators];
+    const isAlreadyInBattle = allParticipants.some((p) => p.id === user.id);
+
+    if (isAlreadyInBattle) {
+      throw new Error("Você já está nesta batalha.");
+    }
+
+    battle.spectators.push(user);
+    logger.info(`User ${user.username} added to battle ${battle.battleId} as a spectator`);
+    return battle;
+  }
+
   public removeUserFromBattle(user: UserDocument, battle: Battle): void {
     const userId = user.id;
 
     battle.users = battle.users.filter((u) => u.id !== userId);
     battle.usersBlue = battle.usersBlue.filter((u) => u.id !== userId);
     battle.usersRed = battle.usersRed.filter((u) => u.id !== userId);
+    battle.spectators = battle.spectators.filter((u) => u.id !== userId);
 
     if ([...battle.users, ...battle.usersBlue, ...battle.usersRed].length === 0) {
       battle.roundStarted = false;

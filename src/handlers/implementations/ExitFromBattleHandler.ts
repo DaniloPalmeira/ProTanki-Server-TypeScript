@@ -13,17 +13,21 @@ export default class ExitFromBattleHandler implements IPacketHandler<ExitFromBat
   public async execute(client: ProTankiClient, server: ProTankiServer, packet: ExitFromBattlePacket): Promise<void> {
     const user = client.user;
     const battle = client.currentBattle;
+    const isSpectator = client.isSpectator;
 
     if (!user || !battle) {
       return;
     }
 
-    server.battleService.announceTankRemoval(user, battle);
-    await server.battleService.finalizeBattleExit(user, battle, client.friendsCache);
+    if (!isSpectator) {
+      server.battleService.announceTankRemoval(user, battle);
+    }
+    await server.battleService.finalizeBattleExit(user, battle, client.friendsCache, isSpectator);
 
     client.sendPacket(new UnloadSpaceBattlePacket());
 
     client.currentBattle = null;
+    client.isSpectator = false;
     client.battleState = "suicide";
     client.stopTimeChecker();
 

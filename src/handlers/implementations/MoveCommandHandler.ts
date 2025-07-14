@@ -27,14 +27,14 @@ export default class MoveCommandHandler implements IPacketHandler<MoveCommandPac
       position: packet.position,
     });
 
-    const allPlayers = [...battle.users, ...battle.usersBlue, ...battle.usersRed];
+    const allParticipants = battle.getAllParticipants();
 
-    for (const player of allPlayers) {
-      if (player.id === client.user.id) {
+    for (const participant of allParticipants) {
+      if (participant.id === client.user.id) {
         continue;
       }
 
-      const otherClient = server.findClientByUsername(player.username);
+      const otherClient = server.findClientByUsername(participant.username);
       if (otherClient && otherClient.currentBattle?.battleId === battle.battleId) {
         otherClient.sendPacket(movePacket);
       }

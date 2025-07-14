@@ -20,7 +20,7 @@ export default class ReadyToActivateHandler implements IPacketHandler<ReadyToAct
     const battle = client.currentBattle;
     const activationPacket = new ActivateTankPacket(client.user.username);
 
-    const allPlayers = [...battle.users, ...battle.usersBlue, ...battle.usersRed];
+    const allPlayers = battle.getAllParticipants();
     for (const player of allPlayers) {
       const playerClient = server.findClientByUsername(player.username);
       if (playerClient && playerClient.currentBattle?.battleId === battle.battleId) {

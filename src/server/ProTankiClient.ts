@@ -39,6 +39,7 @@ export class ProTankiClient {
   public pingHistory: number[] = [];
   public lastViewedBattleId: string | null = null;
   public currentBattle: Battle | null = null;
+  public isSpectator: boolean = false;
 
   public isInFlowMode: boolean = false;
   public flowTarget: string | null = null;
@@ -196,7 +197,7 @@ export class ProTankiClient {
 
     if (this.user) {
       if (this.currentBattle) {
-        this.server.battleService.handlePlayerDisconnection(this.user, this.currentBattle);
+        this.server.battleService.handlePlayerDisconnection(this.user, this.currentBattle, this.isSpectator);
       }
       this.server.notifySubscribersOfStatusChange(this.user.username, false);
     }

@@ -64,6 +64,7 @@ export class Battle {
   public users: UserDocument[] = [];
   public usersBlue: UserDocument[] = [];
   public usersRed: UserDocument[] = [];
+  public spectators: UserDocument[] = [];
   public scoreBlue: number = 0;
   public scoreRed: number = 0;
   public roundStarted: boolean = false;
@@ -76,5 +77,9 @@ export class Battle {
 
   public isTeamMode(): boolean {
     return this.settings.battleMode !== BattleMode.DM;
+  }
+
+  public getAllParticipants(): UserDocument[] {
+    return [...this.users, ...this.usersBlue, ...this.usersRed, ...this.spectators];
   }
 }

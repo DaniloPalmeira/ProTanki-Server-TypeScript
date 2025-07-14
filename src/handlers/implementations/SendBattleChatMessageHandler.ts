@@ -19,15 +19,15 @@ export default class SendBattleChatMessageHandler implements IPacketHandler<Send
     }
 
     let senderTeamId = 2; // NONE
-    let teammates: UserDocument[] = [];
+    let senderTeam: UserDocument[] = [];
 
     if (battle.isTeamMode()) {
       if (battle.usersBlue.some((p) => p.id === user.id)) {
         senderTeamId = 1; // BLUE
-        teammates = battle.usersBlue;
+        senderTeam = battle.usersBlue;
       } else if (battle.usersRed.some((p) => p.id === user.id)) {
         senderTeamId = 0; // RED
-        teammates = battle.usersRed;
+        senderTeam = battle.usersRed;
       }
     }
 
@@ -42,10 +42,10 @@ export default class SendBattleChatMessageHandler implements IPacketHandler<Send
 
     if (packet.team && battle.isTeamMode()) {
       messagePacket = new BattleChatTeamMessagePacket(messageData);
-      recipients = teammates;
+      recipients = [...senderTeam, ...battle.spectators];
     } else {
       messagePacket = new BattleChatMessagePacket(messageData);
-      recipients = [...battle.users, ...battle.usersBlue, ...battle.usersRed];
+      recipients = battle.getAllParticipants();
     }
 
     for (const recipient of recipients) {

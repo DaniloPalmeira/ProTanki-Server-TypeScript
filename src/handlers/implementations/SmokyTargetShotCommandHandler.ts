@@ -52,11 +52,11 @@ export default class SmokyTargetShotCommandHandler implements IPacketHandler<Smo
       critical: isCritical,
     });
 
-    const allPlayers = [...currentBattle.users, ...currentBattle.usersBlue, ...currentBattle.usersRed];
-    for (const player of allPlayers) {
-      if (player.id === user.id) continue;
+    const allParticipants = currentBattle.getAllParticipants();
+    for (const participant of allParticipants) {
+      if (participant.id === user.id) continue;
 
-      const otherClient = server.findClientByUsername(player.username);
+      const otherClient = server.findClientByUsername(participant.username);
       if (otherClient && otherClient.currentBattle?.battleId === currentBattle.battleId) {
         otherClient.sendPacket(targetShotPacket);
       }

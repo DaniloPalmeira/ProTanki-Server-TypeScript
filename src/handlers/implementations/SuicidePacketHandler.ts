@@ -43,11 +43,11 @@ export default class SuicidePacketHandler implements IPacketHandler<SuicidePacke
 
       const destroyPacket = new DestroyTankPacket(user.username, 3000);
 
-      const allPlayers = [...currentBattle.users, ...currentBattle.usersBlue, ...currentBattle.usersRed];
-      allPlayers.forEach((player) => {
-        const playerClient = server.findClientByUsername(player.username);
-        if (playerClient && playerClient.currentBattle?.battleId === currentBattle.battleId) {
-          playerClient.sendPacket(destroyPacket);
+      const allParticipants = currentBattle.getAllParticipants();
+      allParticipants.forEach((participant) => {
+        const participantClient = server.findClientByUsername(participant.username);
+        if (participantClient && participantClient.currentBattle?.battleId === currentBattle.battleId) {
+          participantClient.sendPacket(destroyPacket);
         }
       });
 

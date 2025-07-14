@@ -18,14 +18,14 @@ export default class StartChargingCommandHandler implements IPacketHandler<Start
       nickname: user.username,
     });
 
-    const allPlayers = [...currentBattle.users, ...currentBattle.usersBlue, ...currentBattle.usersRed];
+    const allParticipants = currentBattle.getAllParticipants();
 
-    for (const player of allPlayers) {
-      if (player.id === user.id) {
+    for (const participant of allParticipants) {
+      if (participant.id === user.id) {
         continue;
       }
 
-      const otherClient = server.findClientByUsername(player.username);
+      const otherClient = server.findClientByUsername(participant.username);
       if (otherClient && otherClient.currentBattle?.battleId === currentBattle.battleId) {
         otherClient.sendPacket(startChargingPacket);
       }
