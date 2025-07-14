@@ -113,19 +113,21 @@ export class BattleService {
   }
 
   public handlePlayerDisconnection(user: UserDocument, battle: Battle, isSpectator: boolean): void {
-    logger.info(`Player ${user.username} disconnected from battle ${battle.battleId}. Starting 1-minute reconnect timer.`);
-
-    if (!isSpectator) {
-      this.announceTankRemoval(user, battle);
-    }
-
-    const timeoutId = setTimeout(() => {
-      logger.info(`Reconnect timer for ${user.username} expired. Finalizing disconnection.`);
-      this.disconnectedPlayers.delete(user.id);
+    if (isSpectator) {
+      logger.info(`Spectator ${user.username} disconnected from battle ${battle.battleId}. Finalizing immediately.`);
       this.finalizeDisconnection(user, battle, isSpectator);
-    }, 60000);
+    } else {
+      logger.info(`Player ${user.username} disconnected from battle ${battle.battleId}. Starting 1-minute reconnect timer.`);
+      this.announceTankRemoval(user, battle);
 
-    this.disconnectedPlayers.set(user.id, { battleId: battle.battleId, timeoutId });
+      const timeoutId = setTimeout(() => {
+        logger.info(`Reconnect timer for ${user.username} expired. Finalizing disconnection.`);
+        this.disconnectedPlayers.delete(user.id);
+        this.finalizeDisconnection(user, battle, isSpectator);
+      }, 60000);
+
+      this.disconnectedPlayers.set(user.id, { battleId: battle.battleId, timeoutId });
+    }
   }
 
   public handlePlayerReconnection(user: UserDocument): { battleId: string } | null {
