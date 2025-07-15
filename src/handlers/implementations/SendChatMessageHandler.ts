@@ -93,7 +93,7 @@ export default class SendChatMessageHandler implements IPacketHandler<SendChatMe
       }
     }
 
-    const populatedMessage = await server.chatService.postMessage(client.user, packet.targetNickname, packet.message);
+    const populatedMessage = await server.chatService.postMessage(client.user, packet.targetNickname, packet.message, server.battleService);
 
     const messageData: IChatMessageData = {
       message: populatedMessage.message,
@@ -101,19 +101,19 @@ export default class SendChatMessageHandler implements IPacketHandler<SendChatMe
       isWarning: populatedMessage.isWarning,
       source: populatedMessage.sourceUser
         ? {
-            uid: populatedMessage.sourceUser.username,
-            rank: populatedMessage.sourceUser.rank,
-            moderatorLevel: populatedMessage.sourceUser.chatModeratorLevel,
-            ip: null,
-          }
+          uid: populatedMessage.sourceUser.username,
+          rank: populatedMessage.sourceUser.rank,
+          moderatorLevel: populatedMessage.sourceUser.chatModeratorLevel,
+          ip: null,
+        }
         : null,
       target: populatedMessage.targetUser
         ? {
-            uid: populatedMessage.targetUser.username,
-            rank: populatedMessage.targetUser.rank,
-            moderatorLevel: populatedMessage.targetUser.chatModeratorLevel,
-            ip: null,
-          }
+          uid: populatedMessage.targetUser.username,
+          rank: populatedMessage.targetUser.rank,
+          moderatorLevel: populatedMessage.targetUser.chatModeratorLevel,
+          ip: null,
+        }
         : null,
     };
 

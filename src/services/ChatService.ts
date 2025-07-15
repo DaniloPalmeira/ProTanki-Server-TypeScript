@@ -1,6 +1,7 @@
 import ChatMessage from "../models/ChatMessage";
 import { UserDocument } from "../models/User";
 import logger from "../utils/Logger";
+import { BattleService } from "./BattleService";
 import { UserService } from "./UserService";
 
 export interface PopulatedChatMessage {
@@ -29,16 +30,39 @@ export class ChatService {
     }
   }
 
-  public async postMessage(sourceUser: UserDocument, targetNickname: string | null, message: string): Promise<PopulatedChatMessage> {
+  private async _parseBattleLinks(message: string, battleService: BattleService): Promise<string> {
+    const regex = /#\/battle\/([a-f0-9]+)/gi;
+    const matches = Array.from(message.matchAll(regex));
+    let processedMessage = message;
+
+    for (const match of matches) {
+      const fullPattern = match[0];
+      const battleId = match[1];
+
+      const battle = battleService.getBattleById(battleId);
+
+      if (battle) {
+        const battleName = battle.settings.name;
+        const replacement = `#battle|${battleName}|${battleId}`;
+        processedMessage = processedMessage.replace(fullPattern, replacement);
+      }
+    }
+
+    return processedMessage;
+  }
+
+  public async postMessage(sourceUser: UserDocument, targetNickname: string | null, message: string, battleService: BattleService): Promise<PopulatedChatMessage> {
     let targetUser: UserDocument | null = null;
     if (targetNickname) {
       targetUser = await this.userService.findUserByUsername(targetNickname);
     }
 
+    const processedMessage = await this._parseBattleLinks(message, battleService);
+
     const chatMessage = new ChatMessage({
       sourceUser: sourceUser._id,
       targetUser: targetUser ? targetUser._id : null,
-      message: message,
+      message: processedMessage,
     });
 
     await chatMessage.save();
@@ -49,7 +73,7 @@ export class ChatService {
     return {
       sourceUser,
       targetUser,
-      message,
+      message: processedMessage,
       isSystemMessage: false,
       isWarning: false,
     };
