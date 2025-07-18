@@ -17,6 +17,11 @@ interface PacketQueueItem {
   packetData: Buffer;
 }
 
+interface ISpawnPoint {
+  position: IVector3;
+  rotation: IVector3;
+}
+
 export class ProTankiClient {
   private static readonly HEADER_SIZE = 8;
   private socket: net.Socket;
@@ -63,6 +68,7 @@ export class ProTankiClient {
   public currentHealth: number = 0;
   public equipmentChangedInGarage: boolean = false;
   public pendingEquipmentRespawn: boolean = false;
+  public pendingSpawnPoint: ISpawnPoint | null = null;
 
   constructor({ socket, server }: IClientOptions) {
     this.socket = socket;

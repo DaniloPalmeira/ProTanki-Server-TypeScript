@@ -56,9 +56,26 @@ export default class ReadyToSpawnHandler implements IPacketHandler<ReadyToSpawnP
     const specs = getTankSpecifications(client.user);
     client.sendPacket(new TankSpecificationPacket({ ...specs, nickname: client.user.username, isPro: false }));
 
-    const spawnPosition = { x: 5232.58984375, y: -2677.427978515625, z: 200 };
-    const spawnRotation = { x: 0, y: 0, z: 1.309000015258789 };
+    const battle = client.currentBattle;
+    let teamType: "DM" | "BLUE" | "RED" = "DM";
+    if (battle.isTeamMode()) {
+      if (battle.usersBlue.some((u) => u.id === client.user!.id)) teamType = "BLUE";
+      if (battle.usersRed.some((u) => u.id === client.user!.id)) teamType = "RED";
+    }
 
-    client.sendPacket(new PrepareToSpawnPacket(spawnPosition, spawnRotation));
+    const spawnPoint = server.battleService.getSpawnPoint(battle, teamType);
+
+    const finalSpawnPosition = {
+      x: spawnPoint.position.x,
+      y: spawnPoint.position.y,
+      z: spawnPoint.position.z + 200,
+    };
+
+    client.pendingSpawnPoint = {
+      position: finalSpawnPosition,
+      rotation: spawnPoint.rotation,
+    };
+
+    client.sendPacket(new PrepareToSpawnPacket(finalSpawnPosition, spawnPoint.rotation));
   }
 }

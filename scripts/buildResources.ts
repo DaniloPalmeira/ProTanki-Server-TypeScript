@@ -20,6 +20,12 @@ interface ResourceDefinition {
   buildPath: string;
 }
 
+interface ISpawnPoint {
+  type: string;
+  position: { x: number; y: number; z: number };
+  rotation: { x: number; y: number; z: number };
+}
+
 function generateResourceId(friendlyPath: string): number {
   return (crc32.str(friendlyPath) & 0xffffff) >>> 0;
 }
@@ -194,6 +200,63 @@ async function generateMapDependenciesFile(resources: ResourceDefinition[]): Pro
   console.log("Generated mapDependencies.ts successfully.");
 }
 
+async function processAndExtractSpawnPoints(mapResources: ResourceDefinition[]): Promise<void> {
+  console.log("Processing map spawn points...");
+
+  const allSpawns: { [key: string]: ISpawnPoint[] } = {};
+
+  for (const mapResource of mapResources) {
+    const destXmlPath = path.join(RESOURCE_BUILD_DIR, mapResource.buildPath, "map.xml");
+    if (!fs.existsSync(destXmlPath)) continue;
+
+    try {
+      const mapXmlContent = await fs.promises.readFile(destXmlPath, "utf8");
+      const parsedMap = await parseStringPromise(mapXmlContent);
+
+      const spawnPointsNode = parsedMap.map?.["spawn-points"]?.[0]?.["spawn-point"];
+      if (!spawnPointsNode) {
+        continue;
+      }
+
+      const extractedSpawns: ISpawnPoint[] = spawnPointsNode.map((spData: any) => {
+        const pos = spData.position[0];
+        const rot = spData.rotation[0];
+        return {
+          type: spData.$.type,
+          position: {
+            x: parseFloat(pos.x?.[0] ?? "0"),
+            y: parseFloat(pos.y?.[0] ?? "0"),
+            z: parseFloat(pos.z?.[0] ?? "0"),
+          },
+          rotation: {
+            x: parseFloat(rot.x?.[0] ?? "0"),
+            y: parseFloat(rot.y?.[0] ?? "0"),
+            z: parseFloat(rot.z?.[0] ?? "0"),
+          },
+        };
+      });
+
+      allSpawns[mapResource.id] = extractedSpawns;
+      console.log(`Extracted ${extractedSpawns.length} spawn points for ${mapResource.id}`);
+
+      delete parsedMap.map["spawn-points"];
+
+      const newXmlString = create(parsedMap).end({ prettyPrint: true });
+      await fs.promises.writeFile(destXmlPath, newXmlString);
+    } catch (error) {
+      console.error(`Failed to process spawn points for map ${mapResource.id}:`, error);
+    }
+  }
+
+  let content = `// Arquivo gerado automaticamente. Não edite manualmente.\n\n`;
+  content += `interface IVector3 { x: number; y: number; z: number; }\n`;
+  content += `interface ISpawnPoint { type: string; position: IVector3; rotation: IVector3; }\n\n`;
+  content += `export const mapSpawns: { [key: string]: ISpawnPoint[] } = ${JSON.stringify(allSpawns, null, 4)};\n`;
+
+  await fs.promises.writeFile(path.join(TYPES_DIR, "mapSpawns.ts"), content);
+  console.log("Generated mapSpawns.ts successfully.");
+}
+
 async function validateSkyboxDirectories(resources: ResourceDefinition[]): Promise<void> {
   console.log("Validating skybox directories...");
   const skyboxSourceDir = path.join(RESOURCES_DIR, "skybox");
@@ -269,6 +332,9 @@ async function build() {
   }
 
   await generatePropLibsXmls(resources);
+
+  const mapResources = resources.filter((r) => r.id.startsWith("map/") && r.id.endsWith("/xml"));
+  await processAndExtractSpawnPoints(mapResources);
 
   await copyRootFiles();
   console.log("Resource build process completed successfully!");

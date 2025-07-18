@@ -10,6 +10,8 @@ import ReleasePlayerSlotDmPacket from "../packets/implementations/ReleasePlayerS
 import UserNotInBattlePacket from "../packets/implementations/UserNotInBattlePacket";
 import UpdateSpectatorListPacket from "../packets/implementations/UpdateSpectatorListPacket";
 import { ProTankiClient } from "../server/ProTankiClient";
+import { mapSpawns } from "../types/mapSpawns";
+import { IVector3 } from "../packets/interfaces/geom/IVector3";
 
 interface IDisconnectedPlayerInfo {
   battleId: string;
@@ -24,6 +26,60 @@ export class BattleService {
   constructor(server: ProTankiServer) {
     this.server = server;
     this.createDefaultBattle();
+  }
+
+  public getSpawnPoint(battle: Battle, team: "DM" | "BLUE" | "RED"): { position: IVector3; rotation: IVector3 } {
+    const mapId = battle.settings.mapId.replace("map_", "");
+    const themeStr = MapTheme[battle.settings.mapTheme].toLowerCase();
+    const mapResourceId = `map/${mapId}/${themeStr}/xml`;
+
+    const allMapSpawns = mapSpawns[mapResourceId];
+    if (!allMapSpawns || allMapSpawns.length === 0) {
+      logger.warn(`No spawn points found for map ${mapResourceId}. Using fallback.`);
+      return { position: { x: 0, y: 0, z: 200 }, rotation: { x: 0, y: 0, z: 0 } };
+    }
+
+    const teamType = team.toLowerCase();
+    let candidateSpawns;
+
+    if (battle.settings.battleMode === BattleMode.CP) {
+      candidateSpawns = allMapSpawns.filter((sp) => sp.type.toLowerCase() === "dom");
+    } else {
+      candidateSpawns = allMapSpawns.filter((sp) => sp.type.toLowerCase() === teamType);
+    }
+
+    if (candidateSpawns.length === 0) {
+      logger.warn(`No specific spawn points of type for this mode on map ${mapResourceId}. Using all available as fallback.`);
+      candidateSpawns = allMapSpawns;
+    }
+
+    const activePlayers = this.server.getClients().filter((c) => c.currentBattle?.battleId === battle.battleId && c.battleState === "active" && c.battlePosition);
+    const occupiedPositions = activePlayers.map((p) => p.battlePosition!);
+
+    const isOccupied = (spawnPos: IVector3) => {
+      const MIN_SPAWN_DISTANCE_SQ = 100 * 100;
+      for (const playerPos of occupiedPositions) {
+        const dx = spawnPos.x - playerPos.x;
+        const dy = spawnPos.y - playerPos.y;
+        const dz = spawnPos.z - playerPos.z;
+        if (dx * dx + dy * dy + dz * dz < MIN_SPAWN_DISTANCE_SQ) {
+          return true;
+        }
+      }
+      return false;
+    };
+
+    let availableSpawns = candidateSpawns.filter((sp) => !isOccupied(sp.position));
+
+    if (availableSpawns.length === 0) {
+      logger.warn(`All candidate spawn points are occupied. Using any candidate as fallback.`);
+      availableSpawns = candidateSpawns;
+    }
+
+    const randomIndex = Math.floor(Math.random() * availableSpawns.length);
+    const chosenSpawn = availableSpawns[randomIndex];
+
+    return { position: chosenSpawn.position, rotation: chosenSpawn.rotation };
   }
 
   public broadcastSpectatorListUpdate(battle: Battle, excludeClient?: ProTankiClient): void {

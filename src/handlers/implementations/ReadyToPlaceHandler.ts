@@ -53,16 +53,24 @@ export default class ReadyToPlaceHandler implements IPacketHandler<ReadyToPlaceP
 
       client.sendPacket(new SetHealthPacket({ nickname: user.username, health: clientHealth }));
 
-      const spawnPosition = { x: 5232.58984375, y: -2677.427978515625, z: 200 };
-      const spawnRotation = { x: 0, y: 0, z: 1.309000015258789 };
+      const spawnPoint = client.pendingSpawnPoint;
+      if (!spawnPoint) {
+        logger.error(`No pending spawn point for ${client.user.username}. This should not happen.`);
+        client.closeConnection();
+        return;
+      }
+      client.pendingSpawnPoint = null;
+
+      const spawnPosition = spawnPoint.position;
+      const spawnRotation = spawnPoint.rotation;
 
       client.battlePosition = spawnPosition;
       client.battleOrientation = spawnRotation;
 
-      let teamId = 2; // NONE
+      let teamId = 2;
       if (battle.isTeamMode()) {
-        if (battle.usersBlue.some((u) => u.id === user.id)) teamId = 1; // BLUE
-        if (battle.usersRed.some((u) => u.id === user.id)) teamId = 0; // RED
+        if (battle.usersBlue.some((u) => u.id === user.id)) teamId = 1;
+        if (battle.usersRed.some((u) => u.id === user.id)) teamId = 0;
       }
 
       const spawnPacket = new SpawnPacket({
