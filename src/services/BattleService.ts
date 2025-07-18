@@ -15,6 +15,7 @@ import { IVector3 } from "../packets/interfaces/geom/IVector3";
 import { mapGeometries } from "../types/mapGeometries";
 import DestroyTankPacket from "../packets/implementations/DestroyTankPacket";
 import SystemMessage from "../packets/implementations/SystemMessage";
+import { mapCtfFlags } from "../types/mapCtfFlags";
 
 interface IDisconnectedPlayerInfo {
   battleId: string;
@@ -286,6 +287,21 @@ export class BattleService {
 
   public createBattle(settings: IBattleCreationSettings, creator?: UserDocument): Battle {
     const battle = new Battle(settings);
+
+    if (settings.battleMode === BattleMode.CTF) {
+      const mapId = settings.mapId.replace("map_", "");
+      const themeStr = MapTheme[settings.mapTheme].toLowerCase();
+      const mapResourceId = `map/${mapId}/${themeStr}/xml`;
+      const flags = mapCtfFlags[mapResourceId];
+      if (flags) {
+        battle.flagBasePositionBlue = flags.blue;
+        battle.flagPositionBlue = flags.blue;
+        battle.flagBasePositionRed = flags.red;
+        battle.flagPositionRed = flags.red;
+      } else {
+        logger.warn(`CTF flag positions not found for map ${mapResourceId}.`);
+      }
+    }
 
     this.activeBattles.set(battle.battleId, battle);
     logger.info(`Battle created`, {

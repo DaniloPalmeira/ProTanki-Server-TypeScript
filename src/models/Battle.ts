@@ -1,5 +1,6 @@
 import { UserDocument } from "./User";
 import * as crypto from "crypto";
+import { IVector3 } from "../packets/interfaces/geom/IVector3";
 
 export enum BattleMode {
   DM,
@@ -69,6 +70,12 @@ export class Battle {
   public scoreRed: number = 0;
   public roundStarted: boolean = false;
   public roundStartTime: number | null = null;
+  public flagBasePositionBlue: IVector3 | null = null;
+  public flagBasePositionRed: IVector3 | null = null;
+  public flagPositionBlue: IVector3 | null = null;
+  public flagPositionRed: IVector3 | null = null;
+  public flagCarrierBlue: UserDocument | null = null;
+  public flagCarrierRed: UserDocument | null = null;
 
   constructor(settings: IBattleCreationSettings) {
     this.battleId = crypto.randomBytes(8).toString("hex");

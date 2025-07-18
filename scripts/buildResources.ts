@@ -20,10 +20,16 @@ interface ResourceDefinition {
   buildPath: string;
 }
 
+interface IVector3 {
+  x: number;
+  y: number;
+  z: number;
+}
+
 interface ISpawnPoint {
   type: string;
-  position: { x: number; y: number; z: number };
-  rotation: { x: number; y: number; z: number };
+  position: IVector3;
+  rotation: IVector3;
 }
 
 interface ISpecialBox {
@@ -34,6 +40,11 @@ interface ISpecialBox {
   maxY: number;
   maxZ: number;
   action: "kill" | "kick";
+}
+
+interface ICtfFlags {
+  red: IVector3;
+  blue: IVector3;
 }
 
 function generateResourceId(friendlyPath: string): number {
@@ -315,6 +326,53 @@ async function processAndExtractSpecialGeometries(mapResources: ResourceDefiniti
   console.log("Generated mapGeometries.ts successfully.");
 }
 
+async function processAndExtractCtfFlags(mapResources: ResourceDefinition[]): Promise<void> {
+  console.log("Processing CTF flags positions...");
+
+  const allFlags: { [key: string]: ICtfFlags } = {};
+
+  for (const mapResource of mapResources) {
+    const destXmlPath = path.join(RESOURCE_BUILD_DIR, mapResource.buildPath, "map.xml");
+    if (!fs.existsSync(destXmlPath)) continue;
+
+    try {
+      const mapXmlContent = await fs.promises.readFile(destXmlPath, "utf8");
+      const parsedMap = await parseStringPromise(mapXmlContent);
+
+      const flagsNode = parsedMap.map?.["ctf-flags"]?.[0];
+      if (!flagsNode) {
+        continue;
+      }
+
+      const redFlag = flagsNode["flag-red"]?.[0];
+      const blueFlag = flagsNode["flag-blue"]?.[0];
+
+      if (redFlag && blueFlag) {
+        allFlags[mapResource.id] = {
+          red: { x: parseFloat(redFlag.x[0]), y: parseFloat(redFlag.y[0]), z: parseFloat(redFlag.z[0]) },
+          blue: { x: parseFloat(blueFlag.x[0]), y: parseFloat(blueFlag.y[0]), z: parseFloat(blueFlag.z[0]) },
+        };
+        console.log(`Extracted CTF flag positions for ${mapResource.id}`);
+      }
+
+      delete parsedMap.map["ctf-flags"];
+
+      const newXmlString = create(parsedMap).end({ prettyPrint: true });
+      await fs.promises.writeFile(destXmlPath, newXmlString);
+    } catch (error) {
+      console.error(`Failed to process ctf flags for map ${mapResource.id}:`, error);
+    }
+  }
+
+  let content = `// Arquivo gerado automaticamente. Não edite manualmente.\n\n`;
+  content += `interface IVector3 { x: number; y: number; z: number; }\n`;
+  content += `interface ICtfFlags { red: IVector3; blue: IVector3; }\n\n`;
+  content += `export const mapCtfFlags: { [key: string]: ICtfFlags } = ${JSON.stringify(allFlags, null, 4)};\n`;
+
+  await fs.promises.writeFile(path.join(TYPES_DIR, "mapCtfFlags.ts"), content);
+  console.log("Generated mapCtfFlags.ts successfully.");
+}
+
 async function validateSkyboxDirectories(resources: ResourceDefinition[]): Promise<void> {
   console.log("Validating skybox directories...");
   const skyboxSourceDir = path.join(RESOURCES_DIR, "skybox");
@@ -394,6 +452,7 @@ async function build() {
   const mapResources = resources.filter((r) => r.id.startsWith("map/") && r.id.endsWith("/xml"));
   await processAndExtractSpawnPoints(mapResources);
   await processAndExtractSpecialGeometries(mapResources);
+  await processAndExtractCtfFlags(mapResources);
 
   await copyRootFiles();
   console.log("Resource build process completed successfully!");

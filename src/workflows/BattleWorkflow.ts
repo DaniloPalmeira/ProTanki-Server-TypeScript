@@ -38,6 +38,8 @@ import { IBattleUserInfo } from "../packets/interfaces/IUserConnectDM";
 import { ItemUtils } from "../utils/ItemUtils";
 import { sfxBlueprints } from "../config/SfxBlueprints";
 import SystemMessage from "../packets/implementations/SystemMessage";
+import InitCtfFlagsPacket from "../packets/implementations/InitCtfFlagsPacket";
+import { IVector3 } from "../packets/interfaces/geom/IVector3";
 
 export class BattleWorkflow {
   public static async enterBattle(client: ProTankiClient, server: ProTankiServer, battle: Battle): Promise<void> {
@@ -203,6 +205,14 @@ export class BattleWorkflow {
       "effects/twins/muzzle_flash",
       "sounds/twins/shot",
       "effects/twins/shot",
+      "flags/blue_flag_sprite",
+      "flags/blue_pedestal",
+      "flags/red_flag_sprite",
+      "flags/red_pedestal",
+      "sounds/flags/flag_drop",
+      "sounds/flags/flag_return",
+      "sounds/flags/flag_take",
+      "sounds/flags/win"
     ];
 
     const dependencies = { resources: ResourceManager.getBulkResources(generalResources) };
@@ -489,6 +499,31 @@ export class BattleWorkflow {
 
     client.sendPacket(new BattleStatsPacket(battleStatsData));
     client.sendPacket(new LoadBattleChatPacket());
+
+    const adjustZ = (pos: IVector3 | null): IVector3 | null => {
+      if (!pos) return null;
+      return { x: pos.x, y: pos.y, z: pos.z + 80 };
+    };
+
+    if (battle.settings.battleMode === BattleMode.CTF) {
+      const ctfPacket = new InitCtfFlagsPacket({
+        flagBasePositionBlue: adjustZ(battle.flagBasePositionBlue),
+        flagCarrierIdBlue: battle.flagCarrierBlue?.username ?? null,
+        flagPositionBlue: adjustZ(battle.flagPositionBlue || null),
+        blueFlagSprite: ResourceManager.getIdlowById("flags/blue_flag_sprite"),
+        bluePedestalModel: ResourceManager.getIdlowById("flags/blue_pedestal"),
+        flagBasePositionRed: adjustZ(battle.flagBasePositionRed),
+        flagCarrierIdRed: battle.flagCarrierRed?.username ?? null,
+        flagPositionRed: adjustZ(battle.flagPositionRed || null),
+        redFlagSprite: ResourceManager.getIdlowById("flags/red_flag_sprite"),
+        redPedestalModel: ResourceManager.getIdlowById("flags/red_pedestal"),
+        flagDropSound: ResourceManager.getIdlowById("sounds/flags/flag_drop"),
+        flagReturnSound: ResourceManager.getIdlowById("sounds/flags/flag_return"),
+        flagTakeSound: ResourceManager.getIdlowById("sounds/flags/flag_take"),
+        winSound: ResourceManager.getIdlowById("sounds/flags/win"),
+      });
+      client.sendPacket(ctfPacket);
+    }
 
     if (battle.isTeamMode()) {
       client.sendPacket(new InitBattleTeamPacket());
