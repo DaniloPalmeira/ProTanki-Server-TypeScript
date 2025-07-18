@@ -40,6 +40,7 @@ import { sfxBlueprints } from "../config/SfxBlueprints";
 import SystemMessage from "../packets/implementations/SystemMessage";
 import InitCtfFlagsPacket from "../packets/implementations/InitCtfFlagsPacket";
 import { IVector3 } from "../packets/interfaces/geom/IVector3";
+import InitDomPointsPacket from "../packets/implementations/InitDomPointsPacket";
 
 export class BattleWorkflow {
   public static async enterBattle(client: ProTankiClient, server: ProTankiServer, battle: Battle): Promise<void> {
@@ -212,7 +213,28 @@ export class BattleWorkflow {
       "sounds/flags/flag_drop",
       "sounds/flags/flag_return",
       "sounds/flags/flag_take",
-      "sounds/flags/win"
+      "sounds/flags/win", "effects/cp/big_letters",
+      "effects/cp/blue_circle",
+      "effects/cp/blue_pedestal_texture",
+      "effects/cp/blue_ray",
+      "effects/cp/blue_ray_tip",
+      "effects/cp/neutral_circle",
+      "effects/cp/neutral_pedestal_texture",
+      "effects/cp/pedestal",
+      "effects/cp/red_circle",
+      "effects/cp/red_pedestal_texture",
+      "effects/cp/red_ray",
+      "effects/cp/red_ray_tip",
+      "sounds/cp/point_capture_start_negative",
+      "sounds/cp/point_capture_start_positive",
+      "sounds/cp/point_capture_stop_negative",
+      "sounds/cp/point_capture_stop_positive",
+      "sounds/cp/point_captured_negative",
+      "sounds/cp/point_captured_positive",
+      "sounds/cp/point_neutralized_negative",
+      "sounds/cp/point_neutralized_positive",
+      "sounds/cp/point_score_decreasing",
+      "sounds/cp/point_score_increasing",
     ];
 
     const dependencies = { resources: ResourceManager.getBulkResources(generalResources) };
@@ -506,15 +528,16 @@ export class BattleWorkflow {
     };
 
     if (battle.settings.battleMode === BattleMode.CTF) {
+
       const ctfPacket = new InitCtfFlagsPacket({
         flagBasePositionBlue: adjustZ(battle.flagBasePositionBlue),
         flagCarrierIdBlue: battle.flagCarrierBlue?.username ?? null,
-        flagPositionBlue: adjustZ(battle.flagPositionBlue || null),
+        flagPositionBlue: adjustZ(battle.flagPositionBlue),
         blueFlagSprite: ResourceManager.getIdlowById("flags/blue_flag_sprite"),
         bluePedestalModel: ResourceManager.getIdlowById("flags/blue_pedestal"),
         flagBasePositionRed: adjustZ(battle.flagBasePositionRed),
         flagCarrierIdRed: battle.flagCarrierRed?.username ?? null,
-        flagPositionRed: adjustZ(battle.flagPositionRed || null),
+        flagPositionRed: adjustZ(battle.flagPositionRed),
         redFlagSprite: ResourceManager.getIdlowById("flags/red_flag_sprite"),
         redPedestalModel: ResourceManager.getIdlowById("flags/red_pedestal"),
         flagDropSound: ResourceManager.getIdlowById("sounds/flags/flag_drop"),
@@ -523,6 +546,46 @@ export class BattleWorkflow {
         winSound: ResourceManager.getIdlowById("sounds/flags/win"),
       });
       client.sendPacket(ctfPacket);
+    }
+
+    if (battle.settings.battleMode === BattleMode.CP) {
+      const domPacket = new InitDomPointsPacket({
+        keypointTriggerRadius: 10,
+        keypointVisorHeight: 500,
+        minesRestrictionRadius: 5,
+        points: battle.domPoints.map((p) => ({
+          id: p.id,
+          name: p.name,
+          position: adjustZ(p.position),
+          score: p.score,
+          scoreChangeRate: 0,
+          state: p.state,
+          tankIds: p.tanksOnPoint.map((t) => t.username),
+        })),
+        bigLetters: ResourceManager.getIdlowById("effects/cp/big_letters"),
+        blueCircle: ResourceManager.getIdlowById("effects/cp/blue_circle"),
+        bluePedestalTexture: ResourceManager.getIdlowById("effects/cp/blue_pedestal_texture"),
+        blueRay: ResourceManager.getIdlowById("effects/cp/blue_ray"),
+        blueRayTip: ResourceManager.getIdlowById("effects/cp/blue_ray_tip"),
+        neutralCircle: ResourceManager.getIdlowById("effects/cp/neutral_circle"),
+        neutralPedestalTexture: ResourceManager.getIdlowById("effects/cp/neutral_pedestal_texture"),
+        pedestal: ResourceManager.getIdlowById("effects/cp/pedestal"),
+        redCircle: ResourceManager.getIdlowById("effects/cp/red_circle"),
+        redPedestalTexture: ResourceManager.getIdlowById("effects/cp/red_pedestal_texture"),
+        redRay: ResourceManager.getIdlowById("effects/cp/red_ray"),
+        redRayTip: ResourceManager.getIdlowById("effects/cp/red_ray_tip"),
+        pointCaptureStartNegativeSound: ResourceManager.getIdlowById("sounds/cp/point_capture_start_negative"),
+        pointCaptureStartPositiveSound: ResourceManager.getIdlowById("sounds/cp/point_capture_start_positive"),
+        pointCaptureStopNegativeSound: ResourceManager.getIdlowById("sounds/cp/point_capture_stop_negative"),
+        pointCaptureStopPositiveSound: ResourceManager.getIdlowById("sounds/cp/point_capture_stop_positive"),
+        pointCapturedNegativeSound: ResourceManager.getIdlowById("sounds/cp/point_captured_negative"),
+        pointCapturedPositiveSound: ResourceManager.getIdlowById("sounds/cp/point_captured_positive"),
+        pointNeutralizedNegativeSound: ResourceManager.getIdlowById("sounds/cp/point_neutralized_negative"),
+        pointNeutralizedPositiveSound: ResourceManager.getIdlowById("sounds/cp/point_neutralized_positive"),
+        pointScoreDecreasingSound: ResourceManager.getIdlowById("sounds/cp/point_score_decreasing"),
+        pointScoreIncreasingSound: ResourceManager.getIdlowById("sounds/cp/point_score_increasing"),
+      });
+      client.sendPacket(domPacket);
     }
 
     if (battle.isTeamMode()) {

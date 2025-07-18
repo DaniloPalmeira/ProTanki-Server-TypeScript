@@ -59,6 +59,15 @@ export interface IBattleCreationSettings {
   dependentCooldownEnabled: boolean;
 }
 
+export interface IDomPointState {
+  id: number;
+  name: string;
+  position: IVector3;
+  state: 0 | 1 | 2; // 0: Red, 1: Blue, 2: Neutral
+  score: number;
+  tanksOnPoint: UserDocument[];
+}
+
 export class Battle {
   public readonly battleId: string;
   public readonly settings: IBattleCreationSettings;
@@ -76,6 +85,7 @@ export class Battle {
   public flagPositionRed: IVector3 | null = null;
   public flagCarrierBlue: UserDocument | null = null;
   public flagCarrierRed: UserDocument | null = null;
+  public domPoints: IDomPointState[] = [];
 
   constructor(settings: IBattleCreationSettings) {
     this.battleId = crypto.randomBytes(8).toString("hex");

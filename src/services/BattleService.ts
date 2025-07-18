@@ -16,6 +16,7 @@ import { mapGeometries } from "../types/mapGeometries";
 import DestroyTankPacket from "../packets/implementations/DestroyTankPacket";
 import SystemMessage from "../packets/implementations/SystemMessage";
 import { mapCtfFlags } from "../types/mapCtfFlags";
+import { mapDomKeypoints } from "../types/mapDomKeypoints";
 
 interface IDisconnectedPlayerInfo {
   battleId: string;
@@ -287,11 +288,11 @@ export class BattleService {
 
   public createBattle(settings: IBattleCreationSettings, creator?: UserDocument): Battle {
     const battle = new Battle(settings);
+    const mapId = settings.mapId.replace("map_", "");
+    const themeStr = MapTheme[settings.mapTheme].toLowerCase();
+    const mapResourceId = `map/${mapId}/${themeStr}/xml`;
 
     if (settings.battleMode === BattleMode.CTF) {
-      const mapId = settings.mapId.replace("map_", "");
-      const themeStr = MapTheme[settings.mapTheme].toLowerCase();
-      const mapResourceId = `map/${mapId}/${themeStr}/xml`;
       const flags = mapCtfFlags[mapResourceId];
       if (flags) {
         battle.flagBasePositionBlue = flags.blue;
@@ -300,6 +301,22 @@ export class BattleService {
         battle.flagPositionRed = flags.red;
       } else {
         logger.warn(`CTF flag positions not found for map ${mapResourceId}.`);
+      }
+    }
+
+    if (settings.battleMode === BattleMode.CP) {
+      const keypoints = mapDomKeypoints[mapResourceId];
+      if (keypoints) {
+        battle.domPoints = keypoints.map((kp, index) => ({
+          id: index,
+          name: kp.name,
+          position: kp.position,
+          state: 2,
+          score: 0,
+          tanksOnPoint: [],
+        }));
+      } else {
+        logger.warn(`DOM keypoints not found for map ${mapResourceId}.`);
       }
     }
 
