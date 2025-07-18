@@ -40,5 +40,7 @@ export default class FullMoveCommandHandler implements IPacketHandler<FullMoveCo
         otherClient.sendPacket(fullMovePacket);
       }
     }
+
+    server.battleService.checkPlayerPosition(client);
   }
 }

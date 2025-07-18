@@ -39,5 +39,7 @@ export default class MoveCommandHandler implements IPacketHandler<MoveCommandPac
         otherClient.sendPacket(movePacket);
       }
     }
+
+    server.battleService.checkPlayerPosition(client);
   }
 }

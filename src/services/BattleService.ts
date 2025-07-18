@@ -12,6 +12,9 @@ import UpdateSpectatorListPacket from "../packets/implementations/UpdateSpectato
 import { ProTankiClient } from "../server/ProTankiClient";
 import { mapSpawns } from "../types/mapSpawns";
 import { IVector3 } from "../packets/interfaces/geom/IVector3";
+import { mapGeometries } from "../types/mapGeometries";
+import DestroyTankPacket from "../packets/implementations/DestroyTankPacket";
+import SystemMessage from "../packets/implementations/SystemMessage";
 
 interface IDisconnectedPlayerInfo {
   battleId: string;
@@ -26,6 +29,60 @@ export class BattleService {
   constructor(server: ProTankiServer) {
     this.server = server;
     this.createDefaultBattle();
+  }
+
+  public checkPlayerPosition(client: ProTankiClient): void {
+    const { user, currentBattle, battlePosition } = client;
+    if (!user || !currentBattle || !battlePosition) return;
+
+    const mapId = currentBattle.settings.mapId.replace("map_", "");
+    const themeStr = MapTheme[currentBattle.settings.mapTheme].toLowerCase();
+    const mapResourceId = `map/${mapId}/${themeStr}/xml`;
+
+    const geometries = mapGeometries[mapResourceId];
+    if (!geometries) return;
+
+    for (const box of geometries) {
+      const isInside =
+        battlePosition.x >= box.minX &&
+        battlePosition.x <= box.maxX &&
+        battlePosition.y >= box.minY &&
+        battlePosition.y <= box.maxY &&
+        battlePosition.z >= box.minZ &&
+        battlePosition.z <= box.maxZ;
+
+      if (isInside) {
+        this.handleSpecialGeometryAction(client, box.action);
+        break;
+      }
+    }
+  }
+
+  private handleSpecialGeometryAction(client: ProTankiClient, action: "kill" | "kick"): void {
+    const { user, currentBattle } = client;
+    if (!user || !currentBattle) return;
+
+    logger.info(`User ${user.username} entered a special geometry zone with action: ${action}`);
+
+    if (action === "kill") {
+      if (client.battleState === "suicide") return;
+
+      client.battleState = "suicide";
+      client.battleIncarnation++;
+
+      const destroyPacket = new DestroyTankPacket(user.username, 3000);
+
+      const allParticipants = currentBattle.getAllParticipants();
+      allParticipants.forEach((p) => {
+        const pClient = this.server.findClientByUsername(p.username);
+        if (pClient && pClient.currentBattle?.battleId === currentBattle.battleId) {
+          pClient.sendPacket(destroyPacket);
+        }
+      });
+    } else if (action === "kick") {
+      client.sendPacket(new SystemMessage("Você foi kickado por entrar em uma área proibida."));
+      setTimeout(() => client.closeConnection(), 100);
+    }
   }
 
   public getSpawnPoint(battle: Battle, team: "DM" | "BLUE" | "RED"): { position: IVector3; rotation: IVector3 } {

@@ -26,6 +26,16 @@ interface ISpawnPoint {
   rotation: { x: number; y: number; z: number };
 }
 
+interface ISpecialBox {
+  minX: number;
+  minY: number;
+  minZ: number;
+  maxX: number;
+  maxY: number;
+  maxZ: number;
+  action: "kill" | "kick";
+}
+
 function generateResourceId(friendlyPath: string): number {
   return (crc32.str(friendlyPath) & 0xffffff) >>> 0;
 }
@@ -257,6 +267,54 @@ async function processAndExtractSpawnPoints(mapResources: ResourceDefinition[]):
   console.log("Generated mapSpawns.ts successfully.");
 }
 
+async function processAndExtractSpecialGeometries(mapResources: ResourceDefinition[]): Promise<void> {
+  console.log("Processing map special geometries...");
+
+  const allGeometries: { [key: string]: ISpecialBox[] } = {};
+
+  for (const mapResource of mapResources) {
+    const destXmlPath = path.join(RESOURCE_BUILD_DIR, mapResource.buildPath, "map.xml");
+    if (!fs.existsSync(destXmlPath)) continue;
+
+    try {
+      const mapXmlContent = await fs.promises.readFile(destXmlPath, "utf8");
+      const parsedMap = await parseStringPromise(mapXmlContent);
+
+      const geometryNode = parsedMap.map?.["special-geometry"]?.[0]?.["special-box"];
+      if (!geometryNode) {
+        continue;
+      }
+
+      const extractedGeometries: ISpecialBox[] = geometryNode.map((boxData: any) => ({
+        minX: parseFloat(boxData.minX[0]),
+        minY: parseFloat(boxData.minY[0]),
+        minZ: parseFloat(boxData.minZ[0]),
+        maxX: parseFloat(boxData.maxX[0]),
+        maxY: parseFloat(boxData.maxY[0]),
+        maxZ: parseFloat(boxData.maxZ[0]),
+        action: boxData.action[0],
+      }));
+
+      allGeometries[mapResource.id] = extractedGeometries;
+      console.log(`Extracted ${extractedGeometries.length} special geometry boxes for ${mapResource.id}`);
+
+      delete parsedMap.map["special-geometry"];
+
+      const newXmlString = create(parsedMap).end({ prettyPrint: true });
+      await fs.promises.writeFile(destXmlPath, newXmlString);
+    } catch (error) {
+      console.error(`Failed to process special geometries for map ${mapResource.id}:`, error);
+    }
+  }
+
+  let content = `// Arquivo gerado automaticamente. Não edite manualmente.\n\n`;
+  content += `export interface ISpecialBox { minX: number; minY: number; minZ: number; maxX: number; maxY: number; maxZ: number; action: 'kill' | 'kick'; }\n\n`;
+  content += `export const mapGeometries: { [key: string]: ISpecialBox[] } = ${JSON.stringify(allGeometries, null, 4)};\n`;
+
+  await fs.promises.writeFile(path.join(TYPES_DIR, "mapGeometries.ts"), content);
+  console.log("Generated mapGeometries.ts successfully.");
+}
+
 async function validateSkyboxDirectories(resources: ResourceDefinition[]): Promise<void> {
   console.log("Validating skybox directories...");
   const skyboxSourceDir = path.join(RESOURCES_DIR, "skybox");
@@ -335,6 +393,7 @@ async function build() {
 
   const mapResources = resources.filter((r) => r.id.startsWith("map/") && r.id.endsWith("/xml"));
   await processAndExtractSpawnPoints(mapResources);
+  await processAndExtractSpecialGeometries(mapResources);
 
   await copyRootFiles();
   console.log("Resource build process completed successfully!");
