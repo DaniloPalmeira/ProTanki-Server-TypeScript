@@ -22,10 +22,10 @@ export default class SendBattleChatMessageHandler implements IPacketHandler<Send
     let senderTeam: UserDocument[] = [];
 
     if (battle.isTeamMode()) {
-      if (battle.usersBlue.some((p) => p.id === user.id)) {
+      if (battle.usersBlue.some((p: UserDocument) => p.id === user.id)) {
         senderTeamId = 1; // BLUE
         senderTeam = battle.usersBlue;
-      } else if (battle.usersRed.some((p) => p.id === user.id)) {
+      } else if (battle.usersRed.some((p: UserDocument) => p.id === user.id)) {
         senderTeamId = 0; // RED
         senderTeam = battle.usersRed;
       }

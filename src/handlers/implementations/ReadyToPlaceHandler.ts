@@ -10,6 +10,7 @@ import { BattleWorkflow } from "../../workflows/BattleWorkflow";
 import TankModelDataPacket from "../../packets/implementations/TankModelDataPacket";
 import EquipmentChangedPacket from "../../packets/implementations/EquipmentChangedPacket";
 import RemoveTankPacket from "../../packets/implementations/RemoveTankPacket";
+import { UserDocument } from "../../models/User";
 
 export default class ReadyToPlaceHandler implements IPacketHandler<ReadyToPlacePacket> {
   public readonly packetId = ReadyToPlacePacket.getId();
@@ -27,7 +28,7 @@ export default class ReadyToPlaceHandler implements IPacketHandler<ReadyToPlaceP
 
       const broadcastToBattle = (packetToBroadcast: any) => {
         const allParticipants = battle.getAllParticipants();
-        allParticipants.forEach((participant) => {
+        allParticipants.forEach((participant: UserDocument) => {
           const participantClient = server.findClientByUsername(participant.username);
           if (participantClient && participantClient.currentBattle?.battleId === battle.battleId) {
             participantClient.sendPacket(packetToBroadcast);
@@ -69,8 +70,8 @@ export default class ReadyToPlaceHandler implements IPacketHandler<ReadyToPlaceP
 
       let teamId = 2;
       if (battle.isTeamMode()) {
-        if (battle.usersBlue.some((u) => u.id === user.id)) teamId = 1;
-        if (battle.usersRed.some((u) => u.id === user.id)) teamId = 0;
+        if (battle.usersBlue.some((u: UserDocument) => u.id === user.id)) teamId = 1;
+        if (battle.usersRed.some((u: UserDocument) => u.id === user.id)) teamId = 0;
       }
 
       const spawnPacket = new SpawnPacket({

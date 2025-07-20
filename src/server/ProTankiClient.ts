@@ -8,7 +8,7 @@ import Protection from "../packets/implementations/Protection";
 import logger from "../utils/Logger";
 import { UserDocument } from "../models/User";
 import Ping from "../packets/implementations/Ping";
-import { Battle } from "../models/Battle";
+import { Battle } from "../features/battle/battle.model";
 import TimeCheckerPacket from "../packets/implementations/TimeCheckerPacket";
 import { IVector3 } from "../packets/interfaces/geom/IVector3";
 
@@ -187,8 +187,8 @@ export class ProTankiClient {
       } catch (error: any) {
         console.error(`Error processing packet ID ${packetId} client ${this.getRemoteAddress()}`, error);
         // logger.error(`Error processing packet ID ${packetId}`, {
-        //   error,
-        //   client: this.getRemoteAddress(),
+        //     error,
+        //     client: this.getRemoteAddress(),
         // });
         this.closeConnection();
         break;

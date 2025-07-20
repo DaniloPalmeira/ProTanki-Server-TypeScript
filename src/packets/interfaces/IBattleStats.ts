@@ -1,4 +1,4 @@
-import { BattleMode, EquipmentConstraintsMode } from "../../models/Battle";
+import { BattleMode, EquipmentConstraintsMode } from "../../features/battle/battle.model";
 import { IPacket } from "./IPacket";
 
 export interface IBattleStatsData {
@@ -16,4 +16,4 @@ export interface IBattleStatsData {
   timeLeft: number;
 }
 
-export interface IBattleStats extends IBattleStatsData, IPacket {}
+export interface IBattleStats extends IBattleStatsData, IPacket { } 

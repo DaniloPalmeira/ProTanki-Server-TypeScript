@@ -4,6 +4,7 @@ import { ProTankiServer } from "../../server/ProTankiServer";
 import SuicidePacket from "../../packets/implementations/SuicidePacket";
 import logger from "../../utils/Logger";
 import DestroyTankPacket from "../../packets/implementations/DestroyTankPacket";
+import { UserDocument } from "../../models/User";
 
 export default class SuicidePacketHandler implements IPacketHandler<SuicidePacket> {
   public readonly packetId = SuicidePacket.getId();
@@ -44,7 +45,7 @@ export default class SuicidePacketHandler implements IPacketHandler<SuicidePacke
       const destroyPacket = new DestroyTankPacket(user.username, 3000);
 
       const allParticipants = currentBattle.getAllParticipants();
-      allParticipants.forEach((participant) => {
+      allParticipants.forEach((participant: UserDocument) => {
         const participantClient = server.findClientByUsername(participant.username);
         if (participantClient && participantClient.currentBattle?.battleId === currentBattle.battleId) {
           participantClient.sendPacket(destroyPacket);

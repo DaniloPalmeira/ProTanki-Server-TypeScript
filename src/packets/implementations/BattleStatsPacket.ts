@@ -1,4 +1,4 @@
-import { BattleMode, EquipmentConstraintsMode } from "../../models/Battle";
+import { BattleMode, EquipmentConstraintsMode } from "../../features/battle/battle.model";
 import { BufferReader } from "../../utils/buffer/BufferReader";
 import { BufferWriter } from "../../utils/buffer/BufferWriter";
 import { IBattleStats, IBattleStatsData } from "../interfaces/IBattleStats";

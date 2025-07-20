@@ -92,7 +92,7 @@ export class SendChatMessageHandler implements IPacketHandler<SendChatMessage> {
             }
         }
 
-        const populatedMessage = await server.chatService.postMessage(client.user, packet.targetNickname, packet.message, server.battleService);
+        const populatedMessage = await server.chatService.postMessage(client.user, packet.targetNickname, packet.message, server.lobbyService);
 
         const messageData: IChatMessageData = {
             message: populatedMessage.message,

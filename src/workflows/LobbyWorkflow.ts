@@ -2,13 +2,10 @@ import { Achievement } from "@/models/enums/Achievement";
 import { ChatModeratorLevel } from "@/models/enums/ChatModeratorLevel";
 import { UserDocument, UserDocumentWithFriends } from "@/models/User";
 import AchievementTips from "@/packets/implementations/AchievementTips";
-import BattleInfo from "@/packets/implementations/BattleInfo";
-import BattleList from "@/packets/implementations/BattleList";
 import ConfirmLayoutChange from "@/packets/implementations/ConfirmLayoutChange";
 import EmailInfo from "@/packets/implementations/EmailInfo";
 import { FriendsList } from "@/features/friends/friends.packets";
 import LoadDependencies from "@/packets/implementations/LoadDependencies";
-import LobbyData from "@/packets/implementations/LobbyData";
 import LocalizationInfo from "@/packets/implementations/LocalizationInfo";
 import OnlineNotifierData from "@/packets/implementations/OnlineNotifierData";
 import PremiumInfo from "@/packets/implementations/PremiumInfo";
@@ -16,19 +13,16 @@ import PremiumNotifierData from "@/packets/implementations/PremiumNotifierData";
 import Punishment from "@/packets/implementations/Punishment";
 import RankNotifierData from "@/packets/implementations/RankNotifierData";
 import ReferralInfo from "@/packets/implementations/ReferralInfo";
-import SelectBattlePacket from "@/packets/implementations/SelectBattlePacket";
 import SetBattleInviteSound from "@/packets/implementations/SetBattleInviteSound";
 import SetLayout from "@/packets/implementations/SetLayout";
 import UnloadGaragePacket from "@/packets/implementations/UnloadGaragePacket";
-import UserNotInBattlePacket from "@/packets/implementations/UserNotInBattlePacket";
 import { ProTankiClient } from "@/server/ProTankiClient";
 import { ProTankiServer } from "@/server/ProTankiServer";
 import { FormatUtils } from "@/utils/FormatUtils";
 import logger from "@/utils/Logger";
 import { ResourceManager } from "@/utils/ResourceManager";
 import { BattleWorkflow } from "./BattleWorkflow";
-import { Battle, BattleMode, EquipmentConstraintsMode } from "@/models/Battle";
-import BattleDetails from "@/packets/implementations/BattleDetails";
+import { Battle, BattleMode, EquipmentConstraintsMode } from "@/features/battle/battle.model";
 import { CALLBACK } from "@/config/constants";
 import { battleDataObject } from "@/config/BattleData";
 import { ResourceId } from "@/types/resourceTypes";
@@ -36,6 +30,7 @@ import HideLoginForm from "@/packets/implementations/HideLoginForm";
 import UnloadBattleListPacket from "@/packets/implementations/UnloadBattleListPacket";
 import { PopulatedChatMessage } from "@/features/chat/chat.service";
 import * as ChatPackets from "@/features/chat/chat.packets";
+import * as LobbyPackets from "@/features/lobby/lobby.packets";
 import { IChatMessageData } from "@/features/chat/chat.types";
 
 const mapUserToObject = (user: UserDocument) => ({
@@ -81,7 +76,7 @@ export class LobbyWorkflow {
 
     const reconnectData = server.battleService.handlePlayerReconnection(user);
     if (reconnectData) {
-      const battle = server.battleService.getBattleById(reconnectData.battleId);
+      const battle = server.lobbyService.getBattleById(reconnectData.battleId);
       if (battle) {
         logger.info(`User ${user.username} is reconnecting to battle ${battle.battleId}`);
         client.currentBattle = battle;
@@ -141,11 +136,11 @@ export class LobbyWorkflow {
     let targetBattle: Battle | undefined;
 
     if (client.lastViewedBattleId) {
-      targetBattle = server.battleService.getBattleById(client.lastViewedBattleId);
+      targetBattle = server.lobbyService.getBattleById(client.lastViewedBattleId);
     }
 
     if (!targetBattle && client.user) {
-      targetBattle = server.battleService.findBattleForPlayer(client.user);
+      targetBattle = server.lobbyService.findBattleForPlayer(client.user);
     }
 
     if (targetBattle) {
@@ -172,7 +167,7 @@ export class LobbyWorkflow {
     const currentRankMinScore = rankInfo ? rankInfo.minScore : 0;
 
     client.sendPacket(
-      new LobbyData({
+      new LobbyPackets.LobbyData({
         crystals: user.crystals,
         currentRankScore: currentRankMinScore,
         durationCrystalAbonement: crystalAbonementSecondsLeft,
@@ -279,11 +274,11 @@ export class LobbyWorkflow {
     });
 
     const jsonData = JSON.stringify(battleData);
-    client.sendPacket(new BattleInfo(jsonData));
+    client.sendPacket(new LobbyPackets.BattleInfo(jsonData));
   }
 
   private static sendBattleList(client: ProTankiClient, server: ProTankiServer): void {
-    const battles = server.battleService.getBattles();
+    const battles = server.lobbyService.getBattles();
 
     const battleListPayload = battles.map((battle) => {
       const mapInfo = battleDataObject.maps.find((m) => m.mapId === battle.settings.mapId);
@@ -326,7 +321,7 @@ export class LobbyWorkflow {
     });
 
     const jsonData = JSON.stringify({ battles: battleListPayload });
-    client.sendPacket(new BattleList(jsonData));
+    client.sendPacket(new LobbyPackets.BattleList(jsonData));
   }
 
   public static async sendFullUserInfo(client: ProTankiClient, server: ProTankiServer, targetNickname: string): Promise<void> {
@@ -351,14 +346,14 @@ export class LobbyWorkflow {
     }
     client.sendPacket(new PremiumNotifierData(premiumSecondsLeft, targetUser.username));
 
-    const isInBattle = server.battleService.isUserInBattle(targetNickname);
+    const isInBattle = server.lobbyService.isUserInBattle(targetNickname);
     if (!isInBattle) {
-      client.sendPacket(new UserNotInBattlePacket(targetNickname));
+      client.sendPacket(new LobbyPackets.UserNotInBattlePacket(targetNickname));
     }
   }
 
   public static async sendBattleDetails(client: ProTankiClient, server: ProTankiServer, battle: Battle): Promise<void> {
-    client.sendPacket(new SelectBattlePacket(battle.battleId));
+    client.sendPacket(new LobbyPackets.SelectBattlePacket(battle.battleId));
 
     const mapInfo = battleDataObject.maps.find((m) => m.mapId === battle.settings.mapId);
     let preview = 0;
@@ -429,6 +424,6 @@ export class LobbyWorkflow {
     }
 
     const jsonData = JSON.stringify(finalPayload);
-    client.sendPacket(new BattleDetails(jsonData));
+    client.sendPacket(new LobbyPackets.BattleDetails(jsonData));
   }
 }

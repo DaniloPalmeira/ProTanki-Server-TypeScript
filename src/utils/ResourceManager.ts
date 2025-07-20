@@ -5,7 +5,7 @@ import { ResourceId, ResourceData } from "../types/resourceTypes";
 import logger from "./Logger";
 import { ResourcePathUtils } from "./ResourcePathUtils";
 import { mapDependencies } from "../types/mapDependencies";
-import { MapTheme } from "../models/Battle";
+import { MapTheme } from "../features/battle/battle.model";
 
 export class ResourceManager {
   private static dependencies: Map<ResourceId, IDependency> = new Map();

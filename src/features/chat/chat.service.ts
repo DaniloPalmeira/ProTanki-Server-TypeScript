@@ -1,8 +1,8 @@
 import ChatMessage from "./chat.model";
 import { UserDocument } from "@/models/User";
 import logger from "@/utils/Logger";
-import { BattleService } from "@/services/BattleService";
 import { UserService } from "@/shared/services/UserService";
+import { LobbyService } from "../lobby/lobby.service";
 
 export interface PopulatedChatMessage {
     sourceUser: UserDocument | null;
@@ -30,7 +30,7 @@ export class ChatService {
         }
     }
 
-    private async _parseBattleLinks(message: string, battleService: BattleService): Promise<string> {
+    private async _parseBattleLinks(message: string, lobbyService: LobbyService): Promise<string> {
         const regex = /#\/battle\/([a-f0-9]+)/gi;
         const matches = Array.from(message.matchAll(regex));
         let processedMessage = message;
@@ -39,7 +39,7 @@ export class ChatService {
             const fullPattern = match[0];
             const battleId = match[1];
 
-            const battle = battleService.getBattleById(battleId);
+            const battle = lobbyService.getBattleById(battleId);
 
             if (battle) {
                 const battleName = battle.settings.name;
@@ -51,13 +51,13 @@ export class ChatService {
         return processedMessage;
     }
 
-    public async postMessage(sourceUser: UserDocument, targetNickname: string | null, message: string, battleService: BattleService): Promise<PopulatedChatMessage> {
+    public async postMessage(sourceUser: UserDocument, targetNickname: string | null, message: string, lobbyService: LobbyService): Promise<PopulatedChatMessage> {
         let targetUser: UserDocument | null = null;
         if (targetNickname) {
             targetUser = await this.userService.findUserByUsername(targetNickname);
         }
 
-        const processedMessage = await this._parseBattleLinks(message, battleService);
+        const processedMessage = await this._parseBattleLinks(message, lobbyService);
 
         const chatMessage = new ChatMessage({
             sourceUser: sourceUser._id,

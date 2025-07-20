@@ -18,10 +18,11 @@ import { PacketService } from "@/packets/PacketService";
 import { ShopService } from "@/services/ShopService";
 import { RankService } from "@/services/RankService";
 import { QuestService } from "@/services/QuestService";
-import { BattleService } from "@/services/BattleService";
 import { GarageService } from "@/services/GarageService";
 import { FriendsService } from "@/features/friends/friends.service";
 import { AuthService } from "@/features/authentication/auth.service";
+import { LobbyService } from "@/features/lobby/lobby.service";
+import { BattleService } from "@/features/battle/battle.service";
 
 dotenv.config();
 
@@ -43,6 +44,7 @@ async function bootstrap() {
   const garageService = new GarageService();
   const friendsService = new FriendsService(userService);
   const authService = new AuthService(userService);
+  const lobbyService = new LobbyService();
   let battleService: BattleService;
 
   ResourceManager.loadResources();
@@ -85,10 +87,11 @@ async function bootstrap() {
       garageService,
       friendsService,
       authService,
+      lobbyService,
     }
   );
 
-  battleService = new BattleService(server);
+  battleService = new BattleService(server, lobbyService);
 
   const resourceServer = new ResourceServer();
   const debugConsole = new DebugConsole(server, userService);

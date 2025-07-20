@@ -5,10 +5,8 @@ import { ProTankiClient } from "../../server/ProTankiClient";
 import { ProTankiServer } from "../../server/ProTankiServer";
 import logger from "../../utils/Logger";
 import { IPacketHandler } from "@/shared/interfaces/IPacketHandler";
-import { BattleMode } from "../../models/Battle";
-import ReservePlayerSlotDmPacket from "../../packets/implementations/ReservePlayerSlotDmPacket";
-import AddUserToBattleDmPacket from "../../packets/implementations/AddUserToBattleDmPacket";
-import NotifyFriendOfBattlePacket from "../../packets/implementations/NotifyFriendOfBattlePacket";
+import { BattleMode } from "../../features/battle/battle.model";
+import { ReservePlayerSlotDmPacket, AddUserToBattleDmPacket, NotifyFriendOfBattlePacket } from "../../features/lobby/lobby.packets";
 import { battleDataObject } from "../../config/BattleData";
 
 export default class EnterBattleHandler implements IPacketHandler<EnterBattlePacket> {

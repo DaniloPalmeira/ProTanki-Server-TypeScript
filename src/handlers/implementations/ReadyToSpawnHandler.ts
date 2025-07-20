@@ -59,8 +59,8 @@ export default class ReadyToSpawnHandler implements IPacketHandler<ReadyToSpawnP
     const battle = client.currentBattle;
     let teamType: "DM" | "BLUE" | "RED" = "DM";
     if (battle.isTeamMode()) {
-      if (battle.usersBlue.some((u) => u.id === client.user!.id)) teamType = "BLUE";
-      if (battle.usersRed.some((u) => u.id === client.user!.id)) teamType = "RED";
+      if (battle.usersBlue.some((u: UserDocument) => u.id === client.user!.id)) teamType = "BLUE";
+      if (battle.usersRed.some((u: UserDocument) => u.id === client.user!.id)) teamType = "RED";
     }
 
     const spawnPoint = server.battleService.getSpawnPoint(battle, teamType);

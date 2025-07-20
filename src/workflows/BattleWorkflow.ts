@@ -1,4 +1,4 @@
-import { Battle, BattleMode, EquipmentConstraintsMode, MapTheme } from "../models/Battle";
+import { Battle, BattleMode, EquipmentConstraintsMode, MapTheme, IDomPointState } from "../features/battle/battle.model";
 import BonusDataPacket from "../packets/implementations/BonusDataPacket";
 import InitMapPacket from "../packets/implementations/InitMapPacket";
 import LoadDependencies from "../packets/implementations/LoadDependencies";
@@ -290,7 +290,7 @@ export class BattleWorkflow {
     const baseImpactForce = ItemUtils.getPropertyValue(turretMod, "IMPACT_FORCE") ?? 0;
     const finalImpactForce = baseImpactForce / 100;
 
-    const team_type = battle.isTeamMode() ? (battle.usersBlue.some((u) => u.id === user.id) ? "BLUE" : "RED") : "NONE";
+    const team_type = battle.isTeamMode() ? (battle.usersBlue.some((u: UserDocument) => u.id === user.id) ? "BLUE" : "RED") : "NONE";
 
     const partsObject: { [key: string]: number } = {
       engineIdleSound: ResourceManager.getIdlowById("sounds/hull/engine_idle"),
@@ -416,7 +416,7 @@ export class BattleWorkflow {
       logger.info(`Spectator ${user.username} finished loading resources for ${battle.battleId}. Initializing map view...`);
       this._sendCommonBattleData(client, server, battle);
 
-      const spectatorNames = battle.spectators.map((s) => s.username);
+      const spectatorNames = battle.spectators.map((s: UserDocument) => s.username);
       const spectatorListString = spectatorNames.join("\n");
       client.sendPacket(new UpdateSpectatorListPacket(spectatorListString));
 
@@ -554,14 +554,14 @@ export class BattleWorkflow {
         keypointTriggerRadius: 10,
         keypointVisorHeight: 500,
         minesRestrictionRadius: 5,
-        points: battle.domPoints.map((p) => ({
+        points: battle.domPoints.map((p: IDomPointState) => ({
           id: p.id,
           name: p.name,
           position: p.position,
           score: p.score,
           scoreChangeRate: 0,
           state: p.state,
-          tankIds: p.tanksOnPoint.map((t) => t.username),
+          tankIds: p.tanksOnPoint.map((t: UserDocument) => t.username),
         })),
         bigLetters: ResourceManager.getIdlowById("effects/cp/big_letters"),
         blueCircle: ResourceManager.getIdlowById("effects/cp/blue_circle"),
@@ -591,14 +591,14 @@ export class BattleWorkflow {
 
     if (battle.isTeamMode()) {
       client.sendPacket(new InitBattleTeamPacket());
-      const onlineUsersBlue = battle.usersBlue.filter((u) => server.findClientByUsername(u.username));
-      const onlineUsersRed = battle.usersRed.filter((u) => server.findClientByUsername(u.username));
+      const onlineUsersBlue = battle.usersBlue.filter((u: UserDocument) => server.findClientByUsername(u.username));
+      const onlineUsersRed = battle.usersRed.filter((u: UserDocument) => server.findClientByUsername(u.username));
       const usersBlue = onlineUsersBlue.map(this.mapUserToBattleUser);
       const usersRed = onlineUsersRed.map(this.mapUserToBattleUser);
       client.sendPacket(new InitBattleUsersTeamPacket(battle.scoreBlue, battle.scoreRed, usersBlue, usersRed));
     } else {
       client.sendPacket(new InitBattleDMPacket());
-      const onlineUsers = battle.users.filter((u) => server.findClientByUsername(u.username));
+      const onlineUsers = battle.users.filter((u: UserDocument) => server.findClientByUsername(u.username));
       const users = onlineUsers.map(this.mapUserToBattleUser);
       client.sendPacket(new InitBattleUsersDMPacket(users));
     }
