@@ -297,11 +297,8 @@ export class BattleWorkflow {
       engineIdleSound: ResourceManager.getIdlowById("sounds/hull/engine_idle"),
       engineStartMovingSound: ResourceManager.getIdlowById("sounds/hull/engine_start"),
       engineMovingSound: ResourceManager.getIdlowById("sounds/hull/engine_move"),
+      turretSound: ResourceManager.getIdlowById("sounds/turret/turn"),
     };
-
-    if (user.equippedTurret === "isida") {
-      partsObject.turretSound = ResourceManager.getIdlowById("sounds/isida/turret");
-    }
 
     const sfxKey = `${user.equippedTurret}_m${user.turrets.get(user.equippedTurret) ?? 0}`;
     const blueprint = sfxBlueprints[sfxKey];
