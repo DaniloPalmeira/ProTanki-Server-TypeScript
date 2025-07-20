@@ -1,4 +1,4 @@
-import SystemMessage from "@/features/system/system.packets";
+import { SystemMessage } from "@/features/system/system.packets";
 import { UserDocument } from "../../models/User";
 import { IVector3 } from "../../packets/interfaces/geom/IVector3";
 import { ProTankiClient } from "../../server/ProTankiClient";

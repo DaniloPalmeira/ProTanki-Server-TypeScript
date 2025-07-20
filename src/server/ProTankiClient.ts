@@ -1,9 +1,9 @@
 import { TimeCheckerPacket } from "@/features/battle/battle.packets";
+import { Ping } from "@/features/system/system.packets";
 import * as net from "net";
 import { EncryptionService } from "../crypto/EncryptionService";
 import { Battle } from "../features/battle/battle.model";
 import { UserDocument } from "../models/User";
-import Ping from "../packets/implementations/Ping";
 import Protection from "../packets/implementations/Protection";
 import { IVector3 } from "../packets/interfaces/geom/IVector3";
 import { IPacket } from "../packets/interfaces/IPacket";

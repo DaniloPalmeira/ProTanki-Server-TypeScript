@@ -6,6 +6,7 @@ import * as ChatPackets from "@/features/chat/chat.packets";
 import { PopulatedChatMessage } from "@/features/chat/chat.service";
 import { IChatMessageData } from "@/features/chat/chat.types";
 import { UnloadGaragePacket } from "@/features/garage/garage.packets";
+import { ReferralInfo } from "@/features/referral/referral.packets";
 import { LocalizationInfo } from "@/features/shop/shop.packets";
 import { Achievement } from "@/models/enums/Achievement";
 import { ChatModeratorLevel } from "@/models/enums/ChatModeratorLevel";
@@ -28,7 +29,6 @@ import { ResourceId } from "@/types/resourceTypes";
 import { FormatUtils } from "@/utils/FormatUtils";
 import logger from "@/utils/Logger";
 import { ResourceManager } from "@/utils/ResourceManager";
-import { ReferralInfo } from "../referral/referral.packets";
 import * as LobbyPackets from "./lobby.packets";
 import { UnloadBattleListPacket } from "./lobby.packets";
 

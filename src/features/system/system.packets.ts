@@ -1,9 +1,10 @@
 import { BasePacket } from "@/packets/implementations/BasePacket";
+import { IEmpty } from "@/packets/interfaces/IEmpty";
 import { BufferReader } from "@/utils/buffer/BufferReader";
 import { BufferWriter } from "@/utils/buffer/BufferWriter";
-import { ISystemMessage } from "./system.types";
+import * as SystemTypes from "./system.types";
 
-export default class SystemMessage extends BasePacket implements ISystemMessage {
+export class SystemMessage extends BasePacket implements SystemTypes.ISystemMessage {
     text: string | null = null;
 
     constructor(text?: string | null) {
@@ -23,8 +24,27 @@ export default class SystemMessage extends BasePacket implements ISystemMessage 
         writer.writeOptionalString(this.text);
         return writer.getBuffer();
     }
-
     static getId(): number {
         return -600078553;
+    }
+}
+
+export class Ping extends BasePacket implements IEmpty {
+    read(buffer: Buffer): void { }
+    write(): Buffer {
+        return new BufferWriter().getBuffer();
+    }
+    static getId(): number {
+        return -555602629;
+    }
+}
+
+export class Pong extends BasePacket implements IEmpty {
+    read(buffer: Buffer): void { }
+    write(): Buffer {
+        return new BufferWriter().getBuffer();
+    }
+    static getId(): number {
+        return 1484572481;
     }
 }

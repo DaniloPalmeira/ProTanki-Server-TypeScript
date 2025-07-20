@@ -1,6 +1,6 @@
 import { battleDataObject } from "@/config/BattleData";
 import { AddUserToBattleDmPacket, NotifyFriendOfBattlePacket, ReservePlayerSlotDmPacket, UnloadBattleListPacket } from "@/features/lobby/lobby.packets";
-import SystemMessage from "@/features/system/system.packets";
+import { SystemMessage } from "@/features/system/system.packets";
 import { UserDocument } from "@/models/User";
 import { ProTankiClient } from "@/server/ProTankiClient";
 import { ProTankiServer } from "@/server/ProTankiServer";

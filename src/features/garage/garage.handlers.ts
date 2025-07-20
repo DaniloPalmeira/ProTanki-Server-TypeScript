@@ -1,10 +1,10 @@
+import { SystemMessage } from "@/features/system/system.packets";
 import { ProTankiClient } from "../../server/ProTankiClient";
 import { ProTankiServer } from "../../server/ProTankiServer";
-import SystemMessage from "../../packets/implementations/SystemMessage";
-import logger from "../../utils/Logger";
 import { IPacketHandler } from "../../shared/interfaces/IPacketHandler";
-import { GarageWorkflow } from "./garage.workflow";
+import logger from "../../utils/Logger";
 import * as GaragePackets from "./garage.packets";
+import { GarageWorkflow } from "./garage.workflow";
 
 export class RequestGarageHandler implements IPacketHandler<GaragePackets.RequestGaragePacket> {
     public readonly packetId = GaragePackets.RequestGaragePacket.getId();

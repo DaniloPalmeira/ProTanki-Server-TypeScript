@@ -1,4 +1,4 @@
-import SystemMessage from "@/packets/implementations/SystemMessage";
+import { SystemMessage } from "@/features/system/system.packets";
 import { ProTankiClient } from "@/server/ProTankiClient";
 import { ProTankiServer } from "@/server/ProTankiServer";
 import { IPacketHandler } from "@/shared/interfaces/IPacketHandler";

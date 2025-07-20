@@ -1,13 +1,13 @@
+import { SystemMessage } from "@/features/system/system.packets";
+import UpdateCrystals from "@/packets/implementations/UpdateCrystals";
 import { ProTankiClient } from "@/server/ProTankiClient";
 import { ProTankiServer } from "@/server/ProTankiServer";
 import { IPacketHandler } from "@/shared/interfaces/IPacketHandler";
 import logger from "@/utils/Logger";
-import SystemMessage from "@/packets/implementations/SystemMessage";
+import { ResourceManager } from "@/utils/ResourceManager";
+import { QuestDefinitions } from "./quests.data";
 import * as QuestPackets from "./quests.packets";
 import { IQuest } from "./quests.types";
-import { QuestDefinitions } from "./quests.data";
-import { ResourceManager } from "@/utils/ResourceManager";
-import UpdateCrystals from "@/packets/implementations/UpdateCrystals";
 
 export class RequestQuestsWindowHandler implements IPacketHandler<QuestPackets.RequestQuestsWindow> {
     public readonly packetId = QuestPackets.RequestQuestsWindow.getId();

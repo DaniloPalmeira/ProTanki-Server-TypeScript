@@ -3,11 +3,11 @@ import { CALLBACK } from "@/config/constants";
 import { weaponPhysicsData } from "@/config/PhysicsData";
 import { sfxBlueprints } from "@/config/SfxBlueprints";
 import { suppliesData } from "@/config/SuppliesData";
+import { SystemMessage } from "@/features/system/system.packets";
 import { UserDocument } from "@/models/User";
 import ConfirmLayoutChange from "@/packets/implementations/ConfirmLayoutChange";
 import LoadDependencies from "@/packets/implementations/LoadDependencies";
 import SetLayout from "@/packets/implementations/SetLayout";
-import SystemMessage from "@/packets/implementations/SystemMessage";
 import UnloadBattleListPacket from "@/packets/implementations/UnloadBattleListPacket";
 import UnloadLobbyChatPacket from "@/packets/implementations/UnloadLobbyChatPacket";
 import { IVector3 } from "@/packets/interfaces/geom/IVector3";
@@ -314,10 +314,23 @@ export class BattleWorkflow {
         const mapGraphicData = {
             mapId: mapIdWithPrefix,
             mapTheme: MapTheme[settings.mapTheme],
-            angleX: -0.85, angleZ: 2.5, lightColor: 13090219, shadowColor: 5530735, fogAlpha: 0.25,
-            fogColor: 10543615, farLimit: 10000, nearLimit: 5000, gravity: 1000, skyboxRevolutionSpeed: 0.0,
-            ssaoColor: 2045258, dustAlpha: 0.75, dustDensity: 0.15, dustFarDistance: 7000, dustNearDistance: 5000,
-            dustParticle: "summer", dustSize: 200,
+            angleX: -0.85,
+            angleZ: 2.5,
+            lightColor: 13090219,
+            shadowColor: 5530735,
+            fogAlpha: 0.25,
+            fogColor: 10543615,
+            farLimit: 10000,
+            nearLimit: 5000,
+            gravity: 1000,
+            skyboxRevolutionSpeed: 0.0,
+            ssaoColor: 2045258,
+            dustAlpha: 0.75,
+            dustDensity: 0.15,
+            dustFarDistance: 7000,
+            dustNearDistance: 5000,
+            dustParticle: "summer",
+            dustSize: 200,
         };
 
         const lightingData = {
@@ -329,12 +342,19 @@ export class BattleWorkflow {
             kick_period_ms: 300000,
             map_id: mapIdWithPrefix,
             mapId: ResourceManager.getIdlowById(`map/${mapIdWithoutPrefix}/${themeStr}/xml` as ResourceId),
-            invisible_time: 3500, spectator: client.isSpectator, active: true,
+            invisible_time: 3500,
+            spectator: client.isSpectator,
+            active: true,
             dustParticle: ResourceManager.getIdlowById("effects/dust"),
-            battleId: battle.battleId, minRank: settings.minRank, maxRank: settings.maxRank, skybox: JSON.stringify(skyboxData),
+            battleId: battle.battleId,
+            minRank: settings.minRank,
+            maxRank: settings.maxRank,
+            skybox: JSON.stringify(skyboxData),
             sound_id: ResourceManager.getIdlowById("sounds/maps/sandbox_ambient"),
             map_graphic_data: JSON.stringify(mapGraphicData),
-            reArmorEnabled: settings.reArmorEnabled, bonusLightIntensity: 0, lighting: JSON.stringify(lightingData),
+            reArmorEnabled: settings.reArmorEnabled,
+            bonusLightIntensity: 0,
+            lighting: JSON.stringify(lightingData),
         };
 
         client.sendPacket(new BattlePackets.InitMapPacket(JSON.stringify(mapInitData)));
@@ -346,10 +366,18 @@ export class BattleWorkflow {
         }
 
         const battleStatsData = {
-            battleMode: settings.battleMode, equipmentConstraintsMode: settings.equipmentConstraintsMode, fund: 0,
-            scoreLimit: settings.scoreLimit, timeLimitInSec: settings.timeLimitInSec, mapName: settings.name,
-            maxPeopleCount: settings.maxPeopleCount, parkourMode: settings.parkourMode, premiumBonusInPercent: 100,
-            spectator: client.isSpectator, suspiciousUserIds: [], timeLeft: timeLeftInSec,
+            battleMode: settings.battleMode,
+            equipmentConstraintsMode: settings.equipmentConstraintsMode,
+            fund: 0,
+            scoreLimit: settings.scoreLimit,
+            timeLimitInSec: settings.timeLimitInSec,
+            mapName: settings.name,
+            maxPeopleCount: settings.maxPeopleCount,
+            parkourMode: settings.parkourMode,
+            premiumBonusInPercent: 100,
+            spectator: client.isSpectator,
+            suspiciousUserIds: [],
+            timeLeft: timeLeftInSec,
         };
 
         client.sendPacket(new BattlePackets.BattleStatsPacket(battleStatsData));
@@ -361,30 +389,52 @@ export class BattleWorkflow {
                 return { x: pos.x, y: pos.y, z: pos.z + 80 };
             };
             const ctfPacket = new BattlePackets.InitCtfFlagsPacket({
-                flagBasePositionBlue: adjustZ(battle.flagBasePositionBlue), flagCarrierIdBlue: battle.flagCarrierBlue?.username ?? null,
-                flagPositionBlue: adjustZ(battle.flagPositionBlue), blueFlagSprite: ResourceManager.getIdlowById("flags/blue_flag_sprite"),
-                bluePedestalModel: ResourceManager.getIdlowById("flags/blue_pedestal"), flagBasePositionRed: adjustZ(battle.flagBasePositionRed),
-                flagCarrierIdRed: battle.flagCarrierRed?.username ?? null, flagPositionRed: adjustZ(battle.flagPositionRed),
-                redFlagSprite: ResourceManager.getIdlowById("flags/red_flag_sprite"), redPedestalModel: ResourceManager.getIdlowById("flags/red_pedestal"),
-                flagDropSound: ResourceManager.getIdlowById("sounds/flags/flag_drop"), flagReturnSound: ResourceManager.getIdlowById("sounds/flags/flag_return"),
-                flagTakeSound: ResourceManager.getIdlowById("sounds/flags/flag_take"), winSound: ResourceManager.getIdlowById("sounds/flags/win"),
+                flagBasePositionBlue: adjustZ(battle.flagBasePositionBlue),
+                flagCarrierIdBlue: battle.flagCarrierBlue?.username ?? null,
+                flagPositionBlue: adjustZ(battle.flagPositionBlue),
+                blueFlagSprite: ResourceManager.getIdlowById("flags/blue_flag_sprite"),
+                bluePedestalModel: ResourceManager.getIdlowById("flags/blue_pedestal"),
+                flagBasePositionRed: adjustZ(battle.flagBasePositionRed),
+                flagCarrierIdRed: battle.flagCarrierRed?.username ?? null,
+                flagPositionRed: adjustZ(battle.flagPositionRed),
+                redFlagSprite: ResourceManager.getIdlowById("flags/red_flag_sprite"),
+                redPedestalModel: ResourceManager.getIdlowById("flags/red_pedestal"),
+                flagDropSound: ResourceManager.getIdlowById("sounds/flags/flag_drop"),
+                flagReturnSound: ResourceManager.getIdlowById("sounds/flags/flag_return"),
+                flagTakeSound: ResourceManager.getIdlowById("sounds/flags/flag_take"),
+                winSound: ResourceManager.getIdlowById("sounds/flags/win"),
             });
             client.sendPacket(ctfPacket);
         }
 
         if (battle.settings.battleMode === BattleMode.CP) {
             const domPacket = new BattlePackets.InitDomPointsPacket({
-                keypointTriggerRadius: 10, keypointVisorHeight: 500, minesRestrictionRadius: 5,
+                keypointTriggerRadius: 10,
+                keypointVisorHeight: 500,
+                minesRestrictionRadius: 5,
                 points: battle.domPoints.map((p: IDomPointState) => ({ id: p.id, name: p.name, position: p.position, score: p.score, scoreChangeRate: 0, state: p.state, tankIds: p.tanksOnPoint.map((t: UserDocument) => t.username) })),
-                bigLetters: ResourceManager.getIdlowById("effects/cp/big_letters"), blueCircle: ResourceManager.getIdlowById("effects/cp/blue_circle"),
-                bluePedestalTexture: ResourceManager.getIdlowById("effects/cp/blue_pedestal_texture"), blueRay: ResourceManager.getIdlowById("effects/cp/blue_ray"), blueRayTip: ResourceManager.getIdlowById("effects/cp/blue_ray_tip"),
-                neutralCircle: ResourceManager.getIdlowById("effects/cp/neutral_circle"), neutralPedestalTexture: ResourceManager.getIdlowById("effects/cp/neutral_pedestal_texture"), pedestal: ResourceManager.getIdlowById("effects/cp/pedestal"),
-                redCircle: ResourceManager.getIdlowById("effects/cp/red_circle"), redPedestalTexture: ResourceManager.getIdlowById("effects/cp/red_pedestal_texture"), redRay: ResourceManager.getIdlowById("effects/cp/red_ray"), redRayTip: ResourceManager.getIdlowById("effects/cp/red_ray_tip"),
-                pointCaptureStartNegativeSound: ResourceManager.getIdlowById("sounds/cp/point_capture_start_negative"), pointCaptureStartPositiveSound: ResourceManager.getIdlowById("sounds/cp/point_capture_start_positive"),
-                pointCaptureStopNegativeSound: ResourceManager.getIdlowById("sounds/cp/point_capture_stop_negative"), pointCaptureStopPositiveSound: ResourceManager.getIdlowById("sounds/cp/point_capture_stop_positive"),
-                pointCapturedNegativeSound: ResourceManager.getIdlowById("sounds/cp/point_captured_negative"), pointCapturedPositiveSound: ResourceManager.getIdlowById("sounds/cp/point_captured_positive"),
-                pointNeutralizedNegativeSound: ResourceManager.getIdlowById("sounds/cp/point_neutralized_negative"), pointNeutralizedPositiveSound: ResourceManager.getIdlowById("sounds/cp/point_neutralized_positive"),
-                pointScoreDecreasingSound: ResourceManager.getIdlowById("sounds/cp/point_score_decreasing"), pointScoreIncreasingSound: ResourceManager.getIdlowById("sounds/cp/point_score_increasing"),
+                bigLetters: ResourceManager.getIdlowById("effects/cp/big_letters"),
+                blueCircle: ResourceManager.getIdlowById("effects/cp/blue_circle"),
+                bluePedestalTexture: ResourceManager.getIdlowById("effects/cp/blue_pedestal_texture"),
+                blueRay: ResourceManager.getIdlowById("effects/cp/blue_ray"),
+                blueRayTip: ResourceManager.getIdlowById("effects/cp/blue_ray_tip"),
+                neutralCircle: ResourceManager.getIdlowById("effects/cp/neutral_circle"),
+                neutralPedestalTexture: ResourceManager.getIdlowById("effects/cp/neutral_pedestal_texture"),
+                pedestal: ResourceManager.getIdlowById("effects/cp/pedestal"),
+                redCircle: ResourceManager.getIdlowById("effects/cp/red_circle"),
+                redPedestalTexture: ResourceManager.getIdlowById("effects/cp/red_pedestal_texture"),
+                redRay: ResourceManager.getIdlowById("effects/cp/red_ray"),
+                redRayTip: ResourceManager.getIdlowById("effects/cp/red_ray_tip"),
+                pointCaptureStartNegativeSound: ResourceManager.getIdlowById("sounds/cp/point_capture_start_negative"),
+                pointCaptureStartPositiveSound: ResourceManager.getIdlowById("sounds/cp/point_capture_start_positive"),
+                pointCaptureStopNegativeSound: ResourceManager.getIdlowById("sounds/cp/point_capture_stop_negative"),
+                pointCaptureStopPositiveSound: ResourceManager.getIdlowById("sounds/cp/point_capture_stop_positive"),
+                pointCapturedNegativeSound: ResourceManager.getIdlowById("sounds/cp/point_captured_negative"),
+                pointCapturedPositiveSound: ResourceManager.getIdlowById("sounds/cp/point_captured_positive"),
+                pointNeutralizedNegativeSound: ResourceManager.getIdlowById("sounds/cp/point_neutralized_negative"),
+                pointNeutralizedPositiveSound: ResourceManager.getIdlowById("sounds/cp/point_neutralized_positive"),
+                pointScoreDecreasingSound: ResourceManager.getIdlowById("sounds/cp/point_score_decreasing"),
+                pointScoreIncreasingSound: ResourceManager.getIdlowById("sounds/cp/point_score_increasing"),
             });
             client.sendPacket(domPacket);
         }
@@ -446,8 +496,10 @@ export class BattleWorkflow {
 
         var callbackId = server.registerDynamicCallback(onResourcesLoadedCallback);
 
-        const hullId = user.equippedHull, hullMod = user.hulls.get(hullId) ?? 0;
-        const turretId = user.equippedTurret, turretMod = user.turrets.get(turretId) ?? 0;
+        const hullId = user.equippedHull,
+            hullMod = user.hulls.get(hullId) ?? 0;
+        const turretId = user.equippedTurret,
+            turretMod = user.turrets.get(turretId) ?? 0;
         const paintId = user.equippedPaint;
         const resourcesToLoad: ResourceId[] = [`turret/${turretId}/m${turretMod}/model` as ResourceId, `hull/${hullId}/m${hullMod}/model` as ResourceId, `paint/${paintId}/texture` as ResourceId];
         const depsPacket = new LoadDependencies({ resources: ResourceManager.getBulkResources(resourcesToLoad) }, callbackId);
@@ -455,7 +507,11 @@ export class BattleWorkflow {
         const allPlayersInBattleForConnectPacket = [...battle.users, ...battle.usersBlue, ...battle.usersRed];
         const usersInfoForPacket: IBattleUserInfo[] = allPlayersInBattleForConnectPacket.map((p) => ({
             ChatModeratorLevel: p.chatModeratorLevel,
-            deaths: 0, kills: 0, rank: p.rank, score: 0, nickname: p.username,
+            deaths: 0,
+            kills: 0,
+            rank: p.rank,
+            score: 0,
+            nickname: p.username,
         }));
         const userConnectPacket = new BattlePackets.UserConnectDMPacket(user.username, usersInfoForPacket);
 
@@ -468,12 +524,24 @@ export class BattleWorkflow {
     private static _sendFinalBattlePackets(client: ProTankiClient, battle: Battle): void {
         const user = client.user!;
         const mineProps = {
-            activateSound: ResourceManager.getIdlowById("sounds/mine_activate"), activateTimeMsec: 1000, battleMines: [],
-            blueMineTexture: ResourceManager.getIdlowById("effects/mine/blue_mine_texture"), deactivateSound: ResourceManager.getIdlowById("sounds/mine_deactivate"),
-            enemyMineTexture: ResourceManager.getIdlowById("effects/mine/enemy_mine_texture"), explosionMarkTexture: ResourceManager.getIdlowById("effects/mine/explosion_mark_texture"),
-            explosionSound: ResourceManager.getIdlowById("sounds/mine_explosion"), farVisibilityRadius: 10, friendlyMineTexture: ResourceManager.getIdlowById("effects/mine/friendly_mine_texture"),
-            idleExplosionTexture: ResourceManager.getIdlowById("effects/mine/idle_explosion_texture"), impactForce: 3, mainExplosionTexture: ResourceManager.getIdlowById("effects/mine/main_explosion_texture"),
-            minDistanceFromBase: 5, model3ds: ResourceManager.getIdlowById("effects/mine/model"), nearVisibilityRadius: 7, radius: 0.5, redMineTexture: ResourceManager.getIdlowById("effects/mine/red_mine_texture"),
+            activateSound: ResourceManager.getIdlowById("sounds/mine_activate"),
+            activateTimeMsec: 1000,
+            battleMines: [],
+            blueMineTexture: ResourceManager.getIdlowById("effects/mine/blue_mine_texture"),
+            deactivateSound: ResourceManager.getIdlowById("sounds/mine_deactivate"),
+            enemyMineTexture: ResourceManager.getIdlowById("effects/mine/enemy_mine_texture"),
+            explosionMarkTexture: ResourceManager.getIdlowById("effects/mine/explosion_mark_texture"),
+            explosionSound: ResourceManager.getIdlowById("sounds/mine_explosion"),
+            farVisibilityRadius: 10,
+            friendlyMineTexture: ResourceManager.getIdlowById("effects/mine/friendly_mine_texture"),
+            idleExplosionTexture: ResourceManager.getIdlowById("effects/mine/idle_explosion_texture"),
+            impactForce: 3,
+            mainExplosionTexture: ResourceManager.getIdlowById("effects/mine/main_explosion_texture"),
+            minDistanceFromBase: 5,
+            model3ds: ResourceManager.getIdlowById("effects/mine/model"),
+            nearVisibilityRadius: 7,
+            radius: 0.5,
+            redMineTexture: ResourceManager.getIdlowById("effects/mine/red_mine_texture"),
         };
         client.sendPacket(new BattlePackets.BattleMinesPropertiesPacket(mineProps));
         const withoutSupplies = battle.settings.withoutSupplies;
@@ -491,8 +559,10 @@ export class BattleWorkflow {
         const bonusMarkerResource = ResourceManager.getIdlowById("effects/bonus/drop_location_marker");
         const bonusRegionsPacket = new BattlePackets.BonusRegionsPacket({
             bonusRegionResources: [
-                { bonusResource: bonusMarkerResource, bonusType: BonusType.GOLD }, { bonusResource: bonusMarkerResource, bonusType: BonusType.MOON },
-                { bonusResource: bonusMarkerResource, bonusType: BonusType.PUMPKIN }, { bonusResource: bonusMarkerResource, bonusType: BonusType.SPECIAL },
+                { bonusResource: bonusMarkerResource, bonusType: BonusType.GOLD },
+                { bonusResource: bonusMarkerResource, bonusType: BonusType.MOON },
+                { bonusResource: bonusMarkerResource, bonusType: BonusType.PUMPKIN },
+                { bonusResource: bonusMarkerResource, bonusType: BonusType.SPECIAL },
             ],
             bonusRegionData: [],
         });
