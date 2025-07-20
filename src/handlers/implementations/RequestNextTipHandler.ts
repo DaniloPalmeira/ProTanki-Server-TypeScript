@@ -1,4 +1,4 @@
-import { IPacketHandler } from "../IPacketHandler";
+import { IPacketHandler } from "@/shared/interfaces/IPacketHandler";
 import SetLoadingScreenImagePacket from "../../packets/implementations/SetLoadingScreenImagePacket";
 import RequestNextTipPacket from "../../packets/implementations/RequestNextTipPacket";
 import { ProTankiClient } from "../../server/ProTankiClient";

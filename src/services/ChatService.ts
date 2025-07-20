@@ -2,7 +2,7 @@ import ChatMessage from "../models/ChatMessage";
 import { UserDocument } from "../models/User";
 import logger from "../utils/Logger";
 import { BattleService } from "./BattleService";
-import { UserService } from "./UserService";
+import { UserService } from "@/shared/services/UserService";
 
 export interface PopulatedChatMessage {
   sourceUser: UserDocument | null;

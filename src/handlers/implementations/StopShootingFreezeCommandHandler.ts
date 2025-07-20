@@ -1,6 +1,6 @@
 import { ProTankiClient } from "../../server/ProTankiClient";
 import { ProTankiServer } from "../../server/ProTankiServer";
-import { IPacketHandler } from "../IPacketHandler";
+import { IPacketHandler } from "@/shared/interfaces/IPacketHandler";
 import StopShootingFreezeCommandPacket from "../../packets/implementations/StopShootingFreezeCommandPacket";
 import StopShootingFreezePacket from "../../packets/implementations/StopShootingFreezePacket";
 import logger from "../../utils/Logger";

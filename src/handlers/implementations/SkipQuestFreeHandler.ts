@@ -1,6 +1,6 @@
 import { ProTankiClient } from "../../server/ProTankiClient";
 import { ProTankiServer } from "../../server/ProTankiServer";
-import { IPacketHandler } from "../IPacketHandler";
+import { IPacketHandler } from "@/shared/interfaces/IPacketHandler";
 import logger from "../../utils/Logger";
 import SkipQuestFree from "../../packets/implementations/SkipQuestFree";
 import SystemMessage from "../../packets/implementations/SystemMessage";

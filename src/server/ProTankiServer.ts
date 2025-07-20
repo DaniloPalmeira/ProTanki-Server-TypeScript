@@ -1,26 +1,27 @@
 import net from "net";
 import { ClientManager } from "./ClientManager";
 import { ProTankiClient } from "./ProTankiClient";
-import { IPacket } from "../packets/interfaces/IPacket";
-import { IServerOptions } from "../types/IServerOptions";
-import { IRegistrationForm } from "../types/IRegistrationForm";
-import { IInviteResponse } from "../types/IInviteResponse";
-import { InviteService } from "../services/InviteService";
-import { DEFAULT_MAX_CLIENTS, DEFAULT_PORT } from "../config/constants";
-import logger from "../utils/Logger";
-import { ConfigService } from "../services/ConfigService";
-import { UserService } from "../services/UserService";
-import { ChatService } from "../services/ChatService";
-import { CommandService } from "../commands/CommandService";
-import { PacketHandlerService } from "../handlers/PacketHandlerService";
-import { PacketService } from "../packets/PacketService";
-import { ShopService } from "../services/ShopService";
-import { RankService } from "../services/RankService";
-import { QuestService } from "../services/QuestService";
-import { BattleService } from "../services/BattleService";
-import OnlineNotifierData from "../packets/implementations/OnlineNotifierData";
-import { GarageService } from "../services/GarageService";
-import { FriendsService } from "../features/friends/friends.service";
+import { IPacket } from "@/packets/interfaces/IPacket";
+import { IServerOptions } from "@/types/IServerOptions";
+import { IRegistrationForm } from "@/types/IRegistrationForm";
+import { IInviteResponse } from "@/types/IInviteResponse";
+import { InviteService } from "@/services/InviteService";
+import { DEFAULT_MAX_CLIENTS, DEFAULT_PORT } from "@/config/constants";
+import logger from "@/utils/Logger";
+import { ConfigService } from "@/services/ConfigService";
+import { UserService } from "@/shared/services/UserService";
+import { ChatService } from "@/services/ChatService";
+import { CommandService } from "@/commands/CommandService";
+import { PacketHandlerService } from "@/handlers/PacketHandlerService";
+import { PacketService } from "@/packets/PacketService";
+import { ShopService } from "@/services/ShopService";
+import { RankService } from "@/services/RankService";
+import { QuestService } from "@/services/QuestService";
+import { BattleService } from "@/services/BattleService";
+import OnlineNotifierData from "@/packets/implementations/OnlineNotifierData";
+import { GarageService } from "@/services/GarageService";
+import { FriendsService } from "@/features/friends/friends.service";
+import { AuthService } from "@/features/authentication/auth.service";
 
 export interface IServerServices {
   configService: ConfigService;
@@ -35,6 +36,7 @@ export interface IServerServices {
   questService: QuestService;
   garageService: GarageService;
   friendsService: FriendsService;
+  authService: AuthService;
 }
 
 export class ProTankiServer {
@@ -64,6 +66,7 @@ export class ProTankiServer {
   }
   public readonly garageService: GarageService;
   public readonly friendsService: FriendsService;
+  public readonly authService: AuthService;
 
   private _getBattleService: () => BattleService;
 
@@ -88,6 +91,7 @@ export class ProTankiServer {
     this.questService = services.questService;
     this.garageService = services.garageService;
     this.friendsService = services.friendsService;
+    this.authService = services.authService;
 
     this.server = net.createServer(this.handleConnection.bind(this));
     this.clientManager = new ClientManager();

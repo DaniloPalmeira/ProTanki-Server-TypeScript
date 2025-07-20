@@ -1,4 +1,4 @@
-import { IPacketHandler } from "../IPacketHandler";
+import { IPacketHandler } from "@/shared/interfaces/IPacketHandler";
 import ReadyToSpawnPacket from "../../packets/implementations/ReadyToSpawnPacket";
 import { ProTankiClient } from "../../server/ProTankiClient";
 import { ProTankiServer } from "../../server/ProTankiServer";

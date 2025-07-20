@@ -1,4 +1,4 @@
-import { IPacketHandler } from "../IPacketHandler";
+import { IPacketHandler } from "@/shared/interfaces/IPacketHandler";
 import { ProTankiClient } from "../../server/ProTankiClient";
 import { ProTankiServer } from "../../server/ProTankiServer";
 import SuicidePacket from "../../packets/implementations/SuicidePacket";

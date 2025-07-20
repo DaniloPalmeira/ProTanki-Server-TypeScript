@@ -3,7 +3,7 @@ import { LobbyWorkflow } from "../../workflows/LobbyWorkflow";
 import { ProTankiClient } from "../../server/ProTankiClient";
 import { ProTankiServer } from "../../server/ProTankiServer";
 import logger from "../../utils/Logger";
-import { IPacketHandler } from "../IPacketHandler";
+import { IPacketHandler } from "@/shared/interfaces/IPacketHandler";
 
 export default class RequestBattleByLinkHandler implements IPacketHandler<RequestBattleByLinkPacket> {
     public readonly packetId = RequestBattleByLinkPacket.getId();

@@ -4,18 +4,28 @@ import logger from "@/utils/Logger";
 import { IPacket } from "@/packets/interfaces/IPacket";
 import { ProTankiClient } from "@/server/ProTankiClient";
 import { ProTankiServer } from "@/server/ProTankiServer";
-import { IPacketHandler } from "./IPacketHandler";
+import { IPacketHandler } from "@/shared/interfaces/IPacketHandler";
 
 export class PacketHandlerService {
   private handlers = new Map<number, IPacketHandler<any>>();
 
   public constructor() {
+    logger.debug("Initializing PacketHandlerService...");
     this.loadHandlersFromDir(path.join(__dirname, "implementations"));
     this.loadHandlersFromDir(path.join(__dirname, "../features"));
+
+    logger.info(`PacketHandlerService initialized. Total handlers registered: ${this.handlers.size}.`);
+    if (this.handlers.size > 0) {
+      logger.debug(`Registered handler IDs: [${Array.from(this.handlers.keys()).join(", ")}]`);
+    }
   }
 
   private loadHandlersFromDir(dir: string): void {
-    if (!fs.existsSync(dir)) return;
+    logger.debug(`Scanning directory for handlers: ${dir}`);
+    if (!fs.existsSync(dir)) {
+      logger.warn(`Directory not found, skipping: ${dir}`);
+      return;
+    }
 
     const entries = fs.readdirSync(dir, { withFileTypes: true });
 
@@ -31,10 +41,21 @@ export class PacketHandlerService {
         continue;
       }
 
+      logger.debug(`Found potential handler file: ${file}`);
       try {
         const module = require(fullPath);
+        const classesToRegister = [];
+
+        if (module.default) {
+          classesToRegister.push(module.default);
+        }
         for (const key in module) {
-          const HandlerClass = module[key];
+          if (key !== "default") {
+            classesToRegister.push(module[key]);
+          }
+        }
+
+        for (const HandlerClass of classesToRegister) {
           if (HandlerClass && typeof HandlerClass === "function" && HandlerClass.prototype.execute) {
             const handlerInstance: IPacketHandler<any> = new HandlerClass();
             if (handlerInstance.packetId !== undefined) {
@@ -43,7 +64,11 @@ export class PacketHandlerService {
           }
         }
       } catch (error: any) {
-        logger.error(`Failed to load handler from ${file}`, { error: error.message });
+        logger.error(`Failed to load handlers from ${file}`, {
+          errorMessage: error.message,
+          errorStack: error.stack,
+          fullError: error
+        });
       }
     }
   }

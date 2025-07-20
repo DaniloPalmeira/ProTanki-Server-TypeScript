@@ -1,6 +1,6 @@
 import { ProTankiClient } from "../../server/ProTankiClient";
 import { ProTankiServer } from "../../server/ProTankiServer";
-import { IPacketHandler } from "../IPacketHandler";
+import { IPacketHandler } from "@/shared/interfaces/IPacketHandler";
 import InviteCode from "../../packets/implementations/InviteCode";
 import InviteCodeInvalid from "../../packets/implementations/InviteCodeInvalid";
 import InviteCodeLogin from "../../packets/implementations/InviteCodeLogin";

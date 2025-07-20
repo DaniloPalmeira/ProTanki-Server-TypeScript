@@ -1,6 +1,6 @@
 import { ProTankiClient } from "../../server/ProTankiClient";
 import { ProTankiServer } from "../../server/ProTankiServer";
-import { IPacketHandler } from "../IPacketHandler";
+import { IPacketHandler } from "@/shared/interfaces/IPacketHandler";
 import logger from "../../utils/Logger";
 import RequestQuestsWindow from "../../packets/implementations/RequestQuestsWindow";
 import ShowQuestsWindow from "../../packets/implementations/ShowQuestsWindow";

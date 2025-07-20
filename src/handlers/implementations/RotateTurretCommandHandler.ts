@@ -1,6 +1,6 @@
 import { ProTankiClient } from "../../server/ProTankiClient";
 import { ProTankiServer } from "../../server/ProTankiServer";
-import { IPacketHandler } from "../IPacketHandler";
+import { IPacketHandler } from "@/shared/interfaces/IPacketHandler";
 import RotateTurretCommandPacket from "../../packets/implementations/RotateTurretCommandPacket";
 import TurretRotationPacket from "../../packets/implementations/TurretRotationPacket";
 

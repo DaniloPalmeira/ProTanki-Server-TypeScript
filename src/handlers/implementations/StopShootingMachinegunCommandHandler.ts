@@ -3,7 +3,7 @@ import StopShootingMachinegunPacket from "../../packets/implementations/StopShoo
 import { ProTankiClient } from "../../server/ProTankiClient";
 import { ProTankiServer } from "../../server/ProTankiServer";
 import logger from "../../utils/Logger";
-import { IPacketHandler } from "../IPacketHandler";
+import { IPacketHandler } from "@/shared/interfaces/IPacketHandler";
 
 export default class StopShootingMachinegunCommandHandler implements IPacketHandler<StopShootingMachinegunCommandPacket> {
     public readonly packetId = StopShootingMachinegunCommandPacket.getId();

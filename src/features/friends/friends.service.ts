@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 import User, { UserDocument } from "@/models/User";
-import { UserService } from "@/services/UserService";
+import { UserService } from "@/shared/services/UserService";
 import logger from "@/utils/Logger";
 import { IFriendsListProps } from "./friends.types";
 

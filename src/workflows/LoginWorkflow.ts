@@ -1,19 +1,17 @@
-import { CALLBACK } from "../config/constants";
-import Captcha from "../packets/implementations/Captcha";
-import CaptchaLocation from "../packets/implementations/CaptchaLocation";
-import HideLoader from "../packets/implementations/HideLoader";
-import InviteEnabled from "../packets/implementations/InviteEnabled";
-import LoadDependencies from "../packets/implementations/LoadDependencies";
-import Ping from "../packets/implementations/Ping";
-import RecoveryEmailInvalidCode from "../packets/implementations/RecoveryEmailInvalidCode";
-import Registration from "../packets/implementations/Registration";
-import SocialNetwork from "../packets/implementations/SocialNetwork";
-import { ProTankiClient } from "../server/ProTankiClient";
-import { ProTankiServer } from "../server/ProTankiServer";
-import { ResourceId } from "../types/resourceTypes";
-import generateCaptcha from "../utils/GenerateCaptcha";
-import logger from "../utils/Logger";
-import { ResourceManager } from "../utils/ResourceManager";
+import { CALLBACK } from "@/config/constants";
+import HideLoader from "@/packets/implementations/HideLoader";
+import InviteEnabled from "@/packets/implementations/InviteEnabled";
+import LoadDependencies from "@/packets/implementations/LoadDependencies";
+import Ping from "@/packets/implementations/Ping";
+import Registration from "@/packets/implementations/Registration";
+import SocialNetwork from "@/packets/implementations/SocialNetwork";
+import CaptchaLocation from "@/packets/implementations/CaptchaLocation";
+import { ProTankiClient } from "@/server/ProTankiClient";
+import { ProTankiServer } from "@/server/ProTankiServer";
+import { ResourceId } from "@/types/resourceTypes";
+import generateCaptcha from "@/utils/GenerateCaptcha";
+import { ResourceManager } from "@/utils/ResourceManager";
+import * as AuthPackets from "@/features/authentication/auth.packets";
 
 export class LoginWorkflow {
   public static async sendLoginScreenData(client: ProTankiClient, server: ProTankiServer): Promise<void> {
@@ -446,7 +444,7 @@ export class LoginWorkflow {
     const captcha = generateCaptcha();
     client.captchaSolution = captcha.text;
 
-    client.sendPacket(new RecoveryEmailInvalidCode());
-    client.sendPacket(new Captcha(3, captcha.image));
+    client.sendPacket(new AuthPackets.RecoveryEmailInvalidCode());
+    client.sendPacket(new AuthPackets.Captcha(3, captcha.image));
   }
 }

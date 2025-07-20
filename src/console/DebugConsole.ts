@@ -2,7 +2,7 @@ import readline from "readline";
 import { ProTankiServer } from "../server/ProTankiServer";
 import logger, { consoleTransport } from "../utils/Logger";
 import RawPacket from "../packets/implementations/dev/RawPacket";
-import { UserService } from "../services/UserService";
+import { UserService } from "@/shared/services/UserService";
 
 export class DebugConsole {
   private server: ProTankiServer;

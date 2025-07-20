@@ -2,7 +2,7 @@ import { ProTankiClient } from "../../server/ProTankiClient";
 import { ProTankiServer } from "../../server/ProTankiServer";
 import { GarageWorkflow } from "../../workflows/GarageWorkflow";
 import { LobbyWorkflow } from "../../workflows/LobbyWorkflow";
-import { IPacketHandler } from "../IPacketHandler";
+import { IPacketHandler } from "@/shared/interfaces/IPacketHandler";
 import ExitFromBattlePacket from "../../packets/implementations/ExitFromBattlePacket";
 import UnloadSpaceBattlePacket from "../../packets/implementations/UnloadSpaceBattlePacket";
 import UnloadBattleListPacket from "../../packets/implementations/UnloadBattleListPacket";

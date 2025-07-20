@@ -3,7 +3,7 @@ import ThunderShotNoTargetPacket from "../../packets/implementations/ThunderShot
 import { ProTankiClient } from "../../server/ProTankiClient";
 import { ProTankiServer } from "../../server/ProTankiServer";
 import logger from "../../utils/Logger";
-import { IPacketHandler } from "../IPacketHandler";
+import { IPacketHandler } from "@/shared/interfaces/IPacketHandler";
 
 export default class ThunderShotNoTargetCommandHandler implements IPacketHandler<ThunderShotNoTargetCommandPacket> {
     public readonly packetId = ThunderShotNoTargetCommandPacket.getId();

@@ -2,7 +2,7 @@ import RequestGaragePacket from "../../packets/implementations/RequestGaragePack
 import { ProTankiClient } from "../../server/ProTankiClient";
 import { ProTankiServer } from "../../server/ProTankiServer";
 import { GarageWorkflow } from "../../workflows/GarageWorkflow";
-import { IPacketHandler } from "../IPacketHandler";
+import { IPacketHandler } from "@/shared/interfaces/IPacketHandler";
 
 export default class RequestGarageHandler implements IPacketHandler<RequestGaragePacket> {
   public readonly packetId = RequestGaragePacket.getId();

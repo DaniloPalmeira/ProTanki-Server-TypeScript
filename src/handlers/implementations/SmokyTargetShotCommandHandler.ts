@@ -4,7 +4,7 @@ import { ProTankiClient } from "../../server/ProTankiClient";
 import { ProTankiServer } from "../../server/ProTankiServer";
 import { ItemUtils } from "../../utils/ItemUtils";
 import logger from "../../utils/Logger";
-import { IPacketHandler } from "../IPacketHandler";
+import { IPacketHandler } from "@/shared/interfaces/IPacketHandler";
 import { weaponPhysicsData } from "../../config/PhysicsData";
 
 export default class SmokyTargetShotCommandHandler implements IPacketHandler<SmokyTargetShotCommandPacket> {

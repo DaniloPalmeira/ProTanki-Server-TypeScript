@@ -3,7 +3,7 @@ import { ResourceServer } from "@/server/ResourceServer";
 import dotenv from "dotenv";
 import { connectToDatabase, disconnectFromDatabase } from "@/database";
 import { DEFAULT_PORT } from "@/config/constants";
-import { UserService } from "@/services/UserService";
+import { UserService } from "@/shared/services/UserService";
 import { ConfigService } from "@/services/ConfigService";
 import { ResourceManager } from "@/utils/ResourceManager";
 import logger from "@/utils/Logger";
@@ -21,6 +21,7 @@ import { QuestService } from "@/services/QuestService";
 import { BattleService } from "@/services/BattleService";
 import { GarageService } from "@/services/GarageService";
 import { FriendsService } from "@/features/friends/friends.service";
+import { AuthService } from "@/features/authentication/auth.service";
 
 dotenv.config();
 
@@ -41,6 +42,7 @@ async function bootstrap() {
   const questService = new QuestService();
   const garageService = new GarageService();
   const friendsService = new FriendsService(userService);
+  const authService = new AuthService(userService);
   let battleService: BattleService;
 
   ResourceManager.loadResources();
@@ -82,6 +84,7 @@ async function bootstrap() {
       questService,
       garageService,
       friendsService,
+      authService,
     }
   );
 

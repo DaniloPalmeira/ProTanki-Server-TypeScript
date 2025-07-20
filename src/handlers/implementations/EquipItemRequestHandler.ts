@@ -4,7 +4,7 @@ import SystemMessage from "../../packets/implementations/SystemMessage";
 import { ProTankiClient } from "../../server/ProTankiClient";
 import { ProTankiServer } from "../../server/ProTankiServer";
 import logger from "../../utils/Logger";
-import { IPacketHandler } from "../IPacketHandler";
+import { IPacketHandler } from "@/shared/interfaces/IPacketHandler";
 
 export default class EquipItemRequestHandler implements IPacketHandler<EquipItemRequestPacket> {
   public readonly packetId = EquipItemRequestPacket.getId();
