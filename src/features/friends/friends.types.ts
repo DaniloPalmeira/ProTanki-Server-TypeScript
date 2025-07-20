@@ -1,5 +1,5 @@
-import { IPacket } from "@/packets/interfaces/IPacket";
 import { IEmpty } from "@/packets/interfaces/IEmpty";
+import { IPacket } from "@/packets/interfaces/IPacket";
 
 export interface IAcceptFriendRequest extends IPacket {
     nickname: string | null;
@@ -64,3 +64,5 @@ export interface IRemoveFriend extends IPacket {
 export interface ISendFriendRequest extends IPacket {
     nickname: string | null;
 }
+export interface IRequestFriendsListWindow extends IEmpty { }
+export interface IShowFriendsListWindow extends IEmpty { }

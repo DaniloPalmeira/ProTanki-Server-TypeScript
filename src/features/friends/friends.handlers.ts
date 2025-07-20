@@ -211,3 +211,16 @@ export class SendFriendRequestHandler implements IPacketHandler<FriendPackets.Se
         }
     }
 }
+
+export class RequestFriendsListWindowHandler implements IPacketHandler<FriendPackets.RequestFriendsListWindow> {
+    public readonly packetId = FriendPackets.RequestFriendsListWindow.getId();
+
+    public execute(client: ProTankiClient, server: ProTankiServer): void {
+        if (!client.user) {
+            logger.warn("RequestFriendsListWindow received from unauthenticated client.", { client: client.getRemoteAddress() });
+            return;
+        }
+
+        client.sendPacket(new FriendPackets.ShowFriendsListWindow());
+    }
+}
