@@ -15,7 +15,7 @@ import { InviteService } from "@/services/InviteService";
 import { ChatService } from "@/features/chat/chat.service";
 import { PacketHandlerService } from "@/handlers/PacketHandlerService";
 import { PacketService } from "@/packets/PacketService";
-import { ShopService } from "@/services/ShopService";
+import { ShopService } from "@/features/shop/shop.service";
 import { RankService } from "@/services/RankService";
 import { QuestService } from "@/features/quests/quests.service";
 import { GarageService } from "@/features/garage/garage.service";

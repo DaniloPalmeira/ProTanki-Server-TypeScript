@@ -1,10 +1,10 @@
 import { BufferReader } from "@/utils/buffer/BufferReader";
 import { BufferWriter } from "@/utils/buffer/BufferWriter";
 import { BasePacket } from "@/packets/implementations/BasePacket";
-import * as QuestTypes from "./quests.types";
+import { IRequestQuestsWindow, IShowQuestsWindow, ISkipQuest, IReplaceQuest, INotifyDailyQuestGenerated, IQuest } from "./quests.types";
 import { DailyQuestData } from "./quests.service";
 
-export class RequestQuestsWindow extends BasePacket implements QuestTypes.IRequestQuestsWindow {
+export class RequestQuestsWindow extends BasePacket implements IRequestQuestsWindow {
     read(buffer: Buffer): void { }
     write(): Buffer {
         return new BufferWriter().getBuffer();
@@ -14,7 +14,7 @@ export class RequestQuestsWindow extends BasePacket implements QuestTypes.IReque
     }
 }
 
-function createDefaultQuest(): QuestTypes.IQuest {
+function createDefaultQuest(): IQuest {
     return {
         canSkipForFree: false,
         description: "",
@@ -26,8 +26,8 @@ function createDefaultQuest(): QuestTypes.IQuest {
         skipCost: 0,
     };
 }
-export class ShowQuestsWindow extends BasePacket implements QuestTypes.IShowQuestsWindow {
-    quests: QuestTypes.IQuest[] = [];
+export class ShowQuestsWindow extends BasePacket implements IShowQuestsWindow {
+    quests: IQuest[] = [];
     currentQuestLevel: number = 0;
     currentQuestStreak: number = 0;
     doneForToday: boolean = false;
@@ -51,7 +51,7 @@ export class ShowQuestsWindow extends BasePacket implements QuestTypes.IShowQues
         const questsCount = reader.readInt32BE();
         this.quests = [];
         for (let i = 0; i < questsCount; i++) {
-            const quest: QuestTypes.IQuest = {
+            const quest: IQuest = {
                 canSkipForFree: reader.readUInt8() === 1,
                 description: reader.readOptionalString(),
                 finishCriteria: reader.readInt32BE(),
@@ -118,7 +118,7 @@ export class ShowQuestsWindow extends BasePacket implements QuestTypes.IShowQues
     }
 }
 
-export class SkipQuestFree extends BasePacket implements QuestTypes.ISkipQuest {
+export class SkipQuestFree extends BasePacket implements ISkipQuest {
     missionId: number = 0;
     read(buffer: Buffer): void {
         this.missionId = new BufferReader(buffer).readInt32BE();
@@ -131,7 +131,7 @@ export class SkipQuestFree extends BasePacket implements QuestTypes.ISkipQuest {
     }
 }
 
-export class SkipQuestPaid extends BasePacket implements QuestTypes.ISkipQuest {
+export class SkipQuestPaid extends BasePacket implements ISkipQuest {
     missionId: number = 0;
     read(buffer: Buffer): void {
         this.missionId = new BufferReader(buffer).readInt32BE();
@@ -144,11 +144,11 @@ export class SkipQuestPaid extends BasePacket implements QuestTypes.ISkipQuest {
     }
 }
 
-export class ReplaceQuest extends BasePacket implements QuestTypes.IReplaceQuest {
+export class ReplaceQuest extends BasePacket implements IReplaceQuest {
     missionToReplaceId: number = 0;
-    newQuest: QuestTypes.IQuest = createDefaultQuest();
+    newQuest: IQuest = createDefaultQuest();
 
-    constructor(missionToReplaceId?: number, newQuest?: QuestTypes.IQuest) {
+    constructor(missionToReplaceId?: number, newQuest?: IQuest) {
         super();
         if (missionToReplaceId !== undefined) {
             this.missionToReplaceId = missionToReplaceId;
@@ -213,7 +213,7 @@ export class ReplaceQuest extends BasePacket implements QuestTypes.IReplaceQuest
     }
 }
 
-export class NotifyDailyQuestGeneratedPacket extends BasePacket implements QuestTypes.INotifyDailyQuestGenerated {
+export class NotifyDailyQuestGeneratedPacket extends BasePacket implements INotifyDailyQuestGenerated {
     read(buffer: Buffer): void { }
     write(): Buffer {
         return new BufferWriter().getBuffer();

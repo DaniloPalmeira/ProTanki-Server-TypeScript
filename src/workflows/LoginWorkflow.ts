@@ -1,17 +1,17 @@
 import { CALLBACK } from "@/config/constants";
+import * as AuthPackets from "@/features/authentication/auth.packets";
+import CaptchaLocation from "@/packets/implementations/CaptchaLocation";
 import HideLoader from "@/packets/implementations/HideLoader";
 import InviteEnabled from "@/packets/implementations/InviteEnabled";
 import LoadDependencies from "@/packets/implementations/LoadDependencies";
 import Ping from "@/packets/implementations/Ping";
 import Registration from "@/packets/implementations/Registration";
 import SocialNetwork from "@/packets/implementations/SocialNetwork";
-import CaptchaLocation from "@/packets/implementations/CaptchaLocation";
 import { ProTankiClient } from "@/server/ProTankiClient";
 import { ProTankiServer } from "@/server/ProTankiServer";
 import { ResourceId } from "@/types/resourceTypes";
 import generateCaptcha from "@/utils/GenerateCaptcha";
 import { ResourceManager } from "@/utils/ResourceManager";
-import * as AuthPackets from "@/features/authentication/auth.packets";
 
 export class LoginWorkflow {
   public static async sendLoginScreenData(client: ProTankiClient, server: ProTankiServer): Promise<void> {

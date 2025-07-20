@@ -14,7 +14,7 @@ import { ChatService } from "@/features/chat/chat.service";
 import { CommandService } from "@/features/chat/commands/command.service";
 import { PacketHandlerService } from "@/handlers/PacketHandlerService";
 import { PacketService } from "@/packets/PacketService";
-import { ShopService } from "@/services/ShopService";
+import { ShopService } from "@/features/shop/shop.service";
 import { RankService } from "@/services/RankService";
 import { QuestService } from "@/features/quests/quests.service";
 import { BattleService } from "@/features/battle/battle.service";

@@ -1,12 +1,20 @@
+import { battleDataObject } from "@/config/BattleData";
+import { CALLBACK } from "@/config/constants";
+import { Battle, BattleMode, EquipmentConstraintsMode } from "@/features/battle/battle.model";
+import * as ChatPackets from "@/features/chat/chat.packets";
+import { PopulatedChatMessage } from "@/features/chat/chat.service";
+import { IChatMessageData } from "@/features/chat/chat.types";
+import { UnloadGaragePacket } from "@/features/garage/garage.packets";
+import * as LobbyPackets from "@/features/lobby/lobby.packets";
+import { LocalizationInfo } from "@/features/shop/shop.packets";
 import { Achievement } from "@/models/enums/Achievement";
 import { ChatModeratorLevel } from "@/models/enums/ChatModeratorLevel";
 import { UserDocument, UserDocumentWithFriends } from "@/models/User";
 import AchievementTips from "@/packets/implementations/AchievementTips";
 import ConfirmLayoutChange from "@/packets/implementations/ConfirmLayoutChange";
 import EmailInfo from "@/packets/implementations/EmailInfo";
-import { FriendsList } from "@/features/friends/friends.packets";
+import HideLoginForm from "@/packets/implementations/HideLoginForm";
 import LoadDependencies from "@/packets/implementations/LoadDependencies";
-import LocalizationInfo from "@/packets/implementations/LocalizationInfo";
 import OnlineNotifierData from "@/packets/implementations/OnlineNotifierData";
 import PremiumInfo from "@/packets/implementations/PremiumInfo";
 import PremiumNotifierData from "@/packets/implementations/PremiumNotifierData";
@@ -15,23 +23,14 @@ import RankNotifierData from "@/packets/implementations/RankNotifierData";
 import ReferralInfo from "@/packets/implementations/ReferralInfo";
 import SetBattleInviteSound from "@/packets/implementations/SetBattleInviteSound";
 import SetLayout from "@/packets/implementations/SetLayout";
+import UnloadBattleListPacket from "@/packets/implementations/UnloadBattleListPacket";
 import { ProTankiClient } from "@/server/ProTankiClient";
 import { ProTankiServer } from "@/server/ProTankiServer";
+import { ResourceId } from "@/types/resourceTypes";
 import { FormatUtils } from "@/utils/FormatUtils";
 import logger from "@/utils/Logger";
 import { ResourceManager } from "@/utils/ResourceManager";
 import { BattleWorkflow } from "./BattleWorkflow";
-import { Battle, BattleMode, EquipmentConstraintsMode } from "@/features/battle/battle.model";
-import { CALLBACK } from "@/config/constants";
-import { battleDataObject } from "@/config/BattleData";
-import { ResourceId } from "@/types/resourceTypes";
-import HideLoginForm from "@/packets/implementations/HideLoginForm";
-import UnloadBattleListPacket from "@/packets/implementations/UnloadBattleListPacket";
-import { PopulatedChatMessage } from "@/features/chat/chat.service";
-import * as ChatPackets from "@/features/chat/chat.packets";
-import * as LobbyPackets from "@/features/lobby/lobby.packets";
-import { IChatMessageData } from "@/features/chat/chat.types";
-import { UnloadGaragePacket } from "@/features/garage/garage.packets";
 
 const mapUserToObject = (user: UserDocument) => ({
   kills: 0,
