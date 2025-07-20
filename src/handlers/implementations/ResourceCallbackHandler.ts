@@ -1,3 +1,4 @@
+import { BattleWorkflow } from "@/features/battle/battle.workflow";
 import { GarageWorkflow } from "@/features/garage/garage.workflow";
 import { LobbyWorkflow } from "@/features/lobby/lobby.workflow";
 import { IPacketHandler } from "@/shared/interfaces/IPacketHandler";
@@ -5,7 +6,6 @@ import { CALLBACK } from "../../config/constants";
 import ResourceCallback from "../../packets/implementations/ResourceCallback";
 import { ProTankiClient } from "../../server/ProTankiClient";
 import { ProTankiServer } from "../../server/ProTankiServer";
-import { BattleWorkflow } from "../../workflows/BattleWorkflow";
 import { LoginWorkflow } from "../../workflows/LoginWorkflow";
 
 export default class ResourceCallbackHandler implements IPacketHandler<ResourceCallback> {

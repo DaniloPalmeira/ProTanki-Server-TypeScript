@@ -1,6 +1,7 @@
 import { battleDataObject } from "@/config/BattleData";
 import { CALLBACK } from "@/config/constants";
 import { Battle, BattleMode, EquipmentConstraintsMode } from "@/features/battle/battle.model";
+import { BattleWorkflow } from "@/features/battle/battle.workflow";
 import * as ChatPackets from "@/features/chat/chat.packets";
 import { PopulatedChatMessage } from "@/features/chat/chat.service";
 import { IChatMessageData } from "@/features/chat/chat.types";
@@ -22,15 +23,14 @@ import RankNotifierData from "@/packets/implementations/RankNotifierData";
 import ReferralInfo from "@/packets/implementations/ReferralInfo";
 import SetBattleInviteSound from "@/packets/implementations/SetBattleInviteSound";
 import SetLayout from "@/packets/implementations/SetLayout";
-import UnloadBattleListPacket from "@/packets/implementations/UnloadBattleListPacket";
 import { ProTankiClient } from "@/server/ProTankiClient";
 import { ProTankiServer } from "@/server/ProTankiServer";
 import { ResourceId } from "@/types/resourceTypes";
 import { FormatUtils } from "@/utils/FormatUtils";
 import logger from "@/utils/Logger";
 import { ResourceManager } from "@/utils/ResourceManager";
-import { BattleWorkflow } from "@/workflows/BattleWorkflow";
 import * as LobbyPackets from "./lobby.packets";
+import { UnloadBattleListPacket } from "./lobby.packets";
 
 const mapUserToObject = (user: UserDocument) => ({
     kills: 0,

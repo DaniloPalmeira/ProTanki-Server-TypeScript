@@ -40,4 +40,28 @@ export class ItemUtils {
     const armor = this.getPropertyValue(hullMod, "HULL_ARMOR");
     return armor ?? 100;
   }
+
+  private static getPhysicsValue(props: any[], propertyName: string, subPropName?: string): number {
+    const prop = props.find((p) => p.property === propertyName);
+    if (!prop) return 0;
+
+    if (subPropName && prop.subproperties) {
+      const subProp = prop.subproperties.find((sp: any) => sp.property === subPropName);
+      return subProp ? parseFloat(subProp.value) : 0;
+    }
+
+    return prop.value ? parseFloat(prop.value) : 0;
+  }
+
+  public static getTankSpecifications(user: UserDocument) {
+    const hullMod = this.getItemModification(user, "hull");
+    const turretMod = this.getItemModification(user, "turret");
+
+    return {
+      speed: this.getPhysicsValue(hullMod.properts, "HULL_SPEED"),
+      maxTurnSpeed: this.getPhysicsValue(hullMod.properts, "HULL_TURN_SPEED"),
+      acceleration: this.getPhysicsValue(hullMod.properts, "HULL_POWER", "HULL_ACCELERATION"),
+      turretTurnSpeed: this.getPhysicsValue(turretMod.properts, "TURRET_TURN_SPEED"),
+    };
+  }
 }

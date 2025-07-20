@@ -1,8 +1,8 @@
+import { BasePacket } from "../../packets/implementations/BasePacket";
 import { BufferReader } from "../../utils/buffer/BufferReader";
 import { BufferWriter } from "../../utils/buffer/BufferWriter";
-import { BasePacket } from "../../packets/implementations/BasePacket";
-import * as LobbyTypes from "./lobby.types";
 import { BattleMode, EquipmentConstraintsMode, MapTheme } from "../battle/battle.model";
+import * as LobbyTypes from "./lobby.types";
 
 export class BattleInfo extends BasePacket implements LobbyTypes.IBattleInfo {
     jsonData: string | null = null;
@@ -29,35 +29,7 @@ export class BattleDetails extends BasePacket implements LobbyTypes.IBattleDetai
 }
 
 export class CreateBattleRequest extends BasePacket implements LobbyTypes.ICreateBattleRequest {
-    autoBalance: boolean = false;
-    battleMode: BattleMode = BattleMode.DM;
-    equipmentConstraintsMode: EquipmentConstraintsMode = EquipmentConstraintsMode.NONE;
-    friendlyFire: boolean = false;
-    scoreLimit: number = 0;
-    timeLimitInSec: number = 0;
-    mapId: string = "";
-    maxPeopleCount: number = 0;
-    name: string = "";
-    parkourMode: boolean = false;
-    privateBattle: boolean = false;
-    proBattle: boolean = false;
-    maxRank: number = 1;
-    minRank: number = 1;
-    reArmorEnabled: boolean = false;
-    mapTheme: MapTheme = MapTheme.SUMMER;
-    withoutBonuses: boolean = false;
-    withoutCrystals: boolean = false;
-    withoutSupplies: boolean = false;
-    withoutUpgrades: boolean = false;
-    reducedResistances: boolean = false;
-    esportDropTiming: boolean = false;
-    withoutGoldBoxes: boolean = false;
-    withoutGoldSiren: boolean = false;
-    withoutGoldZone: boolean = false;
-    withoutMedkit: boolean = false;
-    withoutMines: boolean = false;
-    randomGold: boolean = false;
-    dependentCooldownEnabled: boolean = false;
+    autoBalance: boolean = false; battleMode: BattleMode = BattleMode.DM; equipmentConstraintsMode: EquipmentConstraintsMode = EquipmentConstraintsMode.NONE; friendlyFire: boolean = false; scoreLimit: number = 0; timeLimitInSec: number = 0; mapId: string = ""; maxPeopleCount: number = 0; name: string = ""; parkourMode: boolean = false; privateBattle: boolean = false; proBattle: boolean = false; maxRank: number = 1; minRank: number = 1; reArmorEnabled: boolean = false; mapTheme: MapTheme = MapTheme.SUMMER; withoutBonuses: boolean = false; withoutCrystals: boolean = false; withoutSupplies: boolean = false; withoutUpgrades: boolean = false; reducedResistances: boolean = false; esportDropTiming: boolean = false; withoutGoldBoxes: boolean = false; withoutGoldSiren: boolean = false; withoutGoldZone: boolean = false; withoutMedkit: boolean = false; withoutMines: boolean = false; randomGold: boolean = false; dependentCooldownEnabled: boolean = false;
     read(buffer: Buffer): void { const r = new BufferReader(buffer); this.autoBalance = r.readUInt8() === 1; this.battleMode = r.readInt32BE(); this.equipmentConstraintsMode = r.readInt32BE(); this.friendlyFire = r.readUInt8() === 1; this.scoreLimit = r.readInt32BE(); this.timeLimitInSec = r.readInt32BE(); this.mapId = r.readOptionalString() ?? ""; this.maxPeopleCount = r.readInt32BE(); this.name = r.readOptionalString() ?? ""; this.parkourMode = r.readUInt8() === 1; this.privateBattle = r.readUInt8() === 1; this.proBattle = r.readUInt8() === 1; this.maxRank = r.readInt32BE(); this.minRank = r.readInt32BE(); this.reArmorEnabled = r.readUInt8() === 1; this.mapTheme = r.readInt32BE(); this.withoutBonuses = r.readUInt8() === 1; this.withoutCrystals = r.readUInt8() === 1; this.withoutSupplies = r.readUInt8() === 1; this.withoutUpgrades = r.readUInt8() === 1; this.reducedResistances = r.readUInt8() === 1; this.esportDropTiming = r.readUInt8() === 1; this.withoutGoldBoxes = r.readUInt8() === 1; this.withoutGoldSiren = r.readUInt8() === 1; this.withoutGoldZone = r.readUInt8() === 1; this.withoutMedkit = r.readUInt8() === 1; this.withoutMines = r.readUInt8() === 1; this.randomGold = r.readUInt8() === 1; this.dependentCooldownEnabled = r.readUInt8() === 1; }
     write(): Buffer { const w = new BufferWriter(); w.writeUInt8(this.autoBalance ? 1 : 0); w.writeInt32BE(this.battleMode); w.writeInt32BE(this.equipmentConstraintsMode); w.writeUInt8(this.friendlyFire ? 1 : 0); w.writeInt32BE(this.scoreLimit); w.writeInt32BE(this.timeLimitInSec); w.writeOptionalString(this.mapId); w.writeInt32BE(this.maxPeopleCount); w.writeOptionalString(this.name); w.writeUInt8(this.parkourMode ? 1 : 0); w.writeUInt8(this.privateBattle ? 1 : 0); w.writeUInt8(this.proBattle ? 1 : 0); w.writeInt32BE(this.maxRank); w.writeInt32BE(this.minRank); w.writeUInt8(this.reArmorEnabled ? 1 : 0); w.writeInt32BE(this.mapTheme); w.writeUInt8(this.withoutBonuses ? 1 : 0); w.writeUInt8(this.withoutCrystals ? 1 : 0); w.writeUInt8(this.withoutSupplies ? 1 : 0); w.writeUInt8(this.withoutUpgrades ? 1 : 0); w.writeUInt8(this.reducedResistances ? 1 : 0); w.writeUInt8(this.esportDropTiming ? 1 : 0); w.writeUInt8(this.withoutGoldBoxes ? 1 : 0); w.writeUInt8(this.withoutGoldSiren ? 1 : 0); w.writeUInt8(this.withoutGoldZone ? 1 : 0); w.writeUInt8(this.withoutMedkit ? 1 : 0); w.writeUInt8(this.withoutMines ? 1 : 0); w.writeUInt8(this.randomGold ? 1 : 0); w.writeUInt8(this.dependentCooldownEnabled ? 1 : 0); return w.getBuffer(); }
     static getId(): number { return -2135234426; }
@@ -155,4 +127,10 @@ export class NotifyFriendOfBattlePacket extends BasePacket implements LobbyTypes
     read(buffer: Buffer): void { const r = new BufferReader(buffer); this.battleId = r.readOptionalString(); this.mapName = r.readOptionalString(); this.mode = r.readInt32BE(); this.privateBattle = r.readUInt8() === 1; this.probattle = r.readUInt8() === 1; this.maxRank = r.readInt32BE(); this.minRank = r.readInt32BE(); this.serverNumber = r.readInt32BE(); this.nickname = r.readOptionalString(); }
     write(): Buffer { const w = new BufferWriter(); w.writeOptionalString(this.battleId); w.writeOptionalString(this.mapName); w.writeInt32BE(this.mode); w.writeUInt8(this.privateBattle ? 1 : 0); w.writeUInt8(this.probattle ? 1 : 0); w.writeInt32BE(this.maxRank); w.writeInt32BE(this.minRank); w.writeInt32BE(this.serverNumber); w.writeOptionalString(this.nickname); return w.getBuffer(); }
     static getId(): number { return -1895446889; }
+}
+
+export class UnloadBattleListPacket extends BasePacket implements LobbyTypes.IUnloadBattleList {
+    read(buffer: Buffer): void { }
+    write(): Buffer { return new BufferWriter().getBuffer(); }
+    static getId(): number { return -324155151; }
 }

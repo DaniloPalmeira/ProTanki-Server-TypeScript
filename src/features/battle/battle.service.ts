@@ -1,18 +1,15 @@
+import SystemMessage from "@/features/system/system.packets";
 import { UserDocument } from "../../models/User";
-import { Battle, BattleMode, MapTheme } from "./battle.model";
-import logger from "../../utils/Logger";
-import { ProTankiServer } from "../../server/ProTankiServer";
-import RemoveTankPacket from "../../packets/implementations/RemoveTankPacket";
-import UserDisconnectedDmPacket from "../../packets/implementations/UserDisconnectedDmPacket";
-import UpdateSpectatorListPacket from "../../packets/implementations/UpdateSpectatorListPacket";
-import { ProTankiClient } from "../../server/ProTankiClient";
-import { mapSpawns } from "../../types/mapSpawns";
 import { IVector3 } from "../../packets/interfaces/geom/IVector3";
+import { ProTankiClient } from "../../server/ProTankiClient";
+import { ProTankiServer } from "../../server/ProTankiServer";
 import { mapGeometries } from "../../types/mapGeometries";
-import DestroyTankPacket from "../../packets/implementations/DestroyTankPacket";
-import SystemMessage from "../../packets/implementations/SystemMessage";
-import { LobbyService } from "../lobby/lobby.service";
+import { mapSpawns } from "../../types/mapSpawns";
+import logger from "../../utils/Logger";
 import * as LobbyPackets from "../lobby/lobby.packets";
+import { LobbyService } from "../lobby/lobby.service";
+import { Battle, BattleMode, MapTheme } from "./battle.model";
+import { DestroyTankPacket, RemoveTankPacket, UpdateSpectatorListPacket, UserDisconnectedDmPacket } from "./battle.packets";
 
 interface IDisconnectedPlayerInfo {
     battleId: string;

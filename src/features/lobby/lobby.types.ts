@@ -1,7 +1,6 @@
-import { BattleMode, EquipmentConstraintsMode, IBattleCreationSettings } from "../battle/battle.model";
-import { UserDocument } from "../../models/User";
-import { IPacket } from "../../packets/interfaces/IPacket";
 import { IEmpty } from "../../packets/interfaces/IEmpty";
+import { IPacket } from "../../packets/interfaces/IPacket";
+import { BattleMode, IBattleCreationSettings } from "../battle/battle.model";
 
 export interface IBattleInfo extends IPacket {
     jsonData: string | null;
@@ -90,3 +89,5 @@ export interface INotifyFriendOfBattleData {
     nickname: string | null;
 }
 export interface INotifyFriendOfBattle extends IPacket, INotifyFriendOfBattleData { }
+
+export interface IUnloadBattleList extends IEmpty { }
