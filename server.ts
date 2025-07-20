@@ -18,7 +18,7 @@ import { PacketService } from "@/packets/PacketService";
 import { ShopService } from "@/services/ShopService";
 import { RankService } from "@/services/RankService";
 import { QuestService } from "@/services/QuestService";
-import { GarageService } from "@/services/GarageService";
+import { GarageService } from "@/features/garage/garage.service";
 import { FriendsService } from "@/features/friends/friends.service";
 import { AuthService } from "@/features/authentication/auth.service";
 import { LobbyService } from "@/features/lobby/lobby.service";

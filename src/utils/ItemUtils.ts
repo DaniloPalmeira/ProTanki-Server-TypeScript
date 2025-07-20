@@ -1,4 +1,4 @@
-import { itemBlueprints } from "../config/ItemData";
+import { itemBlueprints } from "../features/garage/garage.data";
 import { UserDocument } from "../models/User";
 
 export class ItemUtils {

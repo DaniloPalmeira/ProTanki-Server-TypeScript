@@ -4,7 +4,7 @@ import { ProTankiClient } from "../../server/ProTankiClient";
 import { ProTankiServer } from "../../server/ProTankiServer";
 import logger from "../../utils/Logger";
 import TankSpecificationPacket from "../../packets/implementations/TankSpecificationPacket";
-import { itemBlueprints } from "../../config/ItemData";
+import { itemBlueprints } from "../../features/garage/garage.data";
 import { UserDocument } from "../../models/User";
 import PrepareToSpawnPacket from "../../packets/implementations/PrepareToSpawnPacket";
 

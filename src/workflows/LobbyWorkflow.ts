@@ -15,7 +15,6 @@ import RankNotifierData from "@/packets/implementations/RankNotifierData";
 import ReferralInfo from "@/packets/implementations/ReferralInfo";
 import SetBattleInviteSound from "@/packets/implementations/SetBattleInviteSound";
 import SetLayout from "@/packets/implementations/SetLayout";
-import UnloadGaragePacket from "@/packets/implementations/UnloadGaragePacket";
 import { ProTankiClient } from "@/server/ProTankiClient";
 import { ProTankiServer } from "@/server/ProTankiServer";
 import { FormatUtils } from "@/utils/FormatUtils";
@@ -32,6 +31,7 @@ import { PopulatedChatMessage } from "@/features/chat/chat.service";
 import * as ChatPackets from "@/features/chat/chat.packets";
 import * as LobbyPackets from "@/features/lobby/lobby.packets";
 import { IChatMessageData } from "@/features/chat/chat.types";
+import { UnloadGaragePacket } from "@/features/garage/garage.packets";
 
 const mapUserToObject = (user: UserDocument) => ({
   kills: 0,

@@ -19,7 +19,7 @@ import { RankService } from "@/services/RankService";
 import { QuestService } from "@/services/QuestService";
 import { BattleService } from "@/features/battle/battle.service";
 import OnlineNotifierData from "@/packets/implementations/OnlineNotifierData";
-import { GarageService } from "@/services/GarageService";
+import { GarageService } from "@/features/garage/garage.service";
 import { FriendsService } from "@/features/friends/friends.service";
 import { AuthService } from "@/features/authentication/auth.service";
 import { LobbyService } from "@/features/lobby/lobby.service";
