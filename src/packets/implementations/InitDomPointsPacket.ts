@@ -62,48 +62,7 @@ export default class InitDomPointsPacket extends BasePacket implements IInitDomP
     }
 
     read(buffer: Buffer): void {
-        const reader = new BufferReader(buffer);
-        this.keypointTriggerRadius = reader.readFloatBE();
-        this.keypointVisorHeight = reader.readFloatBE();
-        this.minesRestrictionRadius = reader.readFloatBE();
-
-        const pointsLen = reader.readInt32BE();
-        this.points = [];
-        for (let i = 0; i < pointsLen; i++) {
-            this.points.push({
-                id: reader.readInt32BE(),
-                name: reader.readOptionalString(),
-                position: reader.readOptionalVector3(),
-                score: reader.readFloatBE(),
-                scoreChangeRate: reader.readFloatBE(),
-                state: reader.readInt32BE(),
-                tankIds: reader.readStringArray(),
-            });
-        }
-
-        this.bigLetters = reader.readInt32BE();
-        this.blueCircle = reader.readInt32BE();
-        this.bluePedestalTexture = reader.readInt32BE();
-        this.blueRay = reader.readInt32BE();
-        this.blueRayTip = reader.readInt32BE();
-        this.neutralCircle = reader.readInt32BE();
-        this.neutralPedestalTexture = reader.readInt32BE();
-        this.pedestal = reader.readInt32BE();
-        this.redCircle = reader.readInt32BE();
-        this.redPedestalTexture = reader.readInt32BE();
-        this.redRay = reader.readInt32BE();
-        this.redRayTip = reader.readInt32BE();
-
-        this.pointCaptureStartNegativeSound = reader.readInt32BE();
-        this.pointCaptureStartPositiveSound = reader.readInt32BE();
-        this.pointCaptureStopNegativeSound = reader.readInt32BE();
-        this.pointCaptureStopPositiveSound = reader.readInt32BE();
-        this.pointCapturedNegativeSound = reader.readInt32BE();
-        this.pointCapturedPositiveSound = reader.readInt32BE();
-        this.pointNeutralizedNegativeSound = reader.readInt32BE();
-        this.pointNeutralizedPositiveSound = reader.readInt32BE();
-        this.pointScoreDecreasingSound = reader.readInt32BE();
-        this.pointScoreIncreasingSound = reader.readInt32BE();
+        throw new Error("This is a server-to-client packet only.");
     }
 
     write(): Buffer {
@@ -135,7 +94,6 @@ export default class InitDomPointsPacket extends BasePacket implements IInitDomP
         writer.writeInt32BE(this.redPedestalTexture);
         writer.writeInt32BE(this.redRay);
         writer.writeInt32BE(this.redRayTip);
-
         writer.writeInt32BE(this.pointCaptureStartNegativeSound);
         writer.writeInt32BE(this.pointCaptureStartPositiveSound);
         writer.writeInt32BE(this.pointCaptureStopNegativeSound);
@@ -146,12 +104,10 @@ export default class InitDomPointsPacket extends BasePacket implements IInitDomP
         writer.writeInt32BE(this.pointNeutralizedPositiveSound);
         writer.writeInt32BE(this.pointScoreDecreasingSound);
         writer.writeInt32BE(this.pointScoreIncreasingSound);
-        console.log("InitDomPoints Hex:", writer.getBuffer().toString("hex"));
         return writer.getBuffer();
     }
 
     toString(): string {
-        console.log("InitDomPointsPacket.toString() called");
         return `InitDomPointsPacket(points=${this.points.length})`;
     }
 

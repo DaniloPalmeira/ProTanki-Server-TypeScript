@@ -528,6 +528,7 @@ export const ResourceData = {
     "sounds/isida/damaging": { idLow: 13178495, path: "/0/311/26/177/1/", versionLow: 1 },
     "sounds/isida/healing": { idLow: 5948425, path: "/0/132/304/11/1/", versionLow: 1 },
     "sounds/isida/idle": { idLow: 14001483, path: "/0/325/245/113/1/", versionLow: 1 },
+    "sounds/isida/turret": { idLow: 7166314, path: "/0/155/131/152/1/", versionLow: 1 },
     "sounds/machinegun/chain_start": { idLow: 412464, path: "/0/6/113/60/1/", versionLow: 1 },
     "sounds/machinegun/hit": { idLow: 2050204, path: "/0/37/110/234/1/", versionLow: 1 },
     "sounds/machinegun/long_fail": { idLow: 972555, path: "/0/16/327/13/1/", versionLow: 1 },

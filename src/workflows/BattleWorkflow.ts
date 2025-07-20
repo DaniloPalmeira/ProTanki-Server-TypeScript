@@ -213,7 +213,8 @@ export class BattleWorkflow {
       "sounds/flags/flag_drop",
       "sounds/flags/flag_return",
       "sounds/flags/flag_take",
-      "sounds/flags/win", "effects/cp/big_letters",
+      "sounds/flags/win",
+      "effects/cp/big_letters",
       "effects/cp/blue_circle",
       "effects/cp/blue_pedestal_texture",
       "effects/cp/blue_ray",
@@ -235,6 +236,7 @@ export class BattleWorkflow {
       "sounds/cp/point_neutralized_positive",
       "sounds/cp/point_score_decreasing",
       "sounds/cp/point_score_increasing",
+      "sounds/isida/turret"
     ];
 
     const dependencies = { resources: ResourceManager.getBulkResources(generalResources) };
@@ -291,11 +293,15 @@ export class BattleWorkflow {
 
     const team_type = battle.isTeamMode() ? (battle.usersBlue.some((u) => u.id === user.id) ? "BLUE" : "RED") : "NONE";
 
-    const partsObject = {
+    const partsObject: { [key: string]: number } = {
       engineIdleSound: ResourceManager.getIdlowById("sounds/hull/engine_idle"),
       engineStartMovingSound: ResourceManager.getIdlowById("sounds/hull/engine_start"),
       engineMovingSound: ResourceManager.getIdlowById("sounds/hull/engine_move"),
     };
+
+    if (user.equippedTurret === "isida") {
+      partsObject.turretSound = ResourceManager.getIdlowById("sounds/isida/turret");
+    }
 
     const sfxKey = `${user.equippedTurret}_m${user.turrets.get(user.equippedTurret) ?? 0}`;
     const blueprint = sfxBlueprints[sfxKey];
@@ -522,12 +528,11 @@ export class BattleWorkflow {
     client.sendPacket(new BattleStatsPacket(battleStatsData));
     client.sendPacket(new LoadBattleChatPacket());
 
-    const adjustZ = (pos: IVector3 | null): IVector3 | null => {
-      if (!pos) return null;
-      return { x: pos.x, y: pos.y, z: pos.z + 80 };
-    };
-
     if (battle.settings.battleMode === BattleMode.CTF) {
+      const adjustZ = (pos: IVector3 | null): IVector3 | null => {
+        if (!pos) return null;
+        return { x: pos.x, y: pos.y, z: pos.z + 80 };
+      };
 
       const ctfPacket = new InitCtfFlagsPacket({
         flagBasePositionBlue: adjustZ(battle.flagBasePositionBlue),
@@ -556,7 +561,7 @@ export class BattleWorkflow {
         points: battle.domPoints.map((p) => ({
           id: p.id,
           name: p.name,
-          position: adjustZ(p.position),
+          position: p.position,
           score: p.score,
           scoreChangeRate: 0,
           state: p.state,
