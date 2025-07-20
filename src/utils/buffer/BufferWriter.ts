@@ -69,17 +69,11 @@ export class BufferWriter {
   }
 
   public writeStringArray(array: string[] | null): this {
-    const isEmpty = false;
-    if (array === null){
-      array = [];
-    }
-    this.writeUInt8(isEmpty ? 1 : 0);
-
-    if (!isEmpty) {
-      this.writeInt32BE(array.length);
-      for (const item of array) {
-        this.writeOptionalString(item);
-      }
+    this.writeUInt8(0);
+    const finalArray = array ?? [];
+    this.writeInt32BE(finalArray.length);
+    for (const item of finalArray) {
+      this.writeOptionalString(item);
     }
     return this;
   }
