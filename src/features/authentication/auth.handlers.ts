@@ -168,65 +168,6 @@ export class RecoveryAccountVerifyCodeHandler implements IPacketHandler<AuthPack
     }
 }
 
-export class UpdatePasswordHandler implements IPacketHandler<AuthPackets.UpdatePassword> {
-    public readonly packetId = AuthPackets.UpdatePassword.getId();
-    public async execute(client: ProTankiClient, server: ProTankiServer, packet: AuthPackets.UpdatePassword): Promise<void> {
-        const originalEmail = client.recoveryEmail;
-        if (!originalEmail || !packet.password || !packet.email) {
-            client.sendPacket(new AuthPackets.UpdatePasswordResult(true, "Dados inválidos."));
-            return;
-        }
-        try {
-            await server.authService.updatePasswordByEmail(originalEmail, packet.password, packet.email);
-            logger.info(`Password updated for user with original email ${originalEmail}`, { client: client.getRemoteAddress(), newEmail: packet.email });
-            client.sendPacket(new AuthPackets.UpdatePasswordResult(false, "Sua senha foi alterada com sucesso."));
-        } catch (error: any) {
-            logger.error(`Failed to update password for ${originalEmail}`, { error: error.message });
-            if (error.message.includes("is already in use")) {
-                client.sendPacket(new AuthPackets.UpdatePasswordResult(true, "O e-mail fornecido já está em uso por outra conta."));
-            } else {
-                client.sendPacket(new AuthPackets.UpdatePasswordResult(true, "Ocorreu um erro ao atualizar sua senha."));
-            }
-        }
-    }
-}
-
-export class RequestChangePasswordFormHandler implements IPacketHandler<AuthPackets.RequestChangePasswordForm> {
-    public readonly packetId = AuthPackets.RequestChangePasswordForm.getId();
-    public execute(client: ProTankiClient, server: ProTankiServer): void {
-        if (!client.user) {
-            logger.warn("RequestChangePasswordForm received from unauthenticated client.", { client: client.getRemoteAddress() });
-            return;
-        }
-        const passwordCreated = !!client.user.password;
-        if (passwordCreated) {
-            client.sendPacket(new AuthPackets.ChangePasswordForm());
-        } else {
-            client.sendPacket(new AuthPackets.CreatePasswordForm());
-        }
-    }
-}
-
-export class LinkEmailRequestHandler implements IPacketHandler<AuthPackets.LinkEmailRequest> {
-    public readonly packetId = AuthPackets.LinkEmailRequest.getId();
-    public async execute(client: ProTankiClient, server: ProTankiServer, packet: AuthPackets.LinkEmailRequest): Promise<void> {
-        const currentUser = client.user;
-        if (!currentUser || !packet.email) return;
-        try {
-            const updatedUser = await server.authService.linkEmailToAccount(currentUser, packet.email);
-            client.user = updatedUser;
-            client.sendPacket(new AuthPackets.LinkAccountResultSuccess(updatedUser.email ?? null));
-        } catch (error: any) {
-            if (error.message === "EMAIL_IN_USE") {
-                client.sendPacket(new AuthPackets.LinkAccountFailedAccountInUse("email"));
-            } else {
-                logger.error(`Failed to link email for user ${currentUser.username}`, { error: error.message, client: client.getRemoteAddress() });
-                client.sendPacket(new AuthPackets.LinkAccountResultError());
-            }
-        }
-    }
-}
-
 export class LanguageHandler implements IPacketHandler<AuthPackets.Language> {
     public readonly packetId = AuthPackets.Language.getId();
 

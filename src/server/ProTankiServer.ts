@@ -8,6 +8,7 @@ import { GarageService } from "@/features/garage/garage.service";
 import { InviteService } from "@/features/invite/invite.service";
 import { LobbyService } from "@/features/lobby/lobby.service";
 import { QuestService } from "@/features/quests/quests.service";
+import { SettingsService } from "@/features/settings/settings.service";
 import { ShopService } from "@/features/shop/shop.service";
 import { PacketHandlerService } from "@/handlers/PacketHandlerService";
 import OnlineNotifierData from "@/packets/implementations/OnlineNotifierData";
@@ -39,6 +40,7 @@ export interface IServerServices {
   friendsService: FriendsService;
   authService: AuthService;
   lobbyService: LobbyService;
+  settingsService: SettingsService;
 }
 
 export class ProTankiServer {
@@ -70,6 +72,7 @@ export class ProTankiServer {
   public readonly friendsService: FriendsService;
   public readonly authService: AuthService;
   public readonly lobbyService: LobbyService;
+  public readonly settingsService: SettingsService;
 
   private _getBattleService: () => BattleService;
 
@@ -96,6 +99,7 @@ export class ProTankiServer {
     this.friendsService = services.friendsService;
     this.authService = services.authService;
     this.lobbyService = services.lobbyService;
+    this.settingsService = services.settingsService;
 
     this.server = net.createServer(this.handleConnection.bind(this));
     this.clientManager = new ClientManager();

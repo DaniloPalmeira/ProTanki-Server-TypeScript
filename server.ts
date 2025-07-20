@@ -10,6 +10,7 @@ import { GarageService } from "@/features/garage/garage.service";
 import { InviteService } from "@/features/invite/invite.service";
 import { LobbyService } from "@/features/lobby/lobby.service";
 import { QuestService } from "@/features/quests/quests.service";
+import { SettingsService } from "@/features/settings/settings.service";
 import { ShopService } from "@/features/shop/shop.service";
 import { PacketHandlerService } from "@/handlers/PacketHandlerService";
 import { PacketService } from "@/packets/PacketService";
@@ -35,6 +36,7 @@ async function bootstrap() {
   const configService = new ConfigService();
   const rankService = new RankService();
   const userService = new UserService(rankService);
+  const settingsService = new SettingsService(userService);
   const inviteService = new InviteService();
   const chatService = new ChatService(userService);
   const packetHandlerService = new PacketHandlerService();
@@ -88,6 +90,7 @@ async function bootstrap() {
       friendsService,
       authService,
       lobbyService,
+      settingsService,
     }
   );
 

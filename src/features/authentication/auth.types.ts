@@ -1,5 +1,4 @@
 import { IPacket } from "@/packets/interfaces/IPacket";
-import { IEmpty } from "@/packets/interfaces/IEmpty";
 
 export interface ILanguage extends IPacket {
     lang: string | null;
@@ -46,23 +45,6 @@ export interface IRecoveryAccountSendCode extends IPacket {
 export interface IRecoveryAccountVerifyCode extends IPacket {
     code: string | null;
 }
-export interface IUpdatePassword extends IPacket {
-    password: string | null;
-    email: string | null;
-}
-export interface IUpdatePasswordResult extends IPacket {
-    isError: boolean;
-    message: string | null;
-}
 export interface IGoToRecoveryPassword extends IPacket {
     email: string | null;
-}
-export interface ILinkEmailRequest extends IPacket {
-    email: string | null;
-}
-export interface ILinkAccountResultSuccess extends IPacket {
-    identifier: string | null;
-}
-export interface ILinkAccountFailedAccountInUse extends IPacket {
-    method: string | null;
 }
