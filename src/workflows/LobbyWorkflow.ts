@@ -1,42 +1,42 @@
-import { Achievement } from "../models/enums/Achievement";
-import { ChatModeratorLevel } from "../models/enums/ChatModeratorLevel";
-import { UserDocument, UserDocumentWithFriends } from "../models/User";
-import AchievementTips from "../packets/implementations/AchievementTips";
-import AntifloodSettings from "../packets/implementations/AntifloodSettings";
-import BattleInfo from "../packets/implementations/BattleInfo";
-import BattleList from "../packets/implementations/BattleList";
-import ChatHistory from "../packets/implementations/ChatHistory";
-import ChatProperties from "../packets/implementations/ChatProperties";
-import ConfirmLayoutChange from "../packets/implementations/ConfirmLayoutChange";
-import EmailInfo from "../packets/implementations/EmailInfo";
-import LoadDependencies from "../packets/implementations/LoadDependencies";
-import LobbyData from "../packets/implementations/LobbyData";
-import LocalizationInfo from "../packets/implementations/LocalizationInfo";
-import OnlineNotifierData from "../packets/implementations/OnlineNotifierData";
-import PremiumInfo from "../packets/implementations/PremiumInfo";
-import PremiumNotifierData from "../packets/implementations/PremiumNotifierData";
-import Punishment from "../packets/implementations/Punishment";
-import RankNotifierData from "../packets/implementations/RankNotifierData";
-import ReferralInfo from "../packets/implementations/ReferralInfo";
-import SelectBattlePacket from "../packets/implementations/SelectBattlePacket";
-import SetBattleInviteSound from "../packets/implementations/SetBattleInviteSound";
-import SetLayout from "../packets/implementations/SetLayout";
-import UnloadGaragePacket from "../packets/implementations/UnloadGaragePacket";
-import UserNotInBattlePacket from "../packets/implementations/UserNotInBattlePacket";
-import { IChatMessageData } from "../packets/interfaces/IChatHistory";
-import { ProTankiClient } from "../server/ProTankiClient";
-import { ProTankiServer } from "../server/ProTankiServer";
-import { FormatUtils } from "../utils/FormatUtils";
-import logger from "../utils/Logger";
-import { ResourceManager } from "../utils/ResourceManager";
+import { Achievement } from "@/models/enums/Achievement";
+import { ChatModeratorLevel } from "@/models/enums/ChatModeratorLevel";
+import { UserDocument, UserDocumentWithFriends } from "@/models/User";
+import AchievementTips from "@/packets/implementations/AchievementTips";
+import BattleInfo from "@/packets/implementations/BattleInfo";
+import BattleList from "@/packets/implementations/BattleList";
+import ConfirmLayoutChange from "@/packets/implementations/ConfirmLayoutChange";
+import EmailInfo from "@/packets/implementations/EmailInfo";
+import { FriendsList } from "@/features/friends/friends.packets";
+import LoadDependencies from "@/packets/implementations/LoadDependencies";
+import LobbyData from "@/packets/implementations/LobbyData";
+import LocalizationInfo from "@/packets/implementations/LocalizationInfo";
+import OnlineNotifierData from "@/packets/implementations/OnlineNotifierData";
+import PremiumInfo from "@/packets/implementations/PremiumInfo";
+import PremiumNotifierData from "@/packets/implementations/PremiumNotifierData";
+import Punishment from "@/packets/implementations/Punishment";
+import RankNotifierData from "@/packets/implementations/RankNotifierData";
+import ReferralInfo from "@/packets/implementations/ReferralInfo";
+import SelectBattlePacket from "@/packets/implementations/SelectBattlePacket";
+import SetBattleInviteSound from "@/packets/implementations/SetBattleInviteSound";
+import SetLayout from "@/packets/implementations/SetLayout";
+import UnloadGaragePacket from "@/packets/implementations/UnloadGaragePacket";
+import UserNotInBattlePacket from "@/packets/implementations/UserNotInBattlePacket";
+import { ProTankiClient } from "@/server/ProTankiClient";
+import { ProTankiServer } from "@/server/ProTankiServer";
+import { FormatUtils } from "@/utils/FormatUtils";
+import logger from "@/utils/Logger";
+import { ResourceManager } from "@/utils/ResourceManager";
 import { BattleWorkflow } from "./BattleWorkflow";
-import { Battle, BattleMode, EquipmentConstraintsMode } from "../models/Battle";
-import BattleDetails from "../packets/implementations/BattleDetails";
-import { CALLBACK } from "../config/constants";
-import { battleDataObject } from "../config/BattleData";
-import { ResourceId } from "../types/resourceTypes";
-import HideLoginForm from "../packets/implementations/HideLoginForm";
-import UnloadBattleListPacket from "../packets/implementations/UnloadBattleListPacket";
+import { Battle, BattleMode, EquipmentConstraintsMode } from "@/models/Battle";
+import BattleDetails from "@/packets/implementations/BattleDetails";
+import { CALLBACK } from "@/config/constants";
+import { battleDataObject } from "@/config/BattleData";
+import { ResourceId } from "@/types/resourceTypes";
+import HideLoginForm from "@/packets/implementations/HideLoginForm";
+import UnloadBattleListPacket from "@/packets/implementations/UnloadBattleListPacket";
+import { PopulatedChatMessage } from "@/features/chat/chat.service";
+import * as ChatPackets from "@/features/chat/chat.packets";
+import { IChatMessageData } from "@/features/chat/chat.types";
 
 const mapUserToObject = (user: UserDocument) => ({
   kills: 0,
@@ -218,7 +218,7 @@ export class LobbyWorkflow {
     const configService = server.configService;
 
     client.sendPacket(
-      new ChatProperties({
+      new ChatPackets.ChatProperties({
         admin: user.chatModeratorLevel === ChatModeratorLevel.ADMINISTRATOR,
         antifloodEnabled: configService.getChatAntifloodEnabled(),
         bufferSize: configService.getChatBufferSize(),
@@ -233,11 +233,11 @@ export class LobbyWorkflow {
       })
     );
 
-    client.sendPacket(new AntifloodSettings(configService.getChatCharDelayFactor(), configService.getChatMessageBaseDelay()));
+    client.sendPacket(new ChatPackets.AntifloodSettings(configService.getChatCharDelayFactor(), configService.getChatMessageBaseDelay()));
 
     const historyLimit = configService.getChatHistoryLimit();
     const messages = await server.chatService.getChatHistory(historyLimit);
-    const messageData: IChatMessageData[] = messages.map((msg) => ({
+    const messageData: IChatMessageData[] = messages.map((msg: PopulatedChatMessage) => ({
       message: msg.message,
       isSystem: msg.isSystemMessage,
       isWarning: msg.isWarning,
@@ -258,7 +258,7 @@ export class LobbyWorkflow {
         }
         : null,
     }));
-    client.sendPacket(new ChatHistory(messageData));
+    client.sendPacket(new ChatPackets.ChatHistory(messageData));
 
     client.isChatLoaded = true;
   }

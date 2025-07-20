@@ -37,7 +37,8 @@ export class PacketHandlerService {
       }
 
       const file = entry.name;
-      if (!(file.endsWith("handlers.ts") || file.endsWith("Handler.ts") || file.endsWith("handlers.js") || file.endsWith("Handler.js"))) {
+      const lowerCaseFile = file.toLowerCase();
+      if (!(lowerCaseFile.endsWith("handlers.ts") || lowerCaseFile.endsWith("handler.ts"))) {
         continue;
       }
 
