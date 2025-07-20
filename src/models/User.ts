@@ -2,7 +2,7 @@ import mongoose, { Schema, model, Document } from "mongoose";
 import bcrypt from "bcrypt";
 import { Achievement } from "./enums/Achievement";
 import { ChatModeratorLevel } from "./enums/ChatModeratorLevel";
-import { QuestDifficulty, QuestType } from "../config/QuestData";
+import { QuestDifficulty, QuestType } from "@/features/quests/quests.data";
 
 export interface IUserQuest {
   questId: number;
