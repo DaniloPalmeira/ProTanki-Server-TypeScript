@@ -1,8 +1,8 @@
-import User, { UserAttributes, UserDocument } from "@/models/User";
-import Invite from "@/models/Invite";
+import Invite from "@/features/invite/invite.model";
+import User, { UserDocument } from "@/models/User";
+import { RankService } from "@/services/RankService";
 import logger from "@/utils/Logger";
 import crypto from "crypto";
-import { RankService } from "@/services/RankService";
 
 export interface UserCreationAttributes {
     username: string;
