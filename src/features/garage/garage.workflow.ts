@@ -1,18 +1,18 @@
+import { LobbyWorkflow } from "@/features/lobby/lobby.workflow";
 import { CALLBACK } from "../../config/constants";
+import ConfirmDestructionPacket from "../../packets/implementations/ConfirmDestructionPacket";
+import ConfirmLayoutChange from "../../packets/implementations/ConfirmLayoutChange";
+import LoadDependencies from "../../packets/implementations/LoadDependencies";
+import SelfDestructScheduledPacket from "../../packets/implementations/SelfDestructScheduledPacket";
+import SetLayout from "../../packets/implementations/SetLayout";
+import UnloadBattleListPacket from "../../packets/implementations/UnloadBattleListPacket";
 import { ProTankiClient } from "../../server/ProTankiClient";
 import { ProTankiServer } from "../../server/ProTankiServer";
 import { ResourceId } from "../../types/resourceTypes";
 import logger from "../../utils/Logger";
 import { ResourceManager } from "../../utils/ResourceManager";
-import { LobbyWorkflow } from "../../workflows/LobbyWorkflow";
 import { itemBlueprints } from "./garage.data";
 import * as GaragePackets from "./garage.packets";
-import UnloadBattleListPacket from "../../packets/implementations/UnloadBattleListPacket";
-import SelfDestructScheduledPacket from "../../packets/implementations/SelfDestructScheduledPacket";
-import ConfirmDestructionPacket from "../../packets/implementations/ConfirmDestructionPacket";
-import SetLayout from "../../packets/implementations/SetLayout";
-import LoadDependencies from "../../packets/implementations/LoadDependencies";
-import ConfirmLayoutChange from "../../packets/implementations/ConfirmLayoutChange";
 
 export class GarageWorkflow {
     private static _loadGarageDependencies(client: ProTankiClient): void {

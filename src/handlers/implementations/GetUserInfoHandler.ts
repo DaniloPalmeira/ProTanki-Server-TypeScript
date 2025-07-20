@@ -1,8 +1,8 @@
-import { ProTankiClient } from "../../server/ProTankiClient";
-import { ProTankiServer } from "../../server/ProTankiServer";
+import { LobbyWorkflow } from "@/features/lobby/lobby.workflow";
 import { IPacketHandler } from "@/shared/interfaces/IPacketHandler";
 import GetUserInfo from "../../packets/implementations/GetUserInfo";
-import { LobbyWorkflow } from "../../workflows/LobbyWorkflow";
+import { ProTankiClient } from "../../server/ProTankiClient";
+import { ProTankiServer } from "../../server/ProTankiServer";
 
 export default class GetUserInfoHandler implements IPacketHandler<GetUserInfo> {
   public readonly packetId = GetUserInfo.getId();

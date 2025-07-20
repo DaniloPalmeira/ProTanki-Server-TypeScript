@@ -1,9 +1,8 @@
+import SystemMessage from "@/packets/implementations/SystemMessage";
 import { ProTankiClient } from "@/server/ProTankiClient";
 import { ProTankiServer } from "@/server/ProTankiServer";
 import { IPacketHandler } from "@/shared/interfaces/IPacketHandler";
 import logger from "@/utils/Logger";
-import { LobbyWorkflow } from "@/workflows/LobbyWorkflow";
-import SystemMessage from "@/packets/implementations/SystemMessage";
 import * as FriendPackets from "./friends.packets";
 
 export class AcceptFriendRequestHandler implements IPacketHandler<FriendPackets.AcceptFriendRequest> {

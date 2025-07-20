@@ -1,11 +1,11 @@
-import { ProTankiClient } from "../../server/ProTankiClient";
-import { ProTankiServer } from "../../server/ProTankiServer";
 import { GarageWorkflow } from "@/features/garage/garage.workflow";
-import { LobbyWorkflow } from "../../workflows/LobbyWorkflow";
+import { LobbyWorkflow } from "@/features/lobby/lobby.workflow";
 import { IPacketHandler } from "@/shared/interfaces/IPacketHandler";
 import ExitFromBattlePacket from "../../packets/implementations/ExitFromBattlePacket";
-import UnloadSpaceBattlePacket from "../../packets/implementations/UnloadSpaceBattlePacket";
 import UnloadBattleListPacket from "../../packets/implementations/UnloadBattleListPacket";
+import UnloadSpaceBattlePacket from "../../packets/implementations/UnloadSpaceBattlePacket";
+import { ProTankiClient } from "../../server/ProTankiClient";
+import { ProTankiServer } from "../../server/ProTankiServer";
 
 export default class ExitFromBattleHandler implements IPacketHandler<ExitFromBattlePacket> {
     public readonly packetId = ExitFromBattlePacket.getId();

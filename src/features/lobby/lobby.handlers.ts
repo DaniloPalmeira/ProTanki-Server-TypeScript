@@ -1,13 +1,13 @@
-import { ProTankiClient } from "../../server/ProTankiClient";
-import { ProTankiServer } from "../../server/ProTankiServer";
-import { IPacketHandler } from "../../shared/interfaces/IPacketHandler";
-import { BattleMode, EquipmentConstraintsMode } from "../battle/battle.model";
-import { battleDataObject } from "../../config/BattleData";
-import { ResourceManager } from "../../utils/ResourceManager";
-import { ResourceId } from "../../types/resourceTypes";
-import logger from "../../utils/Logger";
-import { LobbyWorkflow } from "../../workflows/LobbyWorkflow";
+import { battleDataObject } from "@/config/BattleData";
+import { BattleMode, EquipmentConstraintsMode } from "@/features/battle/battle.model";
+import { ProTankiClient } from "@/server/ProTankiClient";
+import { ProTankiServer } from "@/server/ProTankiServer";
+import { IPacketHandler } from "@/shared/interfaces/IPacketHandler";
+import { ResourceId } from "@/types/resourceTypes";
+import logger from "@/utils/Logger";
+import { ResourceManager } from "@/utils/ResourceManager";
 import * as LobbyPackets from "./lobby.packets";
+import { LobbyWorkflow } from "./lobby.workflow";
 
 export class CreateBattleHandler implements IPacketHandler<LobbyPackets.CreateBattleRequest> {
     public readonly packetId = LobbyPackets.CreateBattleRequest.getId();

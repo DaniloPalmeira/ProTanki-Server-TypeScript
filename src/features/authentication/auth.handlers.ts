@@ -1,14 +1,14 @@
+import { LobbyWorkflow } from "@/features/lobby/lobby.workflow";
+import SystemMessage from "@/packets/implementations/SystemMessage";
 import { ProTankiClient } from "@/server/ProTankiClient";
 import { ProTankiServer } from "@/server/ProTankiServer";
 import { IPacketHandler } from "@/shared/interfaces/IPacketHandler";
-import { ValidationUtils } from "@/utils/ValidationUtils";
-import logger from "@/utils/Logger";
-import { LobbyWorkflow } from "@/workflows/LobbyWorkflow";
-import { LoginWorkflow } from "@/workflows/LoginWorkflow";
 import generateCaptcha from "@/utils/GenerateCaptcha";
-import * as AuthPackets from "./auth.packets";
-import SystemMessage from "@/packets/implementations/SystemMessage";
+import logger from "@/utils/Logger";
+import { ValidationUtils } from "@/utils/ValidationUtils";
+import { LoginWorkflow } from "@/workflows/LoginWorkflow";
 import crypto from "crypto";
+import * as AuthPackets from "./auth.packets";
 
 export class CreateAccountHandler implements IPacketHandler<AuthPackets.CreateAccount> {
     public readonly packetId = AuthPackets.CreateAccount.getId();

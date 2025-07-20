@@ -1,12 +1,12 @@
+import { GarageWorkflow } from "@/features/garage/garage.workflow";
+import { LobbyWorkflow } from "@/features/lobby/lobby.workflow";
+import { IPacketHandler } from "@/shared/interfaces/IPacketHandler";
+import { CALLBACK } from "../../config/constants";
+import ResourceCallback from "../../packets/implementations/ResourceCallback";
 import { ProTankiClient } from "../../server/ProTankiClient";
 import { ProTankiServer } from "../../server/ProTankiServer";
-import { IPacketHandler } from "@/shared/interfaces/IPacketHandler";
-import ResourceCallback from "../../packets/implementations/ResourceCallback";
-import { CALLBACK } from "../../config/constants";
-import { LoginWorkflow } from "../../workflows/LoginWorkflow";
-import { GarageWorkflow } from "@/features/garage/garage.workflow";
-import { LobbyWorkflow } from "../../workflows/LobbyWorkflow";
 import { BattleWorkflow } from "../../workflows/BattleWorkflow";
+import { LoginWorkflow } from "../../workflows/LoginWorkflow";
 
 export default class ResourceCallbackHandler implements IPacketHandler<ResourceCallback> {
     public readonly packetId = ResourceCallback.getId();
