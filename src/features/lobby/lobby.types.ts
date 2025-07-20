@@ -91,3 +91,5 @@ export interface INotifyFriendOfBattleData {
 export interface INotifyFriendOfBattle extends IPacket, INotifyFriendOfBattleData { }
 
 export interface IUnloadBattleList extends IEmpty { }
+
+export interface IRequestLobby extends IEmpty { }

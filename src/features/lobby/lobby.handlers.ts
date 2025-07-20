@@ -130,3 +130,25 @@ export class ValidateBattleNameHandler implements IPacketHandler<LobbyPackets.Va
         client.sendPacket(new LobbyPackets.ValidateBattleNameResponse(sanitizedName));
     }
 }
+
+export class RequestLobbyHandler implements IPacketHandler<LobbyPackets.RequestLobbyPacket> {
+    public readonly packetId = LobbyPackets.RequestLobbyPacket.getId();
+
+    public async execute(client: ProTankiClient, server: ProTankiServer, packet: LobbyPackets.RequestLobbyPacket): Promise<void> {
+        const state = client.getState();
+
+        if (client.currentBattle) {
+            if (state === "battle") {
+                LobbyWorkflow.enterBattleLobbyView(client, server);
+            } else if (state === "battle_lobby") {
+                LobbyWorkflow.returnToBattleView(client, server);
+            } else if (state === "battle_garage") {
+                LobbyWorkflow.transitionFromGarageToLobby(client, server);
+            }
+        } else {
+            if (state === "chat_garage") {
+                await LobbyWorkflow.returnToLobby(client, server, true);
+            }
+        }
+    }
+}
