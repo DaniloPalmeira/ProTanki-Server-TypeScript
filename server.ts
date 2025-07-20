@@ -10,6 +10,7 @@ import { GarageService } from "@/features/garage/garage.service";
 import { InviteService } from "@/features/invite/invite.service";
 import { LobbyService } from "@/features/lobby/lobby.service";
 import { QuestService } from "@/features/quests/quests.service";
+import { ReferralService } from "@/features/referral/referral.service";
 import { SettingsService } from "@/features/settings/settings.service";
 import { ShopService } from "@/features/shop/shop.service";
 import { PacketHandlerService } from "@/handlers/PacketHandlerService";
@@ -47,6 +48,7 @@ async function bootstrap() {
   const friendsService = new FriendsService(userService);
   const authService = new AuthService(userService);
   const lobbyService = new LobbyService();
+  const referralService = new ReferralService();
   let battleService: BattleService;
 
   ResourceManager.loadResources();
@@ -91,6 +93,7 @@ async function bootstrap() {
       authService,
       lobbyService,
       settingsService,
+      referralService,
     }
   );
 

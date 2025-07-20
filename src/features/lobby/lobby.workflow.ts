@@ -20,7 +20,6 @@ import PremiumInfo from "@/packets/implementations/PremiumInfo";
 import PremiumNotifierData from "@/packets/implementations/PremiumNotifierData";
 import Punishment from "@/packets/implementations/Punishment";
 import RankNotifierData from "@/packets/implementations/RankNotifierData";
-import ReferralInfo from "@/packets/implementations/ReferralInfo";
 import SetBattleInviteSound from "@/packets/implementations/SetBattleInviteSound";
 import SetLayout from "@/packets/implementations/SetLayout";
 import { ProTankiClient } from "@/server/ProTankiClient";
@@ -29,6 +28,7 @@ import { ResourceId } from "@/types/resourceTypes";
 import { FormatUtils } from "@/utils/FormatUtils";
 import logger from "@/utils/Logger";
 import { ResourceManager } from "@/utils/ResourceManager";
+import { ReferralInfo } from "../referral/referral.packets";
 import * as LobbyPackets from "./lobby.packets";
 import { UnloadBattleListPacket } from "./lobby.packets";
 
