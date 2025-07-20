@@ -185,10 +185,11 @@ export class ProTankiClient {
           logger.warn(`No handler implemented for packet ID: ${packetId}`);
         }
       } catch (error: any) {
-        logger.error(`Error processing packet ID ${packetId}`, {
-          error,
-          client: this.getRemoteAddress(),
-        });
+        console.error(`Error processing packet ID ${packetId} client ${this.getRemoteAddress()}`, error);
+        // logger.error(`Error processing packet ID ${packetId}`, {
+        //   error,
+        //   client: this.getRemoteAddress(),
+        // });
         this.closeConnection();
         break;
       }

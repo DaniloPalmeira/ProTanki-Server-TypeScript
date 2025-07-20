@@ -1,25 +1,26 @@
-import { ProTankiServer } from "./src/server/ProTankiServer";
-import { ResourceServer } from "./src/server/ResourceServer";
+import { ProTankiServer } from "@/server/ProTankiServer";
+import { ResourceServer } from "@/server/ResourceServer";
 import dotenv from "dotenv";
-import { connectToDatabase, disconnectFromDatabase } from "./src/database";
-import { DEFAULT_PORT } from "./src/config/constants";
-import { UserService } from "./src/services/UserService";
-import { ConfigService } from "./src/services/ConfigService";
-import { ResourceManager } from "./src/utils/ResourceManager";
-import logger from "./src/utils/Logger";
+import { connectToDatabase, disconnectFromDatabase } from "@/database";
+import { DEFAULT_PORT } from "@/config/constants";
+import { UserService } from "@/services/UserService";
+import { ConfigService } from "@/services/ConfigService";
+import { ResourceManager } from "@/utils/ResourceManager";
+import logger from "@/utils/Logger";
 import fs from "fs";
 import path from "path";
-import { DebugConsole } from "./src/console/DebugConsole";
-import { CommandService } from "./src/commands/CommandService";
-import { InviteService } from "./src/services/InviteService";
-import { ChatService } from "./src/services/ChatService";
-import { PacketHandlerService } from "./src/handlers/PacketHandlerService";
-import { PacketService } from "./src/packets/PacketService";
-import { ShopService } from "./src/services/ShopService";
-import { RankService } from "./src/services/RankService";
-import { QuestService } from "./src/services/QuestService";
-import { BattleService } from "./src/services/BattleService";
-import { GarageService } from "./src/services/GarageService";
+import { DebugConsole } from "@/console/DebugConsole";
+import { CommandService } from "@/commands/CommandService";
+import { InviteService } from "@/services/InviteService";
+import { ChatService } from "@/services/ChatService";
+import { PacketHandlerService } from "@/handlers/PacketHandlerService";
+import { PacketService } from "@/packets/PacketService";
+import { ShopService } from "@/services/ShopService";
+import { RankService } from "@/services/RankService";
+import { QuestService } from "@/services/QuestService";
+import { BattleService } from "@/services/BattleService";
+import { GarageService } from "@/services/GarageService";
+import { FriendsService } from "@/features/friends/friends.service";
 
 dotenv.config();
 
@@ -39,6 +40,7 @@ async function bootstrap() {
   const shopService = new ShopService();
   const questService = new QuestService();
   const garageService = new GarageService();
+  const friendsService = new FriendsService(userService);
   let battleService: BattleService;
 
   ResourceManager.loadResources();
@@ -66,7 +68,7 @@ async function bootstrap() {
         minPasswordLength: 3,
       },
     },
-    () => battleService, // Pass a getter for battleService
+    () => battleService,
     {
       commandService,
       configService,
@@ -79,6 +81,7 @@ async function bootstrap() {
       rankService,
       questService,
       garageService,
+      friendsService,
     }
   );
 

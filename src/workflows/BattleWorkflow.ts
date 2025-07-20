@@ -236,7 +236,6 @@ export class BattleWorkflow {
       "sounds/cp/point_neutralized_positive",
       "sounds/cp/point_score_decreasing",
       "sounds/cp/point_score_increasing",
-      "sounds/isida/turret"
     ];
 
     const dependencies = { resources: ResourceManager.getBulkResources(generalResources) };

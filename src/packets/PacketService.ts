@@ -1,37 +1,48 @@
 import fs from "fs";
 import path from "path";
 import { IPacket } from "./interfaces/IPacket";
-import logger from "../utils/Logger";
+import logger from "@/utils/Logger";
 
 export class PacketService {
   private packets = new Map<number, new (...args: any[]) => IPacket>();
 
   public constructor() {
-    this.loadPackets(path.join(__dirname, "implementations"));
+    this.loadPacketsFromDir(path.join(__dirname, "implementations"));
+    this.loadPacketsFromDir(path.join(__dirname, "../features"));
   }
 
-  private loadPackets(dir: string): void {
+  private loadPacketsFromDir(dir: string): void {
+    if (!fs.existsSync(dir)) return;
+
     const entries = fs.readdirSync(dir, { withFileTypes: true });
 
     for (const entry of entries) {
       const fullPath = path.join(dir, entry.name);
       if (entry.isDirectory()) {
-        this.loadPackets(fullPath);
+        this.loadPacketsFromDir(fullPath);
         continue;
       }
 
       const file = entry.name;
-      if (!(file.endsWith(".ts") || file.endsWith(".js")) || file.endsWith("BasePacket.ts")) {
+      if (!(file.endsWith(".ts") || file.endsWith(".js")) || file.includes("BasePacket")) {
         continue;
       }
 
       try {
         const module = require(fullPath);
-        const PacketClass = module.default;
-
-        if (PacketClass && typeof PacketClass.getId === "function") {
-          const packetId = PacketClass.getId();
-          this.packets.set(packetId, PacketClass);
+        for (const key in module) {
+          const PacketClass = module[key];
+          if (PacketClass && typeof PacketClass.getId === 'function' && PacketClass.prototype?.hasOwnProperty('read')) {
+            try {
+              const packetId = PacketClass.getId();
+              if (this.packets.has(packetId)) {
+                logger.warn(`Packet ID ${packetId} from ${file} is already registered. Overwriting.`);
+              }
+              this.packets.set(packetId, PacketClass);
+            } catch (e) {
+              // Ignora erros de classes base como BasePacket que não devem ser registradas
+            }
+          }
         }
       } catch (error: any) {
         logger.error(`Falha ao carregar o pacote de ${file}`, { error: error.message });

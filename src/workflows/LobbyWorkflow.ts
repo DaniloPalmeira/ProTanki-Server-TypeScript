@@ -9,7 +9,6 @@ import ChatHistory from "../packets/implementations/ChatHistory";
 import ChatProperties from "../packets/implementations/ChatProperties";
 import ConfirmLayoutChange from "../packets/implementations/ConfirmLayoutChange";
 import EmailInfo from "../packets/implementations/EmailInfo";
-import FriendsList from "../packets/implementations/FriendsList";
 import LoadDependencies from "../packets/implementations/LoadDependencies";
 import LobbyData from "../packets/implementations/LobbyData";
 import LocalizationInfo from "../packets/implementations/LocalizationInfo";
@@ -244,19 +243,19 @@ export class LobbyWorkflow {
       isWarning: msg.isWarning,
       source: msg.sourceUser
         ? {
-            uid: msg.sourceUser.username,
-            rank: msg.sourceUser.rank,
-            moderatorLevel: msg.sourceUser.chatModeratorLevel,
-            ip: null,
-          }
+          uid: msg.sourceUser.username,
+          rank: msg.sourceUser.rank,
+          moderatorLevel: msg.sourceUser.chatModeratorLevel,
+          ip: null,
+        }
         : null,
       target: msg.targetUser
         ? {
-            uid: msg.targetUser.username,
-            rank: msg.targetUser.rank,
-            moderatorLevel: msg.targetUser.chatModeratorLevel,
-            ip: null,
-          }
+          uid: msg.targetUser.username,
+          rank: msg.targetUser.rank,
+          moderatorLevel: msg.targetUser.chatModeratorLevel,
+          ip: null,
+        }
         : null,
     }));
     client.sendPacket(new ChatHistory(messageData));
@@ -328,13 +327,6 @@ export class LobbyWorkflow {
 
     const jsonData = JSON.stringify({ battles: battleListPayload });
     client.sendPacket(new BattleList(jsonData));
-  }
-
-  public static async sendFriendsList(client: ProTankiClient, server: ProTankiServer): Promise<void> {
-    if (!client.user) return;
-
-    const friendsData = await server.userService.getFriendsData(client.user.id);
-    client.sendPacket(new FriendsList(friendsData));
   }
 
   public static async sendFullUserInfo(client: ProTankiClient, server: ProTankiServer, targetNickname: string): Promise<void> {

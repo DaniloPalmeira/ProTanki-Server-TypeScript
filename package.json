@@ -6,8 +6,8 @@
   "scripts": {
     "build:resources": "ts-node scripts/buildResources.ts",
     "build": "npm run build:resources && tsc && cpx \"src/config/initial-config.json\" dist",
-    "start": "node dist/server.js",
-    "dev": "npm run build:resources && ts-node-dev --respawn --transpile-only server.ts"
+    "start": "node -r tsconfig-paths/register dist/server.js",
+    "dev": "npm run build:resources && ts-node-dev -r tsconfig-paths/register --respawn --transpile-only server.ts"
   },
   "devDependencies": {
     "@types/bcrypt": "^5.0.2",
@@ -18,6 +18,7 @@
     "@types/xml2js": "^0.4.14",
     "cpx": "^1.5.0",
     "ts-node-dev": "^2.0.0",
+    "tsconfig-paths": "^4.2.0",
     "xml2js": "^0.6.2",
     "xmlbuilder2": "^3.1.1"
   },
