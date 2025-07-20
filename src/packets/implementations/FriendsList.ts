@@ -32,11 +32,11 @@ export default class FriendsList extends BasePacket implements IFriendsList {
 
   write(): Buffer {
     const writer = new BufferWriter();
-    writer.writeStringArray(this.acceptedFriends);
-    writer.writeStringArray(this.newAcceptedFriends);
-    writer.writeStringArray(this.incomingRequests);
-    writer.writeStringArray(this.newIncomingRequests);
-    writer.writeStringArray(this.outgoingRequests);
+    writer.writeOptionalStringArray(this.acceptedFriends);
+    writer.writeOptionalStringArray(this.newAcceptedFriends);
+    writer.writeOptionalStringArray(this.incomingRequests);
+    writer.writeOptionalStringArray(this.newIncomingRequests);
+    writer.writeOptionalStringArray(this.outgoingRequests);
     return writer.getBuffer();
   }
 

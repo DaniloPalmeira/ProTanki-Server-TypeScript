@@ -20,7 +20,7 @@ export default class NicknameUnavailable extends BasePacket implements INickname
 
   write(): Buffer {
     const writer = new BufferWriter();
-    writer.writeStringArray(this.suggestions);
+    writer.writeOptionalStringArray(this.suggestions);
     return writer.getBuffer();
   }
 

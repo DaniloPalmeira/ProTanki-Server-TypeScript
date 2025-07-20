@@ -55,8 +55,24 @@ export class BufferWriter {
     return this;
   }
 
-  public writeStringArray(array: string[] | null): this {
+  public writeOptionalStringArray(array: string[] | null): this {
     const isEmpty = !array || array.length === 0;
+    this.writeUInt8(isEmpty ? 1 : 0);
+
+    if (!isEmpty) {
+      this.writeInt32BE(array.length);
+      for (const item of array) {
+        this.writeOptionalString(item);
+      }
+    }
+    return this;
+  }
+
+  public writeStringArray(array: string[] | null): this {
+    const isEmpty = false;
+    if (array === null){
+      array = [];
+    }
     this.writeUInt8(isEmpty ? 1 : 0);
 
     if (!isEmpty) {

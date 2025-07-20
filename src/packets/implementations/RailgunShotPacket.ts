@@ -44,7 +44,7 @@ export default class RailgunShotPacket extends BasePacket implements IRailgunSho
     const nicknames = this.targets.map((t) => t.nickname);
     const positions = this.targets.map((t) => t.position);
 
-    writer.writeStringArray(nicknames);
+    writer.writeOptionalStringArray(nicknames);
     writer.writeVector3Array(positions);
 
     return writer.getBuffer();

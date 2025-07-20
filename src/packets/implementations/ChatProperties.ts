@@ -56,7 +56,7 @@ export default class ChatProperties extends BasePacket implements IChatPropertie
     writer.writeInt32BE(this.bufferSize);
     writer.writeUInt8(this.chatEnabled ? 1 : 0);
     writer.writeInt32BE(this.chatModeratorLevel);
-    writer.writeStringArray(this.linksWhiteList);
+    writer.writeOptionalStringArray(this.linksWhiteList);
     writer.writeInt32BE(this.minChar);
     writer.writeInt32BE(this.minWord);
     writer.writeOptionalString(this.selfName);

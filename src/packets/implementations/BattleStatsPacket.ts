@@ -62,7 +62,7 @@ export default class BattleStatsPacket extends BasePacket implements IBattleStat
     writer.writeUInt8(this.parkourMode ? 1 : 0);
     writer.writeInt32BE(this.premiumBonusInPercent);
     writer.writeUInt8(this.spectator ? 1 : 0);
-    writer.writeStringArray(this.suspiciousUserIds);
+    writer.writeOptionalStringArray(this.suspiciousUserIds);
     writer.writeInt32BE(this.timeLeft);
     return writer.getBuffer();
   }
