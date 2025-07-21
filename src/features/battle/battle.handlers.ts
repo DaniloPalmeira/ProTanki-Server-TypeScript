@@ -1,4 +1,5 @@
 import { battleDataObject } from "@/config/battle.data";
+import { CommandContext } from "@/features/chat/commands/command.types";
 import { AddUserToBattleDmPacket, NotifyFriendOfBattlePacket, ReservePlayerSlotDmPacket, UnloadBattleListPacket } from "@/features/lobby/lobby.packets";
 import { SystemMessage } from "@/features/system/system.packets";
 import { GameClient } from "@/server/game.client";
@@ -409,15 +410,40 @@ export class SendBattleChatMessageHandler implements IPacketHandler<BattlePacket
             return;
         }
 
-        let senderTeamId = 2; // NONE
+        if (packet.message.startsWith("/")) {
+            const replyFunction = (message: string) => {
+                let senderTeamId = 2;
+                if (battle.isTeamMode()) {
+                    if (battle.usersBlue.some((p) => p.id === user.id)) senderTeamId = 1;
+                    else if (battle.usersRed.some((p) => p.id === user.id)) senderTeamId = 0;
+                }
+
+                const replyData = {
+                    nickname: user.username,
+                    message: message,
+                    team: senderTeamId,
+                };
+                client.sendPacket(new BattlePackets.BattleChatMessagePacket(replyData));
+            };
+
+            const context: CommandContext = {
+                executor: client,
+                server: server,
+                reply: replyFunction,
+            };
+            await server.commandService.process(packet.message, context);
+            return;
+        }
+
+        let senderTeamId = 2;
         let senderTeam: UserDocument[] = [];
 
         if (battle.isTeamMode()) {
             if (battle.usersBlue.some((p: UserDocument) => p.id === user.id)) {
-                senderTeamId = 1; // BLUE
+                senderTeamId = 1;
                 senderTeam = battle.usersBlue;
             } else if (battle.usersRed.some((p: UserDocument) => p.id === user.id)) {
-                senderTeamId = 0; // RED
+                senderTeamId = 0;
                 senderTeam = battle.usersRed;
             }
         }
