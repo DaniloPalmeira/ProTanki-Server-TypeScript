@@ -1,5 +1,12 @@
 import { IPacket } from "@/packets/IPacket";
 
+export interface IRegistrationForm {
+    bgResource: number;
+    enableRequiredEmail: boolean;
+    maxPasswordLength: number;
+    minPasswordLength: number;
+}
+
 export interface ILanguage extends IPacket {
     lang: string | null;
 }

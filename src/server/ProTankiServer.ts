@@ -1,6 +1,6 @@
 import { DEFAULT_MAX_CLIENTS, DEFAULT_PORT } from "@/config/constants";
 import { AuthService } from "@/features/authentication/auth.service";
-import { IRegistration } from "@/features/authentication/auth.types";
+import { IRegistrationForm } from "@/features/authentication/auth.types";
 import { BattleService } from "@/features/battle/battle.service";
 import { ChatService } from "@/features/chat/chat.service";
 import { CommandService } from "@/features/chat/commands/command.service";
@@ -54,7 +54,7 @@ export class ProTankiServer {
   private maxClients: number;
   private needInviteCode: boolean;
   private socialNetworks: Array<string[]>;
-  private loginForm: IRegistration;
+  private loginForm: IRegistrationForm;
 
   private dynamicCallbacks: Map<number, (client: ProTankiClient) => void> = new Map();
   private nextCallbackId: number = 1000;
@@ -196,7 +196,7 @@ export class ProTankiServer {
     return this.socialNetworks;
   }
 
-  public getLoginForm(): IRegistration {
+  public getLoginForm(): IRegistrationForm {
     return this.loginForm;
   }
 

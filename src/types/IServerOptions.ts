@@ -1,9 +1,9 @@
-import { IRegistration } from "@/features/authentication/auth.types";
+import { IRegistrationForm } from "@/features/authentication/auth.types";
 
 export interface IServerOptions {
   port: number;
   maxClients: number;
   needInviteCode: boolean;
   socialNetworks: Array<string[]>;
-  loginForm: IRegistration;
+  loginForm: IRegistrationForm;
 }
