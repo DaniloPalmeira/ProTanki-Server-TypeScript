@@ -7,7 +7,8 @@ import { IVector3 } from "@/shared/types/geom/ivector3";
 import { mapGeometries } from "@/types/mapGeometries";
 import { mapSpawns } from "@/types/mapSpawns";
 import logger from "@/utils/logger";
-import { Battle, BattleMode, MapTheme } from "./battle.model";
+import { ResourceManager } from "@/utils/resource.manager";
+import { Battle, BattleMode } from "./battle.model";
 import { DestroyTankPacket, RemoveTankPacket, UpdateSpectatorListPacket, UserDisconnectedDmPacket } from "./battle.packets";
 
 interface IDisconnectedPlayerInfo {
@@ -30,8 +31,7 @@ export class BattleService {
         if (!user || !currentBattle || !battlePosition) return;
 
         const mapId = currentBattle.settings.mapId.replace("map_", "");
-        const themeStr = MapTheme[currentBattle.settings.mapTheme].toLowerCase();
-        const mapResourceId = `map/${mapId}/${themeStr}/xml`;
+        const mapResourceId = ResourceManager.getMapResourceIdWithFallback(mapId, currentBattle.settings.mapTheme);
 
         const geometries = mapGeometries[mapResourceId];
         if (!geometries) return;
@@ -82,8 +82,7 @@ export class BattleService {
 
     public getSpawnPoint(battle: Battle, team: "DM" | "BLUE" | "RED"): { position: IVector3; rotation: IVector3 } {
         const mapId = battle.settings.mapId.replace("map_", "");
-        const themeStr = MapTheme[battle.settings.mapTheme].toLowerCase();
-        const mapResourceId = `map/${mapId}/${themeStr}/xml`;
+        const mapResourceId = ResourceManager.getMapResourceIdWithFallback(mapId, battle.settings.mapTheme);
 
         const allMapSpawns = mapSpawns[mapResourceId];
         if (!allMapSpawns || allMapSpawns.length === 0) {

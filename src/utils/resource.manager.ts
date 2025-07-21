@@ -154,10 +154,45 @@ export class ResourceManager {
     }
 
     public static getMapResources(mapId: string, theme: string): IDependency[] {
-        const themePath = theme.toLowerCase();
-        const mapXmlResourceId = `map/${mapId}/${themePath}/xml` as ResourceId;
+        const themeEnumKey = theme.toUpperCase() as keyof typeof MapTheme;
+        const themeEnumValue = MapTheme[themeEnumKey];
+
+        if (themeEnumValue === undefined) {
+            throw new Error(`Invalid map theme string provided: ${theme}`);
+        }
+
+        const mapXmlResourceId = this.getMapResourceIdWithFallback(mapId, themeEnumValue);
         const mapResource = this.getResourceById(mapXmlResourceId);
         const libraryResourceIds = this._getMapLibsByIdLow(mapResource.idlow);
         return this.getBulkResources(libraryResourceIds);
+    }
+
+    public static getMapResourceIdWithFallback(mapIdWithoutPrefix: string, theme: MapTheme): ResourceId {
+        const themeStr = MapTheme[theme].toLowerCase();
+        const specificResourceId = `map/${mapIdWithoutPrefix}/${themeStr}/xml` as ResourceId;
+
+        if (ResourceData[specificResourceId]) {
+            return specificResourceId;
+        }
+
+        logger.debug(`Specific map resource not found for '${specificResourceId}', attempting fallback.`);
+
+        let fallbackTheme: MapTheme | null = null;
+        if (theme === MapTheme.SPACE || theme === MapTheme.SUMMER_NIGHT || theme === MapTheme.SUMMER_DAY) {
+            fallbackTheme = MapTheme.SUMMER;
+        } else if (theme === MapTheme.WINTER_NIGHT || theme === MapTheme.WINTER_DAY) {
+            fallbackTheme = MapTheme.WINTER;
+        }
+
+        if (fallbackTheme !== null) {
+            const fallbackThemeStr = MapTheme[fallbackTheme].toLowerCase();
+            const fallbackResourceId = `map/${mapIdWithoutPrefix}/${fallbackThemeStr}/xml` as ResourceId;
+            if (ResourceData[fallbackResourceId]) {
+                logger.debug(`Using fallback map resource '${fallbackResourceId}'.`);
+                return fallbackResourceId;
+            }
+        }
+
+        throw new Error(`Could not find a valid map resource for map '${mapIdWithoutPrefix}' with theme '${themeStr}' or its fallback.`);
     }
 }

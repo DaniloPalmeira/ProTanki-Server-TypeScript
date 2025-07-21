@@ -1,11 +1,8 @@
-import { battleDataObject } from "@/config/battle.data";
 import { BattleMode, EquipmentConstraintsMode } from "@/features/battle/battle.model";
 import { GameClient } from "@/server/game.client";
 import { GameServer } from "@/server/game.server";
 import { IPacketHandler } from "@/shared/interfaces/ipacket-handler";
-import { ResourceId } from "@/types/resourceTypes";
 import logger from "@/utils/logger";
-import { ResourceManager } from "@/utils/resource.manager";
 import * as LobbyPackets from "./lobby.packets";
 import { LobbyWorkflow } from "./lobby.workflow";
 
@@ -17,58 +14,53 @@ export class CreateBattleHandler implements IPacketHandler<LobbyPackets.CreateBa
             return;
         }
 
-        const battle = server.lobbyService.createBattle(packet, client.user);
+        try {
+            const battle = server.lobbyService.createBattle(packet, client.user);
 
-        client.lastViewedBattleId = battle.battleId;
+            client.lastViewedBattleId = battle.battleId;
 
-        const battleModeStr = BattleMode[packet.battleMode];
-        const equipmentConstraintsModeStr = EquipmentConstraintsMode[packet.equipmentConstraintsMode];
+            const battleModeStr = BattleMode[packet.battleMode];
+            const equipmentConstraintsModeStr = EquipmentConstraintsMode[packet.equipmentConstraintsMode];
+            const preview = LobbyWorkflow.getMapPreviewResourceId(battle);
 
-        const mapInfo = battleDataObject.maps.find((m) => m.mapId === battle.settings.mapId);
-        let preview = 0;
-        if (mapInfo) {
-            try {
-                preview = ResourceManager.getIdlowById(mapInfo.previewResource as ResourceId);
-            } catch (error) {
-                logger.warn(`Could not find resource for map preview: ${mapInfo.previewResource}`);
+            const basePayload = {
+                battleId: battle.battleId,
+                battleMode: battleModeStr,
+                map: battle.settings.mapId,
+                maxPeople: battle.settings.maxPeopleCount,
+                name: battle.settings.name,
+                privateBattle: battle.settings.privateBattle,
+                proBattle: battle.settings.proBattle,
+                minRank: battle.settings.minRank,
+                maxRank: battle.settings.maxRank,
+                preview: preview,
+                parkourMode: battle.settings.parkourMode,
+                equipmentConstraintsMode: equipmentConstraintsModeStr,
+                suspicionLevel: "NONE",
+            };
+
+            let finalPayload;
+
+            if (battle.isTeamMode()) {
+                finalPayload = {
+                    ...basePayload,
+                    usersBlue: [],
+                    usersRed: [],
+                };
+            } else {
+                finalPayload = {
+                    ...basePayload,
+                    users: [],
+                };
             }
+
+            const responsePacket = new LobbyPackets.CreateBattleResponse(JSON.stringify(finalPayload));
+            server.broadcastToBattleList(responsePacket);
+
+            await LobbyWorkflow.sendBattleDetails(client, server, battle);
+        } catch (error: any) {
+            logger.error(`Failed to create battle for user ${client.user.username}: ${error.message}`, { client: client.getRemoteAddress() });
         }
-
-        const basePayload = {
-            battleId: battle.battleId,
-            battleMode: battleModeStr,
-            map: battle.settings.mapId,
-            maxPeople: battle.settings.maxPeopleCount,
-            name: battle.settings.name,
-            privateBattle: battle.settings.privateBattle,
-            proBattle: battle.settings.proBattle,
-            minRank: battle.settings.minRank,
-            maxRank: battle.settings.maxRank,
-            preview: preview,
-            parkourMode: battle.settings.parkourMode,
-            equipmentConstraintsMode: equipmentConstraintsModeStr,
-            suspicionLevel: "NONE",
-        };
-
-        let finalPayload;
-
-        if (battle.isTeamMode()) {
-            finalPayload = {
-                ...basePayload,
-                usersBlue: [],
-                usersRed: [],
-            };
-        } else {
-            finalPayload = {
-                ...basePayload,
-                users: [],
-            };
-        }
-
-        const responsePacket = new LobbyPackets.CreateBattleResponse(JSON.stringify(finalPayload));
-        server.broadcastToBattleList(responsePacket);
-
-        await LobbyWorkflow.sendBattleDetails(client, server, battle);
     }
 }
 

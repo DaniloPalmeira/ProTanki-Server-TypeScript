@@ -55,8 +55,7 @@ export class BattleWorkflow {
         logger.info(`User ${client.user?.username} is loading map geometry for battle ${battle.battleId}.`);
 
         const mapId = battle.settings.mapId.replace("map_", "");
-        const themeStr = MapTheme[battle.settings.mapTheme].toLowerCase();
-        const mapResourceId = `map/${mapId}/${themeStr}/xml` as ResourceId;
+        const mapResourceId = ResourceManager.getMapResourceIdWithFallback(mapId, battle.settings.mapTheme);
 
         const dependencies = { resources: ResourceManager.getBulkResources([mapResourceId]) };
         client.sendPacket(new LoadDependencies(dependencies, CALLBACK.BATTLE_MAP_GEOMETRY_LOADED));
@@ -295,7 +294,8 @@ export class BattleWorkflow {
         const settings = battle.settings;
         const mapIdWithPrefix = settings.mapId;
         const mapIdWithoutPrefix = mapIdWithPrefix.replace("map_", "");
-        const themeStr = MapTheme[battle.settings.mapTheme].toLowerCase();
+
+        const mapResourceId = ResourceManager.getMapResourceIdWithFallback(mapIdWithoutPrefix, settings.mapTheme);
 
         const skyboxResourceIds = ResourceManager.getSkyboxResourceIds(mapIdWithoutPrefix, settings.mapTheme);
         const skyboxData = {
@@ -337,7 +337,7 @@ export class BattleWorkflow {
         const mapInitData = {
             kick_period_ms: 300000,
             map_id: mapIdWithPrefix,
-            mapId: ResourceManager.getIdlowById(`map/${mapIdWithoutPrefix}/${themeStr}/xml` as ResourceId),
+            mapId: ResourceManager.getIdlowById(mapResourceId),
             invisible_time: 3500,
             spectator: client.isSpectator,
             active: true,

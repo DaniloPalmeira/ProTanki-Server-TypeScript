@@ -3,6 +3,7 @@ import { UserDocument } from "@/shared/models/user.model";
 import { mapCtfFlags } from "@/types/mapCtfFlags";
 import { mapDomKeypoints } from "@/types/mapDomKeypoints";
 import logger from "@/utils/logger";
+import { ResourceManager } from "@/utils/resource.manager";
 import { ValidationUtils } from "@/utils/validation.utils";
 
 export class LobbyService {
@@ -55,46 +56,50 @@ export class LobbyService {
     }
 
     public createBattle(settings: IBattleCreationSettings, creator?: UserDocument): Battle {
-        const battle = new Battle(settings);
         const mapId = settings.mapId.replace("map_", "");
-        const themeStr = MapTheme[settings.mapTheme].toLowerCase();
-        const mapResourceId = `map/${mapId}/${themeStr}/xml`;
+        try {
+            const mapResourceId = ResourceManager.getMapResourceIdWithFallback(mapId, settings.mapTheme);
+            const battle = new Battle(settings);
 
-        if (settings.battleMode === BattleMode.CTF) {
-            const flags = mapCtfFlags[mapResourceId];
-            if (flags) {
-                battle.flagBasePositionBlue = flags.blue;
-                battle.flagPositionBlue = flags.blue;
-                battle.flagBasePositionRed = flags.red;
-                battle.flagPositionRed = flags.red;
-            } else {
-                logger.warn(`CTF flag positions not found for map ${mapResourceId}.`);
+            if (settings.battleMode === BattleMode.CTF) {
+                const flags = mapCtfFlags[mapResourceId];
+                if (flags) {
+                    battle.flagBasePositionBlue = flags.blue;
+                    battle.flagPositionBlue = flags.blue;
+                    battle.flagBasePositionRed = flags.red;
+                    battle.flagPositionRed = flags.red;
+                } else {
+                    logger.warn(`CTF flag positions not found for map ${mapResourceId}.`);
+                }
             }
-        }
 
-        if (settings.battleMode === BattleMode.CP) {
-            const keypoints = mapDomKeypoints[mapResourceId];
-            if (keypoints) {
-                battle.domPoints = keypoints.map((kp, index) => ({
-                    id: index,
-                    name: kp.name,
-                    position: kp.position,
-                    state: 2,
-                    score: 0,
-                    tanksOnPoint: [],
-                }));
-            } else {
-                logger.warn(`DOM keypoints not found for map ${mapResourceId}.`);
+            if (settings.battleMode === BattleMode.CP) {
+                const keypoints = mapDomKeypoints[mapResourceId];
+                if (keypoints) {
+                    battle.domPoints = keypoints.map((kp, index) => ({
+                        id: index,
+                        name: kp.name,
+                        position: kp.position,
+                        state: 2,
+                        score: 0,
+                        tanksOnPoint: [],
+                    }));
+                } else {
+                    logger.warn(`DOM keypoints not found for map ${mapResourceId}.`);
+                }
             }
-        }
 
-        this.activeBattles.set(battle.battleId, battle);
-        logger.info(`Battle created`, {
-            battleId: battle.battleId,
-            name: settings.name,
-            creator: creator?.username ?? "System",
-        });
-        return battle;
+            this.activeBattles.set(battle.battleId, battle);
+            logger.info(`Battle created`, {
+                battleId: battle.battleId,
+                name: settings.name,
+                creator: creator?.username ?? "System",
+            });
+            return battle;
+        } catch (error: any) {
+            logger.error(`Failed to create battle due to missing map resource: ${error.message}`);
+            throw new Error("Não foi possível criar a batalha. O mapa selecionado não está disponível no servidor.");
+        }
     }
 
     public getBattles(): Battle[] {

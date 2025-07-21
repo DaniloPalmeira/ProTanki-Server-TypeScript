@@ -1,7 +1,7 @@
 import { battleDataObject } from "@/config/battle.data";
 import { CALLBACK } from "@/config/constants";
 import { HideLoginForm, Punishment } from "@/features/authentication/auth.packets";
-import { Battle, BattleMode, EquipmentConstraintsMode } from "@/features/battle/battle.model";
+import { Battle, BattleMode, EquipmentConstraintsMode, MapTheme } from "@/features/battle/battle.model";
 import { BattleWorkflow } from "@/features/battle/battle.workflow";
 import * as ChatPackets from "@/features/chat/chat.packets";
 import { PopulatedChatMessage } from "@/features/chat/chat.service";
@@ -272,15 +272,7 @@ export class LobbyWorkflow {
         const battles = server.lobbyService.getBattles();
 
         const battleListPayload = battles.map((battle) => {
-            const mapInfo = battleDataObject.maps.find((m) => m.mapId === battle.settings.mapId);
-            let preview = 0;
-            if (mapInfo) {
-                try {
-                    preview = ResourceManager.getIdlowById(mapInfo.previewResource as ResourceId);
-                } catch (error) {
-                    logger.warn(`Could not find resource for map preview: ${mapInfo.previewResource}`);
-                }
-            }
+            const preview = this.getMapPreviewResourceId(battle);
             const basePayload = {
                 battleId: battle.battleId,
                 battleMode: BattleMode[battle.settings.battleMode],
@@ -315,18 +307,26 @@ export class LobbyWorkflow {
         client.sendPacket(new LobbyPackets.BattleList(jsonData));
     }
 
-    public static async sendBattleDetails(client: GameClient, server: GameServer, battle: Battle): Promise<void> {
-        client.sendPacket(new LobbyPackets.SelectBattlePacket(battle.battleId));
+    public static getMapPreviewResourceId(battle: Battle): number {
+        const battleThemeStr = MapTheme[battle.settings.mapTheme];
+        const mapInfo = battleDataObject.maps.find((m) => m.mapId === battle.settings.mapId && m.theme === battleThemeStr);
 
-        const mapInfo = battleDataObject.maps.find((m) => m.mapId === battle.settings.mapId);
-        let preview = 0;
         if (mapInfo) {
             try {
-                preview = ResourceManager.getIdlowById(mapInfo.previewResource as ResourceId);
+                return ResourceManager.getIdlowById(mapInfo.previewResource as ResourceId);
             } catch (error) {
                 logger.warn(`Could not find resource for map preview: ${mapInfo.previewResource}`);
             }
+        } else {
+            logger.warn(`Could not find map info for mapId: ${battle.settings.mapId} and theme: ${battleThemeStr}`);
         }
+        return 0;
+    }
+
+    public static async sendBattleDetails(client: GameClient, server: GameServer, battle: Battle): Promise<void> {
+        client.sendPacket(new LobbyPackets.SelectBattlePacket(battle.battleId));
+
+        const preview = this.getMapPreviewResourceId(battle);
 
         let timeLeftInSec = battle.settings.timeLimitInSec;
         if (battle.roundStarted && battle.roundStartTime) {
