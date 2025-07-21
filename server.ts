@@ -15,7 +15,7 @@ import { QuestService } from "@/features/quests/quests.service";
 import { ReferralService } from "@/features/referral/referral.service";
 import { SettingsService } from "@/features/settings/settings.service";
 import { ShopService } from "@/features/shop/shop.service";
-import { PacketHandlerService } from "@/handlers/PacketHandlerService";
+import { PacketHandlerService } from "@/packets/PacketHandlerService";
 import { PacketService } from "@/packets/PacketService";
 import { ProTankiServer } from "@/server/ProTankiServer";
 import { ResourceServer } from "@/server/ResourceServer";
