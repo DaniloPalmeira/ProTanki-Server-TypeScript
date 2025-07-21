@@ -1,5 +1,5 @@
 import { DEFAULT_MAX_CLIENTS, DEFAULT_PORT } from "@/config/constants";
-import { ConfigService } from "@/core/config/ConfigService";
+import { ConfigService } from "@/core/config/config.service";
 import { AuthService } from "@/features/authentication/auth.service";
 import { IRegistrationForm } from "@/features/authentication/auth.types";
 import { BattleService } from "@/features/battle/battle.service";

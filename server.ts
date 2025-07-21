@@ -1,6 +1,6 @@
 import { DEFAULT_PORT } from "@/config/constants";
 import { DebugConsole } from "@/console/DebugConsole";
-import { ConfigService } from "@/core/config/ConfigService";
+import { ConfigService } from "@/core/config/config.service";
 import { connectToDatabase, disconnectFromDatabase } from "@/database";
 import { AuthService } from "@/features/authentication/auth.service";
 import { BattleService } from "@/features/battle/battle.service";

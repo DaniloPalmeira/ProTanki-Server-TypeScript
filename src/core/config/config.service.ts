@@ -1,6 +1,6 @@
 import { DEFAULT_MAX_CLIENTS } from "@/config/constants";
-import Config, { IConfig } from "@/models/Config";
 import logger from "@/utils/Logger";
+import Config, { IConfig } from "./config.model";
 
 export class ConfigService {
     private cachedConfigs: { [key: string]: string } = {};
