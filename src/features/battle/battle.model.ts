@@ -1,3 +1,4 @@
+import { IDependency } from "@/features/loader/loader.types";
 import { UserDocument } from "@/shared/models/user.model";
 import { IVector3 } from "@/shared/types/geom/ivector3";
 import { ResourceId } from "@/types/resourceTypes";
@@ -74,6 +75,7 @@ export class Battle {
     public readonly battleId: string;
     public readonly settings: IBattleCreationSettings;
     public readonly mapResourceId: ResourceId;
+    public readonly mapLibraryDependencies: IDependency[] = [];
     public users: UserDocument[] = [];
     public usersBlue: UserDocument[] = [];
     public usersRed: UserDocument[] = [];
@@ -95,6 +97,7 @@ export class Battle {
         this.settings = settings;
         const mapId = settings.mapId.replace("map_", "");
         this.mapResourceId = ResourceManager.getMapResourceIdWithFallback(mapId, settings.mapTheme);
+        this.mapLibraryDependencies = ResourceManager.getMapResources(mapId, MapTheme[settings.mapTheme]);
     }
 
     public isTeamMode(): boolean {

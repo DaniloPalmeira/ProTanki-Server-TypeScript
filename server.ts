@@ -34,6 +34,9 @@ const PORT = process.env.PORT ? parseInt(process.env.PORT) : DEFAULT_PORT;
 async function bootstrap() {
   logger.info("Starting server initialization");
 
+  ResourceManager.loadResources();
+  logger.info("Resource configurations loaded");
+
   const commandService = new CommandService();
   const configService = new ConfigService();
   const rankService = new RankService();
@@ -52,9 +55,6 @@ async function bootstrap() {
   const referralService = new ReferralService();
   const profileService = new ProfileService();
   let battleService: BattleService;
-
-  ResourceManager.loadResources();
-  logger.info("Resource configurations loaded");
 
   await connectToDatabase();
   logger.info("Database connection established");

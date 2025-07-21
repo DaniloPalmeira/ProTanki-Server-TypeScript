@@ -38,8 +38,7 @@ export class BattleWorkflow {
         client.sendPacket(new BattlePackets.WeaponPhysicsPacket(JSON.stringify(weaponPhysicsData)));
         client.sendPacket(new BattlePackets.BonusDataPacket(JSON.stringify(getBonusData())));
 
-        const mapIdWithoutPrefix = battle.settings.mapId.replace("map_", "");
-        const dependencies = { resources: ResourceManager.getMapResources(mapIdWithoutPrefix, MapTheme[battle.settings.mapTheme]) };
+        const dependencies = { resources: battle.mapLibraryDependencies };
         client.sendPacket(new LoadDependencies(dependencies, CALLBACK.BATTLE_MAP_LIBS_LOADED));
     }
 
@@ -54,10 +53,7 @@ export class BattleWorkflow {
     public static loadMapGeometry(client: GameClient, server: GameServer, battle: Battle): void {
         logger.info(`User ${client.user?.username} is loading map geometry for battle ${battle.battleId}.`);
 
-        const mapId = battle.settings.mapId.replace("map_", "");
-        const mapResourceId = ResourceManager.getMapResourceIdWithFallback(mapId, battle.settings.mapTheme);
-
-        const dependencies = { resources: ResourceManager.getBulkResources([mapResourceId]) };
+        const dependencies = { resources: ResourceManager.getBulkResources([battle.mapResourceId]) };
         client.sendPacket(new LoadDependencies(dependencies, CALLBACK.BATTLE_MAP_GEOMETRY_LOADED));
     }
 
@@ -295,8 +291,6 @@ export class BattleWorkflow {
         const mapIdWithPrefix = settings.mapId;
         const mapIdWithoutPrefix = mapIdWithPrefix.replace("map_", "");
 
-        const mapResourceId = ResourceManager.getMapResourceIdWithFallback(mapIdWithoutPrefix, settings.mapTheme);
-
         const skyboxResourceIds = ResourceManager.getSkyboxResourceIds(mapIdWithoutPrefix, settings.mapTheme);
         const skyboxData = {
             top: ResourceManager.getIdlowById(skyboxResourceIds[4]),
@@ -337,7 +331,7 @@ export class BattleWorkflow {
         const mapInitData = {
             kick_period_ms: 300000,
             map_id: mapIdWithPrefix,
-            mapId: ResourceManager.getIdlowById(mapResourceId),
+            mapId: ResourceManager.getIdlowById(battle.mapResourceId),
             invisible_time: 3500,
             spectator: client.isSpectator,
             active: true,
