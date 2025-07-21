@@ -61,3 +61,42 @@ export class ResourceCallback extends BasePacket implements LoaderTypes.IResourc
         return -82304134;
     }
 }
+
+export class LoadDependencies extends BasePacket implements LoaderTypes.ILoadDependencies {
+    dependencies: { resources: LoaderTypes.IDependency[] };
+    callbackId: number;
+
+    constructor(dependencies: { resources: LoaderTypes.IDependency[] }, callbackId: number) {
+        super();
+        this.dependencies = dependencies;
+        this.callbackId = callbackId;
+    }
+
+    read(buffer: Buffer): void {
+        const reader = new BufferReader(buffer);
+        const jsonString = reader.readOptionalString();
+        this.dependencies = jsonString ? JSON.parse(jsonString) : { resources: [] };
+        this.callbackId = reader.readInt32BE();
+    }
+
+    write(): Buffer {
+        const writer = new BufferWriter();
+        const jsonString = JSON.stringify(this.dependencies);
+        writer.writeOptionalString(jsonString);
+        writer.writeInt32BE(this.callbackId);
+        return writer.getBuffer();
+    }
+    static getId(): number {
+        return -1797047325;
+    }
+}
+
+export class HideLoader extends BasePacket implements IEmpty {
+    read(buffer: Buffer): void { }
+    write(): Buffer {
+        return new BufferWriter().getBuffer();
+    }
+    static getId(): number {
+        return -1282173466;
+    }
+}

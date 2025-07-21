@@ -1,11 +1,11 @@
+import { IDependency } from "@/features/loader/loader.types";
 import fs from "fs";
 import path from "path";
-import { IDependency } from "../packets/interfaces/ILoadDependencies";
-import { ResourceId, ResourceData } from "../types/resourceTypes";
+import { MapTheme } from "../features/battle/battle.model";
+import { mapDependencies } from "../types/mapDependencies";
+import { ResourceData, ResourceId } from "../types/resourceTypes";
 import logger from "./Logger";
 import { ResourcePathUtils } from "./ResourcePathUtils";
-import { mapDependencies } from "../types/mapDependencies";
-import { MapTheme } from "../features/battle/battle.model";
 
 export class ResourceManager {
   private static dependencies: Map<ResourceId, IDependency> = new Map();
