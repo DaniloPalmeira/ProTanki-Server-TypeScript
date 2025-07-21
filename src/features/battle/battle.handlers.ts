@@ -335,10 +335,19 @@ export class ReadyToSpawnHandler implements IPacketHandler<BattlePackets.ReadyTo
 
         logger.info(`Client ${client.user.username} is ready to spawn in battle ${client.currentBattle.battleId}.`);
 
-        const specs = ItemUtils.getTankSpecifications(client.user);
-        client.sendPacket(new BattlePackets.TankSpecificationPacket({ ...specs, nickname: client.user.username, isPro: false }));
-
         const battle = client.currentBattle;
+
+        const specs = ItemUtils.getTankSpecifications(client.user);
+        const specPacket = new BattlePackets.TankSpecificationPacket({ ...specs, nickname: client.user.username, isPro: false });
+
+        const allParticipants = battle.getAllParticipants();
+        for (const participant of allParticipants) {
+            const participantClient = server.findClientByUsername(participant.username);
+            if (participantClient && participantClient.currentBattle?.battleId === battle.battleId) {
+                participantClient.sendPacket(specPacket);
+            }
+        }
+
         let teamType: "DM" | "BLUE" | "RED" = "DM";
         if (battle.isTeamMode()) {
             if (battle.usersBlue.some((u: UserDocument) => u.id === client.user!.id)) teamType = "BLUE";

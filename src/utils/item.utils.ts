@@ -57,11 +57,13 @@ export class ItemUtils {
         const hullMod = this.getItemModification(user, "hull");
         const turretMod = this.getItemModification(user, "turret");
 
+        const toRadians = (degrees: number) => (degrees * Math.PI) / 180;
+
         return {
             speed: this.getPhysicsValue(hullMod.properts, "HULL_SPEED"),
-            maxTurnSpeed: this.getPhysicsValue(hullMod.properts, "HULL_TURN_SPEED"),
+            maxTurnSpeed: toRadians(this.getPhysicsValue(hullMod.properts, "HULL_TURN_SPEED")),
             acceleration: this.getPhysicsValue(hullMod.properts, "HULL_POWER", "HULL_ACCELERATION"),
-            turretTurnSpeed: this.getPhysicsValue(turretMod.properts, "TURRET_TURN_SPEED"),
+            turretTurnSpeed: toRadians(this.getPhysicsValue(turretMod.properts, "TURRET_TURN_SPEED")),
         };
     }
 }
