@@ -1,5 +1,5 @@
-import { Achievement } from "@/models/enums/Achievement";
 import { BasePacket } from "@/packets/BasePacket";
+import { Achievement } from "@/shared/models/enums/achievement.enum";
 import { BufferReader } from "@/utils/buffer/BufferReader";
 import { BufferWriter } from "@/utils/buffer/BufferWriter";
 import * as ProfileTypes from "./profile.types";

@@ -1,4 +1,4 @@
-import User, { UserDocument } from "@/models/User";
+import User, { UserDocument } from "@/shared/models/user.model";
 import logger from "@/utils/Logger";
 import { IReferredUser } from "./referral.types";
 

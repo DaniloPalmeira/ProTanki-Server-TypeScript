@@ -1,5 +1,5 @@
 import { UpdateCrystals } from "@/features/profile/profile.packets";
-import { ChatModeratorLevel } from "@/models/enums/ChatModeratorLevel";
+import { ChatModeratorLevel } from "@/shared/models/enums/chat-moderator-level.enum";
 import { CommandContext, ICommand } from "../command.types";
 
 export default class AddCrystalsCommand implements ICommand {

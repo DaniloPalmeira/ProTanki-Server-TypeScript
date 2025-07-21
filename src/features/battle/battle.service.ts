@@ -1,6 +1,6 @@
 import { SystemMessage } from "@/features/system/system.packets";
+import { UserDocument } from "@/shared/models/user.model";
 import { IVector3 } from "@/shared/types/geom/IVector3";
-import { UserDocument } from "../../models/User";
 import { ProTankiClient } from "../../server/ProTankiClient";
 import { ProTankiServer } from "../../server/ProTankiServer";
 import { mapGeometries } from "../../types/mapGeometries";

@@ -1,5 +1,5 @@
-import { UserDocument } from "@/models/User";
 import { ProTankiServer } from "@/server/ProTankiServer";
+import { UserDocument } from "@/shared/models/user.model";
 import logger from "@/utils/Logger";
 
 export interface FullUserInfo {

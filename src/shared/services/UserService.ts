@@ -1,5 +1,5 @@
 import Invite from "@/features/invite/invite.model";
-import User, { UserDocument } from "@/models/User";
+import User, { UserDocument } from "@/shared/models/user.model";
 import { RankService } from "@/shared/services/RankService";
 import logger from "@/utils/Logger";
 import crypto from "crypto";

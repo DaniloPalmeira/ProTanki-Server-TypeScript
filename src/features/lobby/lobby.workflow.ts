@@ -12,11 +12,11 @@ import { AchievementTips, EmailInfo, PremiumInfo } from "@/features/profile/prof
 import { ReferralInfo } from "@/features/referral/referral.packets";
 import { LocalizationInfo } from "@/features/shop/shop.packets";
 import { ConfirmLayoutChange, SetLayout } from "@/features/system/system.packets";
-import { Achievement } from "@/models/enums/Achievement";
-import { ChatModeratorLevel } from "@/models/enums/ChatModeratorLevel";
-import { UserDocument, UserDocumentWithFriends } from "@/models/User";
 import { ProTankiClient } from "@/server/ProTankiClient";
 import { ProTankiServer } from "@/server/ProTankiServer";
+import { Achievement } from "@/shared/models/enums/achievement.enum";
+import { ChatModeratorLevel } from "@/shared/models/enums/chat-moderator-level.enum";
+import { UserDocument, UserDocumentWithFriends } from "@/shared/models/user.model";
 import { ResourceId } from "@/types/resourceTypes";
 import { FormatUtils } from "@/utils/FormatUtils";
 import logger from "@/utils/Logger";

@@ -1,10 +1,10 @@
 import { battleDataObject } from "@/config/BattleData";
 import { AddUserToBattleDmPacket, NotifyFriendOfBattlePacket, ReservePlayerSlotDmPacket, UnloadBattleListPacket } from "@/features/lobby/lobby.packets";
 import { SystemMessage } from "@/features/system/system.packets";
-import { UserDocument } from "@/models/User";
 import { ProTankiClient } from "@/server/ProTankiClient";
 import { ProTankiServer } from "@/server/ProTankiServer";
 import { IPacketHandler } from "@/shared/interfaces/IPacketHandler";
+import { UserDocument } from "@/shared/models/user.model";
 import { ItemUtils } from "@/utils/ItemUtils";
 import logger from "@/utils/Logger";
 import { GarageWorkflow } from "../garage/garage.workflow";

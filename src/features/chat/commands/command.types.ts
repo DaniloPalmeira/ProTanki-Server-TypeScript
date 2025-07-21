@@ -1,6 +1,6 @@
 import { ProTankiClient } from "@/server/ProTankiClient";
 import { ProTankiServer } from "@/server/ProTankiServer";
-import { ChatModeratorLevel } from "@/models/enums/ChatModeratorLevel";
+import { ChatModeratorLevel } from "@/shared/models/enums/chat-moderator-level.enum";
 
 export interface CommandContext {
     executor: ProTankiClient;

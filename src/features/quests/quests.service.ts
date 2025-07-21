@@ -1,9 +1,8 @@
-import { IQuest } from "./quests.types";
-import { UserDocument, IUserQuest } from "@/models/User";
+import { IUserQuest, UserDocument } from "@/shared/models/user.model";
+import { ResourceId } from "@/types/resourceTypes";
 import { ResourceManager } from "@/utils/ResourceManager";
 import { QuestDefinitions, QuestType } from "./quests.data";
-import { ResourceId } from "@/types/resourceTypes";
-import logger from "@/utils/Logger";
+import { IQuest } from "./quests.types";
 
 export interface DailyQuestData {
     quests: IQuest[];

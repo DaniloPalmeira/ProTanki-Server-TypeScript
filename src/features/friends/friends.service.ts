@@ -1,7 +1,7 @@
-import mongoose from "mongoose";
-import User, { UserDocument } from "@/models/User";
+import User, { UserDocument } from "@/shared/models/user.model";
 import { UserService } from "@/shared/services/UserService";
 import logger from "@/utils/Logger";
+import mongoose from "mongoose";
 import { IFriendsListProps } from "./friends.types";
 
 export class FriendsService {

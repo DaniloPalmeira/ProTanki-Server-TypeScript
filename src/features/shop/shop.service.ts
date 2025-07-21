@@ -1,4 +1,4 @@
-import { UserDocument } from "@/models/User";
+import { UserDocument } from "@/shared/models/user.model";
 
 type PriceInfo = { price: number; currency: string };
 type PricingData = Record<string, Record<string, PriceInfo>>;

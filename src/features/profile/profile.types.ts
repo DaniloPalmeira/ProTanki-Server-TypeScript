@@ -1,5 +1,5 @@
-import { Achievement } from "@/models/enums/Achievement";
 import { IPacket } from "@/packets/IPacket";
+import { Achievement } from "@/shared/models/enums/achievement.enum";
 
 export interface IGetUserInfo extends IPacket {
     nickname: string | null;

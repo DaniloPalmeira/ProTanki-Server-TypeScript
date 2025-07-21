@@ -1,6 +1,6 @@
-import { ChatModeratorLevel } from "@/models/enums/ChatModeratorLevel";
 import { IEmpty } from "@/packets/IEmpty";
 import { IPacket } from "@/packets/IPacket";
+import { ChatModeratorLevel } from "@/shared/models/enums/chat-moderator-level.enum";
 
 export interface ISendChatMessage extends IPacket {
     targetNickname: string | null;

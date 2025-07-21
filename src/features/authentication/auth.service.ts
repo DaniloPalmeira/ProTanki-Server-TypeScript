@@ -1,4 +1,4 @@
-import { UserDocument } from "@/models/User";
+import { UserDocument } from "@/shared/models/user.model";
 import { UserCreationAttributes, UserService } from "@/shared/services/UserService";
 
 export class AuthService {

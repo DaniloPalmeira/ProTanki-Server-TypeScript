@@ -1,8 +1,8 @@
-import ChatMessage from "./chat.model";
-import { UserDocument } from "@/models/User";
-import logger from "@/utils/Logger";
+import { UserDocument } from "@/shared/models/user.model";
 import { UserService } from "@/shared/services/UserService";
+import logger from "@/utils/Logger";
 import { LobbyService } from "../lobby/lobby.service";
+import ChatMessage from "./chat.model";
 
 export interface PopulatedChatMessage {
     sourceUser: UserDocument | null;

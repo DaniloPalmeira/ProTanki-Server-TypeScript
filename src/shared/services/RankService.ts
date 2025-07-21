@@ -1,5 +1,5 @@
 import { Rank, Ranks } from "@/config/RankData";
-import { UserDocument } from "@/models/User";
+import { UserDocument } from "@/shared/models/user.model";
 import logger from "@/utils/Logger";
 
 export class RankService {

@@ -1,4 +1,4 @@
-import { UserDocument } from "../../models/User";
+import { UserDocument } from "@/shared/models/user.model";
 import logger from "../../utils/Logger";
 import { itemBlueprints } from "./garage.data";
 
