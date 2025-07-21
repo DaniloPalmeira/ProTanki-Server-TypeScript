@@ -1,5 +1,5 @@
+import { RawPacket } from "@/features/dev/dev.packets";
 import { SystemMessage } from "@/features/system/system.packets";
-import RawPacket from "@/packets/implementations/dev/RawPacket";
 import { ProTankiClient } from "@/server/ProTankiClient";
 import { ProTankiServer } from "@/server/ProTankiServer";
 import { IPacketHandler } from "@/shared/interfaces/IPacketHandler";
