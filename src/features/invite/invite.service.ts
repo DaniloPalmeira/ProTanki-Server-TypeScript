@@ -1,7 +1,7 @@
 import { INVITE_CODE_CHARACTERS, INVITE_CODE_LENGTH } from "@/config/constants";
-import { IInviteResponse } from "@/types/IInviteResponse";
 import logger from "@/utils/Logger";
 import Invite from "./invite.model";
+import { IInviteResponse } from "./invite.types";
 
 export class InviteService {
     private readonly MAX_CODE_GENERATION_ATTEMPTS = 10;

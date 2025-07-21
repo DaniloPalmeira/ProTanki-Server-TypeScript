@@ -1,11 +1,13 @@
 import { DEFAULT_MAX_CLIENTS, DEFAULT_PORT } from "@/config/constants";
 import { AuthService } from "@/features/authentication/auth.service";
+import { IRegistration } from "@/features/authentication/auth.types";
 import { BattleService } from "@/features/battle/battle.service";
 import { ChatService } from "@/features/chat/chat.service";
 import { CommandService } from "@/features/chat/commands/command.service";
 import { FriendsService } from "@/features/friends/friends.service";
 import { GarageService } from "@/features/garage/garage.service";
 import { InviteService } from "@/features/invite/invite.service";
+import { IInviteResponse } from "@/features/invite/invite.types";
 import { LobbyService } from "@/features/lobby/lobby.service";
 import { OnlineNotifierData } from "@/features/profile/profile.packets";
 import { ProfileService } from "@/features/profile/profile.service";
@@ -19,8 +21,6 @@ import { PacketService } from "@/packets/PacketService";
 import { ConfigService } from "@/services/ConfigService";
 import { RankService } from "@/services/RankService";
 import { UserService } from "@/shared/services/UserService";
-import { IInviteResponse } from "@/types/IInviteResponse";
-import { IRegistrationForm } from "@/types/IRegistrationForm";
 import { IServerOptions } from "@/types/IServerOptions";
 import logger from "@/utils/Logger";
 import net from "net";
@@ -54,7 +54,7 @@ export class ProTankiServer {
   private maxClients: number;
   private needInviteCode: boolean;
   private socialNetworks: Array<string[]>;
-  private loginForm: IRegistrationForm;
+  private loginForm: IRegistration;
 
   private dynamicCallbacks: Map<number, (client: ProTankiClient) => void> = new Map();
   private nextCallbackId: number = 1000;
@@ -196,7 +196,7 @@ export class ProTankiServer {
     return this.socialNetworks;
   }
 
-  public getLoginForm(): IRegistrationForm {
+  public getLoginForm(): IRegistration {
     return this.loginForm;
   }
 

@@ -1,6 +1,11 @@
 import { IEmpty } from "@/packets/IEmpty";
 import { IPacket } from "@/packets/IPacket";
 
+export interface IInviteResponse {
+    isValid: boolean;
+    nickname?: string | null;
+}
+
 export interface IInviteCode extends IPacket {
     inviteCode: string | null;
 }
