@@ -48,3 +48,60 @@ export class Pong extends BasePacket implements IEmpty {
         return 1484572481;
     }
 }
+
+export class CaptchaLocation extends BasePacket implements SystemTypes.ICaptchaLocation {
+    captchaLocations: Array<number> = [];
+
+    constructor(captchaLocations?: Array<number>) {
+        super();
+        if (captchaLocations) {
+            this.captchaLocations = captchaLocations;
+        }
+    }
+
+    read(buffer: Buffer): void {
+        const reader = new BufferReader(buffer);
+        const itemsCount = reader.readInt32BE();
+        this.captchaLocations = [];
+        for (let i = 0; i < itemsCount; i++) {
+            this.captchaLocations.push(reader.readInt32BE());
+        }
+    }
+
+    write(): Buffer {
+        const writer = new BufferWriter();
+        writer.writeInt32BE(this.captchaLocations.length);
+        for (const location of this.captchaLocations) {
+            writer.writeInt32BE(location);
+        }
+        return writer.getBuffer();
+    }
+    static getId(): number {
+        return 321971701;
+    }
+}
+
+export class InviteEnabled extends BasePacket implements SystemTypes.IInviteEnabled {
+    requireInviteCode: boolean = false;
+
+    constructor(requireInviteCode?: boolean) {
+        super();
+        if (requireInviteCode !== undefined) {
+            this.requireInviteCode = requireInviteCode;
+        }
+    }
+
+    read(buffer: Buffer): void {
+        const reader = new BufferReader(buffer);
+        this.requireInviteCode = reader.readUInt8() === 1;
+    }
+
+    write(): Buffer {
+        const writer = new BufferWriter();
+        writer.writeUInt8(this.requireInviteCode ? 1 : 0);
+        return writer.getBuffer();
+    }
+    static getId(): number {
+        return 444933603;
+    }
+}

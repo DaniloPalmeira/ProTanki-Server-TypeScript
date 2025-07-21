@@ -7,3 +7,11 @@ export interface ISystemMessage extends IPacket {
 
 export interface IPing extends IEmpty { }
 export interface IPong extends IEmpty { }
+
+export interface ICaptchaLocation extends IPacket {
+    captchaLocations: Array<number>;
+}
+
+export interface IInviteEnabled extends IPacket {
+    requireInviteCode: boolean;
+}

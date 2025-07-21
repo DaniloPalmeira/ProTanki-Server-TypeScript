@@ -1,9 +1,7 @@
 import { CALLBACK } from "@/config/constants";
 import * as AuthPackets from "@/features/authentication/auth.packets";
 import { HideLoader, LoadDependencies } from "@/features/loader/loader.packets";
-import { Ping } from "@/features/system/system.packets";
-import CaptchaLocation from "@/packets/implementations/CaptchaLocation";
-import InviteEnabled from "@/packets/implementations/InviteEnabled";
+import { CaptchaLocation, InviteEnabled, Ping } from "@/features/system/system.packets";
 import SocialNetwork from "@/packets/implementations/SocialNetwork";
 import { ProTankiClient } from "@/server/ProTankiClient";
 import { ProTankiServer } from "@/server/ProTankiServer";
