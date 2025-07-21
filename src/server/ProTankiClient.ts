@@ -1,9 +1,10 @@
+import { Protection } from "@/core/security/security.packets";
+import { SecurityService } from "@/core/security/security.service";
 import { TimeCheckerPacket } from "@/features/battle/battle.packets";
-import { Ping, Protection } from "@/features/system/system.packets";
+import { Ping } from "@/features/system/system.packets";
 import { IPacket } from "@/packets/IPacket";
 import { IVector3 } from "@/shared/types/geom/IVector3";
 import * as net from "net";
-import { EncryptionService } from "../crypto/EncryptionService";
 import { Battle } from "../features/battle/battle.model";
 import { UserDocument } from "../models/User";
 import { ClientState } from "../types/ClientState";
@@ -26,7 +27,7 @@ export class ProTankiClient {
   private socket: net.Socket;
   private server: ProTankiServer;
   private state: ClientState;
-  private encryptionService: EncryptionService;
+  private securityService: SecurityService;
   private rawDataReceived: Buffer = Buffer.alloc(0);
   public language: string | null = null;
   public captchaSolution: string | null = null;
@@ -73,10 +74,10 @@ export class ProTankiClient {
     this.socket = socket;
     this.server = server;
     this.state = "auth";
-    this.encryptionService = new EncryptionService();
+    this.securityService = new SecurityService();
     this.setupSocket();
     this.server.addClient(this);
-    this.sendPacket(new Protection(this.encryptionService.obtainKeys()), false);
+    this.sendPacket(new Protection(this.securityService.obtainKeys()), false);
   }
 
   public get isDestroyed(): boolean {
@@ -159,7 +160,7 @@ export class ProTankiClient {
         client: this.getRemoteAddress(),
       });
 
-      const decryptedPacket = this.encryptionService.decrypt(packetData);
+      const decryptedPacket = this.securityService.decrypt(packetData);
       const packetInstance = this.server.packetService.createPacket(packetId);
 
       if (!packetInstance) {
@@ -185,10 +186,7 @@ export class ProTankiClient {
         }
       } catch (error: any) {
         console.error(`Error processing packet ID ${packetId} client ${this.getRemoteAddress()}`, error);
-        // logger.error(`Error processing packet ID ${packetId}`, {
-        //     error,
-        //     client: this.getRemoteAddress(),
-        // });
+
         this.closeConnection();
         break;
       }
@@ -224,7 +222,7 @@ export class ProTankiClient {
     try {
       const rawBuffer = packet.write();
       const packetId = packet.getId();
-      const finalBuffer = encrypt ? this.encryptionService.encrypt(rawBuffer) : rawBuffer;
+      const finalBuffer = encrypt ? this.securityService.encrypt(rawBuffer) : rawBuffer;
       const packetBuffer = this.buildPacketBuffer(packetId, finalBuffer);
 
       logger.debug(`Sending packet`, {

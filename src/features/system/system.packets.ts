@@ -155,33 +155,3 @@ export class SetLayout extends BasePacket implements SystemTypes.ISetLayout {
         return 1118835050;
     }
 }
-
-export class Protection extends BasePacket implements SystemTypes.IProtection {
-    keys: Array<number>;
-
-    constructor(keys: Array<number>) {
-        super();
-        this.keys = keys;
-    }
-
-    read(buffer: Buffer): void {
-        const reader = new BufferReader(buffer);
-        const length = reader.readInt32BE();
-        this.keys = [];
-        for (let i = 0; i < length; i++) {
-            this.keys.push(reader.readInt8());
-        }
-    }
-
-    write(): Buffer {
-        const writer = new BufferWriter();
-        writer.writeInt32BE(this.keys.length);
-        this.keys.forEach((val) => {
-            writer.writeInt8(val);
-        });
-        return writer.getBuffer();
-    }
-    static getId(): number {
-        return 2001736388;
-    }
-}

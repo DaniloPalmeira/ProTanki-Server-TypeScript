@@ -24,7 +24,3 @@ export interface IConfirmLayoutChange extends IPacket {
 export interface ISetLayout extends IPacket {
     layoutId: number;
 }
-
-export interface IProtection extends IPacket {
-    keys: Array<number>;
-}
