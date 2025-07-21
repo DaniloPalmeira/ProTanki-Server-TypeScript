@@ -1,5 +1,5 @@
 import { IPacket } from "@/packets/IPacket";
-import { ClientState } from "../types/ClientState";
+import { ClientState } from "./client.state";
 import { ProTankiClient } from "./ProTankiClient";
 
 export class ClientManager {

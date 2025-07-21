@@ -1,0 +1,1 @@
+export type ClientState = "auth" | "chat_lobby" | "chat_garage" | "battle_lobby" | "battle_garage" | "battle";

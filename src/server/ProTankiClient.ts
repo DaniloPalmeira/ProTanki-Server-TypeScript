@@ -7,9 +7,9 @@ import { UserDocument } from "@/shared/models/user.model";
 import { IVector3 } from "@/shared/types/geom/IVector3";
 import * as net from "net";
 import { Battle } from "../features/battle/battle.model";
-import { ClientState } from "../types/ClientState";
-import { IClientOptions } from "../types/IClientOptions";
 import logger from "../utils/Logger";
+import { ClientState } from "./client.state";
+import { IClientOptions } from "./client.types";
 import { ProTankiServer } from "./ProTankiServer";
 
 interface PacketQueueItem {

@@ -21,11 +21,11 @@ import { PacketHandlerService } from "@/packets/PacketHandlerService";
 import { PacketService } from "@/packets/PacketService";
 import { RankService } from "@/shared/services/RankService";
 import { UserService } from "@/shared/services/UserService";
-import { IServerOptions } from "@/types/IServerOptions";
 import logger from "@/utils/Logger";
 import net from "net";
 import { ClientManager } from "./ClientManager";
 import { ProTankiClient } from "./ProTankiClient";
+import { IServerOptions } from "./server.types";
 
 export interface IServerServices {
   configService: ConfigService;
