@@ -1,4 +1,5 @@
 import { CALLBACK } from "@/config/constants";
+import { AuthWorkflow } from "@/features/authentication/auth.workflow";
 import { BattleWorkflow } from "@/features/battle/battle.workflow";
 import { GarageWorkflow } from "@/features/garage/garage.workflow";
 import { LobbyWorkflow } from "@/features/lobby/lobby.workflow";
@@ -7,7 +8,6 @@ import { ProTankiServer } from "@/server/ProTankiServer";
 import { IPacketHandler } from "@/shared/interfaces/IPacketHandler";
 import { ResourceId } from "@/types/resourceTypes";
 import { ResourceManager } from "@/utils/ResourceManager";
-import { LoginWorkflow } from "@/workflows/LoginWorkflow";
 import * as LoaderPackets from "./loader.packets";
 
 export class RequestNextTipHandler implements IPacketHandler<LoaderPackets.RequestNextTipPacket> {
@@ -36,7 +36,7 @@ export class ResourceCallbackHandler implements IPacketHandler<LoaderPackets.Res
 
         switch (packet.callbackId) {
             case CALLBACK.LOGIN_FORM:
-                LoginWorkflow.initializeLoginForm(client, server);
+                AuthWorkflow.initializeLoginForm(client, server);
                 break;
             case CALLBACK.GARAGE_DATA:
                 GarageWorkflow.initializeGarage(client, server);
@@ -70,7 +70,7 @@ export class ResourceCallbackHandler implements IPacketHandler<LoaderPackets.Res
                 }
                 break;
             case CALLBACK.TIPS_LOADED:
-                LoginWorkflow.sendMainLoginResources(client, server);
+                AuthWorkflow.sendMainLoginResources(client, server);
                 break;
         }
     }

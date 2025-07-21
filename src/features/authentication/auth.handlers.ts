@@ -6,9 +6,9 @@ import { IPacketHandler } from "@/shared/interfaces/IPacketHandler";
 import generateCaptcha from "@/utils/GenerateCaptcha";
 import logger from "@/utils/Logger";
 import { ValidationUtils } from "@/utils/ValidationUtils";
-import { LoginWorkflow } from "@/workflows/LoginWorkflow";
 import crypto from "crypto";
 import * as AuthPackets from "./auth.packets";
+import { AuthWorkflow } from "./auth.workflow";
 
 export class CreateAccountHandler implements IPacketHandler<AuthPackets.CreateAccount> {
     public readonly packetId = AuthPackets.CreateAccount.getId();
@@ -163,7 +163,7 @@ export class RecoveryAccountVerifyCodeHandler implements IPacketHandler<AuthPack
         if (client.recoveryCode && client.recoveryCode === packet.code) {
             client.sendPacket(new AuthPackets.GoToRecoveryPassword(client.recoveryEmail));
         } else {
-            LoginWorkflow.handleInvalidRecoveryCode(client);
+            AuthWorkflow.handleInvalidRecoveryCode(client);
         }
     }
 }
@@ -177,6 +177,6 @@ export class LanguageHandler implements IPacketHandler<AuthPackets.Language> {
             client: client.getRemoteAddress(),
         });
 
-        await LoginWorkflow.sendLoginScreenData(client, server);
+        await AuthWorkflow.sendLoginScreenData(client, server);
     }
 }
