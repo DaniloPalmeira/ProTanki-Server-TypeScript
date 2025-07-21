@@ -1,4 +1,4 @@
-import { IPacket } from "@/packets/IPacket";
+import { IPacket } from "@/packets/packet.interfaces";
 import { Achievement } from "@/shared/models/enums/achievement.enum";
 
 export interface IGetUserInfo extends IPacket {

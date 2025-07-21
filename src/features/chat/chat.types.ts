@@ -1,5 +1,4 @@
-import { IEmpty } from "@/packets/IEmpty";
-import { IPacket } from "@/packets/IPacket";
+import { IEmpty, IPacket } from "@/packets/packet.interfaces";
 import { ChatModeratorLevel } from "@/shared/models/enums/chat-moderator-level.enum";
 
 export interface ISendChatMessage extends IPacket {

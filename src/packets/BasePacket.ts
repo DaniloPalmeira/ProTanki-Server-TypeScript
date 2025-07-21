@@ -1,4 +1,4 @@
-import { IPacket } from "./IPacket";
+import { IPacket } from "./packet.interfaces";
 
 export abstract class BasePacket implements IPacket {
     abstract read(buffer: Buffer): void;

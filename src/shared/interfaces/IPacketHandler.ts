@@ -1,4 +1,4 @@
-import { IPacket } from "@/packets/IPacket";
+import { IPacket } from "@/packets/packet.interfaces";
 import { ProTankiClient } from "@/server/ProTankiClient";
 import { ProTankiServer } from "@/server/ProTankiServer";
 

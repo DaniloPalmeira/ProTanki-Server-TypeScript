@@ -2,7 +2,7 @@ import { Protection } from "@/core/security/security.packets";
 import { SecurityService } from "@/core/security/security.service";
 import { TimeCheckerPacket } from "@/features/battle/battle.packets";
 import { Ping } from "@/features/system/system.packets";
-import { IPacket } from "@/packets/IPacket";
+import { IPacket } from "@/packets/packet.interfaces";
 import { UserDocument } from "@/shared/models/user.model";
 import { IVector3 } from "@/shared/types/geom/IVector3";
 import * as net from "net";

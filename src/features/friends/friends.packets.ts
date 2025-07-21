@@ -1,5 +1,5 @@
 import { BasePacket } from "@/packets/BasePacket";
-import { IEmpty } from "@/packets/IEmpty";
+import { IEmpty } from "@/packets/packet.interfaces";
 import { BufferReader } from "@/utils/buffer/BufferReader";
 import { BufferWriter } from "@/utils/buffer/BufferWriter";
 import {

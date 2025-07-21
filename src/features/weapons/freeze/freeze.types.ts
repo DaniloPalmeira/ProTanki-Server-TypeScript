@@ -1,4 +1,4 @@
-import { IPacket } from "@/packets/IPacket";
+import { IPacket } from "@/packets/packet.interfaces";
 
 export interface IStartShootingFreezeCommand extends IPacket {
     clientTime: number;

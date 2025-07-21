@@ -1,4 +1,3 @@
-
 export interface IPacket {
     [x: string]: any;
     read(buffer: Buffer): void;
@@ -6,3 +5,5 @@ export interface IPacket {
     toString(): string;
     getId(): number;
 }
+
+export interface IEmpty extends IPacket { }

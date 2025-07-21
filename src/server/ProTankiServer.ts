@@ -16,7 +16,7 @@ import { QuestService } from "@/features/quests/quests.service";
 import { ReferralService } from "@/features/referral/referral.service";
 import { SettingsService } from "@/features/settings/settings.service";
 import { ShopService } from "@/features/shop/shop.service";
-import { IPacket } from "@/packets/IPacket";
+import { IPacket } from "@/packets/packet.interfaces";
 import { PacketHandlerService } from "@/packets/PacketHandlerService";
 import { PacketService } from "@/packets/PacketService";
 import { RankService } from "@/shared/services/RankService";

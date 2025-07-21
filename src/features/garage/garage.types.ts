@@ -1,5 +1,4 @@
-import { IEmpty } from "@/packets/IEmpty";
-import { IPacket } from "@/packets/IPacket";
+import { IEmpty, IPacket } from "@/packets/packet.interfaces";
 
 export interface IBuyItem extends IPacket {
     itemId: string | null;

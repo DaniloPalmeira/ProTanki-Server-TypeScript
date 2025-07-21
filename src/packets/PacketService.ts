@@ -1,4 +1,4 @@
-import { IPacket } from "@/packets/IPacket";
+import { IPacket } from "@/packets/packet.interfaces";
 import logger from "@/utils/Logger";
 import fs from "fs";
 import path from "path";
