@@ -1,4 +1,4 @@
-import { ResourceManager } from "../utils/ResourceManager";
+import { ResourceManager } from "@/utils/resource.manager";
 
 export const getBonusData = () => ({
   bonuses: [

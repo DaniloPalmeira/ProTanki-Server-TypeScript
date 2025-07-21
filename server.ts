@@ -22,7 +22,7 @@ import { ResourceServer } from "@/server/ResourceServer";
 import { RankService } from "@/shared/services/RankService";
 import { UserService } from "@/shared/services/UserService";
 import logger from "@/utils/Logger";
-import { ResourceManager } from "@/utils/ResourceManager";
+import { ResourceManager } from "@/utils/resource.manager";
 import dotenv from "dotenv";
 import fs from "fs";
 import path from "path";

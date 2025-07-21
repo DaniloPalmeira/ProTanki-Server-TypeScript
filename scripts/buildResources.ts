@@ -1,11 +1,11 @@
-import fs from "fs";
-import path from "path";
-import fse from "fs-extra";
-import { rimraf } from "rimraf";
 import crc32 from "crc-32";
-import { ResourcePathUtils } from "../src/utils/ResourcePathUtils";
-import { parseStringPromise, Builder } from "xml2js";
+import fs from "fs";
+import fse from "fs-extra";
+import path from "path";
+import { rimraf } from "rimraf";
+import { Builder, parseStringPromise } from "xml2js";
 import { create } from "xmlbuilder2";
+import { ResourcePathUtils } from "../src/utils/resource.path.utils";
 
 const ROOT_DIR = path.join(__dirname, "..");
 const RESOURCES_DIR = path.join(ROOT_DIR, "resources");

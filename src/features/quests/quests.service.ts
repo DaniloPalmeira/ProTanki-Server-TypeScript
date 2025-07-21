@@ -1,6 +1,6 @@
 import { IUserQuest, UserDocument } from "@/shared/models/user.model";
 import { ResourceId } from "@/types/resourceTypes";
-import { ResourceManager } from "@/utils/ResourceManager";
+import { ResourceManager } from "@/utils/resource.manager";
 import { QuestDefinitions, QuestType } from "./quests.data";
 import { IQuest } from "./quests.types";
 

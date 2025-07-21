@@ -4,7 +4,7 @@ import { ProTankiClient } from "@/server/ProTankiClient";
 import { ProTankiServer } from "@/server/ProTankiServer";
 import { IPacketHandler } from "@/shared/interfaces/IPacketHandler";
 import logger from "@/utils/Logger";
-import { ResourceManager } from "@/utils/ResourceManager";
+import { ResourceManager } from "@/utils/resource.manager";
 import { QuestDefinitions } from "./quests.data";
 import * as QuestPackets from "./quests.packets";
 import { IQuest } from "./quests.types";

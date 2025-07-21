@@ -5,7 +5,7 @@ import { ProTankiServer } from "@/server/ProTankiServer";
 import { IPacketHandler } from "@/shared/interfaces/IPacketHandler";
 import { ResourceId } from "@/types/resourceTypes";
 import logger from "@/utils/Logger";
-import { ResourceManager } from "@/utils/ResourceManager";
+import { ResourceManager } from "@/utils/resource.manager";
 import * as LobbyPackets from "./lobby.packets";
 import { LobbyWorkflow } from "./lobby.workflow";
 

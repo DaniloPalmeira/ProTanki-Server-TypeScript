@@ -5,8 +5,8 @@ import { CaptchaLocation, InviteEnabled, Ping } from "@/features/system/system.p
 import { ProTankiClient } from "@/server/ProTankiClient";
 import { ProTankiServer } from "@/server/ProTankiServer";
 import { ResourceId } from "@/types/resourceTypes";
-import generateCaptcha from "@/utils/GenerateCaptcha";
-import { ResourceManager } from "@/utils/ResourceManager";
+import generateCaptcha from "@/utils/captcha.generator";
+import { ResourceManager } from "@/utils/resource.manager";
 import * as AuthPackets from "./auth.packets";
 
 export class AuthWorkflow {

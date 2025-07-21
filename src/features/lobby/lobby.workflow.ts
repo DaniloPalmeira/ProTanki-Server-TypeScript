@@ -18,9 +18,9 @@ import { Achievement } from "@/shared/models/enums/achievement.enum";
 import { ChatModeratorLevel } from "@/shared/models/enums/chat-moderator-level.enum";
 import { UserDocument, UserDocumentWithFriends } from "@/shared/models/user.model";
 import { ResourceId } from "@/types/resourceTypes";
-import { FormatUtils } from "@/utils/FormatUtils";
+import { FormatUtils } from "@/utils/format.utils";
 import logger from "@/utils/Logger";
-import { ResourceManager } from "@/utils/ResourceManager";
+import { ResourceManager } from "@/utils/resource.manager";
 import * as LobbyPackets from "./lobby.packets";
 import { UnloadBattleListPacket } from "./lobby.packets";
 

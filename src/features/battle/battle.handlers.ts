@@ -5,7 +5,7 @@ import { ProTankiClient } from "@/server/ProTankiClient";
 import { ProTankiServer } from "@/server/ProTankiServer";
 import { IPacketHandler } from "@/shared/interfaces/IPacketHandler";
 import { UserDocument } from "@/shared/models/user.model";
-import { ItemUtils } from "@/utils/ItemUtils";
+import { ItemUtils } from "@/utils/item.utils";
 import logger from "@/utils/Logger";
 import { GarageWorkflow } from "../garage/garage.workflow";
 import { LobbyWorkflow } from "../lobby/lobby.workflow";

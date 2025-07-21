@@ -1,9 +1,9 @@
+import { weaponPhysicsData } from "@/config/PhysicsData";
 import { ProTankiClient } from "@/server/ProTankiClient";
 import { ProTankiServer } from "@/server/ProTankiServer";
-import { ItemUtils } from "@/utils/ItemUtils";
-import logger from "@/utils/Logger";
 import { IPacketHandler } from "@/shared/interfaces/IPacketHandler";
-import { weaponPhysicsData } from "@/config/PhysicsData";
+import { ItemUtils } from "@/utils/item.utils";
+import logger from "@/utils/Logger";
 import * as SmokyPackets from "./smoky.packets";
 
 export class SmokyStaticShotCommandHandler implements IPacketHandler<SmokyPackets.SmokyStaticShotCommandPacket> {

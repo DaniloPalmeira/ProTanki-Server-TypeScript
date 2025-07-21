@@ -3,12 +3,12 @@ import { LoadDependencies } from "@/features/loader/loader.packets";
 import { UnloadBattleListPacket } from "@/features/lobby/lobby.packets";
 import { LobbyWorkflow } from "@/features/lobby/lobby.workflow";
 import { ConfirmLayoutChange, SetLayout } from "@/features/system/system.packets";
+import { ResourceManager } from "@/utils/resource.manager";
 import { CALLBACK } from "../../config/constants";
 import { ProTankiClient } from "../../server/ProTankiClient";
 import { ProTankiServer } from "../../server/ProTankiServer";
 import { ResourceId } from "../../types/resourceTypes";
 import logger from "../../utils/Logger";
-import { ResourceManager } from "../../utils/ResourceManager";
 import { itemBlueprints } from "./garage.data";
 import * as GaragePackets from "./garage.packets";
 
