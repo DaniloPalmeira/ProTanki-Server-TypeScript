@@ -7,7 +7,6 @@ import { IVector3 } from "@/shared/types/geom/ivector3";
 import { mapGeometries } from "@/types/mapGeometries";
 import { mapSpawns } from "@/types/mapSpawns";
 import logger from "@/utils/logger";
-import { ResourceManager } from "@/utils/resource.manager";
 import { Battle, BattleMode } from "./battle.model";
 import { DestroyTankPacket, RemoveTankPacket, UpdateSpectatorListPacket, UserDisconnectedDmPacket } from "./battle.packets";
 
@@ -30,10 +29,7 @@ export class BattleService {
         const { user, currentBattle, battlePosition } = client;
         if (!user || !currentBattle || !battlePosition) return;
 
-        const mapId = currentBattle.settings.mapId.replace("map_", "");
-        const mapResourceId = ResourceManager.getMapResourceIdWithFallback(mapId, currentBattle.settings.mapTheme);
-
-        const geometries = mapGeometries[mapResourceId];
+        const geometries = mapGeometries[currentBattle.mapResourceId];
         if (!geometries) return;
 
         for (const box of geometries) {
@@ -81,12 +77,9 @@ export class BattleService {
     }
 
     public getSpawnPoint(battle: Battle, team: "DM" | "BLUE" | "RED"): { position: IVector3; rotation: IVector3 } {
-        const mapId = battle.settings.mapId.replace("map_", "");
-        const mapResourceId = ResourceManager.getMapResourceIdWithFallback(mapId, battle.settings.mapTheme);
-
-        const allMapSpawns = mapSpawns[mapResourceId];
+        const allMapSpawns = mapSpawns[battle.mapResourceId];
         if (!allMapSpawns || allMapSpawns.length === 0) {
-            logger.warn(`No spawn points found for map ${mapResourceId}. Using fallback.`);
+            logger.warn(`No spawn points found for map ${battle.mapResourceId}. Using fallback.`);
             return { position: { x: 0, y: 0, z: 200 }, rotation: { x: 0, y: 0, z: 0 } };
         }
 
@@ -100,7 +93,7 @@ export class BattleService {
         }
 
         if (candidateSpawns.length === 0) {
-            logger.warn(`No specific spawn points of type for this mode on map ${mapResourceId}. Using all available as fallback.`);
+            logger.warn(`No specific spawn points of type for this mode on map ${battle.mapResourceId}. Using all available as fallback.`);
             candidateSpawns = allMapSpawns;
         }
 

@@ -1,5 +1,7 @@
 import { UserDocument } from "@/shared/models/user.model";
 import { IVector3 } from "@/shared/types/geom/ivector3";
+import { ResourceId } from "@/types/resourceTypes";
+import { ResourceManager } from "@/utils/resource.manager";
 import * as crypto from "crypto";
 
 export enum BattleMode {
@@ -71,6 +73,7 @@ export interface IDomPointState {
 export class Battle {
     public readonly battleId: string;
     public readonly settings: IBattleCreationSettings;
+    public readonly mapResourceId: ResourceId;
     public users: UserDocument[] = [];
     public usersBlue: UserDocument[] = [];
     public usersRed: UserDocument[] = [];
@@ -90,6 +93,8 @@ export class Battle {
     constructor(settings: IBattleCreationSettings) {
         this.battleId = crypto.randomBytes(8).toString("hex");
         this.settings = settings;
+        const mapId = settings.mapId.replace("map_", "");
+        this.mapResourceId = ResourceManager.getMapResourceIdWithFallback(mapId, settings.mapTheme);
     }
 
     public isTeamMode(): boolean {
