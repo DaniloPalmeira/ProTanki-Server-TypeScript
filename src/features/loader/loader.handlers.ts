@@ -1,17 +1,35 @@
+import { CALLBACK } from "@/config/constants";
 import { BattleWorkflow } from "@/features/battle/battle.workflow";
 import { GarageWorkflow } from "@/features/garage/garage.workflow";
 import { LobbyWorkflow } from "@/features/lobby/lobby.workflow";
+import { ProTankiClient } from "@/server/ProTankiClient";
+import { ProTankiServer } from "@/server/ProTankiServer";
 import { IPacketHandler } from "@/shared/interfaces/IPacketHandler";
-import { CALLBACK } from "../../config/constants";
-import ResourceCallback from "../../packets/implementations/ResourceCallback";
-import { ProTankiClient } from "../../server/ProTankiClient";
-import { ProTankiServer } from "../../server/ProTankiServer";
-import { LoginWorkflow } from "../../workflows/LoginWorkflow";
+import { ResourceId } from "@/types/resourceTypes";
+import { ResourceManager } from "@/utils/ResourceManager";
+import { LoginWorkflow } from "@/workflows/LoginWorkflow";
+import * as LoaderPackets from "./loader.packets";
 
-export default class ResourceCallbackHandler implements IPacketHandler<ResourceCallback> {
-    public readonly packetId = ResourceCallback.getId();
+export class RequestNextTipHandler implements IPacketHandler<LoaderPackets.RequestNextTipPacket> {
+    public readonly packetId = LoaderPackets.RequestNextTipPacket.getId();
 
-    public async execute(client: ProTankiClient, server: ProTankiServer, packet: ResourceCallback): Promise<void> {
+    public execute(client: ProTankiClient, server: ProTankiServer, packet: LoaderPackets.RequestNextTipPacket): void {
+        const tipResources: ResourceId[] = ["tips/tip_1", "tips/tip_2", "tips/tip_3"];
+        const randomTipId = tipResources[Math.floor(Math.random() * tipResources.length)];
+
+        try {
+            const resourceIdLow = ResourceManager.getIdlowById(randomTipId);
+            client.sendPacket(new LoaderPackets.SetLoadingScreenImagePacket(resourceIdLow));
+        } catch (error) {
+            client.sendPacket(new LoaderPackets.SetLoadingScreenImagePacket(ResourceManager.getIdlowById("ui/login_background")));
+        }
+    }
+}
+
+export class ResourceCallbackHandler implements IPacketHandler<LoaderPackets.ResourceCallback> {
+    public readonly packetId = LoaderPackets.ResourceCallback.getId();
+
+    public async execute(client: ProTankiClient, server: ProTankiServer, packet: LoaderPackets.ResourceCallback): Promise<void> {
         if (server.executeDynamicCallback(packet.callbackId, client)) {
             return;
         }
