@@ -7,7 +7,6 @@ export class PacketService {
   private packets = new Map<number, new (...args: any[]) => IPacket>();
 
   public constructor() {
-    this.loadPacketsFromDir(path.join(__dirname, "implementations"));
     this.loadPacketsFromDir(path.join(__dirname, "../features"));
   }
 
@@ -40,7 +39,7 @@ export class PacketService {
               }
               this.packets.set(packetId, PacketClass);
             } catch (e) {
-              // Ignora erros de classes base como BasePacket que não devem ser registradas
+
             }
           }
         }
