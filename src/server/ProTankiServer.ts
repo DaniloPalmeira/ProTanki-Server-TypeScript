@@ -1,4 +1,5 @@
 import { DEFAULT_MAX_CLIENTS, DEFAULT_PORT } from "@/config/constants";
+import { ConfigService } from "@/core/config/ConfigService";
 import { AuthService } from "@/features/authentication/auth.service";
 import { IRegistrationForm } from "@/features/authentication/auth.types";
 import { BattleService } from "@/features/battle/battle.service";
@@ -18,8 +19,7 @@ import { ShopService } from "@/features/shop/shop.service";
 import { PacketHandlerService } from "@/handlers/PacketHandlerService";
 import { IPacket } from "@/packets/IPacket";
 import { PacketService } from "@/packets/PacketService";
-import { ConfigService } from "@/services/ConfigService";
-import { RankService } from "@/services/RankService";
+import { RankService } from "@/shared/services/RankService";
 import { UserService } from "@/shared/services/UserService";
 import { IServerOptions } from "@/types/IServerOptions";
 import logger from "@/utils/Logger";

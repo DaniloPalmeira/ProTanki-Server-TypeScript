@@ -17,7 +17,7 @@ export class RequestSettingsHandler implements IPacketHandler<SettingsPackets.Re
         const socialAuthConfig = server.configService.getSocialAuthLinks();
         const socialLinks: ISocialLink[] = Object.entries(socialAuthConfig).map(([id, url]) => ({
             snId: id,
-            authorizationUrl: url,
+            authorizationUrl: url as string,
             isLinked: false,
         }));
 

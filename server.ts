@@ -1,5 +1,6 @@
 import { DEFAULT_PORT } from "@/config/constants";
 import { DebugConsole } from "@/console/DebugConsole";
+import { ConfigService } from "@/core/config/ConfigService";
 import { connectToDatabase, disconnectFromDatabase } from "@/database";
 import { AuthService } from "@/features/authentication/auth.service";
 import { BattleService } from "@/features/battle/battle.service";
@@ -18,8 +19,7 @@ import { PacketHandlerService } from "@/handlers/PacketHandlerService";
 import { PacketService } from "@/packets/PacketService";
 import { ProTankiServer } from "@/server/ProTankiServer";
 import { ResourceServer } from "@/server/ResourceServer";
-import { ConfigService } from "@/services/ConfigService";
-import { RankService } from "@/services/RankService";
+import { RankService } from "@/shared/services/RankService";
 import { UserService } from "@/shared/services/UserService";
 import logger from "@/utils/Logger";
 import { ResourceManager } from "@/utils/ResourceManager";
