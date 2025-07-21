@@ -1,4 +1,4 @@
-import { BasePacket } from "@/packets/BasePacket";
+import { BasePacket } from "@/packets/base.packet";
 import { Achievement } from "@/shared/models/enums/achievement.enum";
 import { BufferReader } from "@/utils/buffer/buffer.reader";
 import { BufferWriter } from "@/utils/buffer/buffer.writer";

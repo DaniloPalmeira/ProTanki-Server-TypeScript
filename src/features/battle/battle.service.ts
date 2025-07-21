@@ -1,6 +1,6 @@
 import { SystemMessage } from "@/features/system/system.packets";
 import { UserDocument } from "@/shared/models/user.model";
-import { IVector3 } from "@/shared/types/geom/IVector3";
+import { IVector3 } from "@/shared/types/geom/ivector3";
 import { GameClient } from "../../server/game.client";
 import { GameServer } from "../../server/game.server";
 import { mapGeometries } from "../../types/mapGeometries";

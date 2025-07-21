@@ -1,4 +1,4 @@
-import { BasePacket } from "@/packets/BasePacket";
+import { BasePacket } from "@/packets/base.packet";
 import { IPacket } from "@/packets/packet.interfaces";
 
 export class RawPacket extends BasePacket implements IPacket {

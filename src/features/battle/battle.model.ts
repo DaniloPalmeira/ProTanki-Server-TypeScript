@@ -1,5 +1,5 @@
 import { UserDocument } from "@/shared/models/user.model";
-import { IVector3 } from "@/shared/types/geom/IVector3";
+import { IVector3 } from "@/shared/types/geom/ivector3";
 import * as crypto from "crypto";
 
 export enum BattleMode {

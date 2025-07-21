@@ -1,6 +1,6 @@
 import { GameClient } from "@/server/game.client";
 import { GameServer } from "@/server/game.server";
-import { IPacketHandler } from "@/shared/interfaces/IPacketHandler";
+import { IPacketHandler } from "@/shared/interfaces/ipacket-handler";
 import * as InvitePackets from "./invite.packets";
 
 export class InviteCodeHandler implements IPacketHandler<InvitePackets.InviteCode> {

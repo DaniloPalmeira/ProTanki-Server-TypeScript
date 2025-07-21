@@ -1,5 +1,5 @@
 import { IPacket } from "@/packets/packet.interfaces";
-import { IVector3 } from "@/shared/types/geom/IVector3";
+import { IVector3 } from "@/shared/types/geom/ivector3";
 
 export interface IRailgunShotTargetData {
     nickname: string;

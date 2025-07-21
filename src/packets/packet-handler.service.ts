@@ -1,4 +1,4 @@
-import { IPacketHandler } from "@/shared/interfaces/IPacketHandler";
+import { IPacketHandler } from "@/shared/interfaces/ipacket-handler";
 import logger from "@/utils/logger";
 import fs from "fs";
 import path from "path";

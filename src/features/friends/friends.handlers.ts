@@ -1,7 +1,7 @@
 import { SystemMessage } from "@/features/system/system.packets";
 import { GameClient } from "@/server/game.client";
 import { GameServer } from "@/server/game.server";
-import { IPacketHandler } from "@/shared/interfaces/IPacketHandler";
+import { IPacketHandler } from "@/shared/interfaces/ipacket-handler";
 import logger from "@/utils/logger";
 import * as FriendPackets from "./friends.packets";
 

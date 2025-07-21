@@ -1,6 +1,6 @@
 import { IEmpty, IPacket } from "@/packets/packet.interfaces";
 import { ChatModeratorLevel } from "@/shared/models/enums/chat-moderator-level.enum";
-import { IVector3 } from "@/shared/types/geom/IVector3";
+import { IVector3 } from "@/shared/types/geom/ivector3";
 import { BattleMode, EquipmentConstraintsMode } from "./battle.model";
 
 export { BattleMode, EquipmentConstraintsMode, IVector3 };

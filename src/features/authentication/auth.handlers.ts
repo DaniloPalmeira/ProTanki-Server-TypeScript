@@ -2,7 +2,7 @@ import { LobbyWorkflow } from "@/features/lobby/lobby.workflow";
 import { SystemMessage } from "@/features/system/system.packets";
 import { GameClient } from "@/server/game.client";
 import { GameServer } from "@/server/game.server";
-import { IPacketHandler } from "@/shared/interfaces/IPacketHandler";
+import { IPacketHandler } from "@/shared/interfaces/ipacket-handler";
 import generateCaptcha from "@/utils/captcha.generator";
 import logger from "@/utils/logger";
 import { ValidationUtils } from "@/utils/validation.utils";

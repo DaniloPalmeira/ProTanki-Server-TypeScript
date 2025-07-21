@@ -5,7 +5,7 @@ import { GarageWorkflow } from "@/features/garage/garage.workflow";
 import { LobbyWorkflow } from "@/features/lobby/lobby.workflow";
 import { GameClient } from "@/server/game.client";
 import { GameServer } from "@/server/game.server";
-import { IPacketHandler } from "@/shared/interfaces/IPacketHandler";
+import { IPacketHandler } from "@/shared/interfaces/ipacket-handler";
 import { ResourceId } from "@/types/resourceTypes";
 import { ResourceManager } from "@/utils/resource.manager";
 import * as LoaderPackets from "./loader.packets";

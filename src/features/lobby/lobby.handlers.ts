@@ -2,7 +2,7 @@ import { battleDataObject } from "@/config/battle.data";
 import { BattleMode, EquipmentConstraintsMode } from "@/features/battle/battle.model";
 import { GameClient } from "@/server/game.client";
 import { GameServer } from "@/server/game.server";
-import { IPacketHandler } from "@/shared/interfaces/IPacketHandler";
+import { IPacketHandler } from "@/shared/interfaces/ipacket-handler";
 import { ResourceId } from "@/types/resourceTypes";
 import logger from "@/utils/logger";
 import { ResourceManager } from "@/utils/resource.manager";

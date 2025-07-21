@@ -10,7 +10,7 @@ import { ConfirmLayoutChange, SetLayout, SystemMessage } from "@/features/system
 import { GameClient } from "@/server/game.client";
 import { GameServer } from "@/server/game.server";
 import { UserDocument } from "@/shared/models/user.model";
-import { IVector3 } from "@/shared/types/geom/IVector3";
+import { IVector3 } from "@/shared/types/geom/ivector3";
 import { ResourceId } from "@/types/resourceTypes";
 import { ItemUtils } from "@/utils/item.utils";
 import logger from "@/utils/logger";

@@ -1,7 +1,7 @@
 import { weaponPhysicsData } from "@/config/physics.data";
 import { GameClient } from "@/server/game.client";
 import { GameServer } from "@/server/game.server";
-import { IPacketHandler } from "@/shared/interfaces/IPacketHandler";
+import { IPacketHandler } from "@/shared/interfaces/ipacket-handler";
 import { ItemUtils } from "@/utils/item.utils";
 import logger from "@/utils/logger";
 import * as SmokyPackets from "./smoky.packets";
