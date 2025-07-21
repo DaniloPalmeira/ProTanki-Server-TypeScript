@@ -1,5 +1,6 @@
 import { battleDataObject } from "@/config/BattleData";
 import { CALLBACK } from "@/config/constants";
+import { HideLoginForm, Punishment } from "@/features/authentication/auth.packets";
 import { Battle, BattleMode, EquipmentConstraintsMode } from "@/features/battle/battle.model";
 import { BattleWorkflow } from "@/features/battle/battle.workflow";
 import * as ChatPackets from "@/features/chat/chat.packets";
@@ -14,10 +15,8 @@ import { UserDocument, UserDocumentWithFriends } from "@/models/User";
 import AchievementTips from "@/packets/implementations/AchievementTips";
 import ConfirmLayoutChange from "@/packets/implementations/ConfirmLayoutChange";
 import EmailInfo from "@/packets/implementations/EmailInfo";
-import HideLoginForm from "@/packets/implementations/HideLoginForm";
 import LoadDependencies from "@/packets/implementations/LoadDependencies";
 import PremiumInfo from "@/packets/implementations/PremiumInfo";
-import Punishment from "@/packets/implementations/Punishment";
 import SetBattleInviteSound from "@/packets/implementations/SetBattleInviteSound";
 import SetLayout from "@/packets/implementations/SetLayout";
 import { ProTankiClient } from "@/server/ProTankiClient";

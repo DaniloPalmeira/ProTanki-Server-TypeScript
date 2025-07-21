@@ -48,3 +48,15 @@ export interface IRecoveryAccountVerifyCode extends IPacket {
 export interface IGoToRecoveryPassword extends IPacket {
     email: string | null;
 }
+export interface IPunishment extends IPacket {
+    reason: string | null;
+    days: number;
+    hours: number;
+    minutes: number;
+}
+export interface IRegistration extends IPacket {
+    bgResource: number;
+    enableRequiredEmail: boolean;
+    maxPasswordLength: number;
+    minPasswordLength: number;
+}

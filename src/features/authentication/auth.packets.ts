@@ -355,3 +355,83 @@ export class GoToRecoveryPassword extends BasePacket implements AuthTypes.IGoToR
         return -2118900410;
     }
 }
+
+export class HideLoginForm extends BasePacket implements IEmpty {
+    read(buffer: Buffer): void { }
+    write(): Buffer {
+        return new BufferWriter().getBuffer();
+    }
+    static getId(): number {
+        return -1923286328;
+    }
+}
+
+export class Punishment extends BasePacket implements AuthTypes.IPunishment {
+    reason: string | null = null;
+    days: number = 0;
+    hours: number = 0;
+    minutes: number = 0;
+
+    constructor(reason?: string | null, days?: number, hours?: number, minutes?: number) {
+        super();
+        if (reason) this.reason = reason;
+        if (days !== undefined) this.days = days;
+        if (hours !== undefined) this.hours = hours;
+        if (minutes !== undefined) this.minutes = minutes;
+    }
+
+    read(buffer: Buffer): void {
+        const reader = new BufferReader(buffer);
+        this.reason = reader.readOptionalString();
+        this.minutes = reader.readInt32BE();
+        this.hours = reader.readInt32BE();
+        this.days = reader.readInt32BE();
+    }
+
+    write(): Buffer {
+        const writer = new BufferWriter();
+        writer.writeOptionalString(this.reason);
+        writer.writeInt32BE(this.minutes);
+        writer.writeInt32BE(this.hours);
+        writer.writeInt32BE(this.days);
+        return writer.getBuffer();
+    }
+    static getId(): number {
+        return 1200280053;
+    }
+}
+
+export class Registration extends BasePacket implements AuthTypes.IRegistration {
+    bgResource: number;
+    enableRequiredEmail: boolean;
+    maxPasswordLength: number;
+    minPasswordLength: number;
+
+    constructor(bgResource: number = 0, enableRequiredEmail: boolean = false, maxPasswordLength: number = 0, minPasswordLength: number = 0) {
+        super();
+        this.bgResource = bgResource;
+        this.enableRequiredEmail = enableRequiredEmail;
+        this.maxPasswordLength = maxPasswordLength;
+        this.minPasswordLength = minPasswordLength;
+    }
+
+    read(buffer: Buffer): void {
+        const reader = new BufferReader(buffer);
+        this.bgResource = reader.readInt32BE();
+        this.enableRequiredEmail = reader.readUInt8() === 1;
+        this.maxPasswordLength = reader.readInt32BE();
+        this.minPasswordLength = reader.readInt32BE();
+    }
+
+    write(): Buffer {
+        const writer = new BufferWriter();
+        writer.writeInt32BE(this.bgResource);
+        writer.writeUInt8(this.enableRequiredEmail ? 1 : 0);
+        writer.writeInt32BE(this.maxPasswordLength);
+        writer.writeInt32BE(this.minPasswordLength);
+        return writer.getBuffer();
+    }
+    static getId(): number {
+        return -1277343167;
+    }
+}
