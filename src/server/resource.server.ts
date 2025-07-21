@@ -1,9 +1,9 @@
-import express, { Request, Response } from "express";
-import path from "path";
-import dotenv from "dotenv";
 import cors from "cors";
-import logger from "../utils/Logger";
+import dotenv from "dotenv";
+import express, { Request, Response } from "express";
 import { Server } from "http";
+import path from "path";
+import logger from "../utils/logger";
 
 dotenv.config();
 

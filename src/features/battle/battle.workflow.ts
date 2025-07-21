@@ -1,26 +1,26 @@
-import { getBonusData } from "@/config/BonusData";
+import { getBonusData } from "@/config/bonus.data";
 import { CALLBACK } from "@/config/constants";
-import { weaponPhysicsData } from "@/config/PhysicsData";
-import { sfxBlueprints } from "@/config/SfxBlueprints";
-import { suppliesData } from "@/config/SuppliesData";
+import { weaponPhysicsData } from "@/config/physics.data";
+import { sfxBlueprints } from "@/config/sfx.blueprints";
+import { suppliesData } from "@/config/supplies.data";
 import { UnloadLobbyChatPacket } from "@/features/chat/chat.packets";
 import { LoadDependencies } from "@/features/loader/loader.packets";
 import { UnloadBattleListPacket } from "@/features/lobby/lobby.packets";
 import { ConfirmLayoutChange, SetLayout, SystemMessage } from "@/features/system/system.packets";
-import { ProTankiClient } from "@/server/ProTankiClient";
-import { ProTankiServer } from "@/server/ProTankiServer";
+import { GameClient } from "@/server/game.client";
+import { GameServer } from "@/server/game.server";
 import { UserDocument } from "@/shared/models/user.model";
 import { IVector3 } from "@/shared/types/geom/IVector3";
 import { ResourceId } from "@/types/resourceTypes";
 import { ItemUtils } from "@/utils/item.utils";
-import logger from "@/utils/Logger";
+import logger from "@/utils/logger";
 import { ResourceManager } from "@/utils/resource.manager";
 import { Battle, BattleMode, IDomPointState, MapTheme } from "./battle.model";
 import * as BattlePackets from "./battle.packets";
 import { BonusType, IBattleUser, IBattleUserInfo } from "./battle.types";
 
 export class BattleWorkflow {
-    public static async enterBattle(client: ProTankiClient, server: ProTankiServer, battle: Battle): Promise<void> {
+    public static async enterBattle(client: GameClient, server: GameServer, battle: Battle): Promise<void> {
         if (!client.user) {
             logger.error("Attempted to enter battle without a user authenticated.", { client: client.getRemoteAddress() });
             return;
@@ -43,7 +43,7 @@ export class BattleWorkflow {
         client.sendPacket(new LoadDependencies(dependencies, CALLBACK.BATTLE_MAP_LIBS_LOADED));
     }
 
-    public static loadMapResources(client: ProTankiClient, server: ProTankiServer, battle: Battle): void {
+    public static loadMapResources(client: GameClient, server: GameServer, battle: Battle): void {
         logger.info(`User ${client.user?.username} is loading skybox for battle ${battle.battleId}.`);
         const mapIdWithoutPrefix = battle.settings.mapId.replace("map_", "");
         const skyboxDependencies = ResourceManager.getSkyboxResources(mapIdWithoutPrefix, battle.settings.mapTheme);
@@ -51,7 +51,7 @@ export class BattleWorkflow {
         client.sendPacket(new LoadDependencies(dependencies, CALLBACK.BATTLE_SKYBOX_LOADED));
     }
 
-    public static loadMapGeometry(client: ProTankiClient, server: ProTankiServer, battle: Battle): void {
+    public static loadMapGeometry(client: GameClient, server: GameServer, battle: Battle): void {
         logger.info(`User ${client.user?.username} is loading map geometry for battle ${battle.battleId}.`);
 
         const mapId = battle.settings.mapId.replace("map_", "");
@@ -62,7 +62,7 @@ export class BattleWorkflow {
         client.sendPacket(new LoadDependencies(dependencies, CALLBACK.BATTLE_MAP_GEOMETRY_LOADED));
     }
 
-    public static loadGeneralBattleResources(client: ProTankiClient, server: ProTankiServer, battle: Battle): void {
+    public static loadGeneralBattleResources(client: GameClient, server: GameServer, battle: Battle): void {
         logger.info(`User ${client.user?.username} is loading general battle resources for battle ${battle.battleId}.`);
 
         const generalResources: ResourceId[] = [
@@ -100,7 +100,7 @@ export class BattleWorkflow {
         client.sendPacket(new LoadDependencies(dependencies, CALLBACK.BATTLE_GENERAL_RESOURCES_LOADED));
     }
 
-    public static loadPlayerEquipment(client: ProTankiClient, server: ProTankiServer, battle: Battle): void {
+    public static loadPlayerEquipment(client: GameClient, server: GameServer, battle: Battle): void {
         logger.info(`User ${client.user?.username} is loading player equipment for battle ${battle.battleId}.`);
 
         const allPlayers = [...battle.users, ...battle.usersRed, ...battle.usersBlue];
@@ -134,7 +134,7 @@ export class BattleWorkflow {
         };
     }
 
-    public static getTankModelDataJson(client: ProTankiClient, battle: Battle): string {
+    public static getTankModelDataJson(client: GameClient, battle: Battle): string {
         const user = client.user!;
         const hullMod = ItemUtils.getItemModification(user, "hull");
         const turretMod = ItemUtils.getItemModification(user, "turret");
@@ -228,7 +228,7 @@ export class BattleWorkflow {
         return JSON.stringify(data);
     }
 
-    public static initializeBattle(client: ProTankiClient, server: ProTankiServer, battle: Battle): void {
+    public static initializeBattle(client: GameClient, server: GameServer, battle: Battle): void {
         if (client.isSpectator) {
             this._initializeSpectatorBattleView(client, server, battle);
         } else {
@@ -236,7 +236,7 @@ export class BattleWorkflow {
         }
     }
 
-    private static _initializePlayerBattleView(client: ProTankiClient, server: ProTankiServer, battle: Battle) {
+    private static _initializePlayerBattleView(client: GameClient, server: GameServer, battle: Battle) {
         try {
             const user = client.user!;
             logger.info(`User ${user.username} finished loading all battle resources for ${battle.battleId}. Initializing map...`);
@@ -267,7 +267,7 @@ export class BattleWorkflow {
         }
     }
 
-    private static _initializeSpectatorBattleView(client: ProTankiClient, server: ProTankiServer, battle: Battle) {
+    private static _initializeSpectatorBattleView(client: GameClient, server: GameServer, battle: Battle) {
         try {
             const user = client.user!;
             logger.info(`Spectator ${user.username} finished loading resources for ${battle.battleId}. Initializing map view...`);
@@ -293,7 +293,7 @@ export class BattleWorkflow {
         }
     }
 
-    private static _sendCommonBattleData(client: ProTankiClient, server: ProTankiServer, battle: Battle): void {
+    private static _sendCommonBattleData(client: GameClient, server: GameServer, battle: Battle): void {
         const settings = battle.settings;
         const mapIdWithPrefix = settings.mapId;
         const mapIdWithoutPrefix = mapIdWithPrefix.replace("map_", "");
@@ -454,7 +454,7 @@ export class BattleWorkflow {
         client.sendPacket(new BattlePackets.InitializeBattleStatisticsPacket());
     }
 
-    private static _handleConcurrentJoin(client: ProTankiClient, server: ProTankiServer, battle: Battle, establishedClients: ProTankiClient[]): void {
+    private static _handleConcurrentJoin(client: GameClient, server: GameServer, battle: Battle, establishedClients: GameClient[]): void {
         const user = client.user!;
         logger.info(`Waiting for ${establishedClients.length} established players to load resources for ${user.username}.`);
         client.pendingResourceAcks = new Set(establishedClients.map((p) => p.user!.username));
@@ -480,7 +480,7 @@ export class BattleWorkflow {
 
         const spawnTimeout = setTimeout(() => triggerSpawn(true), 10000);
 
-        const onResourcesLoadedCallback = (acknowledgingClient: ProTankiClient) => {
+        const onResourcesLoadedCallback = (acknowledgingClient: GameClient) => {
             if (spawnTriggered) return;
             const ackUsername = acknowledgingClient.user!.username;
             logger.info(`${ackUsername} has loaded resources for ${user.username}.`);
@@ -519,7 +519,7 @@ export class BattleWorkflow {
         }
     }
 
-    private static _sendFinalBattlePackets(client: ProTankiClient, battle: Battle): void {
+    private static _sendFinalBattlePackets(client: GameClient, battle: Battle): void {
         const user = client.user!;
         const mineProps = {
             activateSound: ResourceManager.getIdlowById("sounds/mine_activate"),

@@ -1,12 +1,12 @@
-import { ProTankiClient } from "@/server/ProTankiClient";
-import { ProTankiServer } from "@/server/ProTankiServer";
+import { GameClient } from "@/server/game.client";
+import { GameServer } from "@/server/game.server";
 import { IPacketHandler } from "@/shared/interfaces/IPacketHandler";
 import * as InvitePackets from "./invite.packets";
 
 export class InviteCodeHandler implements IPacketHandler<InvitePackets.InviteCode> {
     public readonly packetId = InvitePackets.InviteCode.getId();
 
-    public async execute(client: ProTankiClient, server: ProTankiServer, packet: InvitePackets.InviteCode): Promise<void> {
+    public async execute(client: GameClient, server: GameServer, packet: InvitePackets.InviteCode): Promise<void> {
         if (!packet.inviteCode) {
             client.sendPacket(new InvitePackets.InviteCodeInvalid());
             return;

@@ -1,12 +1,12 @@
-import { ProTankiClient } from "@/server/ProTankiClient";
-import { ProTankiServer } from "@/server/ProTankiServer";
+import { GameClient } from "@/server/game.client";
+import { GameServer } from "@/server/game.server";
 import { IPacketHandler } from "@/shared/interfaces/IPacketHandler";
+import logger from "@/utils/logger";
 import * as FlamethrowerPackets from "./flamethrower.packets";
-import logger from "@/utils/Logger";
 
 export class StartShootingFlamethrowerCommandHandler implements IPacketHandler<FlamethrowerPackets.StartShootingFlamethrowerCommandPacket> {
     public readonly packetId = FlamethrowerPackets.StartShootingFlamethrowerCommandPacket.getId();
-    public execute(client: ProTankiClient, server: ProTankiServer, packet: FlamethrowerPackets.StartShootingFlamethrowerCommandPacket): void {
+    public execute(client: GameClient, server: GameServer, packet: FlamethrowerPackets.StartShootingFlamethrowerCommandPacket): void {
         const { user, currentBattle } = client;
         if (!user || !currentBattle) {
             logger.warn("StartShootingFlamethrowerCommandHandler received a packet from a client not in a battle.", { client: client.getRemoteAddress() });
@@ -28,7 +28,7 @@ export class StartShootingFlamethrowerCommandHandler implements IPacketHandler<F
 
 export class StopShootingFlamethrowerCommandHandler implements IPacketHandler<FlamethrowerPackets.StopShootingFlamethrowerCommandPacket> {
     public readonly packetId = FlamethrowerPackets.StopShootingFlamethrowerCommandPacket.getId();
-    public execute(client: ProTankiClient, server: ProTankiServer, packet: FlamethrowerPackets.StopShootingFlamethrowerCommandPacket): void {
+    public execute(client: GameClient, server: GameServer, packet: FlamethrowerPackets.StopShootingFlamethrowerCommandPacket): void {
         const { user, currentBattle } = client;
         if (!user || !currentBattle) {
             logger.warn("StopShootingFlamethrowerCommandHandler received a packet from a client not in a battle.", { client: client.getRemoteAddress() });

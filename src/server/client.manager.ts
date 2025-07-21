@@ -1,19 +1,19 @@
 import { IPacket } from "@/packets/packet.interfaces";
 import { ClientState } from "./client.state";
-import { ProTankiClient } from "./ProTankiClient";
+import { GameClient } from "./game.client";
 
 export class ClientManager {
-  private clients: ProTankiClient[] = [];
+  private clients: GameClient[] = [];
 
-  public addClient(client: ProTankiClient): void {
+  public addClient(client: GameClient): void {
     this.clients.push(client);
   }
 
-  public removeClient(client: ProTankiClient): void {
+  public removeClient(client: GameClient): void {
     this.clients = this.clients.filter((c) => c !== client);
   }
 
-  public getClients(): ProTankiClient[] {
+  public getClients(): GameClient[] {
     return this.clients;
   }
 
@@ -21,11 +21,11 @@ export class ClientManager {
     return this.clients.length;
   }
 
-  public findClientByIp(ip: string): ProTankiClient | undefined {
+  public findClientByIp(ip: string): GameClient | undefined {
     return this.clients.find((c) => c.getRemoteAddress() === ip);
   }
 
-  public findClientByUsername(username: string): ProTankiClient | undefined {
+  public findClientByUsername(username: string): GameClient | undefined {
     const lowerCaseUsername = username.toLowerCase();
     return this.clients.find((c) => c.user?.username.toLowerCase() === lowerCaseUsername);
   }

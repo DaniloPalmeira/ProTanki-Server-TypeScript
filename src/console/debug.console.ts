@@ -1,15 +1,15 @@
 import { RawPacket } from "@/features/dev/dev.packets";
-import { UserService } from "@/shared/services/UserService";
+import { UserService } from "@/shared/services/user.service";
 import readline from "readline";
-import { ProTankiServer } from "../server/ProTankiServer";
-import logger, { consoleTransport } from "../utils/Logger";
+import { GameServer } from "../server/game.server";
+import logger, { consoleTransport } from "../utils/logger";
 
 export class DebugConsole {
-  private server: ProTankiServer;
+  private server: GameServer;
   private rl: readline.Interface;
   private userService: UserService;
 
-  constructor(server: ProTankiServer, userService: UserService) {
+  constructor(server: GameServer, userService: UserService) {
     this.server = server;
     this.userService = userService;
     this.rl = readline.createInterface({

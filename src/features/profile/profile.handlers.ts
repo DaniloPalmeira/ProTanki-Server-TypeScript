@@ -1,14 +1,14 @@
-import { ProTankiClient } from "@/server/ProTankiClient";
-import { ProTankiServer } from "@/server/ProTankiServer";
+import { GameClient } from "@/server/game.client";
+import { GameServer } from "@/server/game.server";
 import { IPacketHandler } from "@/shared/interfaces/IPacketHandler";
-import logger from "@/utils/Logger";
+import logger from "@/utils/logger";
 import { UserNotInBattlePacket } from "../lobby/lobby.packets";
 import * as ProfilePackets from "./profile.packets";
 
 export class GetUserInfoHandler implements IPacketHandler<ProfilePackets.GetUserInfo> {
     public readonly packetId = ProfilePackets.GetUserInfo.getId();
 
-    public async execute(client: ProTankiClient, server: ProTankiServer, packet: ProfilePackets.GetUserInfo): Promise<void> {
+    public async execute(client: GameClient, server: GameServer, packet: ProfilePackets.GetUserInfo): Promise<void> {
         if (!packet.nickname) {
             return;
         }

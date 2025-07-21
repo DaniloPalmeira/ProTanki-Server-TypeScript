@@ -5,15 +5,15 @@ import { LobbyWorkflow } from "@/features/lobby/lobby.workflow";
 import { ConfirmLayoutChange, SetLayout } from "@/features/system/system.packets";
 import { ResourceManager } from "@/utils/resource.manager";
 import { CALLBACK } from "../../config/constants";
-import { ProTankiClient } from "../../server/ProTankiClient";
-import { ProTankiServer } from "../../server/ProTankiServer";
+import { GameClient } from "../../server/game.client";
+import { GameServer } from "../../server/game.server";
 import { ResourceId } from "../../types/resourceTypes";
-import logger from "../../utils/Logger";
+import logger from "../../utils/logger";
 import { itemBlueprints } from "./garage.data";
 import * as GaragePackets from "./garage.packets";
 
 export class GarageWorkflow {
-    private static _loadGarageDependencies(client: ProTankiClient): void {
+    private static _loadGarageDependencies(client: GameClient): void {
         const resourceIds: ResourceId[] = ["garage"];
 
         itemBlueprints.turrets.forEach((turret) => {
@@ -45,7 +45,7 @@ export class GarageWorkflow {
         logger.info(`User ${client.user!.username} is loading garage resources.`);
     }
 
-    public static async enterGarage(client: ProTankiClient, server: ProTankiServer): Promise<void> {
+    public static async enterGarage(client: GameClient, server: GameServer): Promise<void> {
         if (!client.user) {
             logger.error("Attempted to enter garage without a user authenticated.", { client: client.getRemoteAddress() });
             return;
@@ -62,18 +62,18 @@ export class GarageWorkflow {
         this._loadGarageDependencies(client);
     }
 
-    public static enterBattleGarageView(client: ProTankiClient, server: ProTankiServer): void {
+    public static enterBattleGarageView(client: GameClient, server: GameServer): void {
         client.setState("battle_garage");
         client.sendPacket(new SetLayout(1));
         this._loadGarageDependencies(client);
     }
 
-    public static transitionFromLobbyToGarage(client: ProTankiClient, server: ProTankiServer): void {
+    public static transitionFromLobbyToGarage(client: GameClient, server: GameServer): void {
         client.sendPacket(new UnloadBattleListPacket());
         this.enterBattleGarageView(client, server);
     }
 
-    private static _triggerSelfDestructForRespawn(client: ProTankiClient, server: ProTankiServer): void {
+    private static _triggerSelfDestructForRespawn(client: GameClient, server: GameServer): void {
         if (client.battleState === "suicide") {
             return;
         }
@@ -105,7 +105,7 @@ export class GarageWorkflow {
         }, selfDestructTime);
     }
 
-    public static returnToBattleView(client: ProTankiClient, server: ProTankiServer): void {
+    public static returnToBattleView(client: GameClient, server: GameServer): void {
         client.setState("battle");
         client.sendPacket(new SetLayout(3));
         client.sendPacket(new GaragePackets.UnloadGaragePacket());
@@ -128,7 +128,7 @@ export class GarageWorkflow {
 
                 const acknowledgements = new Set(otherClientsInBattle.map((c) => c.user!.username));
 
-                const onResourcesLoadedCallback = (acknowledgingClient: ProTankiClient) => {
+                const onResourcesLoadedCallback = (acknowledgingClient: GameClient) => {
                     acknowledgements.delete(acknowledgingClient.user!.username);
                     if (acknowledgements.size === 0) {
                         server.removeDynamicCallback(callbackId);
@@ -150,7 +150,7 @@ export class GarageWorkflow {
         client.sendPacket(new ConfirmLayoutChange(3, 3));
     }
 
-    public static initializeGarage(client: ProTankiClient, server: ProTankiServer): void {
+    public static initializeGarage(client: GameClient, server: GameServer): void {
         if (!client.user) {
             logger.error(`Cannot initialize garage for unauthenticated client.`);
             return;

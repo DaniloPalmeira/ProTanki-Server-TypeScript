@@ -1,9 +1,9 @@
 import { RawPacket } from "@/features/dev/dev.packets";
 import { SystemMessage } from "@/features/system/system.packets";
-import { ProTankiClient } from "@/server/ProTankiClient";
-import { ProTankiServer } from "@/server/ProTankiServer";
+import { GameClient } from "@/server/game.client";
+import { GameServer } from "@/server/game.server";
 import { IPacketHandler } from "@/shared/interfaces/IPacketHandler";
-import logger from "@/utils/Logger";
+import logger from "@/utils/logger";
 import { ChatHistory, SendChatMessage } from "./chat.packets";
 import { IChatMessageData } from "./chat.types";
 import { CommandContext } from "./commands/command.types";
@@ -11,7 +11,7 @@ import { CommandContext } from "./commands/command.types";
 export class SendChatMessageHandler implements IPacketHandler<SendChatMessage> {
     public readonly packetId = SendChatMessage.getId();
 
-    public async execute(client: ProTankiClient, server: ProTankiServer, packet: SendChatMessage): Promise<void> {
+    public async execute(client: GameClient, server: GameServer, packet: SendChatMessage): Promise<void> {
         if (!client.user || !packet.message) {
             return;
         }

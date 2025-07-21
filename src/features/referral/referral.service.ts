@@ -1,5 +1,5 @@
 import User, { UserDocument } from "@/shared/models/user.model";
-import logger from "@/utils/Logger";
+import logger from "@/utils/logger";
 import { IReferredUser } from "./referral.types";
 
 export interface IReferralDetails {

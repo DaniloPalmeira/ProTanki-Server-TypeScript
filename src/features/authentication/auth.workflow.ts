@@ -2,15 +2,15 @@ import { CALLBACK } from "@/config/constants";
 import { HideLoader, LoadDependencies } from "@/features/loader/loader.packets";
 import { SocialNetwork } from "@/features/social/social.packets";
 import { CaptchaLocation, InviteEnabled, Ping } from "@/features/system/system.packets";
-import { ProTankiClient } from "@/server/ProTankiClient";
-import { ProTankiServer } from "@/server/ProTankiServer";
+import { GameClient } from "@/server/game.client";
+import { GameServer } from "@/server/game.server";
 import { ResourceId } from "@/types/resourceTypes";
 import generateCaptcha from "@/utils/captcha.generator";
 import { ResourceManager } from "@/utils/resource.manager";
 import * as AuthPackets from "./auth.packets";
 
 export class AuthWorkflow {
-    public static async sendLoginScreenData(client: ProTankiClient, server: ProTankiServer): Promise<void> {
+    public static async sendLoginScreenData(client: GameClient, server: GameServer): Promise<void> {
         client.sendPacket(new Ping());
         client.sendPacket(new SocialNetwork(server.getSocialNetworks()));
         client.sendPacket(new CaptchaLocation(server.configService.getCaptchaLocations()));
@@ -23,7 +23,7 @@ export class AuthWorkflow {
         client.sendPacket(new LoadDependencies(dependencies, CALLBACK.TIPS_LOADED));
     }
 
-    public static async sendMainLoginResources(client: ProTankiClient, server: ProTankiServer): Promise<void> {
+    public static async sendMainLoginResources(client: GameClient, server: GameServer): Promise<void> {
         const resourceIds: ResourceId[] = [
             "ui/language_images",
             "ui/login_background",
@@ -427,7 +427,7 @@ export class AuthWorkflow {
         client.sendPacket(new LoadDependencies(dependencies, CALLBACK.LOGIN_FORM));
     }
 
-    public static initializeLoginForm(client: ProTankiClient, server: ProTankiServer): void {
+    public static initializeLoginForm(client: GameClient, server: GameServer): void {
         client.sendPacket(new InviteEnabled(server.getNeedInviteCode()));
 
         const loginForm = server.getLoginForm();
@@ -436,7 +436,7 @@ export class AuthWorkflow {
         client.sendPacket(new HideLoader());
     }
 
-    public static handleInvalidRecoveryCode(client: ProTankiClient): void {
+    public static handleInvalidRecoveryCode(client: GameClient): void {
         const captcha = generateCaptcha();
         client.captchaSolution = captcha.text;
 

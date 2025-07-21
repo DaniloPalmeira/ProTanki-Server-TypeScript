@@ -1,7 +1,7 @@
 import { BasePacket } from "@/packets/BasePacket";
 import { IVector3 } from "@/shared/types/geom/IVector3";
-import { BufferReader } from "@/utils/buffer/BufferReader";
-import { BufferWriter } from "@/utils/buffer/BufferWriter";
+import { BufferReader } from "@/utils/buffer/buffer.reader";
+import { BufferWriter } from "@/utils/buffer/buffer.writer";
 import * as ThunderTypes from "./thunder.types";
 
 export class ThunderShotNoTargetCommandPacket extends BasePacket implements ThunderTypes.IThunderShotNoTargetCommand {

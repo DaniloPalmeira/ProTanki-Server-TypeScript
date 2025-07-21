@@ -1,6 +1,6 @@
 import { UserDocument } from "@/shared/models/user.model";
-import { UserService } from "@/shared/services/UserService";
-import logger from "@/utils/Logger";
+import { UserService } from "@/shared/services/user.service";
+import logger from "@/utils/logger";
 
 export class SettingsService {
     private userService: UserService;

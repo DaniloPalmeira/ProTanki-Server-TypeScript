@@ -1,5 +1,5 @@
 import { DEFAULT_MAX_CLIENTS } from "@/config/constants";
-import logger from "@/utils/Logger";
+import logger from "@/utils/logger";
 import Config, { IConfig } from "./config.model";
 
 export class ConfigService {

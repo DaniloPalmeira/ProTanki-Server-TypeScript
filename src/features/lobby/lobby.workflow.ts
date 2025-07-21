@@ -1,4 +1,4 @@
-import { battleDataObject } from "@/config/BattleData";
+import { battleDataObject } from "@/config/battle.data";
 import { CALLBACK } from "@/config/constants";
 import { HideLoginForm, Punishment } from "@/features/authentication/auth.packets";
 import { Battle, BattleMode, EquipmentConstraintsMode } from "@/features/battle/battle.model";
@@ -12,14 +12,14 @@ import { AchievementTips, EmailInfo, PremiumInfo } from "@/features/profile/prof
 import { ReferralInfo } from "@/features/referral/referral.packets";
 import { LocalizationInfo } from "@/features/shop/shop.packets";
 import { ConfirmLayoutChange, SetLayout } from "@/features/system/system.packets";
-import { ProTankiClient } from "@/server/ProTankiClient";
-import { ProTankiServer } from "@/server/ProTankiServer";
+import { GameClient } from "@/server/game.client";
+import { GameServer } from "@/server/game.server";
 import { Achievement } from "@/shared/models/enums/achievement.enum";
 import { ChatModeratorLevel } from "@/shared/models/enums/chat-moderator-level.enum";
 import { UserDocument, UserDocumentWithFriends } from "@/shared/models/user.model";
 import { ResourceId } from "@/types/resourceTypes";
 import { FormatUtils } from "@/utils/format.utils";
-import logger from "@/utils/Logger";
+import logger from "@/utils/logger";
 import { ResourceManager } from "@/utils/resource.manager";
 import * as LobbyPackets from "./lobby.packets";
 import { UnloadBattleListPacket } from "./lobby.packets";
@@ -32,7 +32,7 @@ const mapUserToObject = (user: UserDocument) => ({
 });
 
 export class LobbyWorkflow {
-    public static async enterLobby(client: ProTankiClient, server: ProTankiServer): Promise<void> {
+    public static async enterLobby(client: GameClient, server: GameServer): Promise<void> {
         if (!client.user) {
             logger.error("Attempted to enter lobby without a user authenticated.", { client: client.getRemoteAddress() });
             return;
@@ -45,7 +45,7 @@ export class LobbyWorkflow {
         await this.returnToLobby(client, server, false);
     }
 
-    public static async postAuthenticationFlow(client: ProTankiClient, server: ProTankiServer): Promise<boolean> {
+    public static async postAuthenticationFlow(client: GameClient, server: GameServer): Promise<boolean> {
         const user = client.user!;
 
         if (user.isPunished && user.punishmentExpiresAt && user.punishmentExpiresAt > new Date()) {
@@ -84,7 +84,7 @@ export class LobbyWorkflow {
         return true;
     }
 
-    public static async returnToLobby(client: ProTankiClient, server: ProTankiServer, fromGarage: boolean = true): Promise<void> {
+    public static async returnToLobby(client: GameClient, server: GameServer, fromGarage: boolean = true): Promise<void> {
         if (fromGarage) {
             client.sendPacket(new UnloadGaragePacket());
         }
@@ -101,26 +101,26 @@ export class LobbyWorkflow {
         client.sendPacket(new LoadDependencies(dependencies, CALLBACK.LOBBY_DATA));
     }
 
-    public static enterBattleLobbyView(client: ProTankiClient, server: ProTankiServer): void {
+    public static enterBattleLobbyView(client: GameClient, server: GameServer): void {
         client.setState("battle_lobby");
         client.sendPacket(new SetLayout(0));
         client.sendPacket(new LoadDependencies({ resources: [] }, CALLBACK.LOBBY_DATA));
         client.sendPacket(new ConfirmLayoutChange(3, 0));
     }
 
-    public static transitionFromGarageToLobby(client: ProTankiClient, server: ProTankiServer): void {
+    public static transitionFromGarageToLobby(client: GameClient, server: GameServer): void {
         client.sendPacket(new UnloadGaragePacket());
         this.enterBattleLobbyView(client, server);
     }
 
-    public static returnToBattleView(client: ProTankiClient, server: ProTankiServer): void {
+    public static returnToBattleView(client: GameClient, server: GameServer): void {
         client.setState("battle");
         client.sendPacket(new SetLayout(3));
         client.sendPacket(new UnloadBattleListPacket());
         client.sendPacket(new ConfirmLayoutChange(3, 3));
     }
 
-    public static async initializeLobby(client: ProTankiClient, server: ProTankiServer): Promise<void> {
+    public static async initializeLobby(client: GameClient, server: GameServer): Promise<void> {
         this.sendBattleInfo(client);
         this.sendBattleList(client, server);
 
@@ -142,7 +142,7 @@ export class LobbyWorkflow {
         client.sendPacket(new ConfirmLayoutChange(0, 0));
     }
 
-    private static sendPlayerVitals(user: UserDocument, client: ProTankiClient, server: ProTankiServer): void {
+    private static sendPlayerVitals(user: UserDocument, client: GameClient, server: GameServer): void {
         let premiumSecondsLeft = 0;
         if (user.premiumExpiresAt && user.premiumExpiresAt > new Date()) {
             premiumSecondsLeft = Math.round((user.premiumExpiresAt.getTime() - Date.now()) / 1000);
@@ -180,7 +180,7 @@ export class LobbyWorkflow {
         client.sendPacket(new ReferralInfo(user.referralHash, "s.pro-tanki.com"));
     }
 
-    private static sendInitialSettings(client: ProTankiClient, server: ProTankiServer): void {
+    private static sendInitialSettings(client: GameClient, server: GameServer): void {
         const countries = server.configService.getShopEnabledCountries();
         const locationSwitchingEnabled = server.configService.getShopLocationSwitchingEnabled();
         client.sendPacket(new LocalizationInfo(countries, "BR", locationSwitchingEnabled));
@@ -189,7 +189,7 @@ export class LobbyWorkflow {
         client.sendPacket(new LobbyPackets.SetBattleInviteSound(battleInviteSoundId));
     }
 
-    private static sendAchievementTips(user: UserDocument, client: ProTankiClient): void {
+    private static sendAchievementTips(user: UserDocument, client: GameClient): void {
         const tipsToSend: Achievement[] = [];
         if (!user.unlockedAchievements.includes(Achievement.FIRST_PURCHASE)) {
             tipsToSend.push(Achievement.FIRST_PURCHASE);
@@ -200,7 +200,7 @@ export class LobbyWorkflow {
         client.sendPacket(new AchievementTips(tipsToSend));
     }
 
-    public static async sendChatSetup(user: UserDocument, client: ProTankiClient, server: ProTankiServer): Promise<void> {
+    public static async sendChatSetup(user: UserDocument, client: GameClient, server: GameServer): Promise<void> {
         const configService = server.configService;
 
         client.sendPacket(
@@ -249,7 +249,7 @@ export class LobbyWorkflow {
         client.isChatLoaded = true;
     }
 
-    private static sendBattleInfo(client: ProTankiClient): void {
+    private static sendBattleInfo(client: GameClient): void {
         const battleData = JSON.parse(JSON.stringify(battleDataObject));
 
         battleData.maps.forEach((map: any) => {
@@ -268,7 +268,7 @@ export class LobbyWorkflow {
         client.sendPacket(new LobbyPackets.BattleInfo(jsonData));
     }
 
-    private static sendBattleList(client: ProTankiClient, server: ProTankiServer): void {
+    private static sendBattleList(client: GameClient, server: GameServer): void {
         const battles = server.lobbyService.getBattles();
 
         const battleListPayload = battles.map((battle) => {
@@ -315,7 +315,7 @@ export class LobbyWorkflow {
         client.sendPacket(new LobbyPackets.BattleList(jsonData));
     }
 
-    public static async sendBattleDetails(client: ProTankiClient, server: ProTankiServer, battle: Battle): Promise<void> {
+    public static async sendBattleDetails(client: GameClient, server: GameServer, battle: Battle): Promise<void> {
         client.sendPacket(new LobbyPackets.SelectBattlePacket(battle.battleId));
 
         const mapInfo = battleDataObject.maps.find((m) => m.mapId === battle.settings.mapId);

@@ -1,7 +1,7 @@
 import { BasePacket } from "@/packets/BasePacket";
 import { Achievement } from "@/shared/models/enums/achievement.enum";
-import { BufferReader } from "@/utils/buffer/BufferReader";
-import { BufferWriter } from "@/utils/buffer/BufferWriter";
+import { BufferReader } from "@/utils/buffer/buffer.reader";
+import { BufferWriter } from "@/utils/buffer/buffer.writer";
 import * as ProfileTypes from "./profile.types";
 
 export class GetUserInfo extends BasePacket implements ProfileTypes.IGetUserInfo {

@@ -7,10 +7,10 @@ import { UserDocument } from "@/shared/models/user.model";
 import { IVector3 } from "@/shared/types/geom/IVector3";
 import * as net from "net";
 import { Battle } from "../features/battle/battle.model";
-import logger from "../utils/Logger";
+import logger from "../utils/logger";
 import { ClientState } from "./client.state";
 import { IClientOptions } from "./client.types";
-import { ProTankiServer } from "./ProTankiServer";
+import { GameServer } from "./game.server";
 
 interface PacketQueueItem {
   packetId: number;
@@ -22,10 +22,10 @@ interface ISpawnPoint {
   rotation: IVector3;
 }
 
-export class ProTankiClient {
+export class GameClient {
   private static readonly HEADER_SIZE = 8;
   private socket: net.Socket;
-  private server: ProTankiServer;
+  private server: GameServer;
   private state: ClientState;
   private securityService: SecurityService;
   private rawDataReceived: Buffer = Buffer.alloc(0);
@@ -115,13 +115,13 @@ export class ProTankiClient {
 
     this.rawDataReceived = Buffer.concat([this.rawDataReceived, data]);
 
-    while (this.rawDataReceived.length >= ProTankiClient.HEADER_SIZE) {
+    while (this.rawDataReceived.length >= GameClient.HEADER_SIZE) {
       const packetSize = this.rawDataReceived.readInt32BE(0);
       if (this.rawDataReceived.length < packetSize) {
         break;
       }
 
-      if (packetSize < ProTankiClient.HEADER_SIZE) {
+      if (packetSize < GameClient.HEADER_SIZE) {
         logger.warn(`Invalid packet size: ${packetSize}`, {
           client: this.getRemoteAddress(),
         });
@@ -130,7 +130,7 @@ export class ProTankiClient {
       }
 
       const packetId = this.rawDataReceived.readInt32BE(4);
-      const packetData = this.rawDataReceived.slice(ProTankiClient.HEADER_SIZE, packetSize);
+      const packetData = this.rawDataReceived.slice(GameClient.HEADER_SIZE, packetSize);
 
       this.packetQueue.push({ packetId, packetData });
       logger.debug(`Packet queued`, {
@@ -242,11 +242,11 @@ export class ProTankiClient {
   }
 
   private buildPacketBuffer(packetId: number, data: Buffer): Buffer {
-    const packetSize = data.length + ProTankiClient.HEADER_SIZE;
+    const packetSize = data.length + GameClient.HEADER_SIZE;
     const packetBuffer = Buffer.alloc(packetSize);
     packetBuffer.writeInt32BE(packetSize, 0);
     packetBuffer.writeInt32BE(packetId, 4);
-    data.copy(packetBuffer, ProTankiClient.HEADER_SIZE);
+    data.copy(packetBuffer, GameClient.HEADER_SIZE);
     return packetBuffer;
   }
 

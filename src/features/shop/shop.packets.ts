@@ -1,6 +1,6 @@
 import { BasePacket } from "@/packets/BasePacket";
-import { BufferReader } from "@/utils/buffer/BufferReader";
-import { BufferWriter } from "@/utils/buffer/BufferWriter";
+import { BufferReader } from "@/utils/buffer/buffer.reader";
+import { BufferWriter } from "@/utils/buffer/buffer.writer";
 import * as ShopTypes from "./shop.types";
 
 export class LocalizationInfo extends BasePacket implements ShopTypes.ILocalizationInfo {

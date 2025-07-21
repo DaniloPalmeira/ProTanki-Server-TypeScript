@@ -1,6 +1,6 @@
-import { Rank, Ranks } from "@/config/RankData";
+import { Rank, Ranks } from "@/config/rank.data";
 import { UserDocument } from "@/shared/models/user.model";
-import logger from "@/utils/Logger";
+import logger from "@/utils/logger";
 
 export class RankService {
     private ranksById: Map<number, Rank> = new Map();

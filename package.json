@@ -1,7 +1,7 @@
 {
-  "name": "protankiserver",
+  "name": "letankiserver",
   "version": "1.0.0",
-  "description": "TypeScript-based server for ProTanki game",
+  "description": "TypeScript-based server for LeTanki game",
   "main": "dist/server.js",
   "scripts": {
     "build:resources": "ts-node scripts/buildResources.ts",
@@ -24,7 +24,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/danilopalmeira/ProTanki-Server-TypeScript.git"
+    "url": "https://github.com/letanki/server.git"
   },
   "author": "Danilo Palmeira",
   "license": "MIT",

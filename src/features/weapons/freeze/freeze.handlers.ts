@@ -1,12 +1,12 @@
-import { ProTankiClient } from "@/server/ProTankiClient";
-import { ProTankiServer } from "@/server/ProTankiServer";
+import { GameClient } from "@/server/game.client";
+import { GameServer } from "@/server/game.server";
 import { IPacketHandler } from "@/shared/interfaces/IPacketHandler";
+import logger from "@/utils/logger";
 import * as FreezePackets from "./freeze.packets";
-import logger from "@/utils/Logger";
 
 export class StartShootingFreezeCommandHandler implements IPacketHandler<FreezePackets.StartShootingFreezeCommandPacket> {
     public readonly packetId = FreezePackets.StartShootingFreezeCommandPacket.getId();
-    public execute(client: ProTankiClient, server: ProTankiServer, packet: FreezePackets.StartShootingFreezeCommandPacket): void {
+    public execute(client: GameClient, server: GameServer, packet: FreezePackets.StartShootingFreezeCommandPacket): void {
         const { user, currentBattle } = client;
         if (!user || !currentBattle) {
             logger.warn("StartShootingFreezeCommandHandler received a packet from a client not in a battle.", { client: client.getRemoteAddress() });
@@ -28,7 +28,7 @@ export class StartShootingFreezeCommandHandler implements IPacketHandler<FreezeP
 
 export class StopShootingFreezeCommandHandler implements IPacketHandler<FreezePackets.StopShootingFreezeCommandPacket> {
     public readonly packetId = FreezePackets.StopShootingFreezeCommandPacket.getId();
-    public execute(client: ProTankiClient, server: ProTankiServer, packet: FreezePackets.StopShootingFreezeCommandPacket): void {
+    public execute(client: GameClient, server: GameServer, packet: FreezePackets.StopShootingFreezeCommandPacket): void {
         const { user, currentBattle } = client;
         if (!user || !currentBattle) {
             logger.warn("StopShootingFreezeCommandHandler received a packet from a client not in a battle.", { client: client.getRemoteAddress() });

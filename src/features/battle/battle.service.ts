@@ -1,11 +1,11 @@
 import { SystemMessage } from "@/features/system/system.packets";
 import { UserDocument } from "@/shared/models/user.model";
 import { IVector3 } from "@/shared/types/geom/IVector3";
-import { ProTankiClient } from "../../server/ProTankiClient";
-import { ProTankiServer } from "../../server/ProTankiServer";
+import { GameClient } from "../../server/game.client";
+import { GameServer } from "../../server/game.server";
 import { mapGeometries } from "../../types/mapGeometries";
 import { mapSpawns } from "../../types/mapSpawns";
-import logger from "../../utils/Logger";
+import logger from "../../utils/logger";
 import * as LobbyPackets from "../lobby/lobby.packets";
 import { LobbyService } from "../lobby/lobby.service";
 import { Battle, BattleMode, MapTheme } from "./battle.model";
@@ -18,15 +18,15 @@ interface IDisconnectedPlayerInfo {
 
 export class BattleService {
     private disconnectedPlayers = new Map<string, IDisconnectedPlayerInfo>();
-    private server: ProTankiServer;
+    private server: GameServer;
     private lobbyService: LobbyService;
 
-    constructor(server: ProTankiServer, lobbyService: LobbyService) {
+    constructor(server: GameServer, lobbyService: LobbyService) {
         this.server = server;
         this.lobbyService = lobbyService;
     }
 
-    public checkPlayerPosition(client: ProTankiClient): void {
+    public checkPlayerPosition(client: GameClient): void {
         const { user, currentBattle, battlePosition } = client;
         if (!user || !currentBattle || !battlePosition) return;
 
@@ -53,7 +53,7 @@ export class BattleService {
         }
     }
 
-    private handleSpecialGeometryAction(client: ProTankiClient, action: "kill" | "kick"): void {
+    private handleSpecialGeometryAction(client: GameClient, action: "kill" | "kick"): void {
         const { user, currentBattle } = client;
         if (!user || !currentBattle) return;
 
@@ -134,7 +134,7 @@ export class BattleService {
         return { position: chosenSpawn.position, rotation: chosenSpawn.rotation };
     }
 
-    public broadcastSpectatorListUpdate(battle: Battle, excludeClient?: ProTankiClient): void {
+    public broadcastSpectatorListUpdate(battle: Battle, excludeClient?: GameClient): void {
         const spectatorNames = battle.spectators.map((s) => s.username);
         const spectatorListString = spectatorNames.join("\n");
         const packet = new UpdateSpectatorListPacket(spectatorListString);

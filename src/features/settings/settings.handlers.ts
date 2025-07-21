@@ -1,14 +1,14 @@
-import { ProTankiClient } from "@/server/ProTankiClient";
-import { ProTankiServer } from "@/server/ProTankiServer";
+import { GameClient } from "@/server/game.client";
+import { GameServer } from "@/server/game.server";
 import { IPacketHandler } from "@/shared/interfaces/IPacketHandler";
-import logger from "@/utils/Logger";
+import logger from "@/utils/logger";
 import * as SettingsPackets from "./settings.packets";
 import { ISocialLink } from "./settings.types";
 
 export class RequestSettingsHandler implements IPacketHandler<SettingsPackets.RequestSettings> {
     public readonly packetId = SettingsPackets.RequestSettings.getId();
 
-    public execute(client: ProTankiClient, server: ProTankiServer): void {
+    public execute(client: GameClient, server: GameServer): void {
         if (!client.user) {
             logger.warn("RequestSettings received from unauthenticated client.", { client: client.getRemoteAddress() });
             return;
@@ -31,7 +31,7 @@ export class RequestSettingsHandler implements IPacketHandler<SettingsPackets.Re
 export class SetNotificationsHandler implements IPacketHandler<SettingsPackets.SetNotifications> {
     public readonly packetId = SettingsPackets.SetNotifications.getId();
 
-    public async execute(client: ProTankiClient, server: ProTankiServer, packet: SettingsPackets.SetNotifications): Promise<void> {
+    public async execute(client: GameClient, server: GameServer, packet: SettingsPackets.SetNotifications): Promise<void> {
         if (!client.user) {
             logger.warn("SetNotifications received from unauthenticated client.", { client: client.getRemoteAddress() });
             return;
@@ -42,7 +42,7 @@ export class SetNotificationsHandler implements IPacketHandler<SettingsPackets.S
 
 export class UpdatePasswordHandler implements IPacketHandler<SettingsPackets.UpdatePassword> {
     public readonly packetId = SettingsPackets.UpdatePassword.getId();
-    public async execute(client: ProTankiClient, server: ProTankiServer, packet: SettingsPackets.UpdatePassword): Promise<void> {
+    public async execute(client: GameClient, server: GameServer, packet: SettingsPackets.UpdatePassword): Promise<void> {
         const originalEmail = client.recoveryEmail;
         if (!originalEmail || !packet.password || !packet.email) {
             client.sendPacket(new SettingsPackets.UpdatePasswordResult(true, "Dados inválidos."));
@@ -65,7 +65,7 @@ export class UpdatePasswordHandler implements IPacketHandler<SettingsPackets.Upd
 
 export class RequestChangePasswordFormHandler implements IPacketHandler<SettingsPackets.RequestChangePasswordForm> {
     public readonly packetId = SettingsPackets.RequestChangePasswordForm.getId();
-    public execute(client: ProTankiClient, server: ProTankiServer): void {
+    public execute(client: GameClient, server: GameServer): void {
         if (!client.user) {
             logger.warn("RequestChangePasswordForm received from unauthenticated client.", { client: client.getRemoteAddress() });
             return;
@@ -81,7 +81,7 @@ export class RequestChangePasswordFormHandler implements IPacketHandler<Settings
 
 export class LinkEmailRequestHandler implements IPacketHandler<SettingsPackets.LinkEmailRequest> {
     public readonly packetId = SettingsPackets.LinkEmailRequest.getId();
-    public async execute(client: ProTankiClient, server: ProTankiServer, packet: SettingsPackets.LinkEmailRequest): Promise<void> {
+    public async execute(client: GameClient, server: GameServer, packet: SettingsPackets.LinkEmailRequest): Promise<void> {
         const currentUser = client.user;
         if (!currentUser || !packet.email) return;
         try {

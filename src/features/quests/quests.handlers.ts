@@ -1,9 +1,9 @@
 import { UpdateCrystals } from "@/features/profile/profile.packets";
 import { SystemMessage } from "@/features/system/system.packets";
-import { ProTankiClient } from "@/server/ProTankiClient";
-import { ProTankiServer } from "@/server/ProTankiServer";
+import { GameClient } from "@/server/game.client";
+import { GameServer } from "@/server/game.server";
 import { IPacketHandler } from "@/shared/interfaces/IPacketHandler";
-import logger from "@/utils/Logger";
+import logger from "@/utils/logger";
 import { ResourceManager } from "@/utils/resource.manager";
 import { QuestDefinitions } from "./quests.data";
 import * as QuestPackets from "./quests.packets";
@@ -12,7 +12,7 @@ import { IQuest } from "./quests.types";
 export class RequestQuestsWindowHandler implements IPacketHandler<QuestPackets.RequestQuestsWindow> {
     public readonly packetId = QuestPackets.RequestQuestsWindow.getId();
 
-    public async execute(client: ProTankiClient, server: ProTankiServer, packet: QuestPackets.RequestQuestsWindow): Promise<void> {
+    public async execute(client: GameClient, server: GameServer, packet: QuestPackets.RequestQuestsWindow): Promise<void> {
         if (!client.user) {
             logger.warn("RequestQuestsWindow received from unauthenticated client.", { client: client.getRemoteAddress() });
             return;
@@ -26,7 +26,7 @@ export class RequestQuestsWindowHandler implements IPacketHandler<QuestPackets.R
 export class SkipQuestFreeHandler implements IPacketHandler<QuestPackets.SkipQuestFree> {
     public readonly packetId = QuestPackets.SkipQuestFree.getId();
 
-    public async execute(client: ProTankiClient, server: ProTankiServer, packet: QuestPackets.SkipQuestFree): Promise<void> {
+    public async execute(client: GameClient, server: GameServer, packet: QuestPackets.SkipQuestFree): Promise<void> {
         const currentUser = client.user;
         if (!currentUser) {
             return;
@@ -65,7 +65,7 @@ export class SkipQuestFreeHandler implements IPacketHandler<QuestPackets.SkipQue
 export class SkipQuestPaidHandler implements IPacketHandler<QuestPackets.SkipQuestPaid> {
     public readonly packetId = QuestPackets.SkipQuestPaid.getId();
 
-    public async execute(client: ProTankiClient, server: ProTankiServer, packet: QuestPackets.SkipQuestPaid): Promise<void> {
+    public async execute(client: GameClient, server: GameServer, packet: QuestPackets.SkipQuestPaid): Promise<void> {
         const currentUser = client.user;
         if (!currentUser) {
             return;

@@ -1,13 +1,13 @@
-import { ProTankiClient } from "@/server/ProTankiClient";
-import { ProTankiServer } from "@/server/ProTankiServer";
+import { GameClient } from "@/server/game.client";
+import { GameServer } from "@/server/game.server";
 import { IPacketHandler } from "@/shared/interfaces/IPacketHandler";
-import logger from "@/utils/Logger";
+import logger from "@/utils/logger";
 import * as ReferralPackets from "./referral.packets";
 
 export class RequestReferralInfoHandler implements IPacketHandler<ReferralPackets.RequestReferralInfo> {
     public readonly packetId = ReferralPackets.RequestReferralInfo.getId();
 
-    public async execute(client: ProTankiClient, server: ProTankiServer): Promise<void> {
+    public async execute(client: GameClient, server: GameServer): Promise<void> {
         if (!client.user) {
             logger.warn("RequestReferralInfo received from unauthenticated client.", { client: client.getRemoteAddress() });
             return;

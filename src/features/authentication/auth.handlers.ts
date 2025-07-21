@@ -1,10 +1,10 @@
 import { LobbyWorkflow } from "@/features/lobby/lobby.workflow";
 import { SystemMessage } from "@/features/system/system.packets";
-import { ProTankiClient } from "@/server/ProTankiClient";
-import { ProTankiServer } from "@/server/ProTankiServer";
+import { GameClient } from "@/server/game.client";
+import { GameServer } from "@/server/game.server";
 import { IPacketHandler } from "@/shared/interfaces/IPacketHandler";
 import generateCaptcha from "@/utils/captcha.generator";
-import logger from "@/utils/Logger";
+import logger from "@/utils/logger";
 import { ValidationUtils } from "@/utils/validation.utils";
 import crypto from "crypto";
 import * as AuthPackets from "./auth.packets";
@@ -12,7 +12,7 @@ import { AuthWorkflow } from "./auth.workflow";
 
 export class CreateAccountHandler implements IPacketHandler<AuthPackets.CreateAccount> {
     public readonly packetId = AuthPackets.CreateAccount.getId();
-    public async execute(client: ProTankiClient, server: ProTankiServer, packet: AuthPackets.CreateAccount): Promise<void> {
+    public async execute(client: GameClient, server: GameServer, packet: AuthPackets.CreateAccount): Promise<void> {
         if (!packet.nickname || !packet.password || packet.nickname.length < 3 || packet.password.length < 3) {
             client.sendPacket(new SystemMessage("Apelido ou senha inválidos."));
             return;
@@ -47,7 +47,7 @@ export class CreateAccountHandler implements IPacketHandler<AuthPackets.CreateAc
 
 export class LoginHandler implements IPacketHandler<AuthPackets.Login> {
     public readonly packetId = AuthPackets.Login.getId();
-    public async execute(client: ProTankiClient, server: ProTankiServer, packet: AuthPackets.Login): Promise<void> {
+    public async execute(client: GameClient, server: GameServer, packet: AuthPackets.Login): Promise<void> {
         if (!packet.username || !packet.password) {
             client.sendPacket(new AuthPackets.IncorrectPassword());
             return;
@@ -70,7 +70,7 @@ export class LoginHandler implements IPacketHandler<AuthPackets.Login> {
 
 export class LoginByTokenHandler implements IPacketHandler<AuthPackets.LoginByTokenRequestPacket> {
     public readonly packetId = AuthPackets.LoginByTokenRequestPacket.getId();
-    public async execute(client: ProTankiClient, server: ProTankiServer, packet: AuthPackets.LoginByTokenRequestPacket): Promise<void> {
+    public async execute(client: GameClient, server: GameServer, packet: AuthPackets.LoginByTokenRequestPacket): Promise<void> {
         if (!packet.hash) {
             client.sendPacket(new SystemMessage("Token de login inválido."));
             return;
@@ -92,7 +92,7 @@ export class LoginByTokenHandler implements IPacketHandler<AuthPackets.LoginByTo
 
 export class CheckNicknameAvailableHandler implements IPacketHandler<AuthPackets.CheckNicknameAvailable> {
     public readonly packetId = AuthPackets.CheckNicknameAvailable.getId();
-    public async execute(client: ProTankiClient, server: ProTankiServer, packet: AuthPackets.CheckNicknameAvailable): Promise<void> {
+    public async execute(client: GameClient, server: GameServer, packet: AuthPackets.CheckNicknameAvailable): Promise<void> {
         if (!packet.nickname || packet.nickname.length < 3) return;
         if (ValidationUtils.isNicknameInappropriate(packet.nickname)) {
             client.sendPacket(new AuthPackets.InvalidNickname());
@@ -110,7 +110,7 @@ export class CheckNicknameAvailableHandler implements IPacketHandler<AuthPackets
 
 export class RequestCaptchaHandler implements IPacketHandler<AuthPackets.RequestCaptcha> {
     public readonly packetId = AuthPackets.RequestCaptcha.getId();
-    public execute(client: ProTankiClient, server: ProTankiServer, packet: AuthPackets.RequestCaptcha): void {
+    public execute(client: GameClient, server: GameServer, packet: AuthPackets.RequestCaptcha): void {
         const captcha = generateCaptcha();
         client.captchaSolution = captcha.text;
         client.sendPacket(new AuthPackets.Captcha(packet.view, captcha.image));
@@ -119,7 +119,7 @@ export class RequestCaptchaHandler implements IPacketHandler<AuthPackets.Request
 
 export class CaptchaVerifyHandler implements IPacketHandler<AuthPackets.CaptchaVerify> {
     public readonly packetId = AuthPackets.CaptchaVerify.getId();
-    public execute(client: ProTankiClient, server: ProTankiServer, packet: AuthPackets.CaptchaVerify): void {
+    public execute(client: GameClient, server: GameServer, packet: AuthPackets.CaptchaVerify): void {
         if (packet.solution && client.captchaSolution === packet.solution.toLowerCase()) {
             client.sendPacket(new AuthPackets.CaptchaIsValid(packet.view));
             return;
@@ -132,7 +132,7 @@ export class CaptchaVerifyHandler implements IPacketHandler<AuthPackets.CaptchaV
 
 export class RecoveryAccountSendCodeHandler implements IPacketHandler<AuthPackets.RecoveryAccountSendCode> {
     public readonly packetId = AuthPackets.RecoveryAccountSendCode.getId();
-    public async execute(client: ProTankiClient, server: ProTankiServer, packet: AuthPackets.RecoveryAccountSendCode): Promise<void> {
+    public async execute(client: GameClient, server: GameServer, packet: AuthPackets.RecoveryAccountSendCode): Promise<void> {
         if (!packet.email) {
             client.sendPacket(new AuthPackets.RecoveryEmailNotExists());
             return;
@@ -159,7 +159,7 @@ export class RecoveryAccountSendCodeHandler implements IPacketHandler<AuthPacket
 
 export class RecoveryAccountVerifyCodeHandler implements IPacketHandler<AuthPackets.RecoveryAccountVerifyCode> {
     public readonly packetId = AuthPackets.RecoveryAccountVerifyCode.getId();
-    public execute(client: ProTankiClient, server: ProTankiServer, packet: AuthPackets.RecoveryAccountVerifyCode): void {
+    public execute(client: GameClient, server: GameServer, packet: AuthPackets.RecoveryAccountVerifyCode): void {
         if (client.recoveryCode && client.recoveryCode === packet.code) {
             client.sendPacket(new AuthPackets.GoToRecoveryPassword(client.recoveryEmail));
         } else {
@@ -171,7 +171,7 @@ export class RecoveryAccountVerifyCodeHandler implements IPacketHandler<AuthPack
 export class LanguageHandler implements IPacketHandler<AuthPackets.Language> {
     public readonly packetId = AuthPackets.Language.getId();
 
-    public async execute(client: ProTankiClient, server: ProTankiServer, packet: AuthPackets.Language): Promise<void> {
+    public async execute(client: GameClient, server: GameServer, packet: AuthPackets.Language): Promise<void> {
         client.language = packet.lang;
         logger.info(`Setting language to: ${packet.lang}`, {
             client: client.getRemoteAddress(),

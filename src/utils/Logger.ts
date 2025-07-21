@@ -1,9 +1,9 @@
-import winston from "winston";
-import DailyRotateFile from "winston-daily-rotate-file";
 import dotenv from "dotenv";
 import fs from "fs";
 import path from "path";
-import { ConsoleLogTransport } from "../console/ConsoleLogTransport";
+import winston from "winston";
+import DailyRotateFile from "winston-daily-rotate-file";
+import { ConsoleLogTransport } from "../console/console.log.transport";
 
 dotenv.config();
 

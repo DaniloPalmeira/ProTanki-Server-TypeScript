@@ -1,14 +1,14 @@
 import { SystemMessage } from "@/features/system/system.packets";
-import { ProTankiClient } from "@/server/ProTankiClient";
-import { ProTankiServer } from "@/server/ProTankiServer";
+import { GameClient } from "@/server/game.client";
+import { GameServer } from "@/server/game.server";
 import { IPacketHandler } from "@/shared/interfaces/IPacketHandler";
-import logger from "@/utils/Logger";
+import logger from "@/utils/logger";
 import * as FriendPackets from "./friends.packets";
 
 export class AcceptFriendRequestHandler implements IPacketHandler<FriendPackets.AcceptFriendRequest> {
     public readonly packetId = FriendPackets.AcceptFriendRequest.getId();
 
-    public async execute(client: ProTankiClient, server: ProTankiServer, packet: FriendPackets.AcceptFriendRequest): Promise<void> {
+    public async execute(client: GameClient, server: GameServer, packet: FriendPackets.AcceptFriendRequest): Promise<void> {
         const currentUser = client.user;
         if (!currentUser || !packet.nickname) {
             return;
@@ -39,7 +39,7 @@ export class AcceptFriendRequestHandler implements IPacketHandler<FriendPackets.
 export class AcknowledgeNewFriendHandler implements IPacketHandler<FriendPackets.AcknowledgeNewFriend> {
     public readonly packetId = FriendPackets.AcknowledgeNewFriend.getId();
 
-    public async execute(client: ProTankiClient, server: ProTankiServer, packet: FriendPackets.AcknowledgeNewFriend): Promise<void> {
+    public async execute(client: GameClient, server: GameServer, packet: FriendPackets.AcknowledgeNewFriend): Promise<void> {
         if (!client.user || !packet.nickname) return;
         try {
             const friend = await server.friendsService.acknowledgeNewFriend(client.user, packet.nickname);
@@ -54,7 +54,7 @@ export class AcknowledgeNewFriendHandler implements IPacketHandler<FriendPackets
 export class AcknowledgeNewFriendRequestHandler implements IPacketHandler<FriendPackets.AcknowledgeNewFriendRequest> {
     public readonly packetId = FriendPackets.AcknowledgeNewFriendRequest.getId();
 
-    public async execute(client: ProTankiClient, server: ProTankiServer, packet: FriendPackets.AcknowledgeNewFriendRequest): Promise<void> {
+    public async execute(client: GameClient, server: GameServer, packet: FriendPackets.AcknowledgeNewFriendRequest): Promise<void> {
         if (!client.user || !packet.nickname) return;
         try {
             const sender = await server.friendsService.acknowledgeNewFriendRequest(client.user, packet.nickname);
@@ -69,7 +69,7 @@ export class AcknowledgeNewFriendRequestHandler implements IPacketHandler<Friend
 export class CancelFriendRequestHandler implements IPacketHandler<FriendPackets.CancelFriendRequest> {
     public readonly packetId = FriendPackets.CancelFriendRequest.getId();
 
-    public async execute(client: ProTankiClient, server: ProTankiServer, packet: FriendPackets.CancelFriendRequest): Promise<void> {
+    public async execute(client: GameClient, server: GameServer, packet: FriendPackets.CancelFriendRequest): Promise<void> {
         if (!client.user || !packet.nickname) return;
         try {
             const targetUser = await server.friendsService.cancelFriendRequest(client.user, packet.nickname);
@@ -89,7 +89,7 @@ export class CancelFriendRequestHandler implements IPacketHandler<FriendPackets.
 export class CheckUserExistsForFriendHandler implements IPacketHandler<FriendPackets.CheckUserExistsForFriend> {
     public readonly packetId = FriendPackets.CheckUserExistsForFriend.getId();
 
-    public async execute(client: ProTankiClient, server: ProTankiServer, packet: FriendPackets.CheckUserExistsForFriend): Promise<void> {
+    public async execute(client: GameClient, server: GameServer, packet: FriendPackets.CheckUserExistsForFriend): Promise<void> {
         if (!packet.nickname) {
             client.sendPacket(new FriendPackets.UserInvalidForFriend());
             return;
@@ -102,7 +102,7 @@ export class CheckUserExistsForFriendHandler implements IPacketHandler<FriendPac
 export class DeclineAllFriendRequestsHandler implements IPacketHandler<FriendPackets.DeclineAllFriendRequests> {
     public readonly packetId = FriendPackets.DeclineAllFriendRequests.getId();
 
-    public async execute(client: ProTankiClient, server: ProTankiServer, packet: FriendPackets.DeclineAllFriendRequests): Promise<void> {
+    public async execute(client: GameClient, server: GameServer, packet: FriendPackets.DeclineAllFriendRequests): Promise<void> {
         if (!client.user) return;
         try {
             const declinedSenders = await server.friendsService.declineAllFriendRequests(client.user);
@@ -123,7 +123,7 @@ export class DeclineAllFriendRequestsHandler implements IPacketHandler<FriendPac
 export class DeclineFriendRequestHandler implements IPacketHandler<FriendPackets.DeclineFriendRequest> {
     public readonly packetId = FriendPackets.DeclineFriendRequest.getId();
 
-    public async execute(client: ProTankiClient, server: ProTankiServer, packet: FriendPackets.DeclineFriendRequest): Promise<void> {
+    public async execute(client: GameClient, server: GameServer, packet: FriendPackets.DeclineFriendRequest): Promise<void> {
         if (!client.user || !packet.nickname) return;
         try {
             const senderUser = await server.friendsService.declineFriendRequest(client.user, packet.nickname);
@@ -142,7 +142,7 @@ export class DeclineFriendRequestHandler implements IPacketHandler<FriendPackets
 
 export class LoadFriendsHandler implements IPacketHandler<FriendPackets.LoadFriends> {
     public readonly packetId = FriendPackets.LoadFriends.getId();
-    public async execute(client: ProTankiClient, server: ProTankiServer, packet: FriendPackets.LoadFriends): Promise<void> {
+    public async execute(client: GameClient, server: GameServer, packet: FriendPackets.LoadFriends): Promise<void> {
         if (!client.user) return;
 
         const friendsData = await server.friendsService.getFriendsData(client.user.id);
@@ -153,7 +153,7 @@ export class LoadFriendsHandler implements IPacketHandler<FriendPackets.LoadFrie
 export class RemoveFriendHandler implements IPacketHandler<FriendPackets.RemoveFriend> {
     public readonly packetId = FriendPackets.RemoveFriend.getId();
 
-    public async execute(client: ProTankiClient, server: ProTankiServer, packet: FriendPackets.RemoveFriend): Promise<void> {
+    public async execute(client: GameClient, server: GameServer, packet: FriendPackets.RemoveFriend): Promise<void> {
         const currentUser = client.user;
         if (!currentUser || !packet.nickname) return;
 
@@ -181,7 +181,7 @@ export class RemoveFriendHandler implements IPacketHandler<FriendPackets.RemoveF
 export class SendFriendRequestHandler implements IPacketHandler<FriendPackets.SendFriendRequest> {
     public readonly packetId = FriendPackets.SendFriendRequest.getId();
 
-    public async execute(client: ProTankiClient, server: ProTankiServer, packet: FriendPackets.SendFriendRequest): Promise<void> {
+    public async execute(client: GameClient, server: GameServer, packet: FriendPackets.SendFriendRequest): Promise<void> {
         if (!client.user || !packet.nickname) return;
         try {
             const targetUser = await server.friendsService.sendFriendRequest(client.user, packet.nickname);
@@ -215,7 +215,7 @@ export class SendFriendRequestHandler implements IPacketHandler<FriendPackets.Se
 export class RequestFriendsListWindowHandler implements IPacketHandler<FriendPackets.RequestFriendsListWindow> {
     public readonly packetId = FriendPackets.RequestFriendsListWindow.getId();
 
-    public execute(client: ProTankiClient, server: ProTankiServer): void {
+    public execute(client: GameClient, server: GameServer): void {
         if (!client.user) {
             logger.warn("RequestFriendsListWindow received from unauthenticated client.", { client: client.getRemoteAddress() });
             return;

@@ -1,7 +1,7 @@
 import Invite from "@/features/invite/invite.model";
 import User, { UserDocument } from "@/shared/models/user.model";
-import { RankService } from "@/shared/services/RankService";
-import logger from "@/utils/Logger";
+import { RankService } from "@/shared/services/rank.service";
+import logger from "@/utils/logger";
 import crypto from "crypto";
 
 export interface UserCreationAttributes {

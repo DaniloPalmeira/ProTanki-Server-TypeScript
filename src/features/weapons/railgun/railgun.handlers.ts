@@ -1,12 +1,12 @@
-import { ProTankiClient } from "@/server/ProTankiClient";
-import { ProTankiServer } from "@/server/ProTankiServer";
+import { GameClient } from "@/server/game.client";
+import { GameServer } from "@/server/game.server";
 import { IPacketHandler } from "@/shared/interfaces/IPacketHandler";
+import logger from "@/utils/logger";
 import * as RailgunPackets from "./railgun.packets";
-import logger from "@/utils/Logger";
 
 export class RailgunShotCommandHandler implements IPacketHandler<RailgunPackets.RailgunShotCommandPacket> {
     public readonly packetId = RailgunPackets.RailgunShotCommandPacket.getId();
-    public execute(client: ProTankiClient, server: ProTankiServer, packet: RailgunPackets.RailgunShotCommandPacket): void {
+    public execute(client: GameClient, server: GameServer, packet: RailgunPackets.RailgunShotCommandPacket): void {
         const { user, currentBattle } = client;
         if (!user || !currentBattle) {
             logger.warn("RailgunShotCommandHandler received a packet from a client not in a battle.", { client: client.getRemoteAddress() });
@@ -36,7 +36,7 @@ export class RailgunShotCommandHandler implements IPacketHandler<RailgunPackets.
 
 export class StartChargingCommandHandler implements IPacketHandler<RailgunPackets.StartChargingCommandPacket> {
     public readonly packetId = RailgunPackets.StartChargingCommandPacket.getId();
-    public execute(client: ProTankiClient, server: ProTankiServer, packet: RailgunPackets.StartChargingCommandPacket): void {
+    public execute(client: GameClient, server: GameServer, packet: RailgunPackets.StartChargingCommandPacket): void {
         const { user, currentBattle } = client;
         if (!user || !currentBattle) {
             return;

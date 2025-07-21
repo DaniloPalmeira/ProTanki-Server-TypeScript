@@ -1,6 +1,6 @@
 import { BasePacket } from "@/packets/BasePacket";
-import { BufferReader } from "@/utils/buffer/BufferReader";
-import { BufferWriter } from "@/utils/buffer/BufferWriter";
+import { BufferReader } from "@/utils/buffer/buffer.reader";
+import { BufferWriter } from "@/utils/buffer/buffer.writer";
 import * as FreezeTypes from "./freeze.types";
 
 export class StartShootingFreezeCommandPacket extends BasePacket implements FreezeTypes.IStartShootingFreezeCommand {

@@ -4,7 +4,7 @@ import path from "path";
 import { MapTheme } from "../features/battle/battle.model";
 import { mapDependencies } from "../types/mapDependencies";
 import { ResourceData, ResourceId } from "../types/resourceTypes";
-import logger from "./Logger";
+import logger from "./logger";
 import { ResourcePathUtils } from "./resource.path.utils";
 
 export class ResourceManager {

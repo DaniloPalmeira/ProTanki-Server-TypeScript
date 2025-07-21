@@ -19,12 +19,12 @@ import { ShopService } from "@/features/shop/shop.service";
 import { IPacket } from "@/packets/packet.interfaces";
 import { PacketHandlerService } from "@/packets/PacketHandlerService";
 import { PacketService } from "@/packets/PacketService";
-import { RankService } from "@/shared/services/RankService";
-import { UserService } from "@/shared/services/UserService";
-import logger from "@/utils/Logger";
+import { RankService } from "@/shared/services/rank.service";
+import { UserService } from "@/shared/services/user.service";
+import logger from "@/utils/logger";
 import net from "net";
-import { ClientManager } from "./ClientManager";
-import { ProTankiClient } from "./ProTankiClient";
+import { ClientManager } from "./client.manager";
+import { GameClient } from "./game.client";
 import { IServerOptions } from "./server.types";
 
 export interface IServerServices {
@@ -47,7 +47,7 @@ export interface IServerServices {
   profileService: ProfileService;
 }
 
-export class ProTankiServer {
+export class GameServer {
   private server: net.Server;
   private clientManager: ClientManager;
   private port: number;
@@ -56,7 +56,7 @@ export class ProTankiServer {
   private socialNetworks: Array<string[]>;
   private loginForm: IRegistrationForm;
 
-  private dynamicCallbacks: Map<number, (client: ProTankiClient) => void> = new Map();
+  private dynamicCallbacks: Map<number, (client: GameClient) => void> = new Map();
   private nextCallbackId: number = 1000;
 
   public readonly configService: ConfigService;
@@ -127,7 +127,7 @@ export class ProTankiServer {
 
   public start(): void {
     this.server.listen(this.port, () => {
-      logger.info(`ProTanki Server started`, {
+      logger.info(`LeTanki Server started`, {
         port: this.port,
         maxClients: this.maxClients,
       });
@@ -142,7 +142,7 @@ export class ProTankiServer {
     return new Promise((resolve, reject) => {
       this.server.close((err) => {
         if (err) {
-          logger.error("Error stopping ProTanki Server", { error: err });
+          logger.error("Error stopping LeTanki Server", { error: err });
           return reject(err);
         }
         this.clientManager.getClients().forEach((client) => client.closeConnection());
@@ -151,11 +151,11 @@ export class ProTankiServer {
     });
   }
 
-  public addClient(client: ProTankiClient): void {
+  public addClient(client: GameClient): void {
     this.clientManager.addClient(client);
   }
 
-  public removeClient(client: ProTankiClient): void {
+  public removeClient(client: GameClient): void {
     this.clientManager.removeClient(client);
   }
 
@@ -173,18 +173,18 @@ export class ProTankiServer {
     logger.info(`New client connected`, {
       client: socket.remoteAddress || "unknown",
     });
-    new ProTankiClient({ socket, server: this });
+    new GameClient({ socket, server: this });
   }
 
-  public getClients(): ProTankiClient[] {
+  public getClients(): GameClient[] {
     return this.clientManager.getClients();
   }
 
-  public findClientByIp(ip: string): ProTankiClient | undefined {
+  public findClientByIp(ip: string): GameClient | undefined {
     return this.clientManager.findClientByIp(ip);
   }
 
-  public findClientByUsername(username: string): ProTankiClient | undefined {
+  public findClientByUsername(username: string): GameClient | undefined {
     return this.clientManager.findClientByUsername(username);
   }
 
@@ -232,13 +232,13 @@ export class ProTankiServer {
     });
   }
 
-  public registerDynamicCallback(callback: (client: ProTankiClient) => void): number {
+  public registerDynamicCallback(callback: (client: GameClient) => void): number {
     const id = this.nextCallbackId++;
     this.dynamicCallbacks.set(id, callback);
     return id;
   }
 
-  public executeDynamicCallback(id: number, client: ProTankiClient): boolean {
+  public executeDynamicCallback(id: number, client: GameClient): boolean {
     const cb = this.dynamicCallbacks.get(id);
     if (cb) {
       cb(client);

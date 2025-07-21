@@ -1,14 +1,14 @@
-import { weaponPhysicsData } from "@/config/PhysicsData";
-import { ProTankiClient } from "@/server/ProTankiClient";
-import { ProTankiServer } from "@/server/ProTankiServer";
+import { weaponPhysicsData } from "@/config/physics.data";
+import { GameClient } from "@/server/game.client";
+import { GameServer } from "@/server/game.server";
 import { IPacketHandler } from "@/shared/interfaces/IPacketHandler";
 import { ItemUtils } from "@/utils/item.utils";
-import logger from "@/utils/Logger";
+import logger from "@/utils/logger";
 import * as SmokyPackets from "./smoky.packets";
 
 export class SmokyStaticShotCommandHandler implements IPacketHandler<SmokyPackets.SmokyStaticShotCommandPacket> {
     public readonly packetId = SmokyPackets.SmokyStaticShotCommandPacket.getId();
-    public execute(client: ProTankiClient, server: ProTankiServer, packet: SmokyPackets.SmokyStaticShotCommandPacket): void {
+    public execute(client: GameClient, server: GameServer, packet: SmokyPackets.SmokyStaticShotCommandPacket): void {
         const { user, currentBattle } = client;
         if (!user || !currentBattle) {
             logger.warn("SmokyStaticShotCommandHandler received packet from client not in battle.", { client: client.getRemoteAddress() });
@@ -28,7 +28,7 @@ export class SmokyStaticShotCommandHandler implements IPacketHandler<SmokyPacket
 
 export class SmokyTargetShotCommandHandler implements IPacketHandler<SmokyPackets.SmokyTargetShotCommandPacket> {
     public readonly packetId = SmokyPackets.SmokyTargetShotCommandPacket.getId();
-    public execute(client: ProTankiClient, server: ProTankiServer, packet: SmokyPackets.SmokyTargetShotCommandPacket): void {
+    public execute(client: GameClient, server: GameServer, packet: SmokyPackets.SmokyTargetShotCommandPacket): void {
         const { user, currentBattle } = client;
         if (!user || !currentBattle || !packet.targetUserId) {
             logger.warn("SmokyTargetShotCommandHandler received incomplete packet.", { client: client.getRemoteAddress() });

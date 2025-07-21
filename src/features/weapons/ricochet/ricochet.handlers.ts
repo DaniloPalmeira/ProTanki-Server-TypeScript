@@ -1,12 +1,12 @@
-import { ProTankiClient } from "@/server/ProTankiClient";
-import { ProTankiServer } from "@/server/ProTankiServer";
+import { GameClient } from "@/server/game.client";
+import { GameServer } from "@/server/game.server";
 import { IPacketHandler } from "@/shared/interfaces/IPacketHandler";
+import logger from "@/utils/logger";
 import * as RicochetPackets from "./ricochet.packets";
-import logger from "@/utils/Logger";
 
 export class RicochetShotCommandHandler implements IPacketHandler<RicochetPackets.RicochetShotCommandPacket> {
     public readonly packetId = RicochetPackets.RicochetShotCommandPacket.getId();
-    public execute(client: ProTankiClient, server: ProTankiServer, packet: RicochetPackets.RicochetShotCommandPacket): void {
+    public execute(client: GameClient, server: GameServer, packet: RicochetPackets.RicochetShotCommandPacket): void {
         const { user, currentBattle } = client;
         if (!user || !currentBattle) {
             logger.warn("RicochetShotCommandHandler received a packet from a client not in a battle.", { client: client.getRemoteAddress() });

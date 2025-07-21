@@ -1,5 +1,5 @@
 import { IPacketHandler } from "@/shared/interfaces/IPacketHandler";
-import logger from "@/utils/Logger";
+import logger from "@/utils/logger";
 import fs from "fs";
 import path from "path";
 

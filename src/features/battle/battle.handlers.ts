@@ -1,12 +1,12 @@
-import { battleDataObject } from "@/config/BattleData";
+import { battleDataObject } from "@/config/battle.data";
 import { AddUserToBattleDmPacket, NotifyFriendOfBattlePacket, ReservePlayerSlotDmPacket, UnloadBattleListPacket } from "@/features/lobby/lobby.packets";
 import { SystemMessage } from "@/features/system/system.packets";
-import { ProTankiClient } from "@/server/ProTankiClient";
-import { ProTankiServer } from "@/server/ProTankiServer";
+import { GameClient } from "@/server/game.client";
+import { GameServer } from "@/server/game.server";
 import { IPacketHandler } from "@/shared/interfaces/IPacketHandler";
 import { UserDocument } from "@/shared/models/user.model";
 import { ItemUtils } from "@/utils/item.utils";
-import logger from "@/utils/Logger";
+import logger from "@/utils/logger";
 import { GarageWorkflow } from "../garage/garage.workflow";
 import { LobbyWorkflow } from "../lobby/lobby.workflow";
 import { BattleMode } from "./battle.model";
@@ -16,7 +16,7 @@ import { BattleWorkflow } from "./battle.workflow";
 export class EnterBattleAsSpectatorHandler implements IPacketHandler<BattlePackets.EnterBattleAsSpectatorPacket> {
     public readonly packetId = BattlePackets.EnterBattleAsSpectatorPacket.getId();
 
-    public async execute(client: ProTankiClient, server: ProTankiServer, packet: BattlePackets.EnterBattleAsSpectatorPacket): Promise<void> {
+    public async execute(client: GameClient, server: GameServer, packet: BattlePackets.EnterBattleAsSpectatorPacket): Promise<void> {
         if (!client.user || !client.lastViewedBattleId) {
             client.sendPacket(new SystemMessage("Nenhuma batalha selecionada."));
             return;
@@ -43,7 +43,7 @@ export class EnterBattleAsSpectatorHandler implements IPacketHandler<BattlePacke
 export class EnterBattleHandler implements IPacketHandler<BattlePackets.EnterBattlePacket> {
     public readonly packetId = BattlePackets.EnterBattlePacket.getId();
 
-    public async execute(client: ProTankiClient, server: ProTankiServer, packet: BattlePackets.EnterBattlePacket): Promise<void> {
+    public async execute(client: GameClient, server: GameServer, packet: BattlePackets.EnterBattlePacket): Promise<void> {
         if (!client.user || !client.lastViewedBattleId) {
             client.sendPacket(new SystemMessage("Nenhuma batalha selecionada."));
             return;
@@ -111,7 +111,7 @@ export class EnterBattleHandler implements IPacketHandler<BattlePackets.EnterBat
 export class ExitFromBattleHandler implements IPacketHandler<BattlePackets.ExitFromBattlePacket> {
     public readonly packetId = BattlePackets.ExitFromBattlePacket.getId();
 
-    public async execute(client: ProTankiClient, server: ProTankiServer, packet: BattlePackets.ExitFromBattlePacket): Promise<void> {
+    public async execute(client: GameClient, server: GameServer, packet: BattlePackets.ExitFromBattlePacket): Promise<void> {
         const user = client.user;
         const battle = client.currentBattle;
         const isSpectator = client.isSpectator;
@@ -146,7 +146,7 @@ export class ExitFromBattleHandler implements IPacketHandler<BattlePackets.ExitF
 export class FullMoveCommandHandler implements IPacketHandler<BattlePackets.FullMoveCommandPacket> {
     public readonly packetId = BattlePackets.FullMoveCommandPacket.getId();
 
-    public execute(client: ProTankiClient, server: ProTankiServer, packet: BattlePackets.FullMoveCommandPacket): void {
+    public execute(client: GameClient, server: GameServer, packet: BattlePackets.FullMoveCommandPacket): void {
         if (!client.user || !client.currentBattle) {
             return;
         }
@@ -187,7 +187,7 @@ export class FullMoveCommandHandler implements IPacketHandler<BattlePackets.Full
 export class MoveCommandHandler implements IPacketHandler<BattlePackets.MoveCommandPacket> {
     public readonly packetId = BattlePackets.MoveCommandPacket.getId();
 
-    public execute(client: ProTankiClient, server: ProTankiServer, packet: BattlePackets.MoveCommandPacket): void {
+    public execute(client: GameClient, server: GameServer, packet: BattlePackets.MoveCommandPacket): void {
         if (!client.user || !client.currentBattle) {
             return;
         }
@@ -227,7 +227,7 @@ export class MoveCommandHandler implements IPacketHandler<BattlePackets.MoveComm
 export class ReadyToActivateHandler implements IPacketHandler<BattlePackets.ReadyToActivatePacket> {
     public readonly packetId = BattlePackets.ReadyToActivatePacket.getId();
 
-    public execute(client: ProTankiClient, server: ProTankiServer, packet: BattlePackets.ReadyToActivatePacket): void {
+    public execute(client: GameClient, server: GameServer, packet: BattlePackets.ReadyToActivatePacket): void {
         if (!client.user || !client.currentBattle) {
             return;
         }
@@ -252,7 +252,7 @@ export class ReadyToActivateHandler implements IPacketHandler<BattlePackets.Read
 export class ReadyToPlaceHandler implements IPacketHandler<BattlePackets.ReadyToPlacePacket> {
     public readonly packetId = BattlePackets.ReadyToPlacePacket.getId();
 
-    public execute(client: ProTankiClient, server: ProTankiServer, packet: BattlePackets.ReadyToPlacePacket): void {
+    public execute(client: GameClient, server: GameServer, packet: BattlePackets.ReadyToPlacePacket): void {
         if (!client.user || !client.currentBattle || client.isSpectator) {
             return;
         }
@@ -330,7 +330,7 @@ export class ReadyToPlaceHandler implements IPacketHandler<BattlePackets.ReadyTo
 export class ReadyToSpawnHandler implements IPacketHandler<BattlePackets.ReadyToSpawnPacket> {
     public readonly packetId = BattlePackets.ReadyToSpawnPacket.getId();
 
-    public execute(client: ProTankiClient, server: ProTankiServer, packet: BattlePackets.ReadyToSpawnPacket): void {
+    public execute(client: GameClient, server: GameServer, packet: BattlePackets.ReadyToSpawnPacket): void {
         if (!client.user || !client.currentBattle) {
             return;
         }
@@ -367,7 +367,7 @@ export class ReadyToSpawnHandler implements IPacketHandler<BattlePackets.ReadyTo
 export class RotateTurretCommandHandler implements IPacketHandler<BattlePackets.RotateTurretCommandPacket> {
     public readonly packetId = BattlePackets.RotateTurretCommandPacket.getId();
 
-    public execute(client: ProTankiClient, server: ProTankiServer, packet: BattlePackets.RotateTurretCommandPacket): void {
+    public execute(client: GameClient, server: GameServer, packet: BattlePackets.RotateTurretCommandPacket): void {
         if (!client.user || !client.currentBattle) {
             return;
         }
@@ -401,7 +401,7 @@ export class RotateTurretCommandHandler implements IPacketHandler<BattlePackets.
 export class SendBattleChatMessageHandler implements IPacketHandler<BattlePackets.SendBattleChatMessagePacket> {
     public readonly packetId = BattlePackets.SendBattleChatMessagePacket.getId();
 
-    public async execute(client: ProTankiClient, server: ProTankiServer, packet: BattlePackets.SendBattleChatMessagePacket): Promise<void> {
+    public async execute(client: GameClient, server: GameServer, packet: BattlePackets.SendBattleChatMessagePacket): Promise<void> {
         const user = client.user;
         const battle = client.currentBattle;
 
@@ -451,7 +451,7 @@ export class SendBattleChatMessageHandler implements IPacketHandler<BattlePacket
 export class SuicidePacketHandler implements IPacketHandler<BattlePackets.SuicidePacket> {
     public readonly packetId = BattlePackets.SuicidePacket.getId();
 
-    public execute(client: ProTankiClient, server: ProTankiServer, packet: BattlePackets.SuicidePacket): void {
+    public execute(client: GameClient, server: GameServer, packet: BattlePackets.SuicidePacket): void {
         const { user, currentBattle } = client;
 
         if (!user || !currentBattle) {
@@ -503,7 +503,7 @@ export class SuicidePacketHandler implements IPacketHandler<BattlePackets.Suicid
 export class TimeCheckerResponseHandler implements IPacketHandler<BattlePackets.TimeCheckerResponsePacket> {
     public readonly packetId = BattlePackets.TimeCheckerResponsePacket.getId();
 
-    public execute(client: ProTankiClient, server: ProTankiServer, packet: BattlePackets.TimeCheckerResponsePacket): void {
+    public execute(client: GameClient, server: GameServer, packet: BattlePackets.TimeCheckerResponsePacket): void {
         client.handleTimeCheckerResponse(packet.clientTime, packet.serverTime);
     }
 }

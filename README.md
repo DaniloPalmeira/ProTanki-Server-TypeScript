@@ -2,7 +2,7 @@
 
 ## 🌟 Visão Geral
 
-O LeTanki Server é uma aplicação de servidor robusta, escrita em TypeScript, para alimentar as funcionalidades multiplayer do jogo ProTanki. Projetado com escalabilidade, modularidade e segurança de tipos em mente, este projeto fornece uma infraestrutura flexível e de fácil manutenção para lidar com o ciclo de jogo completo, incluindo autenticação, garagem, lobby e batalhas em tempo real.
+O LeTanki Server é uma aplicação de servidor robusta, escrita em TypeScript, para alimentar as funcionalidades multiplayer do jogo LeTanki. Projetado com escalabilidade, modularidade e segurança de tipos em mente, este projeto fornece uma infraestrutura flexível e de fácil manutenção para lidar com o ciclo de jogo completo, incluindo autenticação, garagem, lobby e batalhas em tempo real.
 
 > **Fase Atual: Ciclo de Jogo Completo**
 > Atualmente, o servidor suporta um fluxo de jogo completo: autenticação de usuários, gerenciamento de garagem com compra e equipamento de itens, um lobby com lista de batalhas em tempo real, e a entrada em partidas com sincronização de estado e física básica.
@@ -24,7 +24,7 @@ O LeTanki Server é uma aplicação de servidor robusta, escrita em TypeScript, 
 
 ## 📋 Pré-requisitos
 
-Antes de configurar o ProTanki Server, certifique-se de ter o seguinte instalado:
+Antes de configurar o LeTanki Server, certifique-se de ter o seguinte instalado:
 
 - **Node.js** (v16 ou superior)
 - **npm** (v8 ou superior)
@@ -91,7 +91,7 @@ Siga estes passos para configurar o LeTanki Server localmente:
 
 ## 🚀 Uso
 
-- **Clientes do Jogo**: Configure os clientes do jogo ProTanki para se conectarem ao endereço IP e porta do servidor (ex: `localhost:1337`).
+- **Clientes do Jogo**: Configure os clientes do jogo LeTanki para se conectarem ao endereço IP e porta do servidor (ex: `localhost:1337`).
 - **Servidor de Recursos**: Os recursos estáticos do jogo são servidos a partir do diretório `.resource` (que é gerado automaticamente) na `RESOURCE_PORT` configurada (padrão: `9999`).
 - **Logs**: Acompanhe a atividade do servidor em tempo real diretamente no console.
 

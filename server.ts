@@ -1,5 +1,5 @@
 import { DEFAULT_PORT } from "@/config/constants";
-import { DebugConsole } from "@/console/DebugConsole";
+import { DebugConsole } from "@/console/debug.console";
 import { ConfigService } from "@/core/config/config.service";
 import { connectToDatabase, disconnectFromDatabase } from "@/database";
 import { AuthService } from "@/features/authentication/auth.service";
@@ -17,11 +17,11 @@ import { SettingsService } from "@/features/settings/settings.service";
 import { ShopService } from "@/features/shop/shop.service";
 import { PacketHandlerService } from "@/packets/PacketHandlerService";
 import { PacketService } from "@/packets/PacketService";
-import { ProTankiServer } from "@/server/ProTankiServer";
-import { ResourceServer } from "@/server/ResourceServer";
-import { RankService } from "@/shared/services/RankService";
-import { UserService } from "@/shared/services/UserService";
-import logger from "@/utils/Logger";
+import { GameServer } from "@/server/game.server";
+import { ResourceServer } from "@/server/resource.server";
+import { RankService } from "@/shared/services/rank.service";
+import { UserService } from "@/shared/services/user.service";
+import logger from "@/utils/logger";
 import { ResourceManager } from "@/utils/resource.manager";
 import dotenv from "dotenv";
 import fs from "fs";
@@ -65,7 +65,7 @@ async function bootstrap() {
 
   await configService.loadAndCacheConfigs();
 
-  const server = new ProTankiServer(
+  const server = new GameServer(
     {
       port: PORT,
       maxClients: configService.getMaxClients(),
@@ -105,7 +105,7 @@ async function bootstrap() {
   const resourceServer = new ResourceServer();
   const debugConsole = new DebugConsole(server, userService);
 
-  logger.info("Starting ProTanki and Resource servers");
+  logger.info("Starting LeTanki and Resource servers");
   server.start();
   resourceServer.start();
   debugConsole.start();
@@ -114,7 +114,7 @@ async function bootstrap() {
     logger.info("Received SIGTERM. Initiating graceful shutdown...");
     try {
       await server.stop();
-      logger.info("ProTanki server stopped");
+      logger.info("LeTanki server stopped");
 
       await resourceServer.stop();
       logger.info("Resource server stopped");

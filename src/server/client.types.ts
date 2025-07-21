@@ -1,6 +1,6 @@
 import * as net from "net";
-import { ProTankiServer } from "./ProTankiServer";
+import { GameServer } from "./game.server";
 export interface IClientOptions {
     socket: net.Socket;
-    server: ProTankiServer;
+    server: GameServer;
 }

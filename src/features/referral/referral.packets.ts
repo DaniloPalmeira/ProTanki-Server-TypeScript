@@ -1,7 +1,7 @@
 import { BasePacket } from "@/packets/BasePacket";
 import { IEmpty } from "@/packets/packet.interfaces";
-import { BufferReader } from "@/utils/buffer/BufferReader";
-import { BufferWriter } from "@/utils/buffer/BufferWriter";
+import { BufferReader } from "@/utils/buffer/buffer.reader";
+import { BufferWriter } from "@/utils/buffer/buffer.writer";
 import * as ReferralTypes from "./referral.types";
 
 export class ReferralInfo extends BasePacket implements ReferralTypes.IReferralInfo {

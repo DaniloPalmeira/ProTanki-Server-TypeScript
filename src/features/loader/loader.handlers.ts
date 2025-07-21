@@ -3,8 +3,8 @@ import { AuthWorkflow } from "@/features/authentication/auth.workflow";
 import { BattleWorkflow } from "@/features/battle/battle.workflow";
 import { GarageWorkflow } from "@/features/garage/garage.workflow";
 import { LobbyWorkflow } from "@/features/lobby/lobby.workflow";
-import { ProTankiClient } from "@/server/ProTankiClient";
-import { ProTankiServer } from "@/server/ProTankiServer";
+import { GameClient } from "@/server/game.client";
+import { GameServer } from "@/server/game.server";
 import { IPacketHandler } from "@/shared/interfaces/IPacketHandler";
 import { ResourceId } from "@/types/resourceTypes";
 import { ResourceManager } from "@/utils/resource.manager";
@@ -13,7 +13,7 @@ import * as LoaderPackets from "./loader.packets";
 export class RequestNextTipHandler implements IPacketHandler<LoaderPackets.RequestNextTipPacket> {
     public readonly packetId = LoaderPackets.RequestNextTipPacket.getId();
 
-    public execute(client: ProTankiClient, server: ProTankiServer, packet: LoaderPackets.RequestNextTipPacket): void {
+    public execute(client: GameClient, server: GameServer, packet: LoaderPackets.RequestNextTipPacket): void {
         const tipResources: ResourceId[] = ["tips/tip_1", "tips/tip_2", "tips/tip_3"];
         const randomTipId = tipResources[Math.floor(Math.random() * tipResources.length)];
 
@@ -29,7 +29,7 @@ export class RequestNextTipHandler implements IPacketHandler<LoaderPackets.Reque
 export class ResourceCallbackHandler implements IPacketHandler<LoaderPackets.ResourceCallback> {
     public readonly packetId = LoaderPackets.ResourceCallback.getId();
 
-    public async execute(client: ProTankiClient, server: ProTankiServer, packet: LoaderPackets.ResourceCallback): Promise<void> {
+    public async execute(client: GameClient, server: GameServer, packet: LoaderPackets.ResourceCallback): Promise<void> {
         if (server.executeDynamicCallback(packet.callbackId, client)) {
             return;
         }

@@ -1,10 +1,10 @@
-import { battleDataObject } from "@/config/BattleData";
+import { battleDataObject } from "@/config/battle.data";
 import { BattleMode, EquipmentConstraintsMode } from "@/features/battle/battle.model";
-import { ProTankiClient } from "@/server/ProTankiClient";
-import { ProTankiServer } from "@/server/ProTankiServer";
+import { GameClient } from "@/server/game.client";
+import { GameServer } from "@/server/game.server";
 import { IPacketHandler } from "@/shared/interfaces/IPacketHandler";
 import { ResourceId } from "@/types/resourceTypes";
-import logger from "@/utils/Logger";
+import logger from "@/utils/logger";
 import { ResourceManager } from "@/utils/resource.manager";
 import * as LobbyPackets from "./lobby.packets";
 import { LobbyWorkflow } from "./lobby.workflow";
@@ -12,7 +12,7 @@ import { LobbyWorkflow } from "./lobby.workflow";
 export class CreateBattleHandler implements IPacketHandler<LobbyPackets.CreateBattleRequest> {
     public readonly packetId = LobbyPackets.CreateBattleRequest.getId();
 
-    public async execute(client: ProTankiClient, server: ProTankiServer, packet: LobbyPackets.CreateBattleRequest): Promise<void> {
+    public async execute(client: GameClient, server: GameServer, packet: LobbyPackets.CreateBattleRequest): Promise<void> {
         if (!client.user) {
             return;
         }
@@ -75,7 +75,7 @@ export class CreateBattleHandler implements IPacketHandler<LobbyPackets.CreateBa
 export class SelectBattleHandler implements IPacketHandler<LobbyPackets.SelectBattlePacket> {
     public readonly packetId = LobbyPackets.SelectBattlePacket.getId();
 
-    public async execute(client: ProTankiClient, server: ProTankiServer, packet: LobbyPackets.SelectBattlePacket): Promise<void> {
+    public async execute(client: GameClient, server: GameServer, packet: LobbyPackets.SelectBattlePacket): Promise<void> {
         const requestedId = packet.battleId;
         let battle = requestedId ? server.lobbyService.getBattleById(requestedId) : undefined;
 
@@ -96,7 +96,7 @@ export class SelectBattleHandler implements IPacketHandler<LobbyPackets.SelectBa
 export class RequestBattleByLinkHandler implements IPacketHandler<LobbyPackets.RequestBattleByLinkPacket> {
     public readonly packetId = LobbyPackets.RequestBattleByLinkPacket.getId();
 
-    public async execute(client: ProTankiClient, server: ProTankiServer, packet: LobbyPackets.RequestBattleByLinkPacket): Promise<void> {
+    public async execute(client: GameClient, server: GameServer, packet: LobbyPackets.RequestBattleByLinkPacket): Promise<void> {
         if (!packet.battleId) {
             return;
         }
@@ -121,7 +121,7 @@ export class RequestBattleByLinkHandler implements IPacketHandler<LobbyPackets.R
 export class ValidateBattleNameHandler implements IPacketHandler<LobbyPackets.ValidateBattleNameRequest> {
     public readonly packetId = LobbyPackets.ValidateBattleNameRequest.getId();
 
-    public async execute(client: ProTankiClient, server: ProTankiServer, packet: LobbyPackets.ValidateBattleNameRequest): Promise<void> {
+    public async execute(client: GameClient, server: GameServer, packet: LobbyPackets.ValidateBattleNameRequest): Promise<void> {
         if (!packet.name) {
             return;
         }
@@ -134,7 +134,7 @@ export class ValidateBattleNameHandler implements IPacketHandler<LobbyPackets.Va
 export class RequestLobbyHandler implements IPacketHandler<LobbyPackets.RequestLobbyPacket> {
     public readonly packetId = LobbyPackets.RequestLobbyPacket.getId();
 
-    public async execute(client: ProTankiClient, server: ProTankiServer, packet: LobbyPackets.RequestLobbyPacket): Promise<void> {
+    public async execute(client: GameClient, server: GameServer, packet: LobbyPackets.RequestLobbyPacket): Promise<void> {
         const state = client.getState();
 
         if (client.currentBattle) {

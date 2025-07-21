@@ -1,9 +1,7 @@
-import { ProTankiClient } from "@/server/ProTankiClient";
-import { ProTankiServer } from "@/server/ProTankiServer";
-import { CommandContext, ICommand } from "./command.types";
-import logger from "@/utils/Logger";
+import logger from "@/utils/logger";
 import fs from "fs";
 import path from "path";
+import { CommandContext, ICommand } from "./command.types";
 
 export class CommandService {
     private commands = new Map<string, ICommand>();

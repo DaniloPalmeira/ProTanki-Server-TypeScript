@@ -1,12 +1,12 @@
-import { ProTankiClient } from "@/server/ProTankiClient";
-import { ProTankiServer } from "@/server/ProTankiServer";
+import { GameClient } from "@/server/game.client";
+import { GameServer } from "@/server/game.server";
 import { IPacketHandler } from "@/shared/interfaces/IPacketHandler";
+import logger from "@/utils/logger";
 import * as MachinegunPackets from "./machinegun.packets";
-import logger from "@/utils/Logger";
 
 export class StartShootingMachinegunCommandHandler implements IPacketHandler<MachinegunPackets.StartShootingMachinegunCommandPacket> {
     public readonly packetId = MachinegunPackets.StartShootingMachinegunCommandPacket.getId();
-    public execute(client: ProTankiClient, server: ProTankiServer, packet: MachinegunPackets.StartShootingMachinegunCommandPacket): void {
+    public execute(client: GameClient, server: GameServer, packet: MachinegunPackets.StartShootingMachinegunCommandPacket): void {
         const { user, currentBattle } = client;
         if (!user || !currentBattle) {
             logger.warn("StartShootingMachinegunCommandHandler received packet from a client not in a battle.", { client: client.getRemoteAddress() });
@@ -26,7 +26,7 @@ export class StartShootingMachinegunCommandHandler implements IPacketHandler<Mac
 
 export class MachinegunShotCommandHandler implements IPacketHandler<MachinegunPackets.MachinegunShotCommandPacket> {
     public readonly packetId = MachinegunPackets.MachinegunShotCommandPacket.getId();
-    public execute(client: ProTankiClient, server: ProTankiServer, packet: MachinegunPackets.MachinegunShotCommandPacket): void {
+    public execute(client: GameClient, server: GameServer, packet: MachinegunPackets.MachinegunShotCommandPacket): void {
         const { user, currentBattle } = client;
         if (!user || !currentBattle) {
             logger.warn("MachinegunShotCommandHandler received packet from a client not in a battle.", { client: client.getRemoteAddress() });
@@ -55,7 +55,7 @@ export class MachinegunShotCommandHandler implements IPacketHandler<MachinegunPa
 
 export class StopShootingMachinegunCommandHandler implements IPacketHandler<MachinegunPackets.StopShootingMachinegunCommandPacket> {
     public readonly packetId = MachinegunPackets.StopShootingMachinegunCommandPacket.getId();
-    public execute(client: ProTankiClient, server: ProTankiServer, packet: MachinegunPackets.StopShootingMachinegunCommandPacket): void {
+    public execute(client: GameClient, server: GameServer, packet: MachinegunPackets.StopShootingMachinegunCommandPacket): void {
         const { user, currentBattle } = client;
         if (!user || !currentBattle) {
             logger.warn("StopShootingMachinegunCommandHandler received packet from a client not in a battle.", { client: client.getRemoteAddress() });

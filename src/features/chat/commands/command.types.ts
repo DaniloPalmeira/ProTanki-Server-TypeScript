@@ -1,10 +1,10 @@
-import { ProTankiClient } from "@/server/ProTankiClient";
-import { ProTankiServer } from "@/server/ProTankiServer";
+import { GameClient } from "@/server/game.client";
+import { GameServer } from "@/server/game.server";
 import { ChatModeratorLevel } from "@/shared/models/enums/chat-moderator-level.enum";
 
 export interface CommandContext {
-    executor: ProTankiClient;
-    server: ProTankiServer;
+    executor: GameClient;
+    server: GameServer;
     reply: (message: string) => void;
 }
 

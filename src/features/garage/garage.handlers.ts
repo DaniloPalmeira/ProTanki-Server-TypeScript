@@ -1,15 +1,15 @@
 import { SystemMessage } from "@/features/system/system.packets";
-import { ProTankiClient } from "../../server/ProTankiClient";
-import { ProTankiServer } from "../../server/ProTankiServer";
+import { GameClient } from "../../server/game.client";
+import { GameServer } from "../../server/game.server";
 import { IPacketHandler } from "../../shared/interfaces/IPacketHandler";
-import logger from "../../utils/Logger";
+import logger from "../../utils/logger";
 import * as GaragePackets from "./garage.packets";
 import { GarageWorkflow } from "./garage.workflow";
 
 export class RequestGarageHandler implements IPacketHandler<GaragePackets.RequestGaragePacket> {
     public readonly packetId = GaragePackets.RequestGaragePacket.getId();
 
-    public async execute(client: ProTankiClient, server: ProTankiServer, packet: GaragePackets.RequestGaragePacket): Promise<void> {
+    public async execute(client: GameClient, server: GameServer, packet: GaragePackets.RequestGaragePacket): Promise<void> {
         const state = client.getState();
 
         if (client.currentBattle) {
@@ -31,7 +31,7 @@ export class RequestGarageHandler implements IPacketHandler<GaragePackets.Reques
 export class BuyItemHandler implements IPacketHandler<GaragePackets.BuyItemPacket> {
     public readonly packetId = GaragePackets.BuyItemPacket.getId();
 
-    public async execute(client: ProTankiClient, server: ProTankiServer, packet: GaragePackets.BuyItemPacket): Promise<void> {
+    public async execute(client: GameClient, server: GameServer, packet: GaragePackets.BuyItemPacket): Promise<void> {
         if (!client.user || !packet.itemId) {
             return;
         }
@@ -51,7 +51,7 @@ export class BuyItemHandler implements IPacketHandler<GaragePackets.BuyItemPacke
 export class EquipItemRequestHandler implements IPacketHandler<GaragePackets.EquipItemRequestPacket> {
     public readonly packetId = GaragePackets.EquipItemRequestPacket.getId();
 
-    public async execute(client: ProTankiClient, server: ProTankiServer, packet: GaragePackets.EquipItemRequestPacket): Promise<void> {
+    public async execute(client: GameClient, server: GameServer, packet: GaragePackets.EquipItemRequestPacket): Promise<void> {
         if (!client.user || !packet.itemId) {
             return;
         }

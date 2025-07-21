@@ -1,5 +1,5 @@
 import { UserDocument } from "@/shared/models/user.model";
-import { UserCreationAttributes, UserService } from "@/shared/services/UserService";
+import { UserCreationAttributes, UserService } from "@/shared/services/user.service";
 
 export class AuthService {
     private userService: UserService;

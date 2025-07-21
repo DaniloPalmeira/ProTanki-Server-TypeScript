@@ -1,6 +1,6 @@
-import { ProTankiServer } from "@/server/ProTankiServer";
+import { GameServer } from "@/server/game.server";
 import { UserDocument } from "@/shared/models/user.model";
-import logger from "@/utils/Logger";
+import logger from "@/utils/logger";
 
 export interface FullUserInfo {
     user: UserDocument;
@@ -9,7 +9,7 @@ export interface FullUserInfo {
 }
 
 export class ProfileService {
-    public async getFullUserInfo(server: ProTankiServer, username: string): Promise<FullUserInfo | null> {
+    public async getFullUserInfo(server: GameServer, username: string): Promise<FullUserInfo | null> {
         const targetUser = await server.userService.findUserByUsername(username);
         if (!targetUser) {
             logger.warn(`User info requested for non-existent user: ${username}`);
