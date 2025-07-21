@@ -1,3 +1,4 @@
+import { Achievement } from "@/models/enums/Achievement";
 import { BasePacket } from "@/packets/implementations/BasePacket";
 import { BufferReader } from "@/utils/buffer/BufferReader";
 import { BufferWriter } from "@/utils/buffer/BufferWriter";
@@ -109,5 +110,216 @@ export class PremiumNotifierData extends BasePacket implements ProfileTypes.IPre
     }
     static getId(): number {
         return -2069508071;
+    }
+}
+
+export class AchievementTips extends BasePacket implements ProfileTypes.IAchievementTips {
+    achievementIds: Achievement[] = [];
+
+    constructor(achievementIds?: Achievement[]) {
+        super();
+        if (achievementIds) {
+            this.achievementIds = achievementIds;
+        }
+    }
+
+    read(buffer: Buffer): void {
+        const reader = new BufferReader(buffer);
+        const count = reader.readInt32BE();
+        this.achievementIds = [];
+        for (let i = 0; i < count; i++) {
+            this.achievementIds.push(reader.readInt32BE());
+        }
+    }
+
+    write(): Buffer {
+        const writer = new BufferWriter();
+        writer.writeInt32BE(this.achievementIds.length);
+        this.achievementIds.forEach((id) => {
+            writer.writeInt32BE(id);
+        });
+        return writer.getBuffer();
+    }
+    static getId(): number {
+        return 602656160;
+    }
+}
+
+export class EmailInfo extends BasePacket implements ProfileTypes.IEmailInfo {
+    email: string | null = null;
+    emailConfirmed: boolean = false;
+
+    constructor(email?: string | null, emailConfirmed?: boolean) {
+        super();
+        if (email) this.email = email;
+        if (emailConfirmed) this.emailConfirmed = emailConfirmed;
+    }
+
+    read(buffer: Buffer): void {
+        const reader = new BufferReader(buffer);
+        this.email = reader.readOptionalString();
+        this.emailConfirmed = reader.readUInt8() === 1;
+    }
+
+    write(): Buffer {
+        const writer = new BufferWriter();
+        writer.writeOptionalString(this.email);
+        writer.writeUInt8(this.emailConfirmed ? 1 : 0);
+        return writer.getBuffer();
+    }
+    static getId(): number {
+        return 613462801;
+    }
+}
+
+export class PremiumInfo extends BasePacket implements ProfileTypes.IPremiumInfo {
+    needShowNotificationCompletionPremium: boolean = false;
+    needShowWelcomeAlert: boolean = false;
+    reminderCompletionPremiumTime: number = 0;
+    wasShowAlertForFirstPurchasePremium: boolean = false;
+    wasShowReminderCompletionPremium: boolean = false;
+    lifeTimeInSeconds: number = 0;
+
+    constructor(lifeTimeInSeconds?: number, needShowNotification?: boolean, needShowWelcome?: boolean) {
+        super();
+        if (lifeTimeInSeconds !== undefined) this.lifeTimeInSeconds = lifeTimeInSeconds;
+        if (needShowNotification !== undefined) this.needShowNotificationCompletionPremium = needShowNotification;
+        if (needShowWelcome !== undefined) this.needShowWelcomeAlert = needShowWelcome;
+    }
+
+    read(buffer: Buffer): void {
+        const reader = new BufferReader(buffer);
+        this.needShowNotificationCompletionPremium = reader.readUInt8() === 1;
+        this.needShowWelcomeAlert = reader.readUInt8() === 1;
+        this.reminderCompletionPremiumTime = reader.readFloatBE();
+        this.wasShowAlertForFirstPurchasePremium = reader.readUInt8() === 1;
+        this.wasShowReminderCompletionPremium = reader.readUInt8() === 1;
+        this.lifeTimeInSeconds = reader.readInt32BE();
+    }
+
+    write(): Buffer {
+        const writer = new BufferWriter();
+        writer.writeUInt8(this.needShowNotificationCompletionPremium ? 1 : 0);
+        writer.writeUInt8(this.needShowWelcomeAlert ? 1 : 0);
+        writer.writeFloatBE(this.reminderCompletionPremiumTime);
+        writer.writeUInt8(this.wasShowAlertForFirstPurchasePremium ? 1 : 0);
+        writer.writeUInt8(this.wasShowReminderCompletionPremium ? 1 : 0);
+        writer.writeInt32BE(this.lifeTimeInSeconds);
+        return writer.getBuffer();
+    }
+    static getId(): number {
+        return 1405859779;
+    }
+}
+
+export class UpdateCrystals extends BasePacket implements ProfileTypes.IUpdateCrystals {
+    crystals: number = 0;
+
+    constructor(crystals?: number) {
+        super();
+        if (crystals !== undefined) {
+            this.crystals = crystals;
+        }
+    }
+
+    read(buffer: Buffer): void {
+        const reader = new BufferReader(buffer);
+        this.crystals = reader.readInt32BE();
+    }
+
+    write(): Buffer {
+        const writer = new BufferWriter();
+        writer.writeInt32BE(this.crystals);
+        return writer.getBuffer();
+    }
+    static getId(): number {
+        return -593513288;
+    }
+}
+
+export class UpdateScorePacket extends BasePacket implements ProfileTypes.IUpdateScore {
+    score: number;
+
+    constructor(score: number = 0) {
+        super();
+        this.score = score;
+    }
+
+    read(buffer: Buffer): void {
+        const reader = new BufferReader(buffer);
+        this.score = reader.readInt32BE();
+    }
+
+    write(): Buffer {
+        const writer = new BufferWriter();
+        writer.writeInt32BE(this.score);
+        return writer.getBuffer();
+    }
+    static getId(): number {
+        return 2116086491;
+    }
+}
+
+export class UpdateRankPacket extends BasePacket implements ProfileTypes.IUpdateRank {
+    rank: number;
+    score: number;
+    currentRankScore: number;
+    nextRankScore: number;
+    reward: number;
+
+    constructor(data?: ProfileTypes.IUpdateRankData) {
+        super();
+        this.rank = data?.rank ?? 0;
+        this.score = data?.score ?? 0;
+        this.currentRankScore = data?.currentRankScore ?? 0;
+        this.nextRankScore = data?.nextRankScore ?? 0;
+        this.reward = data?.reward ?? 0;
+    }
+
+    read(buffer: Buffer): void {
+        const reader = new BufferReader(buffer);
+        this.rank = reader.readInt32BE();
+        this.score = reader.readInt32BE();
+        this.currentRankScore = reader.readInt32BE();
+        this.nextRankScore = reader.readInt32BE();
+        this.reward = reader.readInt32BE();
+    }
+
+    write(): Buffer {
+        const writer = new BufferWriter();
+        writer.writeInt32BE(this.rank);
+        writer.writeInt32BE(this.score);
+        writer.writeInt32BE(this.currentRankScore);
+        writer.writeInt32BE(this.nextRankScore);
+        writer.writeInt32BE(this.reward);
+        return writer.getBuffer();
+    }
+    static getId(): number {
+        return 1989173907;
+    }
+}
+
+export class UpdatePremiumTimePacket extends BasePacket implements ProfileTypes.IUpdatePremiumTime {
+    timeLeft: number = 0;
+
+    constructor(timeLeft?: number) {
+        super();
+        if (timeLeft !== undefined) {
+            this.timeLeft = timeLeft;
+        }
+    }
+
+    read(buffer: Buffer): void {
+        const reader = new BufferReader(buffer);
+        this.timeLeft = reader.readInt32BE();
+    }
+
+    write(): Buffer {
+        const writer = new BufferWriter();
+        writer.writeInt32BE(this.timeLeft);
+        return writer.getBuffer();
+    }
+    static getId(): number {
+        return 1391146385;
     }
 }
