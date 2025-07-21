@@ -6,7 +6,7 @@ import { suppliesData } from "@/config/supplies.data";
 import { UnloadLobbyChatPacket } from "@/features/chat/chat.packets";
 import { LoadDependencies } from "@/features/loader/loader.packets";
 import { UnloadBattleListPacket } from "@/features/lobby/lobby.packets";
-import { ConfirmLayoutChange, SetLayout, SystemMessage } from "@/features/system/system.packets";
+import { ConfirmLayoutChange, SetLayout } from "@/features/system/system.packets";
 import { GameClient } from "@/server/game.client";
 import { GameServer } from "@/server/game.server";
 import { UserDocument } from "@/shared/models/user.model";
@@ -261,7 +261,6 @@ export class BattleWorkflow {
             this._sendFinalBattlePackets(client, battle);
         } catch (error: any) {
             logger.error(`Error initializing battle for ${client.user?.username}. Disconnecting client.`, { error: error.message });
-            client.sendPacket(new SystemMessage("Erro de configuração no seu equipamento. Desconectando."));
             server.battleService.removeUserFromBattle(client.user!, battle);
             setTimeout(() => client.closeConnection(), 500);
         }
@@ -288,7 +287,6 @@ export class BattleWorkflow {
             this._sendFinalBattlePackets(client, battle);
         } catch (error: any) {
             logger.error(`Error initializing spectator view for ${client.user?.username}.`, { error: error.message });
-            client.sendPacket(new SystemMessage("Erro ao entrar como espectador."));
             setTimeout(() => client.closeConnection(), 500);
         }
     }

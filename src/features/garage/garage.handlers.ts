@@ -1,4 +1,3 @@
-import { SystemMessage } from "@/features/system/system.packets";
 import { GameClient } from "@/server/game.client";
 import { GameServer } from "@/server/game.server";
 import { IPacketHandler } from "@/shared/interfaces/ipacket-handler";
@@ -43,7 +42,6 @@ export class BuyItemHandler implements IPacketHandler<GaragePackets.BuyItemPacke
                 error: error.message,
                 client: client.getRemoteAddress(),
             });
-            client.sendPacket(new SystemMessage(error.message));
         }
     }
 }
@@ -67,7 +65,6 @@ export class EquipItemRequestHandler implements IPacketHandler<GaragePackets.Equ
                 error: error.message,
                 client: client.getRemoteAddress(),
             });
-            client.sendPacket(new SystemMessage(error.message));
         }
     }
 }

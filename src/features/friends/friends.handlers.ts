@@ -1,4 +1,3 @@
-import { SystemMessage } from "@/features/system/system.packets";
 import { GameClient } from "@/server/game.client";
 import { GameServer } from "@/server/game.server";
 import { IPacketHandler } from "@/shared/interfaces/ipacket-handler";
@@ -30,8 +29,7 @@ export class AcceptFriendRequestHandler implements IPacketHandler<FriendPackets.
 
             if (!client.friendsCache.includes(senderUser.username)) client.friendsCache.push(senderUser.username);
         } catch (error: any) {
-            logger.error(`Failed to accept friend request for ${currentUser.username} from ${packet.nickname}`, { error: error.message });
-            client.sendPacket(new SystemMessage(error.message));
+            logger.warn(`Failed to accept friend request for ${currentUser.username} from ${packet.nickname}`, { error: error.message });
         }
     }
 }
@@ -45,8 +43,7 @@ export class AcknowledgeNewFriendHandler implements IPacketHandler<FriendPackets
             const friend = await server.friendsService.acknowledgeNewFriend(client.user, packet.nickname);
             client.sendPacket(new FriendPackets.AcknowledgeNewFriend(friend.username));
         } catch (error: any) {
-            logger.error(`Failed to acknowledge new friend for ${client.user.username}`, { error: error.message });
-            client.sendPacket(new SystemMessage(error.message));
+            logger.warn(`Failed to acknowledge new friend for ${client.user.username}`, { error: error.message });
         }
     }
 }
@@ -60,8 +57,7 @@ export class AcknowledgeNewFriendRequestHandler implements IPacketHandler<Friend
             const sender = await server.friendsService.acknowledgeNewFriendRequest(client.user, packet.nickname);
             client.sendPacket(new FriendPackets.AcknowledgeNewFriendRequest(sender.username));
         } catch (error: any) {
-            logger.error(`Failed to acknowledge new friend request for ${client.user.username}`, { error: error.message });
-            client.sendPacket(new SystemMessage(error.message));
+            logger.warn(`Failed to acknowledge new friend request for ${client.user.username}`, { error: error.message });
         }
     }
 }
@@ -80,8 +76,7 @@ export class CancelFriendRequestHandler implements IPacketHandler<FriendPackets.
                 targetClient.sendPacket(new FriendPackets.FriendRequestCanceledOrDeclined(client.user.username));
             }
         } catch (error: any) {
-            logger.error(`Failed to cancel friend request from ${client.user.username} to ${packet.nickname}`, { error: error.message });
-            client.sendPacket(new SystemMessage(error.message));
+            logger.warn(`Failed to cancel friend request from ${client.user.username} to ${packet.nickname}`, { error: error.message });
         }
     }
 }
@@ -134,8 +129,7 @@ export class DeclineFriendRequestHandler implements IPacketHandler<FriendPackets
                 senderClient.sendPacket(new FriendPackets.FriendRequestCanceledOrDeclined(client.user.username));
             }
         } catch (error: any) {
-            logger.error(`Failed to decline friend request for ${client.user.username} from ${packet.nickname}`, { error: error.message });
-            client.sendPacket(new SystemMessage(error.message));
+            logger.warn(`Failed to decline friend request for ${client.user.username} from ${packet.nickname}`, { error: error.message });
         }
     }
 }
@@ -172,8 +166,7 @@ export class RemoveFriendHandler implements IPacketHandler<FriendPackets.RemoveF
                 removedFriendClient.friendsCache = removedFriendClient.friendsCache.filter((friend) => friend !== currentUser.username);
             }
         } catch (error: any) {
-            logger.error(`Failed to remove friend for ${currentUser.username}`, { error: error.message });
-            client.sendPacket(new SystemMessage(error.message));
+            logger.warn(`Failed to remove friend for ${currentUser.username}`, { error: error.message });
         }
     }
 }
@@ -206,7 +199,6 @@ export class SendFriendRequestHandler implements IPacketHandler<FriendPackets.Se
                     break;
                 default:
                     logger.warn(`Failed to send friend request from ${client.user.username} to ${packet.nickname}`, { error: error.message });
-                    client.sendPacket(new SystemMessage(error.message));
             }
         }
     }

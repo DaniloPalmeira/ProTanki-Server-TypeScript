@@ -1,5 +1,4 @@
 import { RawPacket } from "@/features/dev/dev.packets";
-import { SystemMessage } from "@/features/system/system.packets";
 import { GameClient } from "@/server/game.client";
 import { GameServer } from "@/server/game.server";
 import { IPacketHandler } from "@/shared/interfaces/ipacket-handler";
@@ -16,12 +15,16 @@ export class SendChatMessageHandler implements IPacketHandler<SendChatMessage> {
             return;
         }
 
+        const sendFlowReply = (message: string) => {
+            client.sendPacket(new ChatHistory([{ message, isSystem: true, isWarning: false, source: null, target: null }]));
+        };
+
         if (client.isInFlowMode && !packet.message.startsWith("/")) {
             const packetIdStr = packet.message.trim();
             const packetId = parseInt(packetIdStr, 10);
 
             if (isNaN(packetId)) {
-                client.sendPacket(new SystemMessage("ID de pacote inválido. Deve ser um número."));
+                sendFlowReply("ID de pacote inválido. Deve ser um número.");
                 return;
             }
 
@@ -32,7 +35,7 @@ export class SendChatMessageHandler implements IPacketHandler<SendChatMessage> {
             try {
                 payload = Buffer.from(payloadHex, "hex");
             } catch (error) {
-                client.sendPacket(new SystemMessage("Erro: Payload hexadecimal inválido definido no fluxo."));
+                sendFlowReply("Erro: Payload hexadecimal inválido definido no fluxo.");
                 return;
             }
 
@@ -52,8 +55,7 @@ export class SendChatMessageHandler implements IPacketHandler<SendChatMessage> {
                 }
             }
 
-            const replyPacket = new ChatHistory([{ message: replyMessage, isSystem: true, isWarning: false, source: null, target: null }]);
-            client.sendPacket(replyPacket);
+            sendFlowReply(replyMessage);
             return;
         }
 

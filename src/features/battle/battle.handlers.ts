@@ -3,7 +3,6 @@ import { CommandContext } from "@/features/chat/commands/command.types";
 import { GarageWorkflow } from "@/features/garage/garage.workflow";
 import { AddUserToBattleDmPacket, NotifyFriendOfBattlePacket, ReservePlayerSlotDmPacket, UnloadBattleListPacket } from "@/features/lobby/lobby.packets";
 import { LobbyWorkflow } from "@/features/lobby/lobby.workflow";
-import { SystemMessage } from "@/features/system/system.packets";
 import { GameClient } from "@/server/game.client";
 import { GameServer } from "@/server/game.server";
 import { IPacketHandler } from "@/shared/interfaces/ipacket-handler";
@@ -19,7 +18,7 @@ export class EnterBattleAsSpectatorHandler implements IPacketHandler<BattlePacke
 
     public async execute(client: GameClient, server: GameServer, packet: BattlePackets.EnterBattleAsSpectatorPacket): Promise<void> {
         if (!client.user || !client.lastViewedBattleId) {
-            client.sendPacket(new SystemMessage("Nenhuma batalha selecionada."));
+            logger.warn(`Tentativa de entrar como espectador sem batalha selecionada.`, { user: client.user?.username, client: client.getRemoteAddress() });
             return;
         }
 
@@ -32,11 +31,10 @@ export class EnterBattleAsSpectatorHandler implements IPacketHandler<BattlePacke
 
             await BattleWorkflow.enterBattle(client, server, battle);
         } catch (error: any) {
-            logger.warn(`User ${client.user.username} failed to enter battle ${client.lastViewedBattleId} as spectator`, {
+            logger.warn(`Usuário ${client.user.username} falhou ao entrar na batalha ${client.lastViewedBattleId} como espectador`, {
                 error: error.message,
                 client: client.getRemoteAddress(),
             });
-            client.sendPacket(new SystemMessage(error.message));
         }
     }
 }
@@ -46,7 +44,7 @@ export class EnterBattleHandler implements IPacketHandler<BattlePackets.EnterBat
 
     public async execute(client: GameClient, server: GameServer, packet: BattlePackets.EnterBattlePacket): Promise<void> {
         if (!client.user || !client.lastViewedBattleId) {
-            client.sendPacket(new SystemMessage("Nenhuma batalha selecionada."));
+            logger.warn(`Tentativa de entrar em batalha sem batalha selecionada.`, { user: client.user?.username, client: client.getRemoteAddress() });
             return;
         }
 
@@ -100,11 +98,10 @@ export class EnterBattleHandler implements IPacketHandler<BattlePackets.EnterBat
                 }
             }
         } catch (error: any) {
-            logger.warn(`User ${client.user.username} failed to enter battle ${client.lastViewedBattleId}`, {
+            logger.warn(`Usuário ${client.user.username} falhou ao entrar na batalha ${client.lastViewedBattleId}`, {
                 error: error.message,
                 client: client.getRemoteAddress(),
             });
-            client.sendPacket(new SystemMessage(error.message));
         }
     }
 }

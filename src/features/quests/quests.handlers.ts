@@ -1,5 +1,4 @@
 import { UpdateCrystals } from "@/features/profile/profile.packets";
-import { SystemMessage } from "@/features/system/system.packets";
 import { GameClient } from "@/server/game.client";
 import { GameServer } from "@/server/game.server";
 import { IPacketHandler } from "@/shared/interfaces/ipacket-handler";
@@ -56,8 +55,7 @@ export class SkipQuestFreeHandler implements IPacketHandler<QuestPackets.SkipQue
                 client.user = updatedUser;
             }
         } catch (error: any) {
-            logger.error(`Failed to skip quest for free for user ${currentUser.username}`, { error: error.message });
-            client.sendPacket(new SystemMessage(error.message));
+            logger.warn(`Failed to skip quest for free for user ${currentUser.username}`, { error: error.message });
         }
     }
 }
@@ -99,8 +97,7 @@ export class SkipQuestPaidHandler implements IPacketHandler<QuestPackets.SkipQue
                 client.sendPacket(new UpdateCrystals(client.user.crystals));
             }
         } catch (error: any) {
-            logger.error(`Failed to skip quest with payment for user ${currentUser.username}`, { error: error.message });
-            client.sendPacket(new SystemMessage(error.message));
+            logger.warn(`Failed to skip quest with payment for user ${currentUser.username}`, { error: error.message });
         }
     }
 }

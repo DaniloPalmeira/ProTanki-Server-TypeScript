@@ -118,10 +118,10 @@ export class GarageWorkflow {
 
             if (otherClientsInBattle.length > 0) {
                 const user = client.user!;
-                const hullId = user.equippedHull;
-                const hullMod = user.hulls.get(hullId) ?? 0;
-                const turretId = user.equippedTurret;
-                const turretMod = user.turrets.get(turretId) ?? 0;
+                const hullId = user.equippedHull,
+                    hullMod = user.hulls.get(hullId) ?? 0;
+                const turretId = user.equippedTurret,
+                    turretMod = user.turrets.get(turretId) ?? 0;
                 const paintId = user.equippedPaint;
 
                 const resourcesToLoad: ResourceId[] = [`hull/${hullId}/m${hullMod}/model` as ResourceId, `turret/${turretId}/m${turretMod}/model` as ResourceId, `paint/${paintId}/texture` as ResourceId];

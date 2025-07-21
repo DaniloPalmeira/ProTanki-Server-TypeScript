@@ -1,6 +1,5 @@
 import * as LobbyPackets from "@/features/lobby/lobby.packets";
 import { LobbyService } from "@/features/lobby/lobby.service";
-import { SystemMessage } from "@/features/system/system.packets";
 import { GameClient } from "@/server/game.client";
 import { GameServer } from "@/server/game.server";
 import { UserDocument } from "@/shared/models/user.model";
@@ -75,7 +74,8 @@ export class BattleService {
                 }
             });
         } else if (action === "kick") {
-            client.sendPacket(new SystemMessage("Você foi kickado por entrar em uma área proibida."));
+            logger.warn(`Usuário ${user.username} foi kickado por entrar em uma área proibida.`);
+            // TODO: Implementar um pacote de notificação ao cliente para o chute.
             setTimeout(() => client.closeConnection(), 100);
         }
     }
