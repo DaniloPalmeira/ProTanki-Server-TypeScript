@@ -15,3 +15,12 @@ export interface ICaptchaLocation extends IPacket {
 export interface IInviteEnabled extends IPacket {
     requireInviteCode: boolean;
 }
+
+export interface IConfirmLayoutChange extends IPacket {
+    fromLayout: number;
+    toLayout: number;
+}
+
+export interface ISetLayout extends IPacket {
+    layoutId: number;
+}

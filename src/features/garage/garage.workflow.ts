@@ -2,9 +2,8 @@ import { ConfirmDestructionPacket, SelfDestructScheduledPacket } from "@/feature
 import { LoadDependencies } from "@/features/loader/loader.packets";
 import { UnloadBattleListPacket } from "@/features/lobby/lobby.packets";
 import { LobbyWorkflow } from "@/features/lobby/lobby.workflow";
+import { ConfirmLayoutChange, SetLayout } from "@/features/system/system.packets";
 import { CALLBACK } from "../../config/constants";
-import ConfirmLayoutChange from "../../packets/implementations/ConfirmLayoutChange";
-import SetLayout from "../../packets/implementations/SetLayout";
 import { ProTankiClient } from "../../server/ProTankiClient";
 import { ProTankiServer } from "../../server/ProTankiServer";
 import { ResourceId } from "../../types/resourceTypes";
