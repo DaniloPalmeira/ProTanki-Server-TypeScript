@@ -93,3 +93,7 @@ export interface INotifyFriendOfBattle extends IPacket, INotifyFriendOfBattleDat
 export interface IUnloadBattleList extends IEmpty { }
 
 export interface IRequestLobby extends IEmpty { }
+
+export interface ISetBattleInviteSound extends IPacket {
+    soundIdLow: number;
+}

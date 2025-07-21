@@ -496,3 +496,26 @@ export class RequestLobbyPacket extends BasePacket implements LobbyTypes.IReques
         return 1452181070;
     }
 }
+
+export class SetBattleInviteSound extends BasePacket implements LobbyTypes.ISetBattleInviteSound {
+    soundIdLow: number;
+
+    constructor(soundIdLow: number) {
+        super();
+        this.soundIdLow = soundIdLow;
+    }
+
+    read(buffer: Buffer): void {
+        const reader = new BufferReader(buffer);
+        this.soundIdLow = reader.readInt32BE();
+    }
+
+    write(): Buffer {
+        const writer = new BufferWriter();
+        writer.writeInt32BE(this.soundIdLow);
+        return writer.getBuffer();
+    }
+    static getId(): number {
+        return 834877801;
+    }
+}

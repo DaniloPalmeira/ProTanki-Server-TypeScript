@@ -15,7 +15,6 @@ import { ConfirmLayoutChange, SetLayout } from "@/features/system/system.packets
 import { Achievement } from "@/models/enums/Achievement";
 import { ChatModeratorLevel } from "@/models/enums/ChatModeratorLevel";
 import { UserDocument, UserDocumentWithFriends } from "@/models/User";
-import SetBattleInviteSound from "@/packets/implementations/SetBattleInviteSound";
 import { ProTankiClient } from "@/server/ProTankiClient";
 import { ProTankiServer } from "@/server/ProTankiServer";
 import { ResourceId } from "@/types/resourceTypes";
@@ -187,7 +186,7 @@ export class LobbyWorkflow {
         client.sendPacket(new LocalizationInfo(countries, "BR", locationSwitchingEnabled));
 
         const battleInviteSoundId = ResourceManager.getIdlowById("sounds/notifications/battle_invite");
-        client.sendPacket(new SetBattleInviteSound(battleInviteSoundId));
+        client.sendPacket(new LobbyPackets.SetBattleInviteSound(battleInviteSoundId));
     }
 
     private static sendAchievementTips(user: UserDocument, client: ProTankiClient): void {
