@@ -1,11 +1,11 @@
 import { TimeCheckerPacket } from "@/features/battle/battle.packets";
 import { Ping, Protection } from "@/features/system/system.packets";
+import { IPacket } from "@/packets/IPacket";
+import { IVector3 } from "@/shared/types/geom/IVector3";
 import * as net from "net";
 import { EncryptionService } from "../crypto/EncryptionService";
 import { Battle } from "../features/battle/battle.model";
 import { UserDocument } from "../models/User";
-import { IVector3 } from "../packets/interfaces/geom/IVector3";
-import { IPacket } from "../packets/interfaces/IPacket";
 import { ClientState } from "../types/ClientState";
 import { IClientOptions } from "../types/IClientOptions";
 import logger from "../utils/Logger";

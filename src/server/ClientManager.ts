@@ -1,4 +1,4 @@
-import { IPacket } from "../packets/interfaces/IPacket";
+import { IPacket } from "@/packets/IPacket";
 import { ClientState } from "../types/ClientState";
 import { ProTankiClient } from "./ProTankiClient";
 

@@ -1,10 +1,7 @@
+import { IPacketHandler } from "@/shared/interfaces/IPacketHandler";
+import logger from "@/utils/Logger";
 import fs from "fs";
 import path from "path";
-import logger from "@/utils/Logger";
-import { IPacket } from "@/packets/interfaces/IPacket";
-import { ProTankiClient } from "@/server/ProTankiClient";
-import { ProTankiServer } from "@/server/ProTankiServer";
-import { IPacketHandler } from "@/shared/interfaces/IPacketHandler";
 
 export class PacketHandlerService {
   private handlers = new Map<number, IPacketHandler<any>>();

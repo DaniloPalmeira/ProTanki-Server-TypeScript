@@ -1,5 +1,5 @@
-import { IEmpty } from "@/packets/interfaces/IEmpty";
-import { IPacket } from "@/packets/interfaces/IPacket";
+import { IEmpty } from "@/packets/IEmpty";
+import { IPacket } from "@/packets/IPacket";
 
 export interface ISystemMessage extends IPacket {
     text: string | null;

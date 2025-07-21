@@ -1,7 +1,7 @@
 import { ChatModeratorLevel } from "@/models/enums/ChatModeratorLevel";
-import { IEmpty } from "@/packets/interfaces/IEmpty";
-import { IPacket } from "@/packets/interfaces/IPacket";
-import { IVector3 } from "@/packets/interfaces/geom/IVector3";
+import { IEmpty } from "@/packets/IEmpty";
+import { IPacket } from "@/packets/IPacket";
+import { IVector3 } from "@/shared/types/geom/IVector3";
 import { BattleMode, EquipmentConstraintsMode } from "./battle.model";
 
 export { BattleMode, EquipmentConstraintsMode, IVector3 };

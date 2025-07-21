@@ -1,6 +1,6 @@
-import { UserDocument } from "../../models/User";
+import { IVector3 } from "@/shared/types/geom/IVector3";
 import * as crypto from "crypto";
-import { IVector3 } from "../../packets/interfaces/geom/IVector3";
+import { UserDocument } from "../../models/User";
 
 export enum BattleMode {
     DM,

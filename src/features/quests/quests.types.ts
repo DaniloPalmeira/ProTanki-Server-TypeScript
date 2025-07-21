@@ -1,5 +1,5 @@
-import { IPacket } from "@/packets/interfaces/IPacket";
-import { IEmpty } from "@/packets/interfaces/IEmpty";
+import { IEmpty } from "@/packets/IEmpty";
+import { IPacket } from "@/packets/IPacket";
 
 export interface IQuestPrize {
     itemName: string;

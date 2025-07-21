@@ -1,8 +1,8 @@
+import { BasePacket } from "@/packets/BasePacket";
+import { IVector3 } from "@/shared/types/geom/IVector3";
 import { BufferReader } from "@/utils/buffer/BufferReader";
 import { BufferWriter } from "@/utils/buffer/BufferWriter";
-import { BasePacket } from "@/packets/implementations/BasePacket";
 import * as RailgunTypes from "./railgun.types";
-import { IVector3 } from "@/packets/interfaces/geom/IVector3";
 
 export class RailgunShotCommandPacket extends BasePacket implements RailgunTypes.IRailgunShotCommand {
     public clientTime: number = 0;

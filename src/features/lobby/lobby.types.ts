@@ -1,5 +1,5 @@
-import { IEmpty } from "../../packets/interfaces/IEmpty";
-import { IPacket } from "../../packets/interfaces/IPacket";
+import { IEmpty } from "@/packets/IEmpty";
+import { IPacket } from "@/packets/IPacket";
 import { BattleMode, IBattleCreationSettings } from "../battle/battle.model";
 
 export interface IBattleInfo extends IPacket {

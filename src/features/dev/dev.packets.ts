@@ -1,5 +1,5 @@
-import { BasePacket } from "@/packets/implementations/BasePacket";
-import { IPacket } from "@/packets/interfaces/IPacket";
+import { BasePacket } from "@/packets/BasePacket";
+import { IPacket } from "@/packets/IPacket";
 
 export class RawPacket extends BasePacket implements IPacket {
     private id: number;

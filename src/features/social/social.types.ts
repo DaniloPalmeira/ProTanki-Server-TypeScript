@@ -1,4 +1,4 @@
-import { IPacket } from "@/packets/interfaces/IPacket";
+import { IPacket } from "@/packets/IPacket";
 
 export interface ISocialNetwork extends IPacket {
     socialNetworkParams: Array<Array<String>>;

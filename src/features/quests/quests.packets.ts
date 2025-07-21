@@ -1,8 +1,8 @@
+import { BasePacket } from "@/packets/BasePacket";
 import { BufferReader } from "@/utils/buffer/BufferReader";
 import { BufferWriter } from "@/utils/buffer/BufferWriter";
-import { BasePacket } from "@/packets/implementations/BasePacket";
-import { IRequestQuestsWindow, IShowQuestsWindow, ISkipQuest, IReplaceQuest, INotifyDailyQuestGenerated, IQuest } from "./quests.types";
 import { DailyQuestData } from "./quests.service";
+import { INotifyDailyQuestGenerated, IQuest, IReplaceQuest, IRequestQuestsWindow, IShowQuestsWindow, ISkipQuest } from "./quests.types";
 
 export class RequestQuestsWindow extends BasePacket implements IRequestQuestsWindow {
     read(buffer: Buffer): void { }

@@ -14,7 +14,7 @@ import { ReferralService } from "@/features/referral/referral.service";
 import { SettingsService } from "@/features/settings/settings.service";
 import { ShopService } from "@/features/shop/shop.service";
 import { PacketHandlerService } from "@/handlers/PacketHandlerService";
-import { IPacket } from "@/packets/interfaces/IPacket";
+import { IPacket } from "@/packets/IPacket";
 import { PacketService } from "@/packets/PacketService";
 import { ConfigService } from "@/services/ConfigService";
 import { RankService } from "@/services/RankService";

@@ -1,5 +1,5 @@
-import { BasePacket } from "@/packets/implementations/BasePacket";
-import { IEmpty } from "@/packets/interfaces/IEmpty";
+import { BasePacket } from "@/packets/BasePacket";
+import { IEmpty } from "@/packets/IEmpty";
 import { BufferReader } from "@/utils/buffer/BufferReader";
 import { BufferWriter } from "@/utils/buffer/BufferWriter";
 import * as SystemTypes from "./system.types";

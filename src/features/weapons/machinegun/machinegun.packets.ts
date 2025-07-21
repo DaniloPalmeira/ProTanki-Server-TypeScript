@@ -1,8 +1,8 @@
+import { BasePacket } from "@/packets/BasePacket";
+import { IVector3 } from "@/shared/types/geom/IVector3";
 import { BufferReader } from "@/utils/buffer/BufferReader";
 import { BufferWriter } from "@/utils/buffer/BufferWriter";
-import { BasePacket } from "@/packets/implementations/BasePacket";
 import * as MachinegunTypes from "./machinegun.types";
-import { IVector3 } from "@/packets/interfaces/geom/IVector3";
 
 export class StartShootingMachinegunCommandPacket extends BasePacket implements MachinegunTypes.IStartShootingMachinegunCommand {
     public clientTime: number = 0;

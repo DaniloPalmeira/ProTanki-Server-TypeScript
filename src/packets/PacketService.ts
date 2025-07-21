@@ -1,7 +1,7 @@
+import { IPacket } from "@/packets/IPacket";
+import logger from "@/utils/Logger";
 import fs from "fs";
 import path from "path";
-import { IPacket } from "./interfaces/IPacket";
-import logger from "@/utils/Logger";
 
 export class PacketService {
   private packets = new Map<number, new (...args: any[]) => IPacket>();

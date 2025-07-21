@@ -1,4 +1,4 @@
-import { BasePacket } from "@/packets/implementations/BasePacket";
+import { BasePacket } from "@/packets/BasePacket";
 import { BufferReader } from "@/utils/buffer/BufferReader";
 import { BufferWriter } from "@/utils/buffer/BufferWriter";
 import * as SocialTypes from "./social.types";
