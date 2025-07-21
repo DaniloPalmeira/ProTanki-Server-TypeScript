@@ -1,5 +1,5 @@
 import { UserDocument } from "@/shared/models/user.model";
-import logger from "../../utils/logger";
+import logger from "@/utils/logger";
 import { itemBlueprints } from "./garage.data";
 
 export class GarageService {

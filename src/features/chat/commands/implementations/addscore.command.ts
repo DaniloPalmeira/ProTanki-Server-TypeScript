@@ -1,6 +1,6 @@
+import { CommandContext, ICommand } from "@/features/chat/commands/command.types";
 import { UpdateRankPacket, UpdateScorePacket } from "@/features/profile/profile.packets";
 import { ChatModeratorLevel } from "@/shared/models/enums/chat-moderator-level.enum";
-import { CommandContext, ICommand } from "../command.types";
 
 export default class AddScoreCommand implements ICommand {
     name: string = "addscore";

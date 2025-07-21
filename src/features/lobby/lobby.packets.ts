@@ -1,7 +1,7 @@
+import { BattleMode, EquipmentConstraintsMode, MapTheme } from "@/features/battle/battle.model";
 import { BasePacket } from "@/packets/base.packet";
-import { BufferReader } from "../../utils/buffer/buffer.reader";
-import { BufferWriter } from "../../utils/buffer/buffer.writer";
-import { BattleMode, EquipmentConstraintsMode, MapTheme } from "../battle/battle.model";
+import { BufferReader } from "@/utils/buffer/buffer.reader";
+import { BufferWriter } from "@/utils/buffer/buffer.writer";
 import * as LobbyTypes from "./lobby.types";
 
 export class BattleInfo extends BasePacket implements LobbyTypes.IBattleInfo {

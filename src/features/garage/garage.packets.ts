@@ -1,6 +1,6 @@
 import { BasePacket } from "@/packets/base.packet";
-import { BufferReader } from "../../utils/buffer/buffer.reader";
-import { BufferWriter } from "../../utils/buffer/buffer.writer";
+import { BufferReader } from "@/utils/buffer/buffer.reader";
+import { BufferWriter } from "@/utils/buffer/buffer.writer";
 import * as GarageTypes from "./garage.types";
 
 export class BuyItemPacket extends BasePacket implements GarageTypes.IBuyItem {

@@ -1,5 +1,5 @@
+import { BattleMode, IBattleCreationSettings } from "@/features/battle/battle.model";
 import { IEmpty, IPacket } from "@/packets/packet.interfaces";
-import { BattleMode, IBattleCreationSettings } from "../battle/battle.model";
 
 export interface IBattleInfo extends IPacket {
     jsonData: string | null;

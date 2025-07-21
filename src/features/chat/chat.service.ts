@@ -1,7 +1,7 @@
+import { LobbyService } from "@/features/lobby/lobby.service";
 import { UserDocument } from "@/shared/models/user.model";
 import { UserService } from "@/shared/services/user.service";
 import logger from "@/utils/logger";
-import { LobbyService } from "../lobby/lobby.service";
 import ChatMessage from "./chat.model";
 
 export interface PopulatedChatMessage {

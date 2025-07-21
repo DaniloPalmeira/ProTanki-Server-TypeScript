@@ -1,8 +1,8 @@
+import { UserNotInBattlePacket } from "@/features/lobby/lobby.packets";
 import { GameClient } from "@/server/game.client";
 import { GameServer } from "@/server/game.server";
 import { IPacketHandler } from "@/shared/interfaces/ipacket-handler";
 import logger from "@/utils/logger";
-import { UserNotInBattlePacket } from "../lobby/lobby.packets";
 import * as ProfilePackets from "./profile.packets";
 
 export class GetUserInfoHandler implements IPacketHandler<ProfilePackets.GetUserInfo> {

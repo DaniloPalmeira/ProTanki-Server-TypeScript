@@ -1,6 +1,8 @@
 import { battleDataObject } from "@/config/battle.data";
 import { CommandContext } from "@/features/chat/commands/command.types";
+import { GarageWorkflow } from "@/features/garage/garage.workflow";
 import { AddUserToBattleDmPacket, NotifyFriendOfBattlePacket, ReservePlayerSlotDmPacket, UnloadBattleListPacket } from "@/features/lobby/lobby.packets";
+import { LobbyWorkflow } from "@/features/lobby/lobby.workflow";
 import { SystemMessage } from "@/features/system/system.packets";
 import { GameClient } from "@/server/game.client";
 import { GameServer } from "@/server/game.server";
@@ -8,8 +10,6 @@ import { IPacketHandler } from "@/shared/interfaces/ipacket-handler";
 import { UserDocument } from "@/shared/models/user.model";
 import { ItemUtils } from "@/utils/item.utils";
 import logger from "@/utils/logger";
-import { GarageWorkflow } from "../garage/garage.workflow";
-import { LobbyWorkflow } from "../lobby/lobby.workflow";
 import { BattleMode } from "./battle.model";
 import * as BattlePackets from "./battle.packets";
 import { BattleWorkflow } from "./battle.workflow";

@@ -1,9 +1,9 @@
+import { Battle, BattleMode, EquipmentConstraintsMode, IBattleCreationSettings, MapTheme } from "@/features/battle/battle.model";
 import { UserDocument } from "@/shared/models/user.model";
+import { mapCtfFlags } from "@/types/mapCtfFlags";
+import { mapDomKeypoints } from "@/types/mapDomKeypoints";
+import logger from "@/utils/logger";
 import { ValidationUtils } from "@/utils/validation.utils";
-import { mapCtfFlags } from "../../types/mapCtfFlags";
-import { mapDomKeypoints } from "../../types/mapDomKeypoints";
-import logger from "../../utils/logger";
-import { Battle, BattleMode, EquipmentConstraintsMode, IBattleCreationSettings, MapTheme } from "../battle/battle.model";
 
 export class LobbyService {
     private activeBattles: Map<string, Battle> = new Map();

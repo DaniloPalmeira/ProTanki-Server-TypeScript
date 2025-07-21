@@ -1,14 +1,14 @@
+import { CALLBACK } from "@/config/constants";
 import { ConfirmDestructionPacket, SelfDestructScheduledPacket } from "@/features/battle/battle.packets";
 import { LoadDependencies } from "@/features/loader/loader.packets";
 import { UnloadBattleListPacket } from "@/features/lobby/lobby.packets";
 import { LobbyWorkflow } from "@/features/lobby/lobby.workflow";
 import { ConfirmLayoutChange, SetLayout } from "@/features/system/system.packets";
+import { GameClient } from "@/server/game.client";
+import { GameServer } from "@/server/game.server";
+import { ResourceId } from "@/types/resourceTypes";
+import logger from "@/utils/logger";
 import { ResourceManager } from "@/utils/resource.manager";
-import { CALLBACK } from "../../config/constants";
-import { GameClient } from "../../server/game.client";
-import { GameServer } from "../../server/game.server";
-import { ResourceId } from "../../types/resourceTypes";
-import logger from "../../utils/logger";
 import { itemBlueprints } from "./garage.data";
 import * as GaragePackets from "./garage.packets";
 

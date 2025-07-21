@@ -1,13 +1,13 @@
 import { Protection } from "@/core/security/security.packets";
 import { SecurityService } from "@/core/security/security.service";
+import { Battle } from "@/features/battle/battle.model";
 import { TimeCheckerPacket } from "@/features/battle/battle.packets";
 import { Ping } from "@/features/system/system.packets";
 import { IPacket } from "@/packets/packet.interfaces";
 import { UserDocument } from "@/shared/models/user.model";
 import { IVector3 } from "@/shared/types/geom/ivector3";
+import logger from "@/utils/logger";
 import * as net from "net";
-import { Battle } from "../features/battle/battle.model";
-import logger from "../utils/logger";
 import { ClientState } from "./client.state";
 import { IClientOptions } from "./client.types";
 import { GameServer } from "./game.server";

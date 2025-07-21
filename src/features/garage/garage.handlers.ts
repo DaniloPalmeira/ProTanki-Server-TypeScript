@@ -1,8 +1,8 @@
 import { SystemMessage } from "@/features/system/system.packets";
-import { GameClient } from "../../server/game.client";
-import { GameServer } from "../../server/game.server";
-import { IPacketHandler } from "../../shared/interfaces/ipacket-handler";
-import logger from "../../utils/logger";
+import { GameClient } from "@/server/game.client";
+import { GameServer } from "@/server/game.server";
+import { IPacketHandler } from "@/shared/interfaces/ipacket-handler";
+import logger from "@/utils/logger";
 import * as GaragePackets from "./garage.packets";
 import { GarageWorkflow } from "./garage.workflow";
 

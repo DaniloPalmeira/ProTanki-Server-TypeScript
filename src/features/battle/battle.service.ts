@@ -1,13 +1,13 @@
+import * as LobbyPackets from "@/features/lobby/lobby.packets";
+import { LobbyService } from "@/features/lobby/lobby.service";
 import { SystemMessage } from "@/features/system/system.packets";
+import { GameClient } from "@/server/game.client";
+import { GameServer } from "@/server/game.server";
 import { UserDocument } from "@/shared/models/user.model";
 import { IVector3 } from "@/shared/types/geom/ivector3";
-import { GameClient } from "../../server/game.client";
-import { GameServer } from "../../server/game.server";
-import { mapGeometries } from "../../types/mapGeometries";
-import { mapSpawns } from "../../types/mapSpawns";
-import logger from "../../utils/logger";
-import * as LobbyPackets from "../lobby/lobby.packets";
-import { LobbyService } from "../lobby/lobby.service";
+import { mapGeometries } from "@/types/mapGeometries";
+import { mapSpawns } from "@/types/mapSpawns";
+import logger from "@/utils/logger";
 import { Battle, BattleMode, MapTheme } from "./battle.model";
 import { DestroyTankPacket, RemoveTankPacket, UpdateSpectatorListPacket, UserDisconnectedDmPacket } from "./battle.packets";
 

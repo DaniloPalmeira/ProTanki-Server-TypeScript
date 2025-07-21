@@ -1,8 +1,8 @@
 import { RawPacket } from "@/features/dev/dev.packets";
+import { GameServer } from "@/server/game.server";
 import { UserService } from "@/shared/services/user.service";
+import logger, { consoleTransport } from "@/utils/logger";
 import readline from "readline";
-import { GameServer } from "../server/game.server";
-import logger, { consoleTransport } from "../utils/logger";
 
 export class DebugConsole {
   private server: GameServer;
