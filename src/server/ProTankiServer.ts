@@ -7,12 +7,13 @@ import { FriendsService } from "@/features/friends/friends.service";
 import { GarageService } from "@/features/garage/garage.service";
 import { InviteService } from "@/features/invite/invite.service";
 import { LobbyService } from "@/features/lobby/lobby.service";
+import { OnlineNotifierData } from "@/features/profile/profile.packets";
+import { ProfileService } from "@/features/profile/profile.service";
 import { QuestService } from "@/features/quests/quests.service";
 import { ReferralService } from "@/features/referral/referral.service";
 import { SettingsService } from "@/features/settings/settings.service";
 import { ShopService } from "@/features/shop/shop.service";
 import { PacketHandlerService } from "@/handlers/PacketHandlerService";
-import OnlineNotifierData from "@/packets/implementations/OnlineNotifierData";
 import { IPacket } from "@/packets/interfaces/IPacket";
 import { PacketService } from "@/packets/PacketService";
 import { ConfigService } from "@/services/ConfigService";
@@ -43,6 +44,7 @@ export interface IServerServices {
   lobbyService: LobbyService;
   settingsService: SettingsService;
   referralService: ReferralService;
+  profileService: ProfileService;
 }
 
 export class ProTankiServer {
@@ -76,6 +78,7 @@ export class ProTankiServer {
   public readonly lobbyService: LobbyService;
   public readonly settingsService: SettingsService;
   public readonly referralService: ReferralService;
+  public readonly profileService: ProfileService;
 
   private _getBattleService: () => BattleService;
 
@@ -104,6 +107,7 @@ export class ProTankiServer {
     this.lobbyService = services.lobbyService;
     this.settingsService = services.settingsService;
     this.referralService = services.referralService;
+    this.profileService = services.profileService;
 
     this.server = net.createServer(this.handleConnection.bind(this));
     this.clientManager = new ClientManager();

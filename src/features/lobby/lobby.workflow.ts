@@ -16,11 +16,8 @@ import ConfirmLayoutChange from "@/packets/implementations/ConfirmLayoutChange";
 import EmailInfo from "@/packets/implementations/EmailInfo";
 import HideLoginForm from "@/packets/implementations/HideLoginForm";
 import LoadDependencies from "@/packets/implementations/LoadDependencies";
-import OnlineNotifierData from "@/packets/implementations/OnlineNotifierData";
 import PremiumInfo from "@/packets/implementations/PremiumInfo";
-import PremiumNotifierData from "@/packets/implementations/PremiumNotifierData";
 import Punishment from "@/packets/implementations/Punishment";
-import RankNotifierData from "@/packets/implementations/RankNotifierData";
 import SetBattleInviteSound from "@/packets/implementations/SetBattleInviteSound";
 import SetLayout from "@/packets/implementations/SetLayout";
 import { ProTankiClient } from "@/server/ProTankiClient";
@@ -321,34 +318,6 @@ export class LobbyWorkflow {
 
         const jsonData = JSON.stringify({ battles: battleListPayload });
         client.sendPacket(new LobbyPackets.BattleList(jsonData));
-    }
-
-    public static async sendFullUserInfo(client: ProTankiClient, server: ProTankiServer, targetNickname: string): Promise<void> {
-        const targetUser = await server.userService.findUserByUsername(targetNickname);
-        if (!targetUser) {
-            logger.warn(`User info requested for non-existent user: ${targetNickname}`);
-            return;
-        }
-
-        client.subscriptions.add(targetNickname.toLowerCase());
-        logger.info(`Client ${client.user?.username} subscribed to updates for ${targetNickname}`);
-
-        const targetClient = server.findClientByUsername(targetNickname);
-        const isOnline = !!targetClient;
-
-        client.sendPacket(new OnlineNotifierData(isOnline, 1, targetUser.username));
-        client.sendPacket(new RankNotifierData(targetUser.rank, targetUser.username));
-
-        let premiumSecondsLeft = 0;
-        if (targetUser.premiumExpiresAt && targetUser.premiumExpiresAt > new Date()) {
-            premiumSecondsLeft = Math.round((targetUser.premiumExpiresAt.getTime() - Date.now()) / 1000);
-        }
-        client.sendPacket(new PremiumNotifierData(premiumSecondsLeft, targetUser.username));
-
-        const isInBattle = server.lobbyService.isUserInBattle(targetNickname);
-        if (!isInBattle) {
-            client.sendPacket(new LobbyPackets.UserNotInBattlePacket(targetNickname));
-        }
     }
 
     public static async sendBattleDetails(client: ProTankiClient, server: ProTankiServer, battle: Battle): Promise<void> {
