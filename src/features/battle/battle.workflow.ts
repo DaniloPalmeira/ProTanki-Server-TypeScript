@@ -1,5 +1,6 @@
 import { getBonusData } from "@/config/bonus.data";
 import { CALLBACK } from "@/config/constants";
+import { mapThemeConfigs } from "@/config/map-themes.data";
 import { weaponPhysicsData } from "@/config/physics.data";
 import { sfxBlueprints } from "@/config/sfx.blueprints";
 import { suppliesData } from "@/config/supplies.data";
@@ -301,26 +302,11 @@ export class BattleWorkflow {
             right: ResourceManager.getIdlowById(skyboxResourceIds[3]),
         };
 
+        const themeConfig = mapThemeConfigs[settings.mapTheme];
         const mapGraphicData = {
             mapId: mapIdWithPrefix,
             mapTheme: MapTheme[settings.mapTheme],
-            angleX: -0.85,
-            angleZ: 2.5,
-            lightColor: 13090219,
-            shadowColor: 5530735,
-            fogAlpha: 0.25,
-            fogColor: 10543615,
-            farLimit: 10000,
-            nearLimit: 5000,
-            gravity: 1000,
-            skyboxRevolutionSpeed: 0.0,
-            ssaoColor: 2045258,
-            dustAlpha: 0.75,
-            dustDensity: 0.15,
-            dustFarDistance: 7000,
-            dustNearDistance: 5000,
-            dustParticle: "summer",
-            dustSize: 200,
+            ...themeConfig.graphicConfig,
         };
 
         const lightingData = {
@@ -328,7 +314,7 @@ export class BattleWorkflow {
             dominationLighting: { redPointColor: 16711680, redPointIntensity: 1, bluePointColor: 26367, bluePointIntensity: 1, neutralPointColor: 16777215, neutralPointIntensity: 0.7, attenuationBegin: 100, attenuationEnd: 1000 },
         };
 
-        const mapInitData = {
+        const mapInitData: any = {
             kick_period_ms: 300000,
             map_id: mapIdWithPrefix,
             mapId: ResourceManager.getIdlowById(battle.mapResourceId),
@@ -343,9 +329,13 @@ export class BattleWorkflow {
             sound_id: ResourceManager.getIdlowById("sounds/maps/sandbox_ambient"),
             map_graphic_data: JSON.stringify(mapGraphicData),
             reArmorEnabled: settings.reArmorEnabled,
-            bonusLightIntensity: 0,
+            bonusLightIntensity: themeConfig.bonusLightIntensity ?? 0,
             lighting: JSON.stringify(lightingData),
         };
+
+        if (themeConfig.bonusColorAdjust) {
+            mapInitData.bonusColorAdjust = themeConfig.bonusColorAdjust;
+        }
 
         client.sendPacket(new BattlePackets.InitMapPacket(JSON.stringify(mapInitData)));
 

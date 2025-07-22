@@ -7,7 +7,8 @@
     "build:resources": "ts-node scripts/buildResources.ts",
     "build": "npm run build:resources && tsc && cpx \"src/config/initial-config.json\" dist",
     "start": "node -r tsconfig-paths/register dist/server.js",
-    "dev": "npm run build:resources && ts-node-dev -r tsconfig-paths/register --respawn --transpile-only server.ts"
+    "dev": "npm run build:resources && ts-node-dev -r tsconfig-paths/register --respawn --transpile-only server.ts",
+    "parse:logs": "ts-node -r tsconfig-paths/register scripts/log-parser.ts"
   },
   "devDependencies": {
     "@types/bcrypt": "^5.0.2",

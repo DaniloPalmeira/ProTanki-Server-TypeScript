@@ -153,3 +153,4 @@ scripts/sfx_transformed.json
 scripts/visualizador.html
 scripts/alpha.jpg
 scripts/image.jpg
+src/types/*
