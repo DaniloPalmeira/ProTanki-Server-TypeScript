@@ -90,6 +90,8 @@ export class GarageWorkflow {
                 return;
             }
 
+            server.battleService.dropFlag(client.user!, client.currentBattle, client.battlePosition);
+
             client.battleState = "suicide";
             client.battleIncarnation++;
 
