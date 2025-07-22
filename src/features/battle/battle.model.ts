@@ -90,6 +90,8 @@ export class Battle {
     public flagPositionRed: IVector3 | null = null;
     public flagCarrierBlue: UserDocument | null = null;
     public flagCarrierRed: UserDocument | null = null;
+    public flagReturnTimerBlue: NodeJS.Timeout | null = null;
+    public flagReturnTimerRed: NodeJS.Timeout | null = null;
     public domPoints: IDomPointState[] = [];
 
     constructor(settings: IBattleCreationSettings) {

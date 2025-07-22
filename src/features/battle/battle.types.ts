@@ -231,3 +231,15 @@ export interface IDropFlag extends IPacket {
     position: IVector3 | null;
     team: number;
 }
+
+export interface IReturnFlagData {
+    team: number;
+    nickname: string | null;
+}
+export interface IReturnFlag extends IPacket, IReturnFlagData { }
+
+export interface ICaptureFlagData {
+    team: number;
+    nickname: string | null;
+}
+export interface ICaptureFlag extends IPacket, ICaptureFlagData { }

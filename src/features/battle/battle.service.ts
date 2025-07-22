@@ -9,7 +9,7 @@ import { mapGeometries } from "@/types/mapGeometries";
 import { mapSpawns } from "@/types/mapSpawns";
 import logger from "@/utils/logger";
 import { Battle, BattleMode } from "./battle.model";
-import { DestroyTankPacket, DropFlagPacket, RemoveTankPacket, TakeFlagPacket, UpdateSpectatorListPacket, UserDisconnectedDmPacket } from "./battle.packets";
+import { CaptureFlagPacket, DestroyTankPacket, DropFlagPacket, RemoveTankPacket, ReturnFlagPacket, TakeFlagPacket, UpdateSpectatorListPacket, UserDisconnectedDmPacket } from "./battle.packets";
 
 interface IDisconnectedPlayerInfo {
     battleId: string;
@@ -36,21 +36,103 @@ export class BattleService {
         });
     }
 
+    private _clearFlagReturnTimer(battle: Battle, flagTeam: "RED" | "BLUE"): void {
+        const timerProp = flagTeam === "RED" ? "flagReturnTimerRed" : "flagReturnTimerBlue";
+        if (battle[timerProp]) {
+            clearTimeout(battle[timerProp]!);
+            battle[timerProp] = null;
+            logger.info(`Cleared auto-return timer for ${flagTeam} flag in battle ${battle.battleId}`);
+        }
+    }
+
+    public returnFlagToBase(battle: Battle, flagTeam: "RED" | "BLUE", returningUser: UserDocument | null = null): void {
+        const teamId = flagTeam === "RED" ? 0 : 1;
+        const flagPositionProp = flagTeam === "RED" ? "flagPositionRed" : "flagPositionBlue";
+        const flagBasePositionProp = flagTeam === "RED" ? "flagBasePositionRed" : "flagBasePositionBlue";
+        const carrierProp = flagTeam === "RED" ? "flagCarrierRed" : "flagCarrierBlue";
+
+        if (battle[flagPositionProp] === battle[flagBasePositionProp] && !battle[carrierProp]) {
+            return;
+        }
+
+        battle[flagPositionProp] = battle[flagBasePositionProp];
+        battle[carrierProp] = null;
+        this._clearFlagReturnTimer(battle, flagTeam);
+
+        const nickname = returningUser ? returningUser.username : null;
+        logger.info(`${flagTeam} flag returned to base in battle ${battle.battleId}. Triggered by: ${nickname ?? "auto-timer/event"}`);
+
+        const returnPacket = new ReturnFlagPacket({ team: teamId, nickname });
+        this.broadcastToBattle(battle, returnPacket);
+    }
+
+    public captureFlag(user: UserDocument, battle: Battle, capturedFlagTeam: "RED" | "BLUE"): void {
+        const carrierProp = capturedFlagTeam === "RED" ? "flagCarrierRed" : "flagCarrierBlue";
+        if (battle[carrierProp]?.id !== user.id) return;
+
+        const teamId = capturedFlagTeam === "RED" ? 0 : 1;
+        logger.info(`User ${user.username} captured the ${capturedFlagTeam} flag in battle ${battle.battleId}`);
+
+        const capturePacket = new CaptureFlagPacket({ team: teamId, nickname: user.username });
+        this.broadcastToBattle(battle, capturePacket);
+
+        this.returnFlagToBase(battle, "RED");
+        this.returnFlagToBase(battle, "BLUE");
+    }
+
     public async checkPlayerPosition(client: GameClient): Promise<void> {
         const { user, currentBattle, battlePosition } = client;
         if (!user || !currentBattle || !battlePosition) return;
 
         if (currentBattle.settings.battleMode === BattleMode.CTF) {
-            const PICKUP_RADIUS_SQ = 100 * 100;
+            const PICKUP_RADIUS_SQ = 500 * 500;
+            const isOnRedTeam = currentBattle.usersRed.some((u) => u.id === user.id);
+            const isOnBlueTeam = currentBattle.usersBlue.some((u) => u.id === user.id);
+
+            if (isOnRedTeam) {
+                if (currentBattle.flagPositionRed && currentBattle.flagBasePositionRed && currentBattle.flagPositionRed.x !== currentBattle.flagBasePositionRed.x) {
+                    const dx = battlePosition.x - currentBattle.flagPositionRed.x;
+                    const dy = battlePosition.y - currentBattle.flagPositionRed.y;
+                    const dz = battlePosition.z - currentBattle.flagPositionRed.z;
+                    if (dx * dx + dy * dy + dz * dz < PICKUP_RADIUS_SQ) {
+                        this.returnFlagToBase(currentBattle, "RED", user);
+                    }
+                }
+                if (currentBattle.flagCarrierBlue?.id === user.id && currentBattle.flagBasePositionRed) {
+                    const dx = battlePosition.x - currentBattle.flagBasePositionRed.x;
+                    const dy = battlePosition.y - currentBattle.flagBasePositionRed.y;
+                    const dz = battlePosition.z - currentBattle.flagBasePositionRed.z;
+                    if (dx * dx + dy * dy + dz * dz < PICKUP_RADIUS_SQ) {
+                        this.captureFlag(user, currentBattle, "BLUE");
+                    }
+                }
+            } else if (isOnBlueTeam) {
+                if (currentBattle.flagPositionBlue && currentBattle.flagBasePositionBlue && currentBattle.flagPositionBlue.x !== currentBattle.flagBasePositionBlue.x) {
+                    const dx = battlePosition.x - currentBattle.flagPositionBlue.x;
+                    const dy = battlePosition.y - currentBattle.flagPositionBlue.y;
+                    const dz = battlePosition.z - currentBattle.flagPositionBlue.z;
+                    if (dx * dx + dy * dy + dz * dz < PICKUP_RADIUS_SQ) {
+                        this.returnFlagToBase(currentBattle, "BLUE", user);
+                    }
+                }
+                if (currentBattle.flagCarrierRed?.id === user.id && currentBattle.flagBasePositionBlue) {
+                    const dx = battlePosition.x - currentBattle.flagBasePositionBlue.x;
+                    const dy = battlePosition.y - currentBattle.flagBasePositionBlue.y;
+                    const dz = battlePosition.z - currentBattle.flagBasePositionBlue.z;
+                    if (dx * dx + dy * dy + dz * dz < PICKUP_RADIUS_SQ) {
+                        this.captureFlag(user, currentBattle, "RED");
+                    }
+                }
+            }
 
             if (currentBattle.flagPositionRed) {
                 const dx = battlePosition.x - currentBattle.flagPositionRed.x;
                 const dy = battlePosition.y - currentBattle.flagPositionRed.y;
                 const dz = battlePosition.z - currentBattle.flagPositionRed.z;
-                if ((dx * dx + dy * dy + dz * dz) < PICKUP_RADIUS_SQ) {
+                if (dx * dx + dy * dy + dz * dz < PICKUP_RADIUS_SQ) {
                     try {
                         this.takeFlag(user, currentBattle, "RED");
-                    } catch (e: any) { /* Ignorar erros como pegar a própria bandeira */ }
+                    } catch (e: any) { }
                 }
             }
 
@@ -58,10 +140,10 @@ export class BattleService {
                 const dx = battlePosition.x - currentBattle.flagPositionBlue.x;
                 const dy = battlePosition.y - currentBattle.flagPositionBlue.y;
                 const dz = battlePosition.z - currentBattle.flagPositionBlue.z;
-                if ((dx * dx + dy * dy + dz * dz) < PICKUP_RADIUS_SQ) {
+                if (dx * dx + dy * dy + dz * dz < PICKUP_RADIUS_SQ) {
                     try {
                         this.takeFlag(user, currentBattle, "BLUE");
-                    } catch (e: any) { /* Ignorar erros como pegar a própria bandeira */ }
+                    } catch (e: any) { }
                 }
             }
         }
@@ -92,7 +174,12 @@ export class BattleService {
         logger.info(`User ${user.username} entered a special geometry zone with action: ${action}`);
 
         if (action === "kill") {
-            this.dropFlag(user, currentBattle, client.battlePosition);
+            if (currentBattle.flagCarrierRed?.id === user.id) {
+                this.returnFlagToBase(currentBattle, "RED");
+            }
+            if (currentBattle.flagCarrierBlue?.id === user.id) {
+                this.returnFlagToBase(currentBattle, "BLUE");
+            }
             if (client.battleState === "suicide") return;
 
             client.battleState = "suicide";
@@ -343,6 +430,8 @@ export class BattleService {
         if ([...battle.users, ...battle.usersBlue, ...battle.usersRed].length === 0) {
             battle.roundStarted = false;
             battle.roundStartTime = null;
+            this._clearFlagReturnTimer(battle, "RED");
+            this._clearFlagReturnTimer(battle, "BLUE");
             logger.info(`Battle ${battle.battleId} is now empty. Round stopped and timer reset.`);
         }
 
@@ -352,11 +441,16 @@ export class BattleService {
     public takeFlag(user: UserDocument, battle: Battle, flagTeam: "RED" | "BLUE"): void {
         const teamId = flagTeam === "RED" ? 0 : 1;
 
-        const isOnRedTeam = battle.usersRed.some(u => u.id === user.id);
-        const isOnBlueTeam = battle.usersBlue.some(u => u.id === user.id);
+        const isOnRedTeam = battle.usersRed.some((u) => u.id === user.id);
+        const isOnBlueTeam = battle.usersBlue.some((u) => u.id === user.id);
 
         if ((flagTeam === "RED" && isOnRedTeam) || (flagTeam === "BLUE" && isOnBlueTeam)) {
             throw new Error("Cannot take your own team's flag.");
+        }
+
+        const flagPositionProp = flagTeam === "RED" ? "flagPositionRed" : "flagPositionBlue";
+        if (battle[flagPositionProp]) {
+            this._clearFlagReturnTimer(battle, flagTeam);
         }
 
         if (flagTeam === "RED") {
@@ -400,6 +494,16 @@ export class BattleService {
             logger.info(`User ${user.username} dropped the ${teamName} flag in battle ${battle.battleId} at ${JSON.stringify(dropPosition)}`);
             const dropFlagPacket = new DropFlagPacket(dropPosition, droppedTeamId);
             this.broadcastToBattle(battle, dropFlagPacket);
+
+            const flagTeamTyped = teamName as "RED" | "BLUE";
+            this._clearFlagReturnTimer(battle, flagTeamTyped);
+            const timerProp = flagTeamTyped === "RED" ? "flagReturnTimerRed" : "flagReturnTimerBlue";
+
+            battle[timerProp] = setTimeout(() => {
+                this.returnFlagToBase(battle, flagTeamTyped);
+            }, 30000);
+
+            logger.info(`Started 30s auto-return timer for ${teamName} flag in battle ${battle.battleId}`);
         }
     }
 }
