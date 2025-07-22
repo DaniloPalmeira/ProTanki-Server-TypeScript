@@ -92,6 +92,8 @@ export class Battle {
     public flagCarrierRed: UserDocument | null = null;
     public flagReturnTimerBlue: NodeJS.Timeout | null = null;
     public flagReturnTimerRed: NodeJS.Timeout | null = null;
+    public flagLastDroppedByRed: { userId: string; timestamp: number } | null = null;
+    public flagLastDroppedByBlue: { userId: string; timestamp: number } | null = null;
     public domPoints: IDomPointState[] = [];
 
     constructor(settings: IBattleCreationSettings) {

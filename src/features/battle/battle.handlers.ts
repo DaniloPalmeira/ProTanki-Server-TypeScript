@@ -119,7 +119,7 @@ export class ExitFromBattleHandler implements IPacketHandler<BattlePackets.ExitF
         }
 
         if (!isSpectator) {
-            server.battleService.announceTankRemoval(user, battle);
+            server.battleService.announceTankRemoval(user, battle, client.battlePosition);
         }
         await server.battleService.finalizeBattleExit(user, battle, client.friendsCache, isSpectator);
 

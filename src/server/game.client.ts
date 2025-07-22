@@ -201,7 +201,7 @@ export class GameClient {
 
     if (this.user) {
       if (this.currentBattle) {
-        this.server.battleService.handlePlayerDisconnection(this.user, this.currentBattle, this.isSpectator);
+        this.server.battleService.handlePlayerDisconnection(this);
       }
       this.server.notifySubscribersOfStatusChange(this.user.username, false);
     }

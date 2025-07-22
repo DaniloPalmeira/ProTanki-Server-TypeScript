@@ -45,6 +45,18 @@ export class BattleService {
         }
     }
 
+    private _resetFlagState(battle: Battle, flagTeam: "RED" | "BLUE"): void {
+        const flagPositionProp = flagTeam === "RED" ? "flagPositionRed" : "flagPositionBlue";
+        const flagBasePositionProp = flagTeam === "RED" ? "flagBasePositionRed" : "flagBasePositionBlue";
+        const carrierProp = flagTeam === "RED" ? "flagCarrierRed" : "flagCarrierBlue";
+        const lastDroppedProp = flagTeam === "RED" ? "flagLastDroppedByRed" : "flagLastDroppedByBlue";
+
+        battle[flagPositionProp] = battle[flagBasePositionProp];
+        battle[carrierProp] = null;
+        battle[lastDroppedProp] = null;
+        this._clearFlagReturnTimer(battle, flagTeam);
+    }
+
     public returnFlagToBase(battle: Battle, flagTeam: "RED" | "BLUE", returningUser: UserDocument | null = null): void {
         const teamId = flagTeam === "RED" ? 0 : 1;
         const flagPositionProp = flagTeam === "RED" ? "flagPositionRed" : "flagPositionBlue";
@@ -55,9 +67,7 @@ export class BattleService {
             return;
         }
 
-        battle[flagPositionProp] = battle[flagBasePositionProp];
-        battle[carrierProp] = null;
-        this._clearFlagReturnTimer(battle, flagTeam);
+        this._resetFlagState(battle, flagTeam);
 
         const nickname = returningUser ? returningUser.username : null;
         logger.info(`${flagTeam} flag returned to base in battle ${battle.battleId}. Triggered by: ${nickname ?? "auto-timer/event"}`);
@@ -70,14 +80,15 @@ export class BattleService {
         const carrierProp = capturedFlagTeam === "RED" ? "flagCarrierRed" : "flagCarrierBlue";
         if (battle[carrierProp]?.id !== user.id) return;
 
-        const teamId = capturedFlagTeam === "RED" ? 0 : 1;
-        logger.info(`User ${user.username} captured the ${capturedFlagTeam} flag in battle ${battle.battleId}`);
+        const capturingTeamId = capturedFlagTeam === "RED" ? 1 : 0;
+        const capturingTeamName = capturingTeamId === 0 ? "RED" : "BLUE";
 
-        const capturePacket = new CaptureFlagPacket({ team: teamId, nickname: user.username });
+        logger.info(`Team ${capturingTeamName} (${user.username}) captured the ${capturedFlagTeam} flag in battle ${battle.battleId}`);
+
+        const capturePacket = new CaptureFlagPacket({ team: capturingTeamId, nickname: user.username });
         this.broadcastToBattle(battle, capturePacket);
 
-        this.returnFlagToBase(battle, "RED");
-        this.returnFlagToBase(battle, "BLUE");
+        this._resetFlagState(battle, capturedFlagTeam);
     }
 
     public async checkPlayerPosition(client: GameClient): Promise<void> {
@@ -85,6 +96,8 @@ export class BattleService {
         if (!user || !currentBattle || !battlePosition) return;
 
         if (currentBattle.settings.battleMode === BattleMode.CTF) {
+            if (client.battleState !== "active") return;
+
             const PICKUP_RADIUS_SQ = 500 * 500;
             const isOnRedTeam = currentBattle.usersRed.some((u) => u.id === user.id);
             const isOnBlueTeam = currentBattle.usersBlue.some((u) => u.id === user.id);
@@ -267,7 +280,8 @@ export class BattleService {
         logger.info(`Broadcasted spectator list update for battle ${battle.battleId}`);
     }
 
-    public announceTankRemoval(user: UserDocument, battle: Battle): void {
+    public announceTankRemoval(user: UserDocument, battle: Battle, lastPosition: IVector3 | null): void {
+        this.dropFlag(user, battle, lastPosition);
         const remainingParticipants = battle.getAllParticipants().filter((p) => p.id !== user.id);
 
         const removeTankPacket = new RemoveTankPacket(user.username);
@@ -286,10 +300,6 @@ export class BattleService {
     }
 
     public async finalizeBattleExit(user: UserDocument, battle: Battle, friendsToNotify?: string[], isSpectator: boolean = false): Promise<void> {
-        const client = this.server.findClientByUsername(user.username);
-        const lastPosition = client?.battlePosition ?? null;
-        this.dropFlag(user, battle, lastPosition);
-
         if (!isSpectator) {
             const battleDetailWatchers = this.server.getClients().filter((c) => (c.getState() === "chat_lobby" || c.getState() === "battle_lobby") && c.lastViewedBattleId === battle.battleId);
             if (battleDetailWatchers.length > 0) {
@@ -324,21 +334,24 @@ export class BattleService {
         this.removeUserFromBattle(user, battle);
     }
 
-    public handlePlayerDisconnection(user: UserDocument, battle: Battle, isSpectator: boolean): void {
+    public handlePlayerDisconnection(client: GameClient): void {
+        const { user, currentBattle, isSpectator, battlePosition } = client;
+        if (!user || !currentBattle) return;
+
         if (isSpectator) {
-            logger.info(`Spectator ${user.username} disconnected from battle ${battle.battleId}. Finalizing immediately.`);
-            this.finalizeDisconnection(user, battle, isSpectator);
+            logger.info(`Spectator ${user.username} disconnected from battle ${currentBattle.battleId}. Finalizing immediately.`);
+            this.finalizeDisconnection(user, currentBattle, isSpectator);
         } else {
-            logger.info(`Player ${user.username} disconnected from battle ${battle.battleId}. Starting 1-minute reconnect timer.`);
-            this.announceTankRemoval(user, battle);
+            logger.info(`Player ${user.username} disconnected from battle ${currentBattle.battleId}. Starting 1-minute reconnect timer.`);
+            this.announceTankRemoval(user, currentBattle, battlePosition);
 
             const timeoutId = setTimeout(() => {
                 logger.info(`Reconnect timer for ${user.username} expired. Finalizing disconnection.`);
                 this.disconnectedPlayers.delete(user.id);
-                this.finalizeDisconnection(user, battle, isSpectator);
+                this.finalizeDisconnection(user, currentBattle, isSpectator);
             }, 60000);
 
-            this.disconnectedPlayers.set(user.id, { battleId: battle.battleId, timeoutId });
+            this.disconnectedPlayers.set(user.id, { battleId: currentBattle.battleId, timeoutId });
         }
     }
 
@@ -439,6 +452,17 @@ export class BattleService {
     }
 
     public takeFlag(user: UserDocument, battle: Battle, flagTeam: "RED" | "BLUE"): void {
+        const now = Date.now();
+        const lastDroppedByRed = battle.flagLastDroppedByRed;
+        const lastDroppedByBlue = battle.flagLastDroppedByBlue;
+
+        if (flagTeam === "BLUE" && lastDroppedByBlue && lastDroppedByBlue.userId === user.id && now - lastDroppedByBlue.timestamp < 5000) {
+            throw new Error("Cannot pick up the flag so soon after dropping it.");
+        }
+        if (flagTeam === "RED" && lastDroppedByRed && lastDroppedByRed.userId === user.id && now - lastDroppedByRed.timestamp < 5000) {
+            throw new Error("Cannot pick up the flag so soon after dropping it.");
+        }
+
         const teamId = flagTeam === "RED" ? 0 : 1;
 
         const isOnRedTeam = battle.usersRed.some((u) => u.id === user.id);
@@ -481,11 +505,13 @@ export class BattleService {
         if (battle.flagCarrierRed?.id === user.id) {
             battle.flagCarrierRed = null;
             battle.flagPositionRed = dropPosition;
+            battle.flagLastDroppedByRed = { userId: user.id, timestamp: Date.now() };
             droppedTeamId = 0;
             teamName = "RED";
         } else if (battle.flagCarrierBlue?.id === user.id) {
             battle.flagCarrierBlue = null;
             battle.flagPositionBlue = dropPosition;
+            battle.flagLastDroppedByBlue = { userId: user.id, timestamp: Date.now() };
             droppedTeamId = 1;
             teamName = "BLUE";
         }
