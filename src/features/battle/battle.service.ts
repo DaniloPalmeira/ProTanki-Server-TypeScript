@@ -1,5 +1,6 @@
 import * as LobbyPackets from "@/features/lobby/lobby.packets";
 import { LobbyService } from "@/features/lobby/lobby.service";
+import { IPacket } from "@/packets/packet.interfaces";
 import { GameClient } from "@/server/game.client";
 import { GameServer } from "@/server/game.server";
 import { UserDocument } from "@/shared/models/user.model";
@@ -8,7 +9,7 @@ import { mapGeometries } from "@/types/mapGeometries";
 import { mapSpawns } from "@/types/mapSpawns";
 import logger from "@/utils/logger";
 import { Battle, BattleMode } from "./battle.model";
-import { DestroyTankPacket, RemoveTankPacket, UpdateSpectatorListPacket, UserDisconnectedDmPacket } from "./battle.packets";
+import { DestroyTankPacket, DropFlagPacket, RemoveTankPacket, TakeFlagPacket, UpdateSpectatorListPacket, UserDisconnectedDmPacket } from "./battle.packets";
 
 interface IDisconnectedPlayerInfo {
     battleId: string;
@@ -25,9 +26,45 @@ export class BattleService {
         this.lobbyService = lobbyService;
     }
 
-    public checkPlayerPosition(client: GameClient): void {
+    private broadcastToBattle(battle: Battle, packet: IPacket): void {
+        const allParticipants = battle.getAllParticipants();
+        allParticipants.forEach((participant) => {
+            const pClient = this.server.findClientByUsername(participant.username);
+            if (pClient && pClient.currentBattle?.battleId === battle.battleId) {
+                pClient.sendPacket(packet);
+            }
+        });
+    }
+
+    public async checkPlayerPosition(client: GameClient): Promise<void> {
         const { user, currentBattle, battlePosition } = client;
         if (!user || !currentBattle || !battlePosition) return;
+
+        if (currentBattle.settings.battleMode === BattleMode.CTF) {
+            const PICKUP_RADIUS_SQ = 100 * 100;
+
+            if (currentBattle.flagPositionRed) {
+                const dx = battlePosition.x - currentBattle.flagPositionRed.x;
+                const dy = battlePosition.y - currentBattle.flagPositionRed.y;
+                const dz = battlePosition.z - currentBattle.flagPositionRed.z;
+                if ((dx * dx + dy * dy + dz * dz) < PICKUP_RADIUS_SQ) {
+                    try {
+                        this.takeFlag(user, currentBattle, "RED");
+                    } catch (e: any) { /* Ignorar erros como pegar a própria bandeira */ }
+                }
+            }
+
+            if (currentBattle.flagPositionBlue) {
+                const dx = battlePosition.x - currentBattle.flagPositionBlue.x;
+                const dy = battlePosition.y - currentBattle.flagPositionBlue.y;
+                const dz = battlePosition.z - currentBattle.flagPositionBlue.z;
+                if ((dx * dx + dy * dy + dz * dz) < PICKUP_RADIUS_SQ) {
+                    try {
+                        this.takeFlag(user, currentBattle, "BLUE");
+                    } catch (e: any) { /* Ignorar erros como pegar a própria bandeira */ }
+                }
+            }
+        }
 
         const geometries = mapGeometries[currentBattle.mapResourceId];
         if (!geometries) return;
@@ -42,19 +79,20 @@ export class BattleService {
                 battlePosition.z <= box.maxZ;
 
             if (isInside) {
-                this.handleSpecialGeometryAction(client, box.action);
+                await this.handleSpecialGeometryAction(client, box.action);
                 break;
             }
         }
     }
 
-    private handleSpecialGeometryAction(client: GameClient, action: "kill" | "kick"): void {
+    private async handleSpecialGeometryAction(client: GameClient, action: "kill" | "kick"): Promise<void> {
         const { user, currentBattle } = client;
         if (!user || !currentBattle) return;
 
         logger.info(`User ${user.username} entered a special geometry zone with action: ${action}`);
 
         if (action === "kill") {
+            this.dropFlag(user, currentBattle, client.battlePosition);
             if (client.battleState === "suicide") return;
 
             client.battleState = "suicide";
@@ -71,7 +109,6 @@ export class BattleService {
             });
         } else if (action === "kick") {
             logger.warn(`Usuário ${user.username} foi kickado por entrar em uma área proibida.`);
-            // TODO: Implementar um pacote de notificação ao cliente para o chute.
             setTimeout(() => client.closeConnection(), 100);
         }
     }
@@ -162,6 +199,10 @@ export class BattleService {
     }
 
     public async finalizeBattleExit(user: UserDocument, battle: Battle, friendsToNotify?: string[], isSpectator: boolean = false): Promise<void> {
+        const client = this.server.findClientByUsername(user.username);
+        const lastPosition = client?.battlePosition ?? null;
+        this.dropFlag(user, battle, lastPosition);
+
         if (!isSpectator) {
             const battleDetailWatchers = this.server.getClients().filter((c) => (c.getState() === "chat_lobby" || c.getState() === "battle_lobby") && c.lastViewedBattleId === battle.battleId);
             if (battleDetailWatchers.length > 0) {
@@ -306,5 +347,59 @@ export class BattleService {
         }
 
         logger.info(`User ${user.username} removed from battle ${battle.battleId}`);
+    }
+
+    public takeFlag(user: UserDocument, battle: Battle, flagTeam: "RED" | "BLUE"): void {
+        const teamId = flagTeam === "RED" ? 0 : 1;
+
+        const isOnRedTeam = battle.usersRed.some(u => u.id === user.id);
+        const isOnBlueTeam = battle.usersBlue.some(u => u.id === user.id);
+
+        if ((flagTeam === "RED" && isOnRedTeam) || (flagTeam === "BLUE" && isOnBlueTeam)) {
+            throw new Error("Cannot take your own team's flag.");
+        }
+
+        if (flagTeam === "RED") {
+            if (battle.flagCarrierRed) throw new Error("Red flag is already taken.");
+            battle.flagCarrierRed = user;
+            battle.flagPositionRed = null;
+        } else {
+            if (battle.flagCarrierBlue) throw new Error("Blue flag is already taken.");
+            battle.flagCarrierBlue = user;
+            battle.flagPositionBlue = null;
+        }
+
+        logger.info(`User ${user.username} took the ${flagTeam} flag in battle ${battle.battleId}`);
+
+        const takeFlagPacket = new TakeFlagPacket(user.username, teamId);
+        this.broadcastToBattle(battle, takeFlagPacket);
+    }
+
+    public dropFlag(user: UserDocument, battle: Battle, dropPosition: IVector3 | null): void {
+        if (!dropPosition) {
+            logger.warn(`Attempted to drop flag for ${user.username} but no drop position was provided.`);
+            return;
+        }
+
+        let droppedTeamId: number | null = null;
+        let teamName: string | null = null;
+
+        if (battle.flagCarrierRed?.id === user.id) {
+            battle.flagCarrierRed = null;
+            battle.flagPositionRed = dropPosition;
+            droppedTeamId = 0;
+            teamName = "RED";
+        } else if (battle.flagCarrierBlue?.id === user.id) {
+            battle.flagCarrierBlue = null;
+            battle.flagPositionBlue = dropPosition;
+            droppedTeamId = 1;
+            teamName = "BLUE";
+        }
+
+        if (droppedTeamId !== null) {
+            logger.info(`User ${user.username} dropped the ${teamName} flag in battle ${battle.battleId} at ${JSON.stringify(dropPosition)}`);
+            const dropFlagPacket = new DropFlagPacket(dropPosition, droppedTeamId);
+            this.broadcastToBattle(battle, dropFlagPacket);
+        }
     }
 }

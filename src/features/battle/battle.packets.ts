@@ -395,3 +395,27 @@ export class WeaponPhysicsPacket extends BasePacket implements BattleTypes.IWeap
     write(): Buffer { return new BufferWriter().writeOptionalString(this.jsonData).getBuffer(); }
     static getId(): number { return -2124388778; }
 }
+
+export class TakeFlagPacket extends BasePacket implements BattleTypes.ITakeFlag {
+    nickname: string | null;
+    team: number;
+    constructor(nickname: string | null = null, team: number = 0) { super(); this.nickname = nickname; this.team = team; }
+    read(buffer: Buffer): void { const r = new BufferReader(buffer); this.nickname = r.readOptionalString(); this.team = r.readInt32BE(); }
+    write(): Buffer { const w = new BufferWriter(); w.writeOptionalString(this.nickname); w.writeInt32BE(this.team); return w.getBuffer(); }
+    static getId(): number { return -1282406496; }
+}
+
+export class DropFlagRequestPacket extends BasePacket implements BattleTypes.IDropFlagRequest {
+    read(buffer: Buffer): void { }
+    write(): Buffer { return new BufferWriter().getBuffer(); }
+    static getId(): number { return -1832611824; }
+}
+
+export class DropFlagPacket extends BasePacket implements BattleTypes.IDropFlag {
+    position: BattleTypes.IVector3 | null;
+    team: number;
+    constructor(position: BattleTypes.IVector3 | null = null, team: number = 0) { super(); this.position = position; this.team = team; }
+    read(buffer: Buffer): void { const r = new BufferReader(buffer); this.position = r.readOptionalVector3(); this.team = r.readInt32BE(); }
+    write(): Buffer { const w = new BufferWriter(); w.writeOptionalVector3(this.position); w.writeInt32BE(this.team); return w.getBuffer(); }
+    static getId(): number { return 1925237062; }
+}

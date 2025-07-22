@@ -219,3 +219,15 @@ export interface IUserDisconnectedDm extends IPacket { nickname: string | null; 
 export interface IWeaponPhysics extends IPacket {
     jsonData: string | null;
 }
+
+export interface ITakeFlag extends IPacket {
+    nickname: string | null;
+    team: number;
+}
+
+export interface IDropFlagRequest extends IEmpty { }
+
+export interface IDropFlag extends IPacket {
+    position: IVector3 | null;
+    team: number;
+}

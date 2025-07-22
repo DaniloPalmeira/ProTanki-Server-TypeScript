@@ -144,7 +144,7 @@ export class ExitFromBattleHandler implements IPacketHandler<BattlePackets.ExitF
 export class FullMoveCommandHandler implements IPacketHandler<BattlePackets.FullMoveCommandPacket> {
     public readonly packetId = BattlePackets.FullMoveCommandPacket.getId();
 
-    public execute(client: GameClient, server: GameServer, packet: BattlePackets.FullMoveCommandPacket): void {
+    public async execute(client: GameClient, server: GameServer, packet: BattlePackets.FullMoveCommandPacket): Promise<void> {
         if (!client.user || !client.currentBattle) {
             return;
         }
@@ -178,14 +178,14 @@ export class FullMoveCommandHandler implements IPacketHandler<BattlePackets.Full
             }
         }
 
-        server.battleService.checkPlayerPosition(client);
+        await server.battleService.checkPlayerPosition(client);
     }
 }
 
 export class MoveCommandHandler implements IPacketHandler<BattlePackets.MoveCommandPacket> {
     public readonly packetId = BattlePackets.MoveCommandPacket.getId();
 
-    public execute(client: GameClient, server: GameServer, packet: BattlePackets.MoveCommandPacket): void {
+    public async execute(client: GameClient, server: GameServer, packet: BattlePackets.MoveCommandPacket): Promise<void> {
         if (!client.user || !client.currentBattle) {
             return;
         }
@@ -218,7 +218,7 @@ export class MoveCommandHandler implements IPacketHandler<BattlePackets.MoveComm
             }
         }
 
-        server.battleService.checkPlayerPosition(client);
+        await server.battleService.checkPlayerPosition(client);
     }
 }
 
@@ -516,6 +516,8 @@ export class SuicidePacketHandler implements IPacketHandler<BattlePackets.Suicid
 
             logger.info(`Tank for ${user.username} was destroyed by self-destruct.`);
 
+            server.battleService.dropFlag(user, currentBattle, client.battlePosition);
+
             const destroyPacket = new BattlePackets.DestroyTankPacket(user.username, 3000);
 
             const allParticipants = currentBattle.getAllParticipants();
@@ -537,5 +539,27 @@ export class TimeCheckerResponseHandler implements IPacketHandler<BattlePackets.
 
     public execute(client: GameClient, server: GameServer, packet: BattlePackets.TimeCheckerResponsePacket): void {
         client.handleTimeCheckerResponse(packet.clientTime, packet.serverTime);
+    }
+}
+
+export class DropFlagRequestHandler implements IPacketHandler<BattlePackets.DropFlagRequestPacket> {
+    public readonly packetId = BattlePackets.DropFlagRequestPacket.getId();
+
+    public async execute(client: GameClient, server: GameServer, packet: BattlePackets.DropFlagRequestPacket): Promise<void> {
+        const user = client.user;
+        const battle = client.currentBattle;
+
+        if (!user || !battle || client.isSpectator) {
+            return;
+        }
+
+        try {
+            server.battleService.dropFlag(user, battle, client.battlePosition);
+        } catch (error: any) {
+            logger.warn(`User ${user.username} failed to drop flag in battle ${battle.battleId}`, {
+                error: error.message,
+                client: client.getRemoteAddress(),
+            });
+        }
     }
 }
